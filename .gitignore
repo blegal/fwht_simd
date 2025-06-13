@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+src/.DS_Store
+.idea/vcs.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/fwht_simd.iml
+.idea/editor.xml
+.idea/.name
+.DS_Store
