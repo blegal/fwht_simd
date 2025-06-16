@@ -84,6 +84,19 @@ inline void fwht_tuile( const float inp[8], float outp[8] )
 //
 //
 template < >
+inline void fwht<8>( float inp[8] )
+{
+	float part_1[8];
+	for(int i=0; i<4; i++)
+		part_1[i] = inp[i] + inp[i + 4];
+	fwht_tuile( part_1, inp );
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template < >
 inline void fwht<16>( float inp[16] )
 {
 	float part_1[8];
