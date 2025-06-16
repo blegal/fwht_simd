@@ -17,9 +17,9 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
 #if defined(__ARM_NEON__)
-	#include <arm_neon.h>
-#endif
+#include <arm_neon.h>
 #include <string>
 
 template <int GF>
@@ -445,3 +445,4 @@ template < > inline void fwht_neon<256>(float x[], float y[])
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
+#endif

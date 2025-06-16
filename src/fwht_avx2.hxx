@@ -17,9 +17,16 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#pragma once
+#ifdef __AVX2__
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
+#include <immintrin.h>
 
 template <int GF>
-inline void NB_avx::fwht(float x[ ])
+inline void fwht_avx2(float x[ ])
 {
 	assert( x !=   0);
 	assert( true );
@@ -27,7 +34,7 @@ inline void NB_avx::fwht(float x[ ])
 }
 
 template <int GF>
-inline void NB_avx::fwht(float x[ ], float y[ ])
+inline void fwht_avx2(float x[ ], float y[ ])
 {
 	assert( x !=   0);
 	assert( y !=   0);
@@ -271,14 +278,14 @@ inline void fwht32_avx2(__m256* B0, __m256* B1, __m256* B2, __m256* B3)
 //
 //
 template < >
-inline void NB_avx::fwht<8>(float x[])
+inline void fwht_avx2<8>(float x[])
 {
 	const __m256 C0 = _mm256_loadu_ps ( x );
 	const __m256 D0 = fwht8_avx2 ( C0 );
 	_mm256_storeu_ps( x, D0 );
 }
 template < >
-inline void NB_avx::fwht<8>(float x[], float y[])
+inline void fwht_avx2<8>(float x[], float y[])
 {
 	const __m256 C0 = _mm256_loadu_ps ( x );
 	const __m256 D0 = fwht8_avx2 ( C0 );
@@ -290,12 +297,12 @@ inline void NB_avx::fwht<8>(float x[], float y[])
 //
 //
 template < >
-inline void NB_avx::fwht<16>(float x[])
+inline void fwht_avx2<16>(float x[])
 {
 	fwht16_flat_avx2(x, x);
 }
 template < >
-inline void NB_avx::fwht<16>(float x[], float y[])
+inline void fwht_avx2<16>(float x[], float y[])
 {
 	fwht16_flat_avx2(x, y);
 }
@@ -305,12 +312,12 @@ inline void NB_avx::fwht<16>(float x[], float y[])
 //
 //
 template < >
-inline void NB_avx::fwht<32>(float x[])
+inline void fwht_avx2<32>(float x[])
 {
 	fwht32_flat_avx2(x, x);
 }
 template < >
-inline void fwht<32>(float x[], float y[])
+inline void fwht_avx2<32>(float x[], float y[])
 {
 	fwht32_flat_avx2(x, y);
 }
@@ -320,12 +327,12 @@ inline void fwht<32>(float x[], float y[])
 //
 //
 template < >
-inline void fwht<64>(float x[])
+inline void fwht_avx2<64>(float x[])
 {
 	fwht64_flat_avx2(x, x);
 }
 template < >
-inline void fwht<64>(float x[], float y[])
+inline void fwht_avx2<64>(float x[], float y[])
 {
 	fwht64_flat_avx2(x, y);
 }
@@ -335,12 +342,12 @@ inline void fwht<64>(float x[], float y[])
 //
 //
 template < >
-inline void fwht<128>(float x[])
+inline void fwht_avx2<128>(float x[])
 {
 	fwht128_flat_avx2(x, x);
 }
 template < >
-inline void fwht<128>(float x[], float y[])
+inline void fwht_avx2<128>(float x[], float y[])
 {
 	fwht128_flat_avx2(x, y);
 }
@@ -350,13 +357,14 @@ inline void fwht<128>(float x[], float y[])
 //
 //
 template < >
-inline void fwht<256>(float x[])
+inline void fwht_avx2<256>(float x[])
 {
 	fwht256_flat_avx2(x, x);
 }
 
 template < >
-inline void NB_avx::fwht<256>(float x[], float y[])
+inline void fwht_avx2<256>(float x[], float y[])
 {
 	fwht256_flat_avx2(x, y);
 }
+#endif

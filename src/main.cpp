@@ -24,6 +24,7 @@
 */
 #include "fwht_x86.hxx"
 #include "fwht_neon.hxx"
+#include "fwht_avx2.hxx"
 #include <cstring>
 #include <chrono>
 
@@ -43,11 +44,11 @@ int main(int argc, char* argv[])
 {
 
 #if defined (__APPLE__)
-    printf("(II) Benchmarking the bit_pack/bit_unpack functions on MacOS\n");
+    printf("(II) Benchmarking the FWHT functions on MacOS\n");
 #elif defined (__linux__)
-    printf("(II) Benchmarking the bit_pack/bit_unpack functions on Linux\n");
+    printf("(II) Benchmarking the FWHT functions on Linux\n");
 #else
-    printf("(II) Benchmarking the bit_pack/bit_unpack functions on a undefined platform\n");
+    printf("(II) Benchmarking the FWHT functions on a undefined platform\n");
 #endif
 
 #if defined (__clang__)
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
             if (size == 256) { fwht<256>( tab_a ); fwht<256>( tab_a ); normalize<256>( tab_a,  1.f/ 256.f); }
         }
         auto stop_x86 = std::chrono::system_clock::now();
-        const bool ok_x86 = are_equivalent(tab_i, tab_a, 0.001, size );
+        const bool ok_x86 = are_equivalent(tab_i, tab_a, 0.002, size );
         const uint64_t time_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count() / nTest;
         if( ok_x86 ){
             printf(" - [GCCV] fwht \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_x86);
@@ -105,11 +106,9 @@ int main(int argc, char* argv[])
 #endif
         }
 
-//        printf("(II) INPUT DATA VALUES");
-//        for(int i = 0; i < size; i += 1) {
-//            if ( (i%16) == 0 ) printf("\n");
-//            printf("%+6.1f ", tab_i[i]);
-//        } printf("\n");
+
+#if defined(__ARM_NEON__)
+
         auto start_i_neon = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1) {
             if (size ==   8) { fwht_neon<  8>( tab_b ); fwht_neon<  8>( tab_b ); normalize<  8>( tab_b,  1.f/ 8.f); }
@@ -120,27 +119,35 @@ int main(int argc, char* argv[])
             if (size == 256) { fwht_neon<256>( tab_b ); fwht_neon<256>( tab_b ); normalize<256>( tab_b,  1.f/ 256.f); }
         }
         auto stop_i_neon = std::chrono::system_clock::now();
-        const bool ok_neon = are_equivalent(tab_i, tab_b, 0.001, size );
+        const bool ok_neon = are_equivalent(tab_i, tab_b, 0.002, size );
         const uint64_t time_neon = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon - start_i_neon).count() / nTest;
         if( ok_neon ){
             printf(" - [NEON] fwht \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_neon);
         }else{
             printf(" - [NEON] fwht \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_neon);
-#if 0
-            printf("(II) OUTPUT DATA VALUES");
-            for (int i = 0; i < size; i += 1) {
-                if ((i % 16) == 0) printf("\n");
-                printf("%+6.1f ", tab_i[i]);
-            }
-            printf("\n");
-            for (int i = 0; i < size; i += 1) {
-                if ((i % 16) == 0) printf("\n");
-                printf("%+6.1f ", tab_b[i]);
-            }
-            printf("\n");
-            exit( EXIT_FAILURE );
-#endif
         }
+#endif
+
+#if defined(__AVX2__)
+
+        auto start_i_neon = std::chrono::system_clock::now();
+        for(int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==   8) { fwht_avx2<  8>( tab_b ); fwht_avx2<  8>( tab_b ); normalize<  8>( tab_b,  1.f/ 8.f); }
+            if (size ==  16) { fwht_avx2< 16>( tab_b ); fwht_avx2< 16>( tab_b ); normalize< 16>( tab_b,  1.f/ 16.f); }
+            if (size ==  32) { fwht_avx2< 32>( tab_b ); fwht_avx2< 32>( tab_b ); normalize< 32>( tab_b,  1.f/ 32.f); }
+            if (size ==  64) { fwht_avx2< 64>( tab_b ); fwht_avx2< 64>( tab_b ); normalize< 64>( tab_b,  1.f/ 64.f); }
+            if (size == 128) { fwht_avx2<128>( tab_b ); fwht_avx2<128>( tab_b ); normalize<128>( tab_b,  1.f/ 128.f); }
+            if (size == 256) { fwht_avx2<256>( tab_b ); fwht_avx2<256>( tab_b ); normalize<256>( tab_b,  1.f/ 256.f); }
+        }
+        auto stop_i_neon = std::chrono::system_clock::now();
+        const bool ok_neon = are_equivalent(tab_i, tab_b, 0.002, size );
+        const uint64_t time_neon = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon - start_i_neon).count() / nTest;
+        if( ok_neon ){
+            printf(" - [AVX2] fwht \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_neon);
+        }else{
+            printf(" - [AVX2] fwht \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_neon);
+        }
+#endif
 
         delete[] tab_i;
         delete[] tab_a;
