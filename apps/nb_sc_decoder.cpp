@@ -59,7 +59,7 @@ const int frozen_symbols[] = {-1,  1, -1,  2,  3, -1,  4,  5,
 //
 struct symbols_t
 {
-    float llr[64];
+    float value[64];
     char  gf [64];
     bool  is_freq;
 };
@@ -69,26 +69,26 @@ struct symbols_t
 //
 //
 template <int gf_size>
-symbols_t f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
+void f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 {
     //
     // Switch from time to frequency domain if needed
     //
     if( src_a->is_freq == false ) {
-        fwht<gf_size>( src_a->llr );
+        fwht<gf_size>( src_a->value );
         src_a->is_freq = true;
     }
 
     if( src_b->is_freq == false ) {
-        fwht<gf_size>( src_b->llr );
+        fwht<gf_size>( src_b->value );
         src_b->is_freq = true;
     }
 
     // Abdallah computations ...
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->llr[i] = src_a->llr[i] * src_b->llr[i];
-        dst->gf[i]  = src_a->gf [i] ^ src_b->gf [i];
+        dst->value[i] = src_a->value[i] * src_b->value[i];
+        dst->gf   [i]  = src_a->gf  [i] ^ src_b->gf   [i];
     }
     // Abdallah computations ...    
 }
@@ -105,20 +105,20 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
     // Switch from time to frequency domain if needed
     //
     if( src_a->is_freq == true ) {
-        fwht<gf_size>( src_a->llr );
+        fwht<gf_size>( src_a->value );
         src_a->is_freq = false;
     }
 
     if( src_b->is_freq == true ) {
-        fwht<gf_size>( src_b->llr );
+        fwht<gf_size>( src_b->value );
         src_b->is_freq = false;
     }
 
     // Abdallah computations ...
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->llr[i] = src_a->llr[i] + src_b->llr[i];
-        dst->gf[i]  = src_a->gf [i];
+        dst->value[i] = src_a->value[i] + src_b->value[i];
+        dst->gf   [i] = src_a->gf   [i];
     }
     // Abdallah computations ...    
 }
@@ -128,9 +128,9 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 //
 //
 template <int gf_size>
-void final_node(symbols_t* var, const int symbol_id)
+int32_t final_node(symbols_t* var, const int symbol_id)
 {
-    printf("-> final_node(%d) : frozen = \n", symbol_id, frozen_symbols[symbol_id]);
+    printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
     if( frozen_symbols[symbol_id] == -1 )
     {
         return frozen_symbols[symbol_id];
@@ -139,15 +139,15 @@ void final_node(symbols_t* var, const int symbol_id)
     // Switch from frequency to time domain if needed
     //
     if( var->is_freq ) {
-        fwht<gf_size>( var->llr );
+        fwht<gf_size>( var->value );
         var->is_freq = false;
     }
 
     int max_index = 0;
-    float max_value = var->llr[0];
+    float max_value = var->value[0];
     for (int i = 1; i < gf_size; i++) {
-        if (var->llr[i] > max_value) {
-            max_value = var->llr[i];
+        if (var->value[i] > max_value) {
+            max_value = var->value[i];
             max_index = i;
         }
     }
@@ -159,7 +159,7 @@ void final_node(symbols_t* var, const int symbol_id)
     // Abdallah computations ...
     // Abdallah computations ...
 
-    return; // ???
+    return max_index; // I suppose this is the index of the maximum value
 }
 //
 //
