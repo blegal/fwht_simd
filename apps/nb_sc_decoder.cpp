@@ -55,34 +55,36 @@ struct symbols_t
 //
 //
 //
+template <int gf_size>
 symbols_t f_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* src_b)
 {
     //
     // Switch from time to frequency domain if needed
     //
     if( src_a->is_freq == false ) {
-        fwht<64>( src_a->llr );
+        fwht<gf_size>( src_a->llr );
         src_a->is_freq = true;
     }
 
     if( src_b->is_freq == false ) {
-        fwht<64>( src_b->llr );
+        fwht<gf_size>( src_b->llr );
         src_b->is_freq = true;
     }
 
     // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->llr[i] = src_a->llr[i] * src_b->llr[i];
+        dst->gf[i]  = src_a->gf [i] ^ src_b->gf [i];
+    }
+    // Abdallah computations ...    
 }
 //
 //
 //
 //
 //
+template <int gf_size>
 symbols_t g_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* src_b)
 {
     symbols_t result;
@@ -90,12 +92,12 @@ symbols_t g_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* sr
     // Switch from time to frequency domain if needed
     //
     if( src_a->is_freq == true ) {
-        fwht<64>( src_a->llr );
+        fwht<gf_size>( src_a->llr );
         src_a->is_freq = false;
     }
 
     if( src_b->is_freq == true ) {
-        fwht<64>( src_b->llr );
+        fwht<gf_size>( src_b->llr );
         src_b->is_freq = false;
     }
 
@@ -105,27 +107,26 @@ symbols_t g_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* sr
     // Abdallah computations ...
     // Abdallah computations ...
     // Abdallah computations ...
-
-    return result;
 }
 //
 //
 //
 //
 //
+template <int gf_size>
 void final_node(symbols_t* var)
 {
     //
     // Switch from frequency to time domain if needed
     //
     if( var->is_freq ) {
-        fwht<64>( var->llr );
+        fwht<gf_size>( var->llr );
         var->is_freq = false;
     }
 
     int max_index = 0;
     float max_value = var->llr[0];
-    for (int i = 1; i < 64; i++) {
+    for (int i = 1; i < gf_size; i++) {
         if (var->llr[i] > max_value) {
             max_value = var->llr[i];
             max_index = i;
@@ -146,6 +147,7 @@ void final_node(symbols_t* var)
 //
 //
 //
+template <int gf_size>
 void middle_node(symbols_t* inputs, symbols_t* internal, int size)
 {
     const int n = size / 2; // Assuming size is the number of symbols
@@ -153,26 +155,26 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size)
     // 
     //
     for (int i = 0; i < n; i++) {
-        f_function( internal + i, inputs + i, inputs + n + i ); // Example operation
+        f_function<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
     }
     //
     // 
     //
     if( size == 1 ) {
-        final_node(internal); // If we reach the final node, process it
+        final_node<gf_size>(internal); // If we reach the final node, process it
     }else{
-        middle_node(internal, internal + n, n/2); // On descend à gauche
+        middle_node<gf_size>(internal, internal + n, n/2); // On descend à gauche
     }
     //
     // 
     //
     for (int i = 0; i < n; i++) {
-        g_function( internal, inputs + i, inputs + n + i); // Example operation
+        g_function<gf_size>( internal, inputs + i, inputs + n + i); // Example operation
     }
     //
     // 
     //
-    middle_node(internal, internal + n, n/2); // On descend à droite
+    middle_node<gf_size>(internal, internal + n, n/2); // On descend à droite
     //
     // 
     //
@@ -192,6 +194,7 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size)
 //
 //
 //
+template <int gf_size = 64>
 void top_node(symbols_t* channel, symbols_t* internal, const int size)
 {
     const int n = size / 2; // Assuming size is the number of symbols
@@ -199,22 +202,22 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     // 
     //
     for (int i = 0; i < n; i++) {
-        f_function( internal + i, channel + i, channel + n + i ); // Example operation
+        f_function<gf_size>( internal + i, channel + i, channel + n + i ); // Example operation
     }
     //
     // 
     //
-    middle_node(internal, internal + n, n/2); // On descend à gauche
+    middle_node<gf_size>(internal, internal + n, n/2); // On descend à gauche
     //
     // 
     //
     for (int i = 0; i < n; i++) {
-        g_function( internal + i, channel + i, channel + n + i ); // Example operation
+        g_function<gf_size>( internal + i, channel + i, channel + n + i ); // Example operation
     }
     //
     // 
     //
-    middle_node(internal, internal + n, n/2); // On descend à droite
+    middle_node<gf_size>(internal, internal + n, n/2); // On descend à droite
     //
     // 
     //
