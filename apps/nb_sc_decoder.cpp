@@ -64,6 +64,7 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 
 template <int gf_size>
 void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
+
 {
     symbols_t result;
     if (src_a->is_freq == true)
@@ -84,6 +85,7 @@ void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
         dst->gf[i] = src_a->gf[i];                         // a.a
     }
     dst->is_freq = false; // a.a we do VN in PD
+
 }
 
 template <int gf_size>
