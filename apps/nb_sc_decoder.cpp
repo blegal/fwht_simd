@@ -121,8 +121,8 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
         dst->value[i] = src_a->value[i] * src_b->value[i];//a.a in PB VN is element by element multiplication
         dst->gf   [i] = src_a->gf   [i];// a.a 
     }
-    dst->is_freq = true; // a.a we do VN in PD
-    // Abdallah computations ...    
+    dst->is_freq = false; // a.a we do VN in PD
+
 }
 //
 //

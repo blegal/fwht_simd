@@ -1,0 +1,50 @@
+commit 7cd5d997942e00cf2f7a49477354502807717ff1
+Author: Bertrand LE GAL <bertrand.legal@ims-bordeaux.fr>
+Date:   Fri Jun 20 15:59:40 2025 +0200
+
+    Update nb_sc_decoder.cpp
+
+diff --git a/apps/nb_sc_decoder.cpp b/apps/nb_sc_decoder.cpp
+index 77c5a2e..4d6b3ec 100644
+--- a/apps/nb_sc_decoder.cpp
++++ b/apps/nb_sc_decoder.cpp
+@@ -115,11 +115,12 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
+     }
+ 
+     // Abdallah computations ...
+-    // Abdallah computations ...
+-    // Abdallah computations ...
+-    // Abdallah computations ...
+-    // Abdallah computations ...
+-    // Abdallah computations ...
++    for (size_t i = 0; i < gf_size; i++)
++    {
++        dst->llr[i] = src_a->llr[i] + src_b->llr[i];
++        dst->gf[i]  = src_a->gf [i];
++    }
++    // Abdallah computations ...    
+ }
+ //
+ //
+@@ -129,7 +130,11 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
+ template <int gf_size>
+ void final_node(symbols_t* var, const int symbol_id)
+ {
+-    printf("-> final_node(%d)\n", symbol_id);
++    printf("-> final_node(%d) : frozen = \n", symbol_id, frozen_symbols[symbol_id]);
++    if( frozen_symbols[symbol_id] == -1 )
++    {
++        return frozen_symbols[symbol_id];
++    }
+     //
+     // Switch from frequency to time domain if needed
+     //
+@@ -272,7 +277,7 @@ int main(int argc, char* argv[])
+ 
+     symbols_t* channel  = new symbols_t[size];
+     symbols_t* internal = new symbols_t[size];
+-
++    int32_t*   decoded  = new int32_t  [size];
+     top_node<64>(channel, internal, size);
+ 
+     delete[] channel;
