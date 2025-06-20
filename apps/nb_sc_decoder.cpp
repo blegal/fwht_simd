@@ -128,7 +128,7 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 //
 //
 template <int gf_size>
-int32_t final_node(symbols_t* var, const int symbol_id)
+int32_t final_node(symbols_t* var, int16_t* decoded, const int symbol_id)
 {
     printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
     if( frozen_symbols[symbol_id] == -1 )
@@ -158,6 +158,7 @@ int32_t final_node(symbols_t* var, const int symbol_id)
     // Abdallah computations ...
     // Abdallah computations ...
     // Abdallah computations ...
+    decoded[symbol_id] = max_index;
 
     return max_index; // I suppose this is the index of the maximum value
 }
@@ -167,7 +168,7 @@ int32_t final_node(symbols_t* var, const int symbol_id)
 //
 //
 template <int gf_size>
-void middle_node(symbols_t* inputs, symbols_t* internal, int size, const int symbol_id)
+void middle_node(symbols_t* inputs, symbols_t* internal, int16_t* decoded, int size, const int symbol_id)
 {
 #if defined(__DEBUG__)
     printf("- middle_node(%d, %d)\n", size, symbol_id);
@@ -186,9 +187,9 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size, const int sym
     // 
     //
     if( n == 1 ) {
-        final_node<gf_size>(internal, symbol_id); // If we reach the final node, process it
+        final_node<gf_size>(internal, decoded, symbol_id); // If we reach the final node, process it
     }else{
-        middle_node<gf_size>(internal, internal + n, n, symbol_id); // On descend à gauche
+        middle_node<gf_size>(internal, internal + n, decoded, n, symbol_id); // On descend à gauche
     }
     //
     // 
@@ -203,9 +204,9 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size, const int sym
     // 
     //
     if( n == 1 ) {
-        final_node<gf_size>(internal, symbol_id + n); // If we reach the final node, process it
+        final_node<gf_size>(internal, decoded, symbol_id + n); // If we reach the final node, process it
     }else{
-        middle_node<gf_size>(internal, internal + n, n, symbol_id + n); // On descend à droite
+        middle_node<gf_size>(internal, internal + n, decoded, n, symbol_id + n); // On descend à droite
     }
     //
     // 
@@ -227,7 +228,7 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size, const int sym
 //
 //
 template <int gf_size = 64>
-void top_node(symbols_t* channel, symbols_t* internal, const int size)
+void top_node(symbols_t* channel, symbols_t* internal, int16_t* decoded, const int size)
 {
 #if defined(__DEBUG__)
     printf("top_node(%d)\n", size);
@@ -242,7 +243,7 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, n, 0); // On descend à gauche
+    middle_node<gf_size>(internal, internal + n, decoded, n, 0); // On descend à gauche
     //
     // 
     //
@@ -252,7 +253,7 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, n, n); // On descend à droite
+    middle_node<gf_size>(internal, internal + n, decoded, n, n); // On descend à droite
     //
     // 
     //
@@ -277,8 +278,8 @@ int main(int argc, char* argv[])
 
     symbols_t* channel  = new symbols_t[size];
     symbols_t* internal = new symbols_t[size];
-    int32_t*   decoded  = new int32_t  [size];
-    top_node<64>(channel, internal, size);
+    int16_t*   decoded  = new int16_t  [size];
+    top_node<64>(channel, internal, decoded, size);
 
     delete[] channel;
     delete[] internal;
