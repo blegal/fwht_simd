@@ -115,11 +115,12 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
     }
 
     // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
-    // Abdallah computations ...
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->llr[i] = src_a->llr[i] + src_b->llr[i];
+        dst->gf[i]  = src_a->gf [i];
+    }
+    // Abdallah computations ...    
 }
 //
 //
@@ -129,7 +130,11 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 template <int gf_size>
 void final_node(symbols_t* var, const int symbol_id)
 {
-    printf("-> final_node(%d)\n", symbol_id);
+    printf("-> final_node(%d) : frozen = \n", symbol_id, frozen_symbols[symbol_id]);
+    if( frozen_symbols[symbol_id] == -1 )
+    {
+        return frozen_symbols[symbol_id];
+    }
     //
     // Switch from frequency to time domain if needed
     //
@@ -272,7 +277,7 @@ int main(int argc, char* argv[])
 
     symbols_t* channel  = new symbols_t[size];
     symbols_t* internal = new symbols_t[size];
-
+    int32_t*   decoded  = new int32_t  [size];
     top_node<64>(channel, internal, size);
 
     delete[] channel;
