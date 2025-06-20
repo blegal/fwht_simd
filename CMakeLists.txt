@@ -12,12 +12,23 @@ SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cp
 SET (CMAKE_EXE_LINKER_FLAGS "-lm")
 
 # Generate the source files list
-file (GLOB_RECURSE source_files src/*)
+project(nb_sc_decoder)
 
-# Add includes
-include_directories (src)
+file(GLOB_RECURSE source_files ${CMAKE_CURRENT_SOURCE_DIR}/src/*)
 
-# Object
-add_library (dec-obj OBJECT ${source_files})
+list(APPEND source_files "${CMAKE_CURRENT_SOURCE_DIR}/apps/bench_fwht.cpp")
 
-add_executable(fwht $<TARGET_OBJECTS:dec-obj>)
+add_executable(fwht ${source_files})
+
+#
+#
+########################################################################################################################
+#
+#
+project(nb_sc_decoder)
+
+file(GLOB_RECURSE source_files ${CMAKE_CURRENT_SOURCE_DIR}/src/*)
+
+list(APPEND source_files "${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp")
+
+add_executable(nb_sc_decoder ${source_files})

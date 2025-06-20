@@ -22,9 +22,9 @@
 *  source distribution.
 *
 */
-#include "fwht_x86.hxx"
-#include "fwht_neon.hxx"
-#include "fwht_avx2.hxx"
+#include "../src/fwht_x86.hxx"
+#include "../src/fwht_neon.hxx"
+#include "../src/fwht_avx2.hxx"
 #include <cstring>
 #include <chrono>
 
