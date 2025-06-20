@@ -55,31 +55,57 @@ struct symbols_t
 //
 //
 //
-symbols_t f_function(symbols_t a, symbols_t b)
+symbols_t f_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* src_b)
 {
-    symbols_t result;
-    // This function would implement some operation on the symbols.
-    // For now, it is just a placeholder that copies the first symbol.
-    for (int i = 0; i < 64; i++) {
-        result.llr[i] = (a.llr[i] + b.llr[i]) / 2; // Example operation
-        result.gf[i] = (a.gf[i] + b.gf[i]) / 2;   // Example operation
+    //
+    // Switch from time to frequency domain if needed
+    //
+    if( src_a->is_freq == false ) {
+        fwht<64>( src_a->llr );
+        src_a->is_freq = true;
     }
-    return result;
+
+    if( src_b->is_freq == false ) {
+        fwht<64>( src_b->llr );
+        src_b->is_freq = true;
+    }
+
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    
 }
 //
 //
 //
 //
 //
-symbols_t g_function(symbols_t a, symbols_t b)
+symbols_t g_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* src_b)
 {
     symbols_t result;
-    // This function would implement some operation on the symbols.
-    // For now, it is just a placeholder that copies the first symbol.
-    for (int i = 0; i < 64; i++) {
-        result.llr[i] = (a.llr[i] + b.llr[i]) / 2; // Example operation
-        result.gf[i] = (a.gf[i] + b.gf[i]) / 2;   // Example operation
+    //
+    // Switch from time to frequency domain if needed
+    //
+    if( src_a->is_freq == true ) {
+        fwht<64>( src_a->llr );
+        src_a->is_freq = false;
     }
+
+    if( src_b->is_freq == true ) {
+        fwht<64>( src_b->llr );
+        src_b->is_freq = false;
+    }
+
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+
     return result;
 }
 //
@@ -106,6 +132,13 @@ void final_node(symbols_t* var)
         }
     }
 
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+
     return; // ???
 }
 //
@@ -120,7 +153,7 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size)
     // 
     //
     for (int i = 0; i < n; i++) {
-        internal[i] = f_function( inputs[i], inputs[n + i] ); // Example operation
+        f_function( internal + i, inputs + i, inputs + n + i ); // Example operation
     }
     //
     // 
@@ -134,7 +167,7 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size)
     // 
     //
     for (int i = 0; i < n; i++) {
-        internal[i] = g_function( inputs[i], inputs[n + i] ); // Example operation
+        g_function( internal, inputs + i, inputs + n + i); // Example operation
     }
     //
     // 
@@ -144,6 +177,12 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size)
     // 
     //
     // should we do something here ?
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
     //
     // 
     //
@@ -160,7 +199,7 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     // 
     //
     for (int i = 0; i < n; i++) {
-        internal[i] = f_function( channel[i], channel[n + i] ); // Example operation
+        f_function( internal + i, channel + i, channel + n + i ); // Example operation
     }
     //
     // 
@@ -170,7 +209,7 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     // 
     //
     for (int i = 0; i < n; i++) {
-        internal[i] = g_function( channel[i], channel[n + i] ); // Example operation
+        g_function( internal + i, channel + i, channel + n + i ); // Example operation
     }
     //
     // 
