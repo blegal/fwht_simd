@@ -44,6 +44,19 @@ bool are_equivalent(float* a, float* b, float epsilon, int size) {
 //
 //
 //
+const int frozen_symbols[] = {-1,  1, -1,  2,  3, -1,  4,  5,
+                               6, -1,  7,  8, -1,  9, 10, 11,
+                              12, -1, 13, 14, -1, 15, 16, 17,
+                              18, -1, 19, 20, -1, 21, 22, 23,
+                              24, -1, 25, 26, -1, 27, 28, 29,
+                              30, -1, 31, 32, -1, 33, 34, 35,
+                              -1, 36, 37, 38, -1, -1, 39, 40,
+                              -1, 41, 42, 43, -1, -1, 44, 45};
+//
+//
+//
+//
+//
 struct symbols_t
 {
     float llr[64];
@@ -56,7 +69,7 @@ struct symbols_t
 //
 //
 template <int gf_size>
-symbols_t f_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* src_b)
+symbols_t f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 {
     //
     // Switch from time to frequency domain if needed
@@ -85,7 +98,7 @@ symbols_t f_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* sr
 //
 //
 template <int gf_size>
-symbols_t g_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* src_b)
+void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 {
     symbols_t result;
     //
@@ -114,8 +127,9 @@ symbols_t g_function(symbols_t* dst, const symbols_t* src_a, const symbols_t* sr
 //
 //
 template <int gf_size>
-void final_node(symbols_t* var)
+void final_node(symbols_t* var, const int symbol_id)
 {
+    printf("-> final_node(%d)\n", symbol_id);
     //
     // Switch from frequency to time domain if needed
     //
@@ -148,33 +162,46 @@ void final_node(symbols_t* var)
 //
 //
 template <int gf_size>
-void middle_node(symbols_t* inputs, symbols_t* internal, int size)
+void middle_node(symbols_t* inputs, symbols_t* internal, int size, const int symbol_id)
 {
+#if defined(__DEBUG__)
+    printf("- middle_node(%d, %d)\n", size, symbol_id);
+#endif
     const int n = size / 2; // Assuming size is the number of symbols
     //
     // 
     //
+#if defined(__DEBUG__)
+    printf("- f_function\n");
+#endif
     for (int i = 0; i < n; i++) {
         f_function<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
     }
     //
     // 
     //
-    if( size == 1 ) {
-        final_node<gf_size>(internal); // If we reach the final node, process it
+    if( n == 1 ) {
+        final_node<gf_size>(internal, symbol_id); // If we reach the final node, process it
     }else{
-        middle_node<gf_size>(internal, internal + n, n/2); // On descend à gauche
+        middle_node<gf_size>(internal, internal + n, n, symbol_id); // On descend à gauche
     }
     //
     // 
     //
+#if defined(__DEBUG__)
+    printf("- g_function\n");
+#endif
     for (int i = 0; i < n; i++) {
         g_function<gf_size>( internal, inputs + i, inputs + n + i); // Example operation
     }
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, n/2); // On descend à droite
+    if( n == 1 ) {
+        final_node<gf_size>(internal, symbol_id + n); // If we reach the final node, process it
+    }else{
+        middle_node<gf_size>(internal, internal + n, n, symbol_id + n); // On descend à droite
+    }
     //
     // 
     //
@@ -197,6 +224,9 @@ void middle_node(symbols_t* inputs, symbols_t* internal, int size)
 template <int gf_size = 64>
 void top_node(symbols_t* channel, symbols_t* internal, const int size)
 {
+#if defined(__DEBUG__)
+    printf("top_node(%d)\n", size);
+#endif
     const int n = size / 2; // Assuming size is the number of symbols
     //
     // 
@@ -207,7 +237,7 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, n/2); // On descend à gauche
+    middle_node<gf_size>(internal, internal + n, n, 0); // On descend à gauche
     //
     // 
     //
@@ -217,12 +247,17 @@ void top_node(symbols_t* channel, symbols_t* internal, const int size)
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, n/2); // On descend à droite
+    middle_node<gf_size>(internal, internal + n, n, n); // On descend à droite
     //
     // 
     //
     // should we do something here ?
-    //
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
+    // Abdallah computations ...
     // 
     //
 }
@@ -237,6 +272,11 @@ int main(int argc, char* argv[])
 
     symbols_t* channel  = new symbols_t[size];
     symbols_t* internal = new symbols_t[size];
+
+    top_node<64>(channel, internal, size);
+
+    delete[] channel;
+    delete[] internal;
 
     return EXIT_SUCCESS;
 }
