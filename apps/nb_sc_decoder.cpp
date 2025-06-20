@@ -87,9 +87,10 @@ void f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
     // Abdallah computations ...
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i]  = src_a->gf  [i] ^ src_b->gf   [i];
+        dst->llr[i] = src_a->llr[i] * src_b->llr[i];
+        dst->gf[i]  = src_a->gf [i]; // gf are from 0 to gf-1, in freq domain we only multiply element-by-element the 2 vectors
     }
+    dst->is_freq = true; // a.a we do CN in FD
     // Abdallah computations ...    
 }
 //
@@ -117,9 +118,10 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
     // Abdallah computations ...
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->value[i] = src_a->value[i] + src_b->value[i];
-        dst->gf   [i] = src_a->gf   [i];
+        dst->value[i] = src_a->value[i] * src_b->value[i];//a.a in PB VN is element by element multiplication
+        dst->gf   [i] = src_a->gf   [i];// a.a 
     }
+    dst->is_freq = true; // a.a we do VN in PD
     // Abdallah computations ...    
 }
 //

@@ -40,7 +40,6 @@ bool are_equivalent(float* a, float* b, float epsilon, int size) {
     return true;
 }
 
-//abdallah
 
 int main(int argc, char* argv[])
 {
