@@ -98,6 +98,23 @@ void f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 //
 //
 template <int gf_size>
+void normalize(float* tab)
+{
+    float sum = 0;
+    for(int i = 0; i < gf_size; i += 1){
+        sum += tab[i];
+    }
+    const float factor = 1.f / sum;
+    for (int i = 0; i < gf_size; i++) {
+        tab[i] *= factor;
+    }
+}
+//
+//
+//
+//
+//
+template <int gf_size>
 void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
 {
     symbols_t result;
@@ -120,6 +137,7 @@ void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
         dst->value[i] = src_a->value[i] + src_b->value[i];
         dst->gf   [i] = src_a->gf   [i];
     }
+    normalize<gf_size>( dst->value );
     // Abdallah computations ...    
 }
 //
