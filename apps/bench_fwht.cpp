@@ -28,9 +28,9 @@
 #include <cstring>
 #include <chrono>
 
-bool are_equivalent(float* a, float* b, float epsilon, int size) {
+bool are_equivalent(value_type* a, value_type* b, value_type epsilon, int size) {
     for (int i = 0; i < size; i++) {
-        float diff = abs(a[i] - b[i]);
+        value_type diff = abs(a[i] - b[i]);
         if (diff > epsilon) {
             printf("- maximum absolute error is : %f\n", diff);
             printf("- a[%d] = %f and b[%d] = %f\n", i, a[i], i, b[i]);
@@ -64,12 +64,12 @@ int main(int argc, char* argv[])
 
     for (int size = 8; size <= 256; size *= 2) {
 
-        float* tab_i = new float[size];
-        float* tab_a = new float[size];
-        float* tab_b = new float[size];
+        value_type* tab_i = new value_type[size];
+        value_type* tab_a = new value_type[size];
+        value_type* tab_b = new value_type[size];
 
         for (int i = 0; i < size; i++) {
-            tab_i[i] = ((float)rand()) / ((float)RAND_MAX) - 0.5f;
+            tab_i[i] = ((value_type)rand()) / ((value_type)RAND_MAX) - 0.5f;
             tab_a[i] = tab_i[i];
             tab_b[i] = tab_i[i];
         }

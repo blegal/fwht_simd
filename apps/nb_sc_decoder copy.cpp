@@ -28,11 +28,11 @@
 #include <cstring>
 #include <chrono>
 
-bool are_equivalent(float *a, float *b, float epsilon, int size)
+bool are_equivalent(value_type *a, value_type *b, value_type epsilon, int size)
 {
     for (int i = 0; i < size; i++)
     {
-        float diff = abs(a[i] - b[i]);
+        value_type diff = abs(a[i] - b[i]);
         if (diff > epsilon)
         {
             printf("- maximum absolute error is : %f\n", diff);
@@ -62,7 +62,7 @@ const int frozen_symbols[] = {-1, 1, -1, 2, 3, -1, 4, 5,
 //
 struct symbols_t
 {
-    float value[64];
+    value_type value[64];
     char gf[64];
     bool is_freq;
 };
@@ -71,7 +71,7 @@ struct symbols_t
 //
 //
 //
-template <int gf_size>
+template <uint16_t GF_size>
 void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 {
     //
@@ -103,7 +103,7 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 //
 //
 //
-template <int gf_size>
+template <uint16_t GF_size>
 void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 {
     symbols_t result;
@@ -135,8 +135,8 @@ void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 //
 //
 //
-template <int gf_size>
-int32_t final_node(symbols_t *var, int16_t *decoded, const int symbol_id)
+template <uint16_t GF_size>
+int32_t final_node(symbols_t *var, int32_t *decoded, const int symbol_id)
 {
     printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
     if (frozen_symbols[symbol_id] == -1)
@@ -153,7 +153,7 @@ int32_t final_node(symbols_t *var, int16_t *decoded, const int symbol_id)
     }
 
     int max_index = 0;
-    float max_value = var->value[0];
+    value_type max_value = var->value[0];
     for (int i = 1; i < gf_size; i++)
     {
         if (var->value[i] > max_value)
@@ -171,8 +171,8 @@ int32_t final_node(symbols_t *var, int16_t *decoded, const int symbol_id)
 //
 //
 //
-template <int gf_size>
-void middle_node(symbols_t *inputs, symbols_t *internal, int16_t *decoded, int size, const int symbol_id)
+template <uint16_t GF_size>
+void middle_node(symbols_t *inputs, symbols_t *internal, int32_t *decoded, int size, const int symbol_id)
 {
 #if defined(__DEBUG__)
     printf("- middle_node(%d, %d)\n", size, symbol_id);
@@ -239,8 +239,8 @@ void middle_node(symbols_t *inputs, symbols_t *internal, int16_t *decoded, int s
 //
 //
 //
-template <int gf_size = 64>
-void top_node(symbols_t *channel, symbols_t *internal, int16_t *decoded, const int size)
+template <uint16_t GF_size = 64>
+void top_node(symbols_t *channel, symbols_t *internal, int32_t *decoded, const int size)
 {
 #if defined(__DEBUG__)
     printf("top_node(%d)\n", size);
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 
     symbols_t *channel = new symbols_t[size];
     symbols_t *internal = new symbols_t[size];
-    int16_t *decoded = new int16_t[size];
+    int32_t *decoded = new int32_t[size];
     top_node<64>(channel, internal, decoded, size);
 
     delete[] channel;
