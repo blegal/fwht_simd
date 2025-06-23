@@ -25,6 +25,7 @@
 #include "../src/fwht_x86.hxx"
 #include "../src/fwht_neon.hxx"
 #include "../src/fwht_avx2.hxx"
+#include "../src/const_config_GF64_N64.hpp"
 #include <cstring>
 #include <chrono>
 
@@ -111,14 +112,7 @@ bool are_equivalent(float* a, float* b, float epsilon, int size) {
 //
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
-const int frozen_symbols[] = {-1,  1, -1,  0,  0, -1,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                              -1,  0,  0,  0, -1, -1,  0,  0,
-                              -1,  0,  0,  0, -1, -1,  0,  0};
+int frozen_symbols[64];
 //
 //
 //
@@ -231,7 +225,7 @@ void g_function(
 //
 //
 template <int gf_size>
-void final_node(symbols_t* var, int16_t* decoded, int16_t* symbols, const int symbol_id)
+void final_node(symbols_t* var, uint16_t* decoded, uint16_t* symbols, const int symbol_id)
 {
     printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
     if( frozen_symbols[symbol_id] == -1 )
@@ -269,8 +263,8 @@ template <int gf_size>
 void middle_node(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
-    int16_t* decoded,       // Decoded symbols are the final output of the decoder (done on the left)
-    int16_t* symbols,       // Symbols are the ones going from leafs to root (done on the left)
+    uint16_t* decoded,      // Decoded symbols are the final output of the decoder (done on the left)
+    uint16_t* symbols,      // Symbols are the ones going from leafs to root (done on the left)
     int size,               // Size is the number of symbols (should be a power of 2)
     const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
 {
@@ -328,7 +322,7 @@ void middle_node(
 //
 //
 template <int gf_size = 64>
-void top_node(symbols_t* channel, symbols_t* internal, int16_t* decoded, int16_t* symbols, const int size)
+void top_node(symbols_t* channel, symbols_t* internal, uint16_t* decoded, uint16_t* symbols, const int size)
 {
 #if defined(__DEBUG__)
     printf("top_node(%d)\n", size);
@@ -371,10 +365,34 @@ int main(int argc, char* argv[])
 {
     const int size = 64;
 
+    //
+    // All the symbols are frozen
+    //
+    for(int i = 0; i < N; i++)
+        frozen_symbols[i] = -1;
+    //
+    // Activation on information symbols
+    //
+    for(int i = 0; i < K; i++)
+        frozen_symbols[ reliab_seq[i] ] = 0;
+    //
+    //
+    //
+
     symbols_t* channel  = new symbols_t[size];
     symbols_t* internal = new symbols_t[size];
-    int16_t*   symbols  = new int16_t  [size]; // the ones going from leafs to root
-    int16_t*   decoded  = new int16_t  [size];
+    uint16_t*  symbols  = new uint16_t [size]; // the ones going from leafs to root
+    uint16_t*  decoded  = new uint16_t [size];
+
+    for(int i = 0; i < N; i++)
+    {
+        for(int j = 0; j < K; j++)
+        {
+            channel[i].value[j] = chan[GF * i + j];
+            channel[i].gf [j] = j;
+        }
+    }
+
     top_node<64>(channel, internal, decoded, symbols, size);
 
     delete[] channel;
