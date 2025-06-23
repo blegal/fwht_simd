@@ -182,7 +182,11 @@ void normalize(float* tab)
 //
 //
 template <int gf_size>
-void g_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b, uint16_t* src_c)
+void g_function(
+    symbols_t* dst,     // the data to be computed for the left side of the graph
+    symbols_t* src_a,   // the upper value set from the right side of the graph
+    symbols_t* src_b,   // the lower value set from the right side of the graph
+    uint16_t* src_c)    // the computed symbols coming from the left side of the graph
 {
     symbols_t result;
     
