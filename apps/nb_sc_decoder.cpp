@@ -9,20 +9,6 @@
 #include <iostream>
 #include "../src/const_config_GF64_N64.hpp"
 
-bool are_equivalent(value_type *a, value_type *b, value_type epsilon, uint32_t size)
-{
-    for (int i = 0; i < size; i++)
-    {
-        value_type diff = abs(a[i] - b[i]);
-        if (diff > epsilon)
-        {
-            printf("- maximum absolute error is : %f\n", diff);
-            printf("- a[%d] = %f and b[%d] = %f\n", i, a[i], i, b[i]);
-            return false;
-        }
-    }
-    return true;
-}
 struct symbols_t
 {
     value_type value[GF];
@@ -49,7 +35,7 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     for (size_t i = 0; i < gf_size; i++)
     {
         dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf[i] = src_a->gf[i]; // gf are from 0 to gf-1, in freq domain we only multiply element-by-element the 2 vectors
+        // dst->gf[i] = src_a->gf[i]; // gf are from 0 to gf-1, in freq domain we only multiply element-by-element the 2 vectors
     }
     dst->is_freq = true; // a.a we do CN in FD
 
@@ -85,18 +71,12 @@ void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, gf_type deci
     }
     gf_type temp_gf;
     value_type s1 = 0;
-    // value_type temp_val[GF];
-    // for (size_t i = 0; i < gf_size; i++)
-    // {
-    //     temp_gf = decision_left ^ i;
-    //     temp_val[temp_gf] = src_a->value[i];
-    // }
 
     for (size_t i = 0; i < gf_size; i++)
     {
         temp_gf = decision_left ^ i;
         dst->value[temp_gf] = src_a->value[i] * src_b->value[temp_gf]; // a.a in PB VN is element by element multiplication
-        dst->gf[i] = src_a->gf[i];                                     // a.a
+        // dst->gf[i] = src_a->gf[i];                                     // a.a
         s1 += dst->value[temp_gf];
     }
     for (size_t i = 0; i < gf_size; i++)
@@ -114,17 +94,6 @@ void final_node(symbols_t *var, gf_type *decoded, const uint32_t symbol_id)
         fwht<gf_size>(var->value);
         var->is_freq = false;
     }
-
-    value_type s1 = 0;
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        s1 += var->value[i];
-    }
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        var->value[i] /= s1;
-    }
-
     int max_index = 0;
     value_type max_value = var->value[0];
     for (int i = 1; i < gf_size; i++)
@@ -158,7 +127,16 @@ int main(int argc, char *argv[])
         offset += (1 << i);
     }
 
-    gf_type decoded_arr[logN * N];
+    const bool *frozen_clust[logN + 1];
+    offset = 0;
+    for (int i = 0; i < logN + 1; ++i)
+    {
+        frozen_clust[i] = frozen_clust_arr + offset;
+        offset += (1 << i);
+    }
+
+    int N1 = logN * N;
+    gf_type decoded_arr[N1];
     // each layer should handle its decoded symbols as the will be needed for upper layer VNs processing
     gf_type *decoded_layers[logN];
     offset = 0;
@@ -167,7 +145,7 @@ int main(int argc, char *argv[])
         decoded_layers[i] = decoded_arr + offset;
         offset += N;
     }
-    for (int u = 0; u < 1e5; u++)
+    for (int u = 0; u < 100000; u++)
     {
 
         // assign channels observation to the first layer
@@ -185,14 +163,12 @@ int main(int argc, char *argv[])
         {
             for (int j = 0; j < (1 << i); ++j)
             {
-                Roots[i][j] = false;
+                Roots[i][j] = frozen_clust[i][j];
             }
         }
 
-        for (int i = 0; i < K; i++)
-            decoded_layers[logN - 1][reliab_seq[i]] = max_gf; // data
-        for (int i = K; i < N; i++)
-            decoded_layers[logN - 1][reliab_seq[i]] = 0; // frozen
+        for (int i = 0; i < N1; i++)
+            decoded_arr[i] = 0;
 
         int l = 0;
         int s = 0;
@@ -205,18 +181,18 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < len; ++i)
                 {
                     f_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len]);
-                    bool PAUSE = 0;
+                    
                 }
                 l += 1;
                 s *= 2;
                 if (l == logN)
                 {
-                    if (!(decoded_layers[logN - 1][s] == 0))
+                    if (!Roots[logGF][s])
                     {
                         final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
-                        bool PAUSE = 0;
+                        
                     }
-                    Roots[l][s] = true;
+                    Roots[logN][s] = true;
                     l -= 1;
                     s /= 2;
                 }
@@ -232,18 +208,18 @@ int main(int argc, char *argv[])
                     uint32_t id1 = s * len1 + i;
                     gf_type decision = decoded_layers[l][id1];
                     g_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len], decision);
-                    bool PAUSE = 0;
+                    
                 }
                 l += 1;
                 s = (s << 1) + 1;
                 if (l == logN)
                 {
-                    if (!(decoded_layers[logN - 1][s] == 0))
+                    if (!Roots[logGF][s])
                     {
                         final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
-                        bool PAUSE = 0;
+                        
                     }
-                    Roots[l][s] = true;
+                    Roots[logN][s] = true;
                     if (s == (N - 1))
                         break;
                     l -= 1;
