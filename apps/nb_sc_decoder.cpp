@@ -115,7 +115,7 @@ void final_node(symbols_t *var, gf_type *decoded, const uint32_t symbol_id)
         var->is_freq = false;
     }
 
-     value_type s1 = 0;
+    value_type s1 = 0;
     for (size_t i = 0; i < gf_size; i++)
     {
         s1 += var->value[i];
@@ -149,16 +149,6 @@ int main(int argc, char *argv[])
         offset += (N >> i);
     }
 
-    for (int i = 0; i < N; ++i)
-    {
-        for (int j = 0; j < GF; ++j)
-        {
-            layers[0][i].value[j] = chan[i * GF + j] ; 
-            layers[0][i].gf[j] = j;
-        }
-        layers[0][i].is_freq = false;
-    }
-
     bool Roots_arr[tot_clust];
     bool *Roots[logN + 1];
     offset = 0;
@@ -166,99 +156,114 @@ int main(int argc, char *argv[])
     {
         Roots[i] = Roots_arr + offset;
         offset += (1 << i);
-        for (int j = 0; j < (1 << i); ++j)
-        {
-            Roots[i][j] = false;
-        }
     }
 
     gf_type decoded_arr[logN * N];
+    // each layer should handle its decoded symbols as the will be needed for upper layer VNs processing
     gf_type *decoded_layers[logN];
     offset = 0;
     for (int i = 0; i < logN; ++i)
     {
         decoded_layers[i] = decoded_arr + offset;
         offset += N;
-        for (int j = 0; j < N; ++j)
-        {
-            decoded_layers[i][j] = max_gf;
-        }
     }
-    for (int i = K; i < N; i++)
-        decoded_layers[logN - 1][reliab_seq[i]] = 0; // frozen
-
-    uint32_t N1 = N * GF;
-
-    int l = 0;
-    int s = 0;
-    while (true)
+    for (int u = 0; u < 1e5; u++)
     {
-        if (!Roots[l + 1][2 * s])
-        {
-            uint32_t len = N >> (l + 1);
 
-            for (int i = 0; i < len; ++i)
+        // assign channels observation to the first layer
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < GF; ++j)
             {
-                f_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len]);
-                bool PAUSE = 0;
+                layers[0][i].value[j] = chan[i * GF + j];
+                layers[0][i].gf[j] = j;
             }
-            l += 1;
-            s *= 2;
-            if (l == logN)
+            layers[0][i].is_freq = false;
+        }
+        // initialize the clusters status (false if not decoded yet)
+        for (int i = 0; i <= logN; ++i)
+        {
+            for (int j = 0; j < (1 << i); ++j)
             {
-                if (!(decoded_layers[logN - 1][s] == 0))
-                {
-                    final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
-                    bool PAUSE = 0;
-                }
-                Roots[l][s] = true;
-                l -= 1;
-                s /= 2;
+                Roots[i][j] = false;
             }
         }
 
-        else if (!Roots[l + 1][2 * s + 1])
+        for (int i = 0; i < K; i++)
+            decoded_layers[logN - 1][reliab_seq[i]] = max_gf; // data
+        for (int i = K; i < N; i++)
+            decoded_layers[logN - 1][reliab_seq[i]] = 0; // frozen
+
+        int l = 0;
+        int s = 0;
+        while (true)
         {
-            uint32_t len = N >> (l + 1);
-            uint32_t len1 = N >> l;
-
-            for (int i = 0; i < len; ++i)
+            if (!Roots[l + 1][2 * s])
             {
-                uint32_t id1 = s * len1 + i;
-                gf_type decision = decoded_layers[l][id1];
-                g_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len], decision);
-                                bool PAUSE = 0;
+                uint32_t len = N >> (l + 1);
 
-            }
-            l += 1;
-            s = (s << 1) + 1;
-            if (l == logN)
-            {
-                if (!(decoded_layers[logN - 1][s] == 0))
+                for (int i = 0; i < len; ++i)
                 {
-                    final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
+                    f_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len]);
                     bool PAUSE = 0;
                 }
+                l += 1;
+                s *= 2;
+                if (l == logN)
+                {
+                    if (!(decoded_layers[logN - 1][s] == 0))
+                    {
+                        final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
+                        bool PAUSE = 0;
+                    }
+                    Roots[l][s] = true;
+                    l -= 1;
+                    s /= 2;
+                }
+            }
+
+            else if (!Roots[l + 1][2 * s + 1])
+            {
+                uint32_t len = N >> (l + 1);
+                uint32_t len1 = N >> l;
+
+                for (int i = 0; i < len; ++i)
+                {
+                    uint32_t id1 = s * len1 + i;
+                    gf_type decision = decoded_layers[l][id1];
+                    g_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len], decision);
+                    bool PAUSE = 0;
+                }
+                l += 1;
+                s = (s << 1) + 1;
+                if (l == logN)
+                {
+                    if (!(decoded_layers[logN - 1][s] == 0))
+                    {
+                        final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
+                        bool PAUSE = 0;
+                    }
+                    Roots[l][s] = true;
+                    if (s == (N - 1))
+                        break;
+                    l -= 1;
+                    s >>= 1;
+                }
+            }
+            else
+            {
+                uint32_t len = N >> (l + 1);
+                uint32_t len1 = N >> l;
+                for (int i = 0; i < len; ++i)
+                {
+                    uint32_t id1 = s * len1 + i;
+                    decoded_layers[l - 1][id1] = decoded_layers[l][id1] ^ decoded_layers[l][id1 + len];
+                    decoded_layers[l - 1][id1 + len] = decoded_layers[l][id1 + len];
+                }
                 Roots[l][s] = true;
-                if (s == N - 1)
-                    break;
                 l -= 1;
                 s >>= 1;
             }
-        }
-        else
-        {
-            uint32_t len = N >> (l + 1);
-            uint32_t len1 = N >> l;
-            for (int i = 0; i < len; ++i)
-            {
-                uint32_t id1 = s * len1 + i;
-                decoded_layers[l - 1][id1] = decoded_layers[l][id1] ^ decoded_layers[l][id1 + len];
-                decoded_layers[l - 1][id1 + len] = decoded_layers[l][id1 + len];
-            }
-            Roots[l][s] = true;
-            l -= 1;
-            s >>= 1;
         }
     }
     for (int i = 0; i < N; ++i)
@@ -266,6 +271,5 @@ int main(int argc, char *argv[])
         std::cout << decoded_layers[logN - 1][i] << " ";
     }
     std::cout << std::endl;
-
     return EXIT_SUCCESS;
 }
