@@ -9,6 +9,20 @@
 #include <iostream>
 #include "../src/const_config_GF64_N64.hpp"
 
+bool are_equivalent(value_type *a, value_type *b, value_type epsilon, uint32_t size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        value_type diff = abs(a[i] - b[i]);
+        if (diff > epsilon)
+        {
+            printf("- maximum absolute error is : %f\n", diff);
+            printf("- a[%d] = %f and b[%d] = %f\n", i, a[i], i, b[i]);
+            return false;
+        }
+    }
+    return true;
+}
 struct symbols_t
 {
     value_type value[GF];
@@ -19,22 +33,37 @@ struct symbols_t
 template <uint32_t gf_size>
 void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 {
-    value_type s1 = 0, s2;
-    for (size_t i = 0; i < gf_size; i++)
-        dst->value[i] = 1e30;
-    for (uint16_t i = 0; i < gf_size; i++)
+
+    if (src_a->is_freq == false)
     {
-        for (uint16_t j = 0; j < gf_size; j++)
-        {
-            uint16_t tmp = i ^ j;
-            dst->value[tmp] += src_a->value[i] * src_b->value[j];
-            s1 += src_a->value[i] * src_b->value[j];
-        }
+        fwht<gf_size>(src_a->value);
+        src_a->is_freq = true;
+    }
+
+    if (src_b->is_freq == false)
+    {
+        fwht<gf_size>(src_b->value);
+        src_b->is_freq = true;
+    }
+
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->value[i] = src_a->value[i] * src_b->value[i];
+        dst->gf[i] = src_a->gf[i]; // gf are from 0 to gf-1, in freq domain we only multiply element-by-element the 2 vectors
+    }
+    dst->is_freq = true; // a.a we do CN in FD
+
+    fwht<gf_size>(dst->value);
+    dst->is_freq = false;
+
+    value_type s1 = 0;
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        s1 += dst->value[i];
     }
     for (size_t i = 0; i < gf_size; i++)
     {
         dst->value[i] /= s1;
-        s2 += dst->value[i];
     }
 }
 
@@ -42,10 +71,27 @@ template <uint32_t gf_size>
 void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, gf_type decision_left)
 
 {
+    symbols_t result;
+    if (src_a->is_freq == true)
+    {
+        fwht<gf_size>(src_a->value);
+        src_a->is_freq = false;
+    }
+
+    if (src_b->is_freq == true)
+    {
+        fwht<gf_size>(src_b->value);
+        src_b->is_freq = false;
+    }
     gf_type temp_gf;
     value_type s1 = 0;
-    for (size_t i = 0; i < gf_size; i++)
-        dst->value[i] = 0;
+    // value_type temp_val[GF];
+    // for (size_t i = 0; i < gf_size; i++)
+    // {
+    //     temp_gf = decision_left ^ i;
+    //     temp_val[temp_gf] = src_a->value[i];
+    // }
+
     for (size_t i = 0; i < gf_size; i++)
     {
         temp_gf = decision_left ^ i;
@@ -57,6 +103,39 @@ void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, gf_type deci
     {
         dst->value[i] /= s1;
     }
+    dst->is_freq = false; // a.a we do VN in PD
+}
+
+template <uint32_t gf_size>
+void final_node(symbols_t *var, gf_type *decoded, const uint32_t symbol_id)
+{
+    if (var->is_freq)
+    {
+        fwht<gf_size>(var->value);
+        var->is_freq = false;
+    }
+
+     value_type s1 = 0;
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        s1 += var->value[i];
+    }
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        var->value[i] /= s1;
+    }
+
+    int max_index = 0;
+    value_type max_value = var->value[0];
+    for (int i = 1; i < gf_size; i++)
+    {
+        if (var->value[i] > max_value)
+        {
+            max_value = var->value[i];
+            max_index = i;
+        }
+    }
+    decoded[symbol_id] = max_index;
 }
 
 int main(int argc, char *argv[])
@@ -74,9 +153,10 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < GF; ++j)
         {
-            layers[0][i].value[j] = chan[i * GF + j] / 100000; // remove /100000 i put it because the input data i rounded them to their x1000
+            layers[0][i].value[j] = chan[i * GF + j] ; 
             layers[0][i].gf[j] = j;
         }
+        layers[0][i].is_freq = false;
     }
 
     bool Roots_arr[tot_clust];
@@ -128,16 +208,7 @@ int main(int argc, char *argv[])
             {
                 if (!(decoded_layers[logN - 1][s] == 0))
                 {
-                    value_type s1 = layers[l][0].value[0];
-                    decoded_layers[logN - 1][s] = 0;
-                    for (size_t i = 1; i < GF; i++)
-                    {
-                        if (layers[l][0].value[i] > s1)
-                        {
-                            s1 = layers[l][0].value[i];
-                            decoded_layers[logN - 1][s] = i;
-                        }
-                    }
+                    final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
                     bool PAUSE = 0;
                 }
                 Roots[l][s] = true;
@@ -156,7 +227,8 @@ int main(int argc, char *argv[])
                 uint32_t id1 = s * len1 + i;
                 gf_type decision = decoded_layers[l][id1];
                 g_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len], decision);
-                bool PAUSE = 0;
+                                bool PAUSE = 0;
+
             }
             l += 1;
             s = (s << 1) + 1;
@@ -164,16 +236,7 @@ int main(int argc, char *argv[])
             {
                 if (!(decoded_layers[logN - 1][s] == 0))
                 {
-                    value_type s1 = layers[l][0].value[0];
-                    decoded_layers[logN - 1][s] = 0;
-                    for (size_t i = 1; i < GF; i++)
-                    {
-                        if (layers[l][0].value[i] > s1)
-                        {
-                            s1 = layers[l][0].value[i];
-                            decoded_layers[logN - 1][s] = i;
-                        }
-                    }
+                    final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
                     bool PAUSE = 0;
                 }
                 Roots[l][s] = true;
