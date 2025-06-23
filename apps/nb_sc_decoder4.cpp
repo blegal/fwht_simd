@@ -27,14 +27,12 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
         for (uint16_t j = 0; j < gf_size; j++)
         {
             uint16_t tmp = i ^ j;
-            dst->value[tmp] += src_a->value[i] * src_b->value[j];
-            s1 += src_a->value[i] * src_b->value[j];
+            value_type temp_val = src_a->value[i] + src_b->value[j];
+            if (temp_val < dst->value[tmp])
+            {
+                dst->value[tmp] = temp_val;
+            }
         }
-    }
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        dst->value[i] /= s1;
-        s2 += dst->value[i];
     }
 }
 
@@ -45,17 +43,20 @@ void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, gf_type deci
     gf_type temp_gf;
     value_type s1 = 0;
     for (size_t i = 0; i < gf_size; i++)
-        dst->value[i] = 0;
+        dst->value[i] = 1e30;
+    value_type min1 = 1e30;
     for (size_t i = 0; i < gf_size; i++)
     {
         temp_gf = decision_left ^ i;
-        dst->value[temp_gf] = src_a->value[i] * src_b->value[temp_gf]; // a.a in PB VN is element by element multiplication
+        dst->value[temp_gf] = src_a->value[i] + src_b->value[temp_gf]; // a.a in PB VN is element by element multiplication
         dst->gf[i] = src_a->gf[i];                                     // a.a
         s1 += dst->value[temp_gf];
+        if (min1 > dst->value[temp_gf])
+            min1 = dst->value[temp_gf];
     }
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->value[i] /= s1;
+        dst->value[i] -= min1;
     }
 }
 
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
     {
         for (int j = 0; j < GF; ++j)
         {
-            layers[0][i].value[j] = chan[i * GF + j] / 100000; // remove /100000 i put it because the input data i rounded them to their x1000
+            layers[0][i].value[j] = chan[i * GF + j]; // remove /100000 i put it because the input data i rounded them to their x1000
             layers[0][i].gf[j] = j;
         }
     }
@@ -132,7 +133,7 @@ int main(int argc, char *argv[])
                     decoded_layers[logN - 1][s] = 0;
                     for (size_t i = 1; i < GF; i++)
                     {
-                        if (layers[l][0].value[i] > s1)
+                        if (layers[l][0].value[i] < s1)
                         {
                             s1 = layers[l][0].value[i];
                             decoded_layers[logN - 1][s] = i;
@@ -168,7 +169,7 @@ int main(int argc, char *argv[])
                     decoded_layers[logN - 1][s] = 0;
                     for (size_t i = 1; i < GF; i++)
                     {
-                        if (layers[l][0].value[i] > s1)
+                        if (layers[l][0].value[i] < s1)
                         {
                             s1 = layers[l][0].value[i];
                             decoded_layers[logN - 1][s] = i;
