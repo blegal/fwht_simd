@@ -54,9 +54,9 @@ int main(int argc, char* argv[])
     //
     uint16_t*  symbols  = new uint16_t[N];
     for (int i = 0; i < N; i += 1)
-        symbols[i] = -1;
+        frozen_symbols[i] = -1;
     for (int i = 0; i < K; i += 1)
-        symbols[ reliab_seq[i] ] = 0;
+        frozen_symbols[ reliab_seq[i] ] = 0;
     
     //
     // Clear the decoded symbols array
@@ -69,6 +69,24 @@ int main(int argc, char* argv[])
     // Call the top node function to decode the symbols
     //
     top_node<64>(channel, internal, decoded, symbols, size);
+
+
+
+    printf("\nFrozen matrix:\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        printf("%2d ", frozen_symbols[i]);
+    }printf("\n");
+
+    printf("\n\nDecoded symbols:\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        printf("%2d ", decoded[i]);
+    }printf("\n");
 
     delete[] channel;
     delete[] internal;
