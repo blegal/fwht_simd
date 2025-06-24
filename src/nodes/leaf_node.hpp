@@ -23,38 +23,37 @@ void leaf_node(
     symbols_t* var,
     uint16_t* decoded,
     uint16_t* symbols,
-    const int symbol_id)
+    const int symbol_id) 
 {
 #if defined(__DEBUG__)
     printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
 #endif
-//    show_symbols( var );
-
-    if( frozen_symbols[symbol_id] == -1 )
+    //
+    // Switch from frequency to time domain if needed
+    //
+    if( frozen_symbols[symbol_id] == true )
     {
+#if 0        
+        printf("\e[1;31m");
+        printf("[Pos: %2d]", symbol_id);
+        printf("\e[0m ");
+#endif
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;
         return;
     }
-    //
-    // Switch from frequency to time domain if needed
-    //
+
     if( var->is_freq ) {
         fwht<gf_size>( var->value );
         var->is_freq = false;
     }
-//    show_symbols( var );
+#if 0
+    printf("[Pos: %2d]", symbol_id);
+    show_symbols( var );
+#endif
+    const int max_index = argmax<gf_size>(var->value);
 
-    int max_index = 0;
-    float max_value = var->value[0];
-    for (int i = 1; i < gf_size; i++) {
-        if (var->value[i] > max_value) {
-            max_value = var->value[i];
-            max_index = i;
-        }
-    }
-
-    decoded[symbol_id] = max_index;
+    decoded[symbol_id] = max_index; 
     symbols[symbol_id] = max_index;
 }
 //

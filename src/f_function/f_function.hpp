@@ -47,6 +47,10 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     }
     dst->is_freq = true; // a.a we do CN in FD
 
+    fwht<gf_size>(dst->value);
+    dst->is_freq = false;
+    normalize<gf_size>(dst->value); // Normalize the output in frequency domain
+
 //  printf("Frequ(dst) : "); show_symbols( dst );
 //  exit( EXIT_FAILURE ); // BLG : we stop here to check the output of the CN
 

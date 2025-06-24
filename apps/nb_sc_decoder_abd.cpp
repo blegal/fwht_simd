@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
         offset += (1 << i);
     }
 
-    const bool *frozen_clust[logN + 1];
+    const bool* frozen_clust[logN + 1];
     offset = 0;
     for (int i = 0; i < logN + 1; ++i)
     {
@@ -262,10 +262,32 @@ int main(int argc, char *argv[])
             }
         }
     }
+
+    printf("\nFrozen matrix:\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        printf("%2d ", frozen_clust_arr[i]);
+    }printf("\n");
+
+    printf("\n\nDecoded symbols:\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        if (decoded_layers[logN - 1][i] == ref_out[i]){
+             printf("\e[1;32m%2d\e[0m ", decoded_layers[logN - 1][i]);
+        }else{
+             printf("\e[1;31m%2d\e[0m ", decoded_layers[logN - 1][i]);
+        }
+    }printf("\n");
+/*    
     for (int i = 0; i < N; ++i)
     {
         std::cout << decoded_layers[logN - 1][i] << " ";
     }
     std::cout << std::endl;
+*/
     return EXIT_SUCCESS;
 }

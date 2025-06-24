@@ -16,8 +16,8 @@ template <int gf_size>
 void middle_node(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
-    uint16_t* decoded,      // Decoded symbols are the final output of the decoder (done on the left)
-    uint16_t* symbols,      // Symbols are the ones going from leafs to root (done on the left)
+    uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)
+    uint16_t*  symbols,     // Symbols are the ones going from leafs to root (done on the left)
     int size,               // Size is the number of symbols (should be a power of 2)
     const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
 {
@@ -41,36 +41,69 @@ void middle_node(
     // 
     //
     if( n == 1 ) {
-        leaf_node<gf_size>(internal, decoded, symbols, symbol_id); // If we reach the final node, process it
+        leaf_node<gf_size>(
+            internal,   // le symbol souple
+            decoded,    // les symboles décodés (output du decodeur)
+            symbols,    // le tableau des symboles durs
+            symbol_id);
     }else{
-        middle_node<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id); // On descend à gauche
+        middle_node<gf_size>(
+            internal,       // les données d'entrée
+            internal + n,   // la mémoire interne pour les calculs
+            decoded,        // les symboles décodés (output du decodeur)
+            symbols,        // les symboles durs
+            n,              // le nombre de données en entrée
+            symbol_id);     // l'identifiant du symbole (à gauche)
     }
     //
     // 
     //
-#if defined(__DEBUG__)
+//#if defined(__DEBUG__)
     printf("- g_function\n");
-#endif
+//#endif
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(
             internal + i,
-            inputs + i,
-            inputs + n + i,
-            symbols + i); // Example operation
+            inputs   + i,
+            inputs   + n + i,
+            symbols[symbol_id + i]); // Example operation
+        printf("(func_g) internal[%2d] = G[%2d, %2d, %2d]\n", i, i, n + i, symbol_id + i);
     }
     //
     // 
     //
     if( n == 1 ) {
-        leaf_node<gf_size>(internal, decoded, symbols, symbol_id + n); // If we reach the final node, process it
+        leaf_node<gf_size>(
+            internal,
+            decoded,
+            symbols,
+            symbol_id + n);
     }else{
-        middle_node<gf_size>(internal, internal + n, decoded, symbols,n, symbol_id + n); // On descend à droite
+        middle_node<gf_size>(
+            internal,
+            internal + n,
+            decoded,
+            symbols,
+            n,
+            symbol_id + n);
     }
     //
     // 
     //
-    for (int i = 0; i < n/2; i++) {
-        symbols[i] = symbols[i] ^ symbols[i + n/2]; // to be checked !
+#if 1
+    printf("-> debut du xor = %d\n", n);
+#endif
+    for (int i = 0; i < n; i++) {
+#if 1
+        const int before = symbols[symbol_id + i];
+#endif
+        symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
+#if 1
+        printf(" %2d [%2d] = %2d [%2d] xor %2d [%2d]\n", 
+            symbols[symbol_id +     i], symbol_id + i,
+            before,                     symbol_id + i,
+            symbols[symbol_id + n + i], symbol_id + n + i);
+#endif
     }
     //
     // 

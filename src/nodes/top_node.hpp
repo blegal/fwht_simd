@@ -21,27 +21,42 @@ void top_node(
     // 
     //
     for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, channel + i, channel + n + i ); // Example operation
+        f_function<gf_size>(
+            internal     + i,
+            channel      + i,
+            channel  + n + i );
     }
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
+    middle_node<gf_size>(
+        internal,
+        internal + n,
+        decoded,
+        symbols,
+        n,
+        0); // On descend à gauche
     //
     // 
     //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(
-            internal + i,       // memory space for the result
-            channel + i,        // values from the right child
-            channel + n + i,    // values from the right child
-            symbols + i         // decoded symbols from the left child
+            internal     + i,    // memory space for the result
+            channel      + i,    // values from the right child
+            channel  + n + i,    // values from the right child
+            symbols[i]           // decoded symbols from the left child
         );
     }
     //
     // 
     //
-    middle_node<gf_size>(internal, internal + n, decoded, symbols, n, n); // On descend à droite
+    middle_node<gf_size>(
+        internal,
+        internal + n,
+        decoded,
+        symbols,
+        n,
+        n); // On descend à droite
     //
     // 
     //
