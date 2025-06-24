@@ -58,11 +58,13 @@ void g_function(
     if( src_a->is_freq == true ) {
         fwht<gf_size>( src_a->value );
         src_a->is_freq = false;
+        normalize<gf_size>( src_a->value );
     }
 
     if( src_b->is_freq == true ) {
         fwht<gf_size>( src_b->value );
         src_b->is_freq = false;
+        normalize<gf_size>( src_b->value );
     }
 
     // Abdallah computations ...
@@ -72,7 +74,7 @@ void g_function(
         dst->gf   [i] = src_a->gf   [i]; // to be removed !
     }
     normalize<gf_size>( dst->value );
-    // Abdallah computations ...    
+    src_b->is_freq = false;
 }
 //
 //
