@@ -58,15 +58,18 @@ void show_symbols(const symbols_t* symbols)
         printf("Symbols [freq]:");
     else
         printf("Symbols [prob]:");
+
+    float sum = 0.f;
     for (int i = 0; i < GF; i += 1)
     {
         if ( (i%16) == 0 ) printf("\n %2d : ", i);
         if( symbols->value[i] >= 0.2f )
-            printf("\e[1;32m%+6.2f\e[0m ", symbols->value[i]);
+            printf("\e[1;32m%+6.4f\e[0m ", symbols->value[i]);
         else
-            printf("%+6.2f ", symbols->value[i]);
+            printf("%+6.4f ", symbols->value[i]);
+        sum += symbols->value[i];
     }
-    printf("\n");
+    printf("\n    : sum = %f\n", sum);
 }
 //
 //

@@ -21,12 +21,37 @@ void middle_node(
     int size,               // Size is the number of symbols (should be a power of 2)
     const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
 {
-//#if defined(__DEBUG__)
+#if defined(__DEBUG__)
     printf("- middle_node(%d, %d)\n+> ", size, symbol_id);
     for(int i = 0; i < size; i++) {
         printf("%d ", frozen_symbols[symbol_id + i]); // Assuming gf[0] is the symbol value
     } printf("\n");
-//#endif
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    int sum = 0;
+    for(int i = 0; i < size; i++) { sum += frozen_symbols[symbol_id + i]; }
+    if( sum == size ) {
+        for(int i = 0; i < size; i++)
+            symbols[symbol_id + i] = 0;
+        return;
+    }
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+#if 0
+    if( sum == 0 ) {
+        for(int i = 0; i < size; i++)
+            leaf_node<gf_size>(inputs + i, decoded, symbols, symbol_id + i);
+        return;
+    }
+#endif
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     const int n = size / 2; // Assuming size is the number of symbols
     //
     // 
@@ -41,6 +66,7 @@ void middle_node(
     // 
     //
     if( n == 1 ) {
+//      leaf_node_after_f<gf_size>(
         leaf_node<gf_size>(
             internal,   // le symbol souple
             decoded,    // les symboles décodés (output du decodeur)
@@ -58,21 +84,24 @@ void middle_node(
     //
     // 
     //
-//#if defined(__DEBUG__)
+#if defined(__DEBUG__)
     printf("- g_function\n");
-//#endif
+#endif
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(
             internal + i,
             inputs   + i,
             inputs   + n + i,
             symbols[symbol_id + i]); // Example operation
+#if 0
         printf("(func_g) internal[%2d] = G[%2d, %2d, %2d]\n", i, i, n + i, symbol_id + i);
+#endif
     }
     //
     // 
     //
     if( n == 1 ) {
+//      leaf_node_after_g<gf_size>(
         leaf_node<gf_size>(
             internal,
             decoded,
@@ -90,15 +119,15 @@ void middle_node(
     //
     // 
     //
-#if 1
+#if 0
     printf("-> debut du xor = %d\n", n);
 #endif
     for (int i = 0; i < n; i++) {
-#if 1
+#if 0
         const int before = symbols[symbol_id + i];
 #endif
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
-#if 1
+#if 0
         printf(" %2d [%2d] = %2d [%2d] xor %2d [%2d]\n", 
             symbols[symbol_id +     i], symbol_id + i,
             before,                     symbol_id + i,

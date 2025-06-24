@@ -45,6 +45,8 @@ int main(int argc, char* argv[])
             channel[i].gf   [j] = j;
         }
 //      normalize< 64>( channel[i].value ); // added probability normalization BLG
+        normalize<GF>( channel[i].value );
+//      show_symbols( channel + i );
     }
 
     //

@@ -77,12 +77,16 @@ int main(int argc, char* argv[])
 
         auto start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==   8) { fwht<  8>( tab_a ); fwht<  8>( tab_a ); normalize<  8>( tab_a,  1.f/ 8.f); }
-            if (size ==  16) { fwht< 16>( tab_a ); fwht< 16>( tab_a ); normalize< 16>( tab_a,  1.f/ 16.f); }
-            if (size ==  32) { fwht< 32>( tab_a ); fwht< 32>( tab_a ); normalize< 32>( tab_a,  1.f/ 32.f); }
-            if (size ==  64) { fwht< 64>( tab_a ); fwht< 64>( tab_a ); normalize< 64>( tab_a,  1.f/ 64.f); }
-            if (size == 128) { fwht<128>( tab_a ); fwht<128>( tab_a ); normalize<128>( tab_a,  1.f/ 128.f); }
-            if (size == 256) { fwht<256>( tab_a ); fwht<256>( tab_a ); normalize<256>( tab_a,  1.f/ 256.f); }
+            if (size ==   8) {
+                fwht<  8>( tab_a );
+                fwht<  8>( tab_a );
+                normalize<  8>( tab_a,  1.f/ 8.f);
+            }
+            if (size ==  16) { fwht< 16>( tab_a ); normalize< 16>( tab_a, 0.35355339059f); fwht< 16>( tab_a ); normalize< 16>( tab_a, 0.35355339059f); }
+            if (size ==  32) { fwht< 32>( tab_a ); normalize< 32>( tab_a, 0.17677669529f); fwht< 32>( tab_a ); normalize< 32>( tab_a, 0.17677669529f); }
+            if (size ==  64) { fwht< 64>( tab_a ); normalize< 64>( tab_a, 0.125f        ); fwht< 64>( tab_a ); normalize< 64>( tab_a, 0.125f        ); }
+            if (size == 128) { fwht<128>( tab_a ); normalize<128>( tab_a, 0.08838834764f); fwht<128>( tab_a ); normalize<128>( tab_a, 0.08838834764f); }
+            if (size == 256) { fwht<256>( tab_a ); normalize<256>( tab_a, 0.0625f       ); fwht<256>( tab_a ); normalize<256>( tab_a, 0.0625f       ); }
         }
         auto stop_x86 = std::chrono::system_clock::now();
         const bool ok_x86 = are_equivalent(tab_i, tab_a, 0.002, size );

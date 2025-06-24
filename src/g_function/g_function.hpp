@@ -19,20 +19,7 @@ void g_function(
     symbols_t* src_a,   // the upper value set from the right side of the graph
     symbols_t* src_b,   // the lower value set from the right side of the graph
     uint32_t   src_c)   // the computed symbols coming from the left side of the graph
-{
-    symbols_t result;
-    
-    //
-    // Currectly, we assume src_a is frequency domain
-    //
-//    if( src_a->is_freq == false ) {
-//        fwht<gf_size>( src_a->value );
-//        src_a->is_freq = true;
-//    }
-//    int index = src_c[0];
-//    const float* toto/*[64]*/ = Hadamard[ index ]; // ligne de la matrice de Hadamard
-//    for (size_t i = 0; i < gf_size; i++)
-//        src_a->value[i] = src_a->value[i] * toto[i];
+{   
     //
     //  Process the mulitplication to support precomputed symbols
     //
@@ -40,11 +27,13 @@ void g_function(
     if( src_a->is_freq == true )
     {
         fwht<gf_size>( src_a->value );
+        normalize<gf_size>(src_a->value, 0.125);
         src_a->is_freq = false;
     }
 
     if( src_b->is_freq == true ) {
         fwht<gf_size>( src_b->value );
+        normalize<gf_size>(src_b->value, 0.125);
         src_b->is_freq = false;
     }
 
@@ -55,7 +44,13 @@ void g_function(
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
         dst->gf   [i  ] = src_a->gf   [i]; // to be removed !
     }
-    normalize<gf_size>( dst->value );
+
+//    printf("##################################################\n");
+//    show_symbols( src_a );
+//    show_symbols( src_b );
+//    show_symbols( dst   );
+
+    normalize<gf_size>( dst->value ); // temporal
     src_b->is_freq = false;
 }
 //
