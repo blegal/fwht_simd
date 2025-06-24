@@ -24,21 +24,23 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include "../src/const_config_GF64_N64.hpp"
+
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <int GF>
-inline void fwht( float x[ ] )
+template <uint16_t GF>
+inline void fwht( value_type x[ ] )
 {
 	assert( x !=   0);
 	assert( true );
 	exit( x != NULL ); // pour gerer le release mode
 }
 
-template <int GF>
-inline void normalize( float x[ ], const float fact )
+template <uint16_t GF>
+inline void normalize( value_type x[ ], const value_type fact )
 {
 	for(int i=0; i<GF; i++)
 		x[i] = x[i] * fact;
@@ -49,9 +51,9 @@ inline void normalize( float x[ ], const float fact )
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht_tuile( const float inp[8], float outp[8] )
+inline void fwht_tuile( const value_type inp[8], value_type outp[8] )
 {
-	float L1[8], L2[8];
+	value_type L1[8], L2[8];
 	L1[0]   = inp[0] + inp[4];
 	L1[1]   = inp[1] + inp[5];
 	L1[2]   = inp[2] + inp[6];
@@ -85,9 +87,9 @@ inline void fwht_tuile( const float inp[8], float outp[8] )
 //
 //
 template < >
-inline void fwht<8>( float inp[8] )
+inline void fwht<8>( value_type inp[8] )
 {
-	float part_1[8];
+	value_type part_1[8];
 	for(int i=0; i<4; i++)
 		part_1[i] = inp[i] + inp[i + 4];
 	fwht_tuile( part_1, inp );
@@ -98,10 +100,10 @@ inline void fwht<8>( float inp[8] )
 //
 //
 template < >
-inline void fwht<16>( float inp[16] )
+inline void fwht<16>( value_type inp[16] )
 {
-	float part_1[8];
-	float part_2[8];
+	value_type part_1[8];
+	value_type part_2[8];
 
 	for(int i=0; i<8; i++)
 		part_1[i] = inp[i] + inp[i + 8];
@@ -117,10 +119,10 @@ inline void fwht<16>( float inp[16] )
 //
 //
 template < >
-inline void fwht<32>( float inp[32] )
+inline void fwht<32>( value_type inp[32] )
 {
-	float part_1[16];
-	float part_2[16];
+	value_type part_1[16];
+	value_type part_2[16];
 
 	for(int i=0; i<16; i++) {
 		part_1[i] = inp[i] + inp[i + 16];
@@ -141,10 +143,10 @@ inline void fwht<32>( float inp[32] )
 //
 //
 template < >
-inline void fwht<64>( float inp[64] )
+inline void fwht<64>( value_type inp[64] )
 {
-	float part_1[32];
-	float part_2[32];
+	value_type part_1[32];
+	value_type part_2[32];
 
 	for(int i=0; i<32; i++) {
 		part_1[i] = inp[i] + inp[i + 32];
@@ -165,9 +167,9 @@ inline void fwht<64>( float inp[64] )
 //
 //
 template < >
-inline void fwht<128>( float inp[128] )
+inline void fwht<128>( value_type inp[128] )
 {
-	float part_1[64], part_2[64];
+	value_type part_1[64], part_2[64];
 
 	for(int i=0; i<64; i++) {
 		part_1[i] = inp[i] + inp[i + 64];
@@ -188,10 +190,10 @@ inline void fwht<128>( float inp[128] )
 //
 //
 template < >
-inline void fwht<256>( float inp[256] )
+inline void fwht<256>( value_type inp[256] )
 {
-	float part_1[128];
-	float part_2[128];
+	value_type part_1[128];
+	value_type part_2[128];
 
 	for(int i=0; i<128; i++) {
 		part_1[i] = inp[i] + inp[i + 128];

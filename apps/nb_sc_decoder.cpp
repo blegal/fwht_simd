@@ -1,32 +1,13 @@
-/*
-*	Optimized bit-packing and bit-unpacking functions - Copyright (c) 2021 Bertrand LE GAL
-*
-*  This software is provided 'as-is', without any express or
-*  implied warranty. In no event will the authors be held
-*  liable for any damages arising from the use of this software.
-*
-*  Permission is granted to anyone to use this software for any purpose,
-*  including commercial applications, and to alter it and redistribute
-*  it freely, subject to the following restrictions:
-*
-*  1. The origin of this software must not be misrepresented;
-*  you must not claim that you wrote the original software.
-*  If you use this software in a product, an acknowledgment
-*  in the product documentation would be appreciated but
-*  is not required.
-*
-*  2. Altered source versions must be plainly marked as such,
-*  and must not be misrepresented as being the original software.
-*
-*  3. This notice may not be removed or altered from any
-*  source distribution.
-*
-*/
+
 #include "../src/fwht_x86.hxx"
 #include "../src/fwht_neon.hxx"
 #include "../src/fwht_avx2.hxx"
 #include <cstring>
 #include <chrono>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include "../src/const_config_GF64_N64.hpp"
 
 const float Hadamard[64][64] = {
     {+1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1},
@@ -126,260 +107,241 @@ const int frozen_symbols[] = {-1,  1, -1,  0,  0, -1,  0,  0,
 //
 struct symbols_t
 {
-    float value[64];
-    char  gf [64];  // to be removed !
-    bool  is_freq;
+    value_type value[GF];
+    gf_type gf[GF]; // to be removed !
+    bool is_freq;
 };
-//
-//
-//
-//
-//
-template <int gf_size>
-void f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
+
+template <uint32_t gf_size>
+void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 {
-    //
-    // Switch from time to frequency domain if needed
-    //
-    if( src_a->is_freq == false ) {
-        fwht<gf_size>( src_a->value );
+
+    if (src_a->is_freq == false)
+    {
+        fwht<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
 
-    if( src_b->is_freq == false ) {
-        fwht<gf_size>( src_b->value );
+    if (src_b->is_freq == false)
+    {
+        fwht<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
 
-    // Abdallah computations ...
     for (size_t i = 0; i < gf_size; i++)
     {
         dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i]  = src_a->gf  [i]; // to be removed !
+            dst->gf   [i]  = src_a->gf  [i]; // to be removed !
     }
-    // Abdallah computations ...    
-}
-//
-//
-//
-//
-//
-template <int gf_size>
-void normalize(float* tab)
-{
-    float sum = 0;
-    for(int i = 0; i < gf_size; i += 1){
-        sum += tab[i];
+    dst->is_freq = true; // a.a we do CN in FD
+
+    fwht<gf_size>(dst->value);
+    dst->is_freq = false;
+
+    value_type s1 = 0;
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        s1 += dst->value[i];
     }
-    const float factor = 1.f / sum;
-    for (int i = 0; i < gf_size; i++) {
-        tab[i] *= factor;
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->value[i] /= s1;
     }
 }
-//
-//
-//
-//
-//
-template <int gf_size>
-void g_function(
-    symbols_t* dst,     // the data to be computed for the left side of the graph
-    symbols_t* src_a,   // the upper value set from the right side of the graph
-    symbols_t* src_b,   // the lower value set from the right side of the graph
-    uint16_t* src_c)    // the computed symbols coming from the left side of the graph
+
+template <uint32_t gf_size>
+void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, gf_type decision_left)
+
 {
     symbols_t result;
-    
-    //
-    // Currectly, we assume src_a is frequency domain
-    //
-    if( src_a->is_freq == false ) {
-        fwht<gf_size>( src_a->value );
-        src_a->is_freq = true;
-    }
-
-    //
-    //  Process the mulitplication to support precomputed symbols
-    //
-    int index = src_c[0];
-    const float* toto/*[64]*/ = Hadamard[ index ]; // ligne de la matrice de Hadamard
-    for (size_t i = 0; i < gf_size; i++)
-        src_a->value[i] = src_a->value[i] * toto[i];
-
-    if( src_a->is_freq == true ) {
-        fwht<gf_size>( src_a->value );
+    if (src_a->is_freq == true)
+    {
+        fwht<gf_size>(src_a->value);
         src_a->is_freq = false;
     }
 
-    if( src_b->is_freq == true ) {
-        fwht<gf_size>( src_b->value );
+    if (src_b->is_freq == true)
+    {
+        fwht<gf_size>(src_b->value);
         src_b->is_freq = false;
     }
+    gf_type temp_gf;
+    value_type s1 = 0;
 
-    // Abdallah computations ...
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i] = src_a->gf   [i]; // to be removed !
+        temp_gf = decision_left ^ i;
+        dst->value[temp_gf] = src_a->value[i] * src_b->value[temp_gf]; // a.a in PB VN is element by element multiplication
+        // dst->gf[i] = src_a->gf[i];                                     // a.a
+        s1 += dst->value[temp_gf];
     }
-    normalize<gf_size>( dst->value );
-    // Abdallah computations ...    
-}
-//
-//
-//
-//
-//
-template <int gf_size>
-void final_node(symbols_t* var, int16_t* decoded, int16_t* symbols, const int symbol_id)
-{
-    printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
-    if( frozen_symbols[symbol_id] == -1 )
+    for (size_t i = 0; i < gf_size; i++)
     {
-        decoded[symbol_id] = 0;
-        symbols[symbol_id] = 0;
-        return;
+        dst->value[i] /= s1;
     }
-    //
-    // Switch from frequency to time domain if needed
-    //
-    if( var->is_freq ) {
-        fwht<gf_size>( var->value );
+    dst->is_freq = false; // a.a we do VN in PD
+}
+
+template <uint32_t gf_size>
+void final_node(symbols_t *var, gf_type *decoded, const uint32_t symbol_id)
+{
+    if (var->is_freq)
+    {
+        fwht<gf_size>(var->value);
         var->is_freq = false;
     }
-
     int max_index = 0;
-    float max_value = var->value[0];
-    for (int i = 1; i < gf_size; i++) {
-        if (var->value[i] > max_value) {
+    value_type max_value = var->value[0];
+    for (int i = 1; i < gf_size; i++)
+    {
+        if (var->value[i] > max_value)
+        {
             max_value = var->value[i];
             max_index = i;
         }
     }
-
     decoded[symbol_id] = max_index;
-    symbols[symbol_id] = max_index;
 }
-//
-//
-//
-//
-//
-template <int gf_size>
-void middle_node(
-    symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
-    symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
-    int16_t* decoded,       // Decoded symbols are the final output of the decoder (done on the left)
-    int16_t* symbols,       // Symbols are the ones going from leafs to root (done on the left)
-    int size,               // Size is the number of symbols (should be a power of 2)
-    const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
-{
-#if defined(__DEBUG__)
-    printf("- middle_node(%d, %d)\n", size, symbol_id);
-#endif
-    const int n = size / 2; // Assuming size is the number of symbols
-    //
-    // 
-    //
-#if defined(__DEBUG__)
-    printf("- f_function\n");
-#endif
-    for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
-    }
-    //
-    // 
-    //
-    if( n == 1 ) {
-        final_node<gf_size>(internal, decoded, symbols, symbol_id); // If we reach the final node, process it
-    }else{
-        middle_node<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id); // On descend à gauche
-    }
-    //
-    // 
-    //
-#if defined(__DEBUG__)
-    printf("- g_function\n");
-#endif
-    for (int i = 0; i < n; i++) {
-        g_function<gf_size>( internal + i, inputs + i, inputs + n + i, symbols); // Example operation
-    }
-    //
-    // 
-    //
-    if( n == 1 ) {
-        final_node<gf_size>(internal, decoded, symbols, symbol_id + n); // If we reach the final node, process it
-    }else{
-        middle_node<gf_size>(internal, internal + n, decoded, symbols,n, symbol_id + n); // On descend à droite
-    }
-    //
-    // 
-    //
-    for (int i = 0; i < n/2; i++) {
-        symbols[i] = symbols[i] ^ symbols[i + n/2]; // to be checked !
-    }
-    //
-    // 
-    //
-}
-//
-//
-//
-//
-//
-template <int gf_size = 64>
-void top_node(symbols_t* channel, symbols_t* internal, int16_t* decoded, int16_t* symbols, const int size)
-{
-#if defined(__DEBUG__)
-    printf("top_node(%d)\n", size);
-#endif
-    const int n = size / 2; // Assuming size is the number of symbols
-    //
-    // 
-    //
-    for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, channel + i, channel + n + i ); // Example operation
-    }
-    //
-    // 
-    //
-    middle_node<gf_size>(internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
-    //
-    // 
-    //
-    for (int i = 0; i < n; i++) {
-        g_function<gf_size>( internal + i, channel + i, channel + n + i, symbols ); // Example operation
-    }
-    //
-    // 
-    //
-    middle_node<gf_size>(internal, internal + n, decoded, symbols, n, n); // On descend à droite
-    //
-    // 
-    //
-    // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    // 
-    //
-}
-//
-//
-//
-//
-//
-int main(int argc, char* argv[])
-{
-    const int size = 64;
 
-    symbols_t* channel  = new symbols_t[size];
-    symbols_t* internal = new symbols_t[size];
-    int16_t*   symbols  = new int16_t  [size]; // the ones going from leafs to root
-    int16_t*   decoded  = new int16_t  [size];
-    top_node<64>(channel, internal, decoded, symbols, size);
+int main(int argc, char *argv[])
+{
+    symbols_t layers_arr[tot_clust]; // tot_clust=127=1+2+4+8+16+32+64
+    symbols_t *layers[logN + 1];
+    int offset = 0;
+    for (int i = 0; i <= logN; ++i)
+    {
+        layers[i] = layers_arr + offset;
+        offset += (N >> i);
+    }
 
-    delete[] channel;
-    delete[] internal;
+    bool Roots_arr[tot_clust];
+    bool *Roots[logN + 1];
+    offset = 0;
+    for (int i = 0; i <= logN; ++i)
+    {
+        Roots[i] = Roots_arr + offset;
+        offset += (1 << i);
+    }
 
+    const bool *frozen_clust[logN + 1];
+    offset = 0;
+    for (int i = 0; i < logN + 1; ++i)
+    {
+        frozen_clust[i] = frozen_clust_arr + offset;
+        offset += (1 << i);
+    }
+
+    int N1 = logN * N;
+    gf_type decoded_arr[N1];
+    // each layer should handle its decoded symbols as the will be needed for upper layer VNs processing
+    gf_type *decoded_layers[logN];
+    offset = 0;
+    for (int i = 0; i < logN; ++i)
+    {
+        decoded_layers[i] = decoded_arr + offset;
+        offset += N;
+    }
+    for (int u = 0; u < 100000; u++)
+    {
+
+        // assign channels observation to the first layer
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < GF; ++j)
+            {
+                layers[0][i].value[j] = chan[i * GF + j];
+                layers[0][i].gf[j] = j;
+            }
+            layers[0][i].is_freq = false;
+        }
+        // initialize the clusters status (false if not decoded yet)
+        for (int i = 0; i <= logN; ++i)
+        {
+            for (int j = 0; j < (1 << i); ++j)
+            {
+                Roots[i][j] = frozen_clust[i][j];
+            }
+        }
+
+        for (int i = 0; i < N1; i++)
+            decoded_arr[i] = 0;
+
+        int l = 0;
+        int s = 0;
+        while (true)
+        {
+            if (!Roots[l + 1][2 * s])
+            {
+                uint32_t len = N >> (l + 1);
+
+                for (int i = 0; i < len; ++i)
+                {
+                    f_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len]);
+                    
+                }
+                l += 1;
+                s *= 2;
+                if (l == logN)
+                {
+                    if (!Roots[logGF][s])
+                    {
+                        final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
+                        
+                    }
+                    Roots[logN][s] = true;
+                    l -= 1;
+                    s /= 2;
+                }
+            }
+
+            else if (!Roots[l + 1][2 * s + 1])
+            {
+                uint32_t len = N >> (l + 1);
+                uint32_t len1 = N >> l;
+
+                for (int i = 0; i < len; ++i)
+                {
+                    uint32_t id1 = s * len1 + i;
+                    gf_type decision = decoded_layers[l][id1];
+                    g_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len], decision);
+                    
+                }
+                l += 1;
+                s = (s << 1) + 1;
+                if (l == logN)
+                {
+                    if (!Roots[logGF][s])
+                    {
+                        final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
+                        
+                    }
+                    Roots[logN][s] = true;
+                    if (s == (N - 1))
+                        break;
+                    l -= 1;
+                    s >>= 1;
+                }
+            }
+            else
+            {
+                uint32_t len = N >> (l + 1);
+                uint32_t len1 = N >> l;
+                for (int i = 0; i < len; ++i)
+                {
+                    uint32_t id1 = s * len1 + i;
+                    decoded_layers[l - 1][id1] = decoded_layers[l][id1] ^ decoded_layers[l][id1 + len];
+                    decoded_layers[l - 1][id1 + len] = decoded_layers[l][id1 + len];
+                }
+                Roots[l][s] = true;
+                l -= 1;
+                s >>= 1;
+            }
+        }
+    }
+    for (int i = 0; i < N; ++i)
+    {
+        std::cout << decoded_layers[logN - 1][i] << " ";
+    }
+    std::cout << std::endl;
     return EXIT_SUCCESS;
 }
-    
