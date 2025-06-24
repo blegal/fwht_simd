@@ -44,7 +44,8 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     dst->is_freq = true; // a.a we do CN in FD
 
     // BLG : we decide to not normalize the CN output in frequency domain
-    
+    //       normalization is done in only in VNs when moving to probability domain
+
 //    fwht<gf_size>(dst->value);
 //    dst->is_freq = false;
 
