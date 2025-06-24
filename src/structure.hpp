@@ -17,3 +17,21 @@ struct symbols_t
 //
 //
 //
+void show_symbols(const symbols_t* symbols)
+{
+    if(symbols->is_freq )
+        printf("Symbols [freq]:");
+    else
+        printf("Symbols [prob]:");
+    for (int i = 0; i < GF; i += 1)
+    {
+        if ( (i%16) == 0 ) printf("\n %2d : ", i);
+        printf("%+6.1f ", symbols->value[i]);
+    }
+    printf("\n");
+}
+//
+//
+//
+//
+//

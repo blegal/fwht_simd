@@ -29,7 +29,7 @@ inline void fwht_neon(value_type x[ ])
 	assert( true );
 	exit( x != nullptr );
 }
-
+	
 template <uint16_t GF>
 inline void fwht_neon(value_type x[ ], value_type y[ ])
 {

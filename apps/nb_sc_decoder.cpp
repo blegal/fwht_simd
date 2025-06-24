@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
             channel[i].value[j] = chan[GF * i + j];
             channel[i].gf   [j] = j;
         }
+        normalize< 64>( channel[i].value ); // added probability normalization BLG
     }
 
     //

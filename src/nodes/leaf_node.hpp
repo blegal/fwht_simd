@@ -28,6 +28,8 @@ void leaf_node(
 #if defined(__DEBUG__)
     printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
 #endif
+//    show_symbols( var );
+
     if( frozen_symbols[symbol_id] == -1 )
     {
         decoded[symbol_id] = 0;
@@ -41,6 +43,7 @@ void leaf_node(
         fwht<gf_size>( var->value );
         var->is_freq = false;
     }
+//    show_symbols( var );
 
     int max_index = 0;
     float max_value = var->value[0];
