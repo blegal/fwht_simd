@@ -4,9 +4,9 @@
 //
 //
 //
-#include "f_function.hpp"
-#include "g_function.hpp"
-#include "leaf_node.hpp"
+#include "../f_function/f_function.hpp"
+#include "../g_function/g_function.hpp"
+#include "../nodes/leaf_node.hpp"
 //
 //
 //

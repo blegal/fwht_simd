@@ -4,10 +4,10 @@
 //
 //
 //
-#include "structure.hpp"
-#include "fwht_x86.hpp"
-#include "hadamard_64.hpp"
-#include "const_config_GF64_N64.hpp"
+#include "../structure.hpp"
+#include "../fwht/fwht_x86.hpp"
+#include "../hadamard/hadamard_64.hpp"
+#include "../const_config_GF64_N64.hpp"
 //
 //
 //

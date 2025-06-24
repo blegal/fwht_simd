@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-#include "../src/const_config_GF64_N64.hpp"
+#include "../const_config_GF64_N64.hpp"
 
 //
 //
