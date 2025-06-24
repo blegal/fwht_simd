@@ -1,14 +1,14 @@
 
-#include "../src/fwht_x86.hxx"
-#include "../src/fwht_neon.hxx"
-#include "../src/fwht_avx2.hxx"
+#include "../src/fwht/fwht_x86.hpp"
+#include "../src/fwht/fwht_neon.hpp"
+#include "../src/fwht/fwht_avx2.hpp"
 #include <cstring>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include "../src/const_config_GF64_N64.hpp"
-#include "../src/hadamard_64.hpp"
+#include "../src/hadamard/hadamard_64.hpp"
 //
 //
 //

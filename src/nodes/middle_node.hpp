@@ -21,9 +21,12 @@ void middle_node(
     int size,               // Size is the number of symbols (should be a power of 2)
     const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
 {
-#if defined(__DEBUG__)
-    printf("- middle_node(%d, %d)\n", size, symbol_id);
-#endif
+//#if defined(__DEBUG__)
+    printf("- middle_node(%d, %d)\n+> ", size, symbol_id);
+    for(int i = 0; i < size; i++) {
+        printf("%d ", frozen_symbols[symbol_id + i]); // Assuming gf[0] is the symbol value
+    } printf("\n");
+//#endif
     const int n = size / 2; // Assuming size is the number of symbols
     //
     // 
