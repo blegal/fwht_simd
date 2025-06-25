@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <chrono>
+
 #include "../src/const_config_GF64_N64.hpp"
 #include "../src/hadamard/hadamard_64.hpp"
 #include "../src/structure.hpp"
@@ -42,7 +44,7 @@ int main(int argc, char* argv[])
         for (int j = 0; j < GF; j += 1)
         {
             channel[i].value[j] = chan[GF * i + j];
-            channel[i].gf   [j] = j;
+//            channel[i].gf   [j] = j;
         }
 //      normalize< 64>( channel[i].value ); // added probability normalization BLG
         normalize<GF>( channel[i].value );
@@ -58,7 +60,7 @@ int main(int argc, char* argv[])
         for (int j = 0; j < GF; j += 1)
         {
             internal[i].value[j] = 0.f;
-            internal[i].gf   [j] = j;
+//            internal[i].gf   [j] = j;
         }
     }
 
@@ -105,6 +107,27 @@ int main(int argc, char* argv[])
         
        
     }printf("\n");
+
+    const  int32_t nTest = (64 * 1024);
+
+    auto start_x86 = std::chrono::system_clock::now();
+    for(int32_t loop = 0; loop < nTest; loop += 1)
+    {
+        top_node<64>(channel, internal, decoded, symbols, size);
+    }
+    auto stop_x86 = std::chrono::system_clock::now();
+
+    const float time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+    const float time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+    const float time_msec = time_ns / 1000.f / 1000.f; // in seconds
+    const float time_usec = time_ns / 1000.f; // in seconds
+    const float time_run  = (time_usec / (float)nTest);
+
+    const float debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+    printf(" - experiments  : %1.3f sec\n",  time_sec);
+    printf(" - experiments  : %1.2f ms\n",   time_msec);
+    printf(" - one decoding : %1.2f us\n",   time_run);
+    printf(" - debit coded  : %1.2f Mbps\n", debit);
 
     delete[] channel;
     delete[] internal;

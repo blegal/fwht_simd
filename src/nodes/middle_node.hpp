@@ -30,6 +30,7 @@ void middle_node(
 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
+#if 0
     int sum = 0;
     for(int i = 0; i < size; i++) { sum += frozen_symbols[symbol_id + i]; }
     if( sum == size ) {
@@ -37,6 +38,7 @@ void middle_node(
             symbols[symbol_id + i] = 0;
         return;
     }
+#endif
     //
     ///////////////////////////////////////////////////////////////////////////////////////
 
