@@ -23,7 +23,7 @@
 *
 */
 #include "../src/fwht/fwht_x86.hpp"
-#include "../src/fwht/fwht_n_x86.hpp"
+#include "../src/fwht/fwht_norm_x86.hpp"
 #include "../src/fwht/fwht_neon.hpp"
 #include "../src/fwht/fwht_avx2.hpp"
 #include <cstring>
