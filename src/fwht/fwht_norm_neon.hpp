@@ -23,7 +23,7 @@
 #include <string>
 
 template <uint16_t GF>
-inline void fwht_neon(float x[ ])
+inline void fwht_neon_norm(float x[ ])
 {
 	assert( x !=   0);
 	assert( true );
@@ -31,7 +31,7 @@ inline void fwht_neon(float x[ ])
 }
 	
 template <uint16_t GF>
-inline void fwht_neon(float x[ ], float y[ ])
+inline void fwht_neon_internal(float x[ ], float y[ ], const float32x4_t factor)
 {
 	assert( x !=   0);
 	assert( y !=   0);
@@ -116,7 +116,7 @@ float32x4x2_t fwht8_neon_chatgpt(const float32x4_t a, const float32x4_t b) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1)
+inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1, const float32x4_t factor)
 {
 	float32x4x2_t resu;
 	const uint32x4_t  m0 = {0x00000000, 0x00000000, 0x80000000, 0x80000000};
@@ -131,7 +131,8 @@ inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1)
 	const float32x4_t V0 = vreinterpretq_f32_u32(veorq_u32( vreinterpretq_u32_f32(N2), m1));
 	const float32x4_t V1 = vrev64q_f32(N2);
 	const float32x4_t V2 = vaddq_f32  (V0,   V1);
-	resu.val[0] = V2;
+	const float32x4_t V3 = vmulq_f32  (V2,   factor);  // normalization
+	resu.val[0] = V3;
 	//
 	//////////////////////////////////////////////////////
 	//
@@ -142,7 +143,8 @@ inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1)
 	const float32x4_t Q0 = vreinterpretq_f32_u32(veorq_u32( vreinterpretq_u32_f32(O2), m1));
 	const float32x4_t Q1 = vrev64q_f32(O2);
 	const float32x4_t Q2 = vaddq_f32  (Q0,   Q1);
-	resu.val[1] = Q2;
+	const float32x4_t Q3 = vmulq_f32  (Q2,   factor); // normalization
+	resu.val[1] = Q3;
 	return resu;
 }
 //
@@ -150,16 +152,16 @@ inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht16_neon(const float32x4x2_t A, const float32x4x2_t B, float y[ ])
+inline void fwht16_neon_internal(const float32x4x2_t A, const float32x4x2_t B, float* y, const float32x4_t factor)
 {
 	{
 		const float32x4x2_t T0 = vaddq_x2_f32(A, B);
-		const float32x4x2_t C  = fwht8_neon(T0.val[0], T0.val[1]);
+		const float32x4x2_t C  = fwht8_neon(T0.val[0], T0.val[1], factor);
 		vst1q_x2_f32(y,     C);
 	}
 	{
 		const float32x4x2_t R0 = vsubq_x2_f32(A, B);
-		const float32x4x2_t D  = fwht8_neon(R0.val[0], R0.val[1]);
+		const float32x4x2_t D  = fwht8_neon(R0.val[0], R0.val[1], factor);
 		vst1q_x2_f32(y + 8, D);
 	}
 }
@@ -172,19 +174,20 @@ inline void fwht16_flat_neon(float x[ ], float y[ ])
 {
 	const float32x4x2_t A = vld1q_x2_f32(x    );
 	const float32x4x2_t B = vld1q_x2_f32(x + 8);
-	fwht16_neon(A, B, y);
+	const const float32x4_t factor = ;
+	fwht16_neon_internal(A, B, y, factor);
 }
 //
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht32_neon(float32x4x2_t X0, float32x4x2_t X1, float32x4x2_t X2, float32x4x2_t X3, float y[ ])
+inline void fwht32_neon_internal(float32x4x2_t X0, float32x4x2_t X1, float32x4x2_t X2, float32x4x2_t X3, float y[ ], const float32x4_t factor)
 {
 	const float32x4x2_t A0 = vaddq_x2_f32(X0, X2), A1 = vaddq_x2_f32(X1, X3);
 	const float32x4x2_t B0 = vsubq_x2_f32(X0, X2), B1 = vsubq_x2_f32(X1, X3);
-	fwht16_neon( A0, A1, y +  0);
-	fwht16_neon( B0, B1, y + 16);
+	fwht16_neon_internal( A0, A1, y +  0, factor);
+	fwht16_neon_internal( B0, B1, y + 16, factor);
 }
  
 inline void fwht32_flat_neon(float x[ ], float y[ ])
@@ -194,19 +197,20 @@ inline void fwht32_flat_neon(float x[ ], float y[ ])
 	const float32x4x2_t X2 = vld1q_x2_f32 ( x + 16 );
 	const float32x4x2_t X3 = vld1q_x2_f32 ( x + 24 );
 	const float32x4x2_t m0 = vaddq_x2_f32(X0, X2), m1 = vaddq_x2_f32(X1, X3);
-	fwht16_neon( m0, m1, y +  0);
+	const const float32x4_t factor = ;
+	fwht32_neon_internal( m0, m1, y +  0, factor);
 	const float32x4x2_t M0 = vsubq_x2_f32(X0, X2), M1 = vsubq_x2_f32(X1, X3);
-	fwht16_neon( M0, M1, y + 16);
+	fwht32_neon_internal( M0, M1, y + 16, factor);
 }
 
-inline void fwht64_neon(float32x4x2_t X0, float32x4x2_t X1, float32x4x2_t X2, float32x4x2_t X3, float32x4x2_t X4, float32x4x2_t X5, float32x4x2_t X6, float32x4x2_t X7, float y[ ])
+inline void fwht64_neon_internal(float32x4x2_t X0, float32x4x2_t X1, float32x4x2_t X2, float32x4x2_t X3, float32x4x2_t X4, float32x4x2_t X5, float32x4x2_t X6, float32x4x2_t X7, float y[ ], , const float32x4_t factor)
 {
 	const float32x4x2_t A0 = vaddq_x2_f32(X0, X4), A1 = vaddq_x2_f32(X1, X5);
 	const float32x4x2_t A2 = vaddq_x2_f32(X2, X6), A3 = vaddq_x2_f32(X3, X7);
-	fwht32_neon( A0, A1, A2, A3, y +  0);
+	fwht32_neon_internal( A0, A1, A2, A3, y +  0);
 	const float32x4x2_t B0 = vsubq_x2_f32(X0, X4), B1 = vsubq_x2_f32(X1, X5);
 	const float32x4x2_t B2 = vsubq_x2_f32(X2, X6), B3 = vsubq_x2_f32(X3, X7);
-	fwht32_neon( B0, B1, B2, B3, y + 32);
+	fwht32_neon_internal( B0, B1, B2, B3, y + 32);
 }
 
 inline void fwht64_flat_neon(float x[ ], float y[ ])
@@ -222,24 +226,24 @@ inline void fwht64_flat_neon(float x[ ], float y[ ])
 
 	const float32x4x2_t A0 = vaddq_x2_f32(X0, X4), A1 = vaddq_x2_f32(X1, X5);
 	const float32x4x2_t A2 = vaddq_x2_f32(X2, X6), A3 = vaddq_x2_f32(X3, X7);
-	fwht32_neon( A0, A1, A2, A3, y +  0);
+	fwht32_neon_internal( A0, A1, A2, A3, y +  0);
 
 	const float32x4x2_t B0 = vsubq_x2_f32(X0, X4), B1 = vsubq_x2_f32(X1, X5);
 	const float32x4x2_t B2 = vsubq_x2_f32(X2, X6), B3 = vsubq_x2_f32(X3, X7);
-	fwht32_neon( B0, B1, B2, B3, y + 32);
+	fwht32_neon_internal( B0, B1, B2, B3, y + 32);
 }
 
 inline void fwht128_neon(float32x4x2_t X0, float32x4x2_t X1, float32x4x2_t X2, float32x4x2_t X3, float32x4x2_t X4, float32x4x2_t X5, float32x4x2_t X6, float32x4x2_t X7, float32x4x2_t X8, float32x4x2_t X9, float32x4x2_t X10, float32x4x2_t X11, float32x4x2_t X12, float32x4x2_t X13, float32x4x2_t X14, float32x4x2_t X15, float y[ ])
 {
 	const float32x4x2_t A0 = vaddq_x2_f32(X0,  X8), A1 = vaddq_x2_f32(X1,  X9), A2 = vaddq_x2_f32(X2, X10), A3 = vaddq_x2_f32(X3, X11);
 	const float32x4x2_t A4 = vaddq_x2_f32(X4, X12), A5 = vaddq_x2_f32(X5, X13), A6 = vaddq_x2_f32(X6, X14), A7 = vaddq_x2_f32(X7, X15);
-	fwht64_neon( A0, A1, A2, A3, A4, A5, A6, A7, y +  0);
+	fwht64_neon_internal( A0, A1, A2, A3, A4, A5, A6, A7, y +  0);
 	const float32x4x2_t B0 = vsubq_x2_f32(X0,  X8), B1 = vsubq_x2_f32(X1,  X9), B2 = vsubq_x2_f32(X2, X10), B3 = vsubq_x2_f32(X3, X11);
 	const float32x4x2_t B4 = vsubq_x2_f32(X4, X12), B5 = vsubq_x2_f32(X5, X13), B6 = vsubq_x2_f32(X6, X14), B7 = vsubq_x2_f32(X7, X15);
-	fwht64_neon( B0, B1, B2, B3, B4, B5, B6, B7, y + 64);
+	fwht64_neon_internal( B0, B1, B2, B3, B4, B5, B6, B7, y + 64);
 }
 
-inline void fwht128_flat_neon(float x[ ], float y[ ])
+inline void fwht128_flat_neon_internal(float x[ ], float y[ ], const float32x4_t factor)
 {
 	const float32x4x2_t X0  = vld1q_x2_f32 ( x +   0 );
 	const float32x4x2_t X1  = vld1q_x2_f32 ( x +   8 );
@@ -258,7 +262,7 @@ inline void fwht128_flat_neon(float x[ ], float y[ ])
 	const float32x4x2_t X14 = vld1q_x2_f32 ( x + 112 );
 	const float32x4x2_t X15 = vld1q_x2_f32 ( x + 120 );
 
-	fwht128_neon( X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y );
+	fwht128_neon_internal( X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y, factor );
 }
 
 inline void fwht256_flat_neon(float x[ ], float y[ ])

@@ -42,7 +42,7 @@ void g_function(
     {
         const int idx = src_c ^ i;
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
-        dst->gf   [i  ] = src_a->gf   [i]; // to be removed !
+        dst->gf   [i  ] = idx;//src_a->gf   [i]; // to be removed !
     }
 
 //    printf("##################################################\n");
