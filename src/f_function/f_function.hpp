@@ -46,6 +46,7 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     fwht<gf_size>(dst->value);
     normalize<gf_size>(dst->value, 0.125);
     dst->is_freq = false;
+#else
     normalize<gf_size>(dst->value);
 #endif
 }
