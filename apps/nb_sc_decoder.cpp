@@ -44,7 +44,8 @@ int main(int argc, char* argv[])
         for (int j = 0; j < GF; j += 1)
         {
             channel[i].value[j] = chan[GF * i + j];
-//            channel[i].gf   [j] = j;
+            channel[i].gf   [j] = j;
+            channel[i].is_freq  = false;
         }
 //      normalize< 64>( channel[i].value ); // added probability normalization BLG
         normalize<GF>( channel[i].value );
@@ -60,7 +61,7 @@ int main(int argc, char* argv[])
         for (int j = 0; j < GF; j += 1)
         {
             internal[i].value[j] = 0.f;
-//            internal[i].gf   [j] = j;
+            internal[i].gf   [j] = j;
         }
     }
 
@@ -85,7 +86,6 @@ int main(int argc, char* argv[])
     //
     top_node<64>(channel, internal, decoded, symbols, size);
 
-
     printf("\nFrozen matrix:\n");
     for (int i = 0; i < N; i += 1)
     {
@@ -107,6 +107,8 @@ int main(int argc, char* argv[])
         
        
     }printf("\n");
+
+    exit( 0 );
 
     const  int32_t nTest = (64 * 1024);
 

@@ -179,7 +179,11 @@ inline void fwht16_flat_neon(float x[ ], float y[ ])
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht32_neon(float32x4x2_t X0, float32x4x2_t X1, float32x4x2_t X2, float32x4x2_t X3, float y[ ])
+inline void fwht32_neon(
+	float32x4x2_t X0,
+	float32x4x2_t X1,
+	float32x4x2_t X2,
+	float32x4x2_t X3, float y[ ])
 {
 	const float32x4x2_t A0 = vaddq_x2_f32(X0, X2), A1 = vaddq_x2_f32(X1, X3);
 	const float32x4x2_t B0 = vsubq_x2_f32(X0, X2), B1 = vsubq_x2_f32(X1, X3);

@@ -27,7 +27,7 @@ void remove_xors(uint16_t* values, int size)
 //
 //
 template <int gf_size>
-void middle_node(
+void middle_node_with_pruning(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)
@@ -45,6 +45,46 @@ void middle_node(
     } printf("\n");
 #endif
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+#if 0
+    int sum = 0;
+    for(int i = 0; i < size; i++) { sum += frozen_symbols[symbol_id + i]; }
+    if( sum == size ) {
+        for(int i = 0; i < size; i++)
+        {
+            symbols[symbol_id + i] = 0;
+            decoded[symbol_id + i] = 0;
+        }
+        return;
+    }
+#endif
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+#if 0
+    if( sum == 0 ) {
+#if defined(debug_rate_1)
+        printf("Frozen pruning with rate = 1\n");
+#endif
+        for(int i = 0; i < size; i++)
+        {
+            int value = argmax<gf_size>( inputs[i].value );
+            symbols[symbol_id + i] = value;
+            decoded[symbol_id + i] = value; // should be corrected (it is systematic solution actually)
+#if defined(debug_rate_1)
+            printf("-> hard decision [%2d] = %d\n", symbol_id + i, symbols[symbol_id + i]);
+#endif
+        }
+        remove_xors(decoded + symbol_id, size);
+        return;
+    }
+#endif
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     const int n = size / 2; // Assuming size is the number of symbols
     //
     // 
@@ -53,7 +93,7 @@ void middle_node(
     printf("- f_function\n");
 #endif
     for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, inputs + i, inputs + n + i, i ); // Example operation
+        f_function<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
     }
     //
     // 
@@ -85,7 +125,7 @@ void middle_node(
             internal + i,
             inputs   + i,
             inputs   + n + i,
-            symbols[symbol_id + i], i); // Example operation
+            symbols[symbol_id + i]); // Example operation
 #if 0
         printf("(func_g) internal[%2d] = G[%2d, %2d, %2d]\n", i, i, n + i, symbol_id + i);
 #endif

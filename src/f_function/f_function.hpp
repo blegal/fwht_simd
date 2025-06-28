@@ -12,21 +12,25 @@
 //
 //
 //
-template <uint32_t gf_size>
-void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
+#define debug_f_function
+template <uint32_t gf_size, bool result_in_proba = false>
+void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, const int idx)
 {
-    //
-    // Switch from time to frequency domain if needed
-    //
-    if (src_a->is_freq == false)
+    if (src_a->is_freq == false) // Switch from time to frequency domain
     {
+#if defined(debug_f_function)
+        printf("[debug f] > Conversion Proba to Freq. (src_a) [%d]\n", idx);
+#endif
         fwht<gf_size>(src_a->value);
         normalize<gf_size>(src_a->value, 0.125);
         src_a->is_freq = true;
     }
 
-    if (src_b->is_freq == false)
+    if (src_b->is_freq == false) // Switch from time to frequency domain
     {
+#if defined(debug_f_function)
+        printf("[debug f] > Conversion Proba to Freq. (src_b) [%d]\n", idx);
+#endif
         fwht<gf_size>(src_b->value);
         normalize<gf_size>(src_b->value, 0.125);
         src_b->is_freq = true;
@@ -38,17 +42,21 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     for (size_t i = 0; i < gf_size; i++)
     {
         dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i]  = src_a->gf  [i]; // to be removed !
+        dst->gf   [i] = src_a->gf   [i]; // to be removed !
     }
     dst->is_freq = true; // a.a we do CN in FD
 
-#if 1
-    fwht<gf_size>(dst->value);
-    normalize<gf_size>(dst->value, 0.125);
-    dst->is_freq = false;
-#else
-    normalize<gf_size>(dst->value);
-#endif
+    if( result_in_proba )
+    {
+        fwht<gf_size>(dst->value);
+        normalize<gf_size>(dst->value, 0.125);
+        dst->is_freq = false;
+        normalize<gf_size>(dst->value);
+        printf("[debug f] < Conversion Freq. to Proba (dst) [%d]\n", idx);
+    }
+//#if defined(debug_f_function)
+//    printf("[debug f]"); show_symbols( dst );
+//#endif
 }
 //
 //

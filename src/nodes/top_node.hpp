@@ -24,7 +24,7 @@ void top_node(
         f_function<gf_size>(
             internal     + i,
             channel      + i,
-            channel  + n + i );
+            channel  + n + i, i );
     }
     //
     // 
@@ -44,8 +44,8 @@ void top_node(
             internal     + i,    // memory space for the result
             channel      + i,    // values from the right child
             channel  + n + i,    // values from the right child
-            symbols[i]           // decoded symbols from the left child
-        );
+            symbols[i],           // decoded symbols from the left child
+            i);
     }
     //
     // 

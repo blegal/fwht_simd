@@ -13,12 +13,14 @@
 //
 //
 //
+#define debug_g_function
 template <int gf_size>
 void g_function(
     symbols_t* dst,     // the data to be computed for the left side of the graph
     symbols_t* src_a,   // the upper value set from the right side of the graph
     symbols_t* src_b,   // the lower value set from the right side of the graph
-    uint32_t   src_c)   // the computed symbols coming from the left side of the graph
+    uint32_t   src_c,
+    const int idx)   // the computed symbols coming from the left side of the graph
 {   
     //
     //  Process the mulitplication to support precomputed symbols
@@ -29,12 +31,20 @@ void g_function(
         fwht<gf_size>( src_a->value );
         normalize<gf_size>(src_a->value, 0.125);
         src_a->is_freq = false;
+#if defined(debug_g_function)
+        printf("[debug g] > Conversion Freq. to Proba (src_a) [%d]\n", idx);
+        show_symbols( src_a );
+#endif
     }
 
     if( src_b->is_freq == true ) {
         fwht<gf_size>( src_b->value );
         normalize<gf_size>(src_b->value, 0.125);
         src_b->is_freq = false;
+#if defined(debug_g_function)
+        printf("[debug g] > Conversion Freq. to Proba (src_b) [%d]\n", idx);
+        show_symbols( src_b );
+#endif
     }
 
     // Abdallah computations ...
@@ -51,7 +61,7 @@ void g_function(
 //    show_symbols( dst   );
 
     normalize<gf_size>( dst->value ); // temporal
-    src_b->is_freq = false;
+    dst->is_freq = false;
 }
 //
 //
