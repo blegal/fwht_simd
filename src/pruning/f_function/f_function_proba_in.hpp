@@ -4,11 +4,11 @@
 //
 //
 //
-#include "../structure.hpp"
-#include "../fwht/fwht_x86.hpp"
-#include "../fwht/fwht_neon.hpp"
-#include "../fwht/fwht_norm_neon.hpp"
-#include "../const_config_GF64_N64.hpp"
+#include "../../structure.hpp"
+#include "../../fwht/fwht_x86.hpp"
+#include "../../fwht/fwht_neon.hpp"
+#include "../../fwht/fwht_norm_neon.hpp"
+#include "../../const_config_GF64_N64.hpp"
 //
 //
 //

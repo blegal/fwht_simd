@@ -26,7 +26,9 @@
 #include "../src/nodes/top_node.hpp"
 #include "../src/nodes/top_node_with_pruning.hpp"
 
-#include "../src/pruning/top_node_v2.hpp"
+#include "../src/pruning/decoder_specialized.hpp"
+
+#include "../src/frozen_tree.hpp"
 
 //
 //
@@ -35,6 +37,7 @@
 //
 int frozen_symbols[64];
 
+/*
 enum next_node { RATE_0,
                 RATE_1_FROM_F,
                 RATE_1_FROM_G,
@@ -44,104 +47,7 @@ enum next_node { RATE_0,
                 MID_NODE_FROM_F,
                 MID_NODE_FROM_G};
 next_node pruning[2 * N];
-
-int frozen_tree(
-    int* frozen,
-    int curr_frozen,
-    next_node* array,
-    int curr_elmnt,
-    const int size,
-    const int level = 1)
-{
-    const int n = size / 2; // Assuming size is the number of symbols
-    for(int z = 0; z < level; z += 1) printf("+  "); printf("NODE LEVEL (%d)\n", size); 
-    for(int z = 0; z < level; z += 1) printf("+  ") ; 
-    printf("F edge : ") ; 
-    for(int i = 0; i < n; i++){
-        if( i == n ) printf(" | ");
-        printf("%d", frozen_symbols[curr_frozen + i]);
-    }
-    printf("\n");
-
-    //
-    // Analyse de la branche gauche
-    //
-    int sum = 0;
-    for(int i = 0; i < n; i++)
-        sum += frozen_symbols[curr_frozen + i];
-
-    int next_elmnt;
-    if( sum == n ) {
-        if( n == 1 ){
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Leaf rate-0 node found (%d)\n", n);
-            array[curr_elmnt] = LEAF_RATE_0;
-        }else{
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Rate-0 node found (%d)\n", n);
-            array[curr_elmnt] = RATE_0;
-        }
-        next_elmnt = curr_elmnt + 1;
-    } else if( sum == 0 ) {
-        if( n == 1 ) {
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Leaf rate-1 node found (%d)\n", n);
-            array[curr_elmnt] = LEAF_RATE_1_FROM_F;
-        }else{
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Rate-1 node found (%d)\n", n);
-            array[curr_elmnt] = RATE_1_FROM_F;
-        }
-        next_elmnt = curr_elmnt + 1;
-    }else{
-        for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Normal (f) node found (%d)\n", n);
-        array[curr_elmnt] = MID_NODE_FROM_F;
-        next_elmnt = frozen_tree(
-            frozen,
-            curr_frozen,
-            array,
-            curr_elmnt + 1,
-            n, level + 1);
-    }
-
-    //
-    // Analyse de la branche droite
-    //
-    for(int z = 0; z < level; z += 1) printf("+  ") ; 
-    printf("G edge : ") ; 
-    for(int i = 0; i < n; i++)
-        printf("%d", frozen_symbols[curr_frozen + n + i]);
-    printf("\n");
-
-    sum = 0;
-    for(int i = 0; i < n; i++)
-        sum += frozen_symbols[curr_frozen + n + i];
-    if( sum == n ) {
-        if( n == 1 ){
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Leaf rate-0 node found (size = %d)\n", n);
-            array[curr_elmnt] = LEAF_RATE_0;
-        }else{
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Rate-0 node found (size = %d)\n", n);
-            array[curr_elmnt] = RATE_0;
-        }
-        return curr_elmnt + 1;
-    }else  if( sum == 0 ) {
-        if( n == 1 ) {
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Leaf rate-1 node found (size = %d)\n", n);
-            array[curr_elmnt] = LEAF_RATE_1_FROM_G;
-        }else{
-            for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Rate-1 node found (size = %d)\n", n);
-            array[curr_elmnt] = RATE_1_FROM_G;
-        }
-        return curr_elmnt + 1;
-    }else{
-        for(int z = 0; z < level; z += 1) printf("+  ") ; printf(" >Normal (g) node found (size = %d)\n", n);
-        array[next_elmnt] = MID_NODE_FROM_G;
-        int final_elmnt = frozen_tree(
-            frozen,
-            curr_frozen + n,
-            array,
-            next_elmnt + 1,
-            n, level + 1);
-        return final_elmnt;
-    }
-}
+*/
 
 
 int main(int argc, char* argv[])
@@ -187,7 +93,13 @@ int main(int argc, char* argv[])
     for (int i = 0; i < K; i += 1)
         frozen_symbols[ reliab_seq[i] ] = false; // i c'est pour le DEBUG, on pourrait mettre 0
 
-    const int n_nodes = frozen_tree(frozen_symbols, 0, pruning, 0, N);
+
+//  const int n_nodes = frozen_tree(frozen_symbols, 0, pruning, 0, N);
+
+    frozen_tree pruned_tree( N );
+    pruned_tree.analyze(frozen_symbols, N);
+    pruned_tree.dump();
+
     printf("\nFrozen matrix:\n");
     for (int i = 0; i < N; i += 1)
     {
@@ -248,7 +160,7 @@ int main(int argc, char* argv[])
     //
     // Call the top node function to decode the symbols
     //
-    nb_decoder_v2<64> dec;
+    decoder_specialized<64> dec;
     dec.execute(channel, internal, decoded, symbols, size);
     printf("\n\nDecoded symbols (class):\n");
     for (int i = 0; i < N; i += 1)
@@ -339,8 +251,6 @@ int main(int argc, char* argv[])
     /////////////////////////////////////////////////////////////////////////////////
     //
     //
-    while( true )
-        dec.execute(channel, internal, decoded, symbols, size);
 
     delete[] channel;
     delete[] internal;

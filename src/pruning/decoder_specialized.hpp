@@ -5,7 +5,7 @@
 //
 //
 template <int gf_size = 64>
-class nb_decoder_v2
+class decoder_specialized
 {
 public:
     static void execute(
@@ -35,13 +35,13 @@ private:
 //
 //
 //
-#include "middle_node_after_f.hpp"
-#include "middle_node_after_g.hpp"
+#include "node/middle_node_after_f.hpp"
+#include "node/middle_node_after_g.hpp"
 //
 //
 //
 template <int gf_size>
-void nb_decoder_v2<gf_size>::execute(
+void decoder_specialized<gf_size>::execute(
     symbols_t* channel,     // Channel symbols are the input symbols (from the right)
     symbols_t* internal,    // internal memory space for intermediate computations
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)

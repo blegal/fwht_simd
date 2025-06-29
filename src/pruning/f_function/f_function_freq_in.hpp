@@ -4,9 +4,9 @@
 //
 //
 //
-#include "../structure.hpp"
-#include "../fwht/fwht_x86.hpp"
-#include "../const_config_GF64_N64.hpp"
+#include "../../structure.hpp"
+#include "../../fwht/fwht_x86.hpp"
+#include "../../const_config_GF64_N64.hpp"
 //
 //
 //

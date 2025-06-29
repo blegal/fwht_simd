@@ -4,17 +4,17 @@
 //
 //
 //
-#include "f_function_freq_in.hpp"
-#include "g_function_freq_in.hpp"
-#include "leaf_node_after_f.hpp"
-#include "leaf_node_after_g.hpp"
+#include "../f_function/f_function_proba_in.hpp"
+#include "../g_function/g_function_proba_in.hpp"
+#include "../leaf/leaf_node_after_f.hpp"
+#include "../leaf/leaf_node_after_g.hpp"
 //
 //
 //
 //
 //
 template <int gf_size>
-void nb_decoder_v2<gf_size>::middle_node_after_f(
+void decoder_specialized<gf_size>::middle_node_after_g(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)
@@ -27,7 +27,7 @@ void nb_decoder_v2<gf_size>::middle_node_after_f(
     // 
     //
     for (int i = 0; i < n; i++) {
-        f_function_freq_in<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
+        f_function_proba_in<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
     }
     //
     // 
@@ -51,7 +51,7 @@ void nb_decoder_v2<gf_size>::middle_node_after_f(
     // 
     //
     for (int i = 0; i < n; i++) {
-        g_function_freq_in<gf_size>(
+        g_function_proba_in<gf_size>(
             internal + i,
             inputs   + i,
             inputs   + n + i,
