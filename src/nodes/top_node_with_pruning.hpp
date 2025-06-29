@@ -1,12 +1,12 @@
 #pragma once
-#include "middle_node.hpp"
+#include "middle_node_with_pruning.hpp"
 //
 //
 //
 //
 //
 template <int gf_size = 64>
-void top_node(
+void top_node_with_pruning(
     symbols_t* channel,     // Channel symbols are the input symbols (from the right)
     symbols_t* internal,    // internal memory space for intermediate computations
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)
@@ -14,7 +14,7 @@ void top_node(
     const int size)         // Size is the number of symbols (should be a power of 2)
 {
 #if defined(__DEBUG__)
-    printf("top_node(%d)\n", size);
+    printf("top_node_with_pruning(%d)\n", size);
 #endif
     const int n = size / 2; // Assuming size is the number of symbols
     //
@@ -29,7 +29,7 @@ void top_node(
     //
     // 
     //
-    middle_node<gf_size>(
+    middle_node_with_pruning<gf_size>(
         internal,
         internal + n,
         decoded,
@@ -49,7 +49,7 @@ void top_node(
     //
     // 
     //
-    middle_node<gf_size>(
+    middle_node_with_pruning<gf_size>(
         internal,
         internal + n,
         decoded,

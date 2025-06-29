@@ -10,7 +10,7 @@ project(nb_sc_decoder LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 # # Do NOT force Release here — let the user choose build type (default Debug is good)
 if(NOT CMAKE_BUILD_TYPE)
@@ -36,7 +36,7 @@ project(nb_sc_decoder_abd LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 # Do NOT force Release here — let the user choose build type (default Debug is good)
 if(NOT CMAKE_BUILD_TYPE)
@@ -62,7 +62,7 @@ project(bench_fwht LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 # # Do NOT force Release here — let the user choose build type (default Debug is good)
 if(NOT CMAKE_BUILD_TYPE)

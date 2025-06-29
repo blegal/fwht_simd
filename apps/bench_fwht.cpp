@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    const  int32_t nTest = 1024;//(1024 * 1024); //64 * (1024 * 1024);
+    const  int32_t nTest = (1024 * 1024); //64 * (1024 * 1024);
 
-    for (int size = 16; size <= 256; size *= 2) {
+    for (int size = 8; size <= 256; size *= 2) {
 
         float* tab_i = new float[size];
         float* tab_a = new float[size];
@@ -74,12 +74,16 @@ int main(int argc, char* argv[])
         float* tab_c = new float[size];
         float* tab_d = new float[size];
 
+        float* tab_e = new float[size];
+        float* tab_f = new float[size];
+
         for (int i = 0; i < size; i++) {
             tab_i[i] = ((float)rand()) / ((float)RAND_MAX) - 0.5f;
             tab_a[i] = tab_i[i];
             tab_b[i] = tab_i[i];
             tab_c[i] = tab_i[i];
             tab_d[i] = tab_i[i];
+            tab_e[i] = tab_e[i];
         }
 
         printf("+> testing functions [ll = %4d]\n", size);
@@ -93,26 +97,31 @@ int main(int argc, char* argv[])
             if (size == 128) { fwht<128>( tab_a ); normalize<128>( tab_a, 0.08838834764f); fwht<128>( tab_a ); normalize<128>( tab_a, 0.08838834764f); }
             if (size == 256) { fwht<256>( tab_a ); normalize<256>( tab_a, 0.0625f       ); fwht<256>( tab_a ); normalize<256>( tab_a, 0.0625f       ); }
         }
-        auto stop_x86 = std::chrono::system_clock::now();
-        const bool ok_x86 = are_equivalent(tab_i, tab_a, 0.002, size );
-        const uint64_t time_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count() / nTest;
+        auto stop_x86     = std::chrono::system_clock::now();
+        bool ok_x86       = are_equivalent(tab_i, tab_a, 0.002, size );
+        uint64_t time_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count() / nTest;
         if( ok_x86 ){
             printf(" - [GCCV] fwht           \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_x86);
         }else{
             printf(" - [GCCV] fwht           \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_x86);
-#if 0
-            printf("(II) OUTPUT DATA VALUES");
-            for (int i = 0; i < size; i += 1) {
-                if ((i % 16) == 0) printf("\n [1] ");
-                printf("%+6.1f ", tab_i[i]);
-            }
-            for (int i = 0; i < size; i += 1) {
-                if ((i % 16) == 0) printf("\n [2] ");
-                printf("%+6.1f ", tab_a[i]);
-            }
-            printf("\n");
-            exit( EXIT_FAILURE );
-#endif
+        }
+
+        start_x86 = std::chrono::system_clock::now();
+        for(int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==   8) { fwht<  8>( tab_e, tab_d ); normalize<  8>( tab_e, 0.35355339059f); fwht<  8>( tab_d, tab_e ); normalize< 16>( tab_d, 0.35355339059f); }
+            if (size ==  16) { fwht< 16>( tab_e, tab_d ); normalize< 16>( tab_e, 0.25f         ); fwht< 16>( tab_d, tab_e ); normalize< 16>( tab_d, 0.25f         ); }
+            if (size ==  32) { fwht< 32>( tab_e, tab_d ); normalize< 32>( tab_e, 0.17677669529f); fwht< 32>( tab_d, tab_e ); normalize< 32>( tab_d, 0.17677669529f); }
+            if (size ==  64) { fwht< 64>( tab_e, tab_d ); normalize< 64>( tab_e, 0.125f        ); fwht< 64>( tab_d, tab_e ); normalize< 64>( tab_d, 0.125f        ); }
+            if (size == 128) { fwht<128>( tab_e, tab_d ); normalize<128>( tab_e, 0.08838834764f); fwht<128>( tab_d, tab_e ); normalize<128>( tab_d, 0.08838834764f); }
+            if (size == 256) { fwht<256>( tab_e, tab_d ); normalize<256>( tab_e, 0.0625f       ); fwht<256>( tab_d, tab_e ); normalize<256>( tab_d, 0.0625f       ); }
+        }
+        stop_x86 = std::chrono::system_clock::now();
+        ok_x86   = are_equivalent(tab_i, tab_d, 0.002, size );
+        time_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count() / nTest;
+        if( ok_x86 ){
+            printf(" - [GCCV] fwht (2x)      \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_x86);
+        }else{
+            printf(" - [GCCV] fwht (2x)      \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_x86);
         }
 
 #if 1
@@ -202,6 +211,8 @@ int main(int argc, char* argv[])
         delete[] tab_b;
         delete[] tab_c;
         delete[] tab_d;
+        delete[] tab_e;
+        delete[] tab_f;
     }
 
     return EXIT_SUCCESS;

@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
         for (int j = 0; j < GF; j += 1)
         {
             channel[i].value[j] = chan[GF * i + j];
-            channel[i].gf   [j] = j;
+//            channel[i].gf   [j] = j;
             channel[i].is_freq  = false;
         }
         normalize<GF>( channel[i].value );
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
         for (int j = 0; j < GF; j += 1)
         {
             internal[i].value[j] = 0.f;
-            internal[i].gf   [j] = j;
+//            internal[i].gf   [j] = j;
         }
     }
 
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < 2; i += 1)
     {
-        f_function<64>( internal + i, channel + i, channel + 2 + i, i );
+        f_function<64>( internal + i, channel + i, channel + 2 + i );
     }
 
     for (int i = 0; i < 2; i += 1)
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     printf("###########################################################\n");
     printf("#\n");
 
-    f_function<64>( internal + 2, internal + 0, internal + 1, 0 );
+    f_function<64>( internal + 2, internal + 0, internal + 1 );
     show_symbols( internal + 2 );
 
     //
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < 2; i += 1)
     {
-        f_function<64, false>( internal + i, channel + i, channel + 2 + i, i );
+        f_function<64>( internal + i, channel + i, channel + 2 + i );
     }
 
     for (int i = 0; i < 2; i += 1)
@@ -113,10 +113,10 @@ int main(int argc, char* argv[])
     printf("###########################################################\n");
     printf("#\n");
 
-    f_function<64, false>( internal + 2, internal + 0, internal + 1, 0 );
+    f_function<64>( internal + 2, internal + 0, internal + 1 );
     show_symbols( internal + 2 );
 
-    f_function<64, true>( internal + 2, internal + 0, internal + 1, 0 );
+    f_function<64>( internal + 2, internal + 0, internal + 1 );
     show_symbols( internal + 2 );
 
     
