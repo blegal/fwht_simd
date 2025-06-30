@@ -38,8 +38,8 @@ void f_function_proba_in(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
         tmp_a.value[i] = src_a->value[i];
 #if defined(__ARM_NEON__)
     fwht_norm_neon<gf_size>(tmp_a.value);
-#elif defined(__AVX2__)
-    fwht_norm_avx2<gf_size>(tmp_a.value);
+//#elif defined(__AVX2__)
+//    fwht_norm_avx2<gf_size>(tmp_a.value);
 #else
     fwht<gf_size>(tmp_a.value);
     normalize<gf_size>(tmp_a.value, 0.125);
@@ -52,8 +52,8 @@ void f_function_proba_in(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
         tmp_b.value[i] = src_b->value[i];
 #if defined(__ARM_NEON__)
     fwht_norm_neon<gf_size>(tmp_b.value);
-#elif defined(__AVX2__)
-    fwht_norm_avx2<gf_size>(tmp_b.value);
+//#elif defined(__AVX2__)
+//    fwht_norm_avx2<gf_size>(tmp_b.value);
 #else
     fwht<gf_size>(tmp_b.value);
     normalize<gf_size>(tmp_b.value, 0.125);
