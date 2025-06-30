@@ -54,6 +54,9 @@ void f_function_proba_in(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     fwht_norm_neon<gf_size>(tmp_b.value);
 #elif defined(__AVX2__)
     fwht_norm_avx2<gf_size>(tmp_b.value);
+#else
+    fwht<gf_size>(tmp_b.value);
+    normalize<gf_size>(tmp_b.value, 0.125);
 #endif
     tmp_b.is_freq = true;
 

@@ -5,7 +5,11 @@
 //
 //
 #include "../../structure.hpp"
+#include "../../fwht/fwht_x86.hpp"
+#include "../../fwht/fwht_neon.hpp"
+#include "../../fwht/fwht_norm_neon.hpp"
 #include "../../fwht/fwht_avx2.hpp"
+#include "../../fwht/fwht_norm_avx2.hpp"
 #include "../../const_config_GF64_N64.hpp"
 //
 //
@@ -55,10 +59,16 @@ void leaf_node_after_f(
     //
     // Switch from frequency to time domain
     //
+#if defined(__ARM_NEON__)
+    fwht_norm_neon<gf_size>(var->value);
+//#elif defined(__AVX2__)
+//    fwht_avx2<gf_size>(var->value);
+#else
     fwht<gf_size>     (var->value );
     normalize<gf_size>(var->value, 0.125);
     normalize<gf_size>(var->value);
     var->is_freq = false;
+#endif
 
     const int max_index = argmax<gf_size>(var->value);
 #if defined(debug_leaf)
