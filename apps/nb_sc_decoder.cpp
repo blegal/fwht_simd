@@ -1,403 +1,262 @@
-/*
-*	Optimized bit-packing and bit-unpacking functions - Copyright (c) 2021 Bertrand LE GAL
-*
-*  This software is provided 'as-is', without any express or
-*  implied warranty. In no event will the authors be held
-*  liable for any damages arising from the use of this software.
-*
-*  Permission is granted to anyone to use this software for any purpose,
-*  including commercial applications, and to alter it and redistribute
-*  it freely, subject to the following restrictions:
-*
-*  1. The origin of this software must not be misrepresented;
-*  you must not claim that you wrote the original software.
-*  If you use this software in a product, an acknowledgment
-*  in the product documentation would be appreciated but
-*  is not required.
-*
-*  2. Altered source versions must be plainly marked as such,
-*  and must not be misrepresented as being the original software.
-*
-*  3. This notice may not be removed or altered from any
-*  source distribution.
-*
-*/
-#include "../src/fwht_x86.hxx"
-#include "../src/fwht_neon.hxx"
-#include "../src/fwht_avx2.hxx"
-#include "../src/const_config_GF64_N64.hpp"
+
+#include "../src/fwht/fwht_x86.hpp"
+#include "../src/fwht/fwht_neon.hpp"
+#include "../src/fwht/fwht_avx2.hpp"
 #include <cstring>
 #include <chrono>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <chrono>
 
-const float Hadamard[64][64] = {
-    {+1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {+1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1},
-    {+1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1},
-    {+1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1},
-    {+1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, -1, -1, -1, -1, +1, +1, +1, +1},
-    {+1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, -1, +1, -1, +1, +1, -1, +1, -1},
-    {+1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1, +1, +1, -1, -1, -1, -1, +1, +1, +1, +1, -1, -1, -1, -1, +1, +1, -1, -1, +1, +1, +1, +1, -1, -1},
-    {+1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1, +1, -1, -1, +1, -1, +1, +1, -1, +1, -1, -1, +1, -1, +1, +1, -1, -1, +1, +1, -1, +1, -1, -1, +1},
-};
+#include "../src/const_config_GF64_N64.hpp"
+#include "../src/hadamard/hadamard_64.hpp"
+#include "../src/structure.hpp"
 
-bool are_equivalent(float* a, float* b, float epsilon, int size) {
-    for (int i = 0; i < size; i++) {
-        float diff = abs(a[i] - b[i]);
-        if (diff > epsilon) {
-            printf("- maximum absolute error is : %f\n", diff);
-            printf("- a[%d] = %f and b[%d] = %f\n", i, a[i], i, b[i]);
-            return false;
-        }
-    }
-    return true;
-}
+//Regular bold text
+#define BBLK "\e[1;30m"
+#define BRED "\e[1;31m"
+#define BGRN "\e[1;32m"
+#define BYEL "\e[1;33m"
+#define BBLU "\e[1;34m"
+#define BMAG "\e[1;35m"
+#define BCYN "\e[1;36m"
+#define BWHT "\e[1;37m"
+
+#include "../src/nodes/top_node.hpp"
+#include "../src/nodes/top_node_with_pruning.hpp"
+
+#include "../src/pruning/decoder_specialized.hpp"
+
+#include "../src/frozen_tree.hpp"
+
 //
 //
 //
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
 int frozen_symbols[64];
-//
-//
-//
-//
-//
-struct symbols_t
-{
-    float value[64];
-    char  gf [64];  // to be removed !
-    bool  is_freq;
-};
-//
-//
-//
-//
-//
-template <int gf_size>
-void f_function(symbols_t* dst, symbols_t* src_a, symbols_t* src_b)
-{
-    //
-    // Switch from time to frequency domain if needed
-    //
-    if( src_a->is_freq == false ) {
-        fwht<gf_size>( src_a->value );
-        src_a->is_freq = true;
-    }
 
-    if( src_b->is_freq == false ) {
-        fwht<gf_size>( src_b->value );
-        src_b->is_freq = true;
-    }
+/*
+enum next_node { RATE_0,
+                RATE_1_FROM_F,
+                RATE_1_FROM_G,
+                LEAF_RATE_0,
+                LEAF_RATE_1_FROM_F,
+                LEAF_RATE_1_FROM_G,
+                MID_NODE_FROM_F,
+                MID_NODE_FROM_G};
+next_node pruning[2 * N];
+*/
 
-    // Abdallah computations ...
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i]  = src_a->gf  [i]; // to be removed !
-    }
-    // Abdallah computations ...    
-}
-//
-//
-//
-//
-//
-template <int gf_size>
-void normalize(float* tab)
-{
-    float sum = 0;
-    for(int i = 0; i < gf_size; i += 1){
-        sum += tab[i];
-    }
-    const float factor = 1.f / sum;
-    for (int i = 0; i < gf_size; i++) {
-        tab[i] *= factor;
-    }
-}
-//
-//
-//
-//
-//
-template <int gf_size>
-void g_function(
-    symbols_t* dst,     // the data to be computed for the left side of the graph
-    symbols_t* src_a,   // the upper value set from the right side of the graph
-    symbols_t* src_b,   // the lower value set from the right side of the graph
-    uint16_t* src_c)    // the computed symbols coming from the left side of the graph
-{
-    symbols_t result;
-    
-    //
-    // Currectly, we assume src_a is frequency domain
-    //
-    if( src_a->is_freq == false ) {
-        fwht<gf_size>( src_a->value );
-        src_a->is_freq = true;
-    }
 
-    //
-    //  Process the mulitplication to support precomputed symbols
-    //
-    int index = src_c[0];
-    const float* toto/*[64]*/ = Hadamard[ index ]; // ligne de la matrice de Hadamard
-    for (size_t i = 0; i < gf_size; i++)
-        src_a->value[i] = src_a->value[i] * toto[i];
-
-    if( src_a->is_freq == true ) {
-        fwht<gf_size>( src_a->value );
-        src_a->is_freq = false;
-    }
-
-    if( src_b->is_freq == true ) {
-        fwht<gf_size>( src_b->value );
-        src_b->is_freq = false;
-    }
-
-    // Abdallah computations ...
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i] = src_a->gf   [i]; // to be removed !
-    }
-    normalize<gf_size>( dst->value );
-    // Abdallah computations ...    
-}
-//
-//
-//
-//
-//
-template <int gf_size>
-void final_node(symbols_t* var, uint16_t* decoded, uint16_t* symbols, const int symbol_id)
-{
-    printf("-> final_node(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
-    if( frozen_symbols[symbol_id] == -1 )
-    {
-        decoded[symbol_id] = 0;
-        symbols[symbol_id] = 0;
-        return;
-    }
-    //
-    // Switch from frequency to time domain if needed
-    //
-    if( var->is_freq ) {
-        fwht<gf_size>( var->value );
-        var->is_freq = false;
-    }
-
-    int max_index = 0;
-    float max_value = var->value[0];
-    for (int i = 1; i < gf_size; i++) {
-        if (var->value[i] > max_value) {
-            max_value = var->value[i];
-            max_index = i;
-        }
-    }
-
-    decoded[symbol_id] = max_index;
-    symbols[symbol_id] = max_index;
-}
-//
-//
-//
-//
-//
-template <int gf_size>
-void middle_node(
-    symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
-    symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
-    uint16_t* decoded,      // Decoded symbols are the final output of the decoder (done on the left)
-    uint16_t* symbols,      // Symbols are the ones going from leafs to root (done on the left)
-    int size,               // Size is the number of symbols (should be a power of 2)
-    const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
-{
-#if defined(__DEBUG__)
-    printf("- middle_node(%d, %d)\n", size, symbol_id);
-#endif
-    const int n = size / 2; // Assuming size is the number of symbols
-    //
-    // 
-    //
-#if defined(__DEBUG__)
-    printf("- f_function\n");
-#endif
-    for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, inputs + i, inputs + n + i ); // Example operation
-    }
-    //
-    // 
-    //
-    if( n == 1 ) {
-        final_node<gf_size>(internal, decoded, symbols, symbol_id); // If we reach the final node, process it
-    }else{
-        middle_node<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id); // On descend à gauche
-    }
-    //
-    // 
-    //
-#if defined(__DEBUG__)
-    printf("- g_function\n");
-#endif
-    for (int i = 0; i < n; i++) {
-        g_function<gf_size>( internal + i, inputs + i, inputs + n + i, symbols); // Example operation
-    }
-    //
-    // 
-    //
-    if( n == 1 ) {
-        final_node<gf_size>(internal, decoded, symbols, symbol_id + n); // If we reach the final node, process it
-    }else{
-        middle_node<gf_size>(internal, internal + n, decoded, symbols,n, symbol_id + n); // On descend à droite
-    }
-    //
-    // 
-    //
-    for (int i = 0; i < n/2; i++) {
-        symbols[i] = symbols[i] ^ symbols[i + n/2]; // to be checked !
-    }
-    //
-    // 
-    //
-}
-//
-//
-//
-//
-//
-template <int gf_size = 64>
-void top_node(symbols_t* channel, symbols_t* internal, uint16_t* decoded, uint16_t* symbols, const int size)
-{
-#if defined(__DEBUG__)
-    printf("top_node(%d)\n", size);
-#endif
-    const int n = size / 2; // Assuming size is the number of symbols
-    //
-    // 
-    //
-    for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, channel + i, channel + n + i ); // Example operation
-    }
-    //
-    // 
-    //
-    middle_node<gf_size>(internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
-    //
-    // 
-    //
-    for (int i = 0; i < n; i++) {
-        g_function<gf_size>( internal + i, channel + i, channel + n + i, symbols ); // Example operation
-    }
-    //
-    // 
-    //
-    middle_node<gf_size>(internal, internal + n, decoded, symbols, n, n); // On descend à droite
-    //
-    // 
-    //
-    // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    // 
-    //
-}
-//
-//
-//
-//
-//
 int main(int argc, char* argv[])
 {
     const int size = 64;
 
     //
-    // All the symbols are frozen
+    // load the channel symbols
     //
-    for(int i = 0; i < N; i++)
-        frozen_symbols[i] = -1;
-    //
-    // Activation on information symbols
-    //
-    for(int i = 0; i < K; i++)
-        frozen_symbols[ reliab_seq[i] ] = 0;
-    //
-    //
-    //
-
-    symbols_t* channel  = new symbols_t[size];
-    symbols_t* internal = new symbols_t[size];
-    uint16_t*  symbols  = new uint16_t [size]; // the ones going from leafs to root
-    uint16_t*  decoded  = new uint16_t [size];
-
-    for(int i = 0; i < N; i++)
+    symbols_t* channel  = new symbols_t[N];
+    for (int i = 0; i < N; i += 1)
     {
-        for(int j = 0; j < K; j++)
+        for (int j = 0; j < GF; j += 1)
         {
             channel[i].value[j] = chan[GF * i + j];
-            channel[i].gf [j] = j;
+//            channel[i].gf   [j] = j;
+            channel[i].is_freq  = false;
+        }
+//      normalize< 64>( channel[i].value ); // added probability normalization BLG
+        normalize<GF>( channel[i].value );
+//      show_symbols( channel + i );
+    }
+
+    //
+    // Clear the internal memory space
+    //
+    symbols_t* internal = new symbols_t[N];
+    for (int i = 0; i < N; i += 1)
+    {
+        for (int j = 0; j < GF; j += 1)
+        {
+            internal[i].value[j] = 0.f;
+//            internal[i].gf   [j] = j;
         }
     }
 
+    //
+    // initialize the frozen symbols array
+    //
+    uint16_t*  symbols  = new uint16_t[N];
+    for (int i = 0; i < N; i += 1)
+        frozen_symbols[i] = true;
+    for (int i = 0; i < K; i += 1)
+        frozen_symbols[ reliab_seq[i] ] = false; // i c'est pour le DEBUG, on pourrait mettre 0
+
+
+//  const int n_nodes = frozen_tree(frozen_symbols, 0, pruning, 0, N);
+
+    frozen_tree pruned_tree( N );
+    pruned_tree.analyze(frozen_symbols, N);
+    pruned_tree.dump();
+
+    printf("\nFrozen matrix:\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%8 ) == 0 ) printf(" | ");
+        if( (i%16) == 0 ) printf("\n | ");
+        printf("%2d ", frozen_symbols[i]);
+    }printf(" |\n");
+
+    //
+    // Clear the decoded symbols array
+    //
+    uint16_t*  decoded  = new uint16_t [size];
+    for (int i = 0; i < N; i += 1)
+        decoded[i] = 0;
+
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Call the top node function to decode the symbols
+    //
     top_node<64>(channel, internal, decoded, symbols, size);
+    printf("\n\nDecoded symbols (normal):\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        if (decoded[i] == ref_out[i]){
+             printf("\e[1;32m%2d\e[0m ", decoded[i]);
+        }else{
+             printf("\e[1;31m%2d\e[0m ", decoded[i]);
+        }
+    }printf("\n");
+
+
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Call the top node function to decode the symbols
+    //
+    top_node_with_pruning<64>(channel, internal, decoded, symbols, size);
+    printf("\n\nDecoded symbols (pruning):\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        if (decoded[i] == ref_out[i]){
+             printf("\e[1;32m%2d\e[0m ", decoded[i]);
+        }else{
+             printf("\e[1;31m%2d\e[0m ", decoded[i]);
+        }
+    }printf("\n");
+
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Call the top node function to decode the symbols
+    //
+    decoder_specialized<64> dec;
+    dec.execute(channel, internal, decoded, symbols, size);
+    printf("\n\nDecoded symbols (class):\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        if (decoded[i] == ref_out[i]){
+             printf("\e[1;32m%2d\e[0m ", decoded[i]);
+        }else{
+             printf("\e[1;31m%2d\e[0m ", decoded[i]);
+        }
+    }printf("\n");
+
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    //
+
+    const  int32_t nTest = (256 * 1024);
+
+    auto start_x86 = std::chrono::system_clock::now();
+    for(int32_t loop = 0; loop < nTest; loop += 1)
+    {
+        top_node<64>(channel, internal, decoded, symbols, size);
+    }
+    auto stop_x86 = std::chrono::system_clock::now();
+
+    float time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+    float time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+    float time_msec = time_ns / 1000.f / 1000.f; // in seconds
+    float time_usec = time_ns / 1000.f; // in seconds
+    float time_run  = (time_usec / (float)nTest);
+
+    float debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+    printf("[normal]  experiments  : %1.3f sec\n",  time_sec);
+    printf("[normal]  experiments  : %1.2f ms\n",   time_msec);
+    printf("[normal]  one decoding : %1.2f us\n",   time_run);
+    printf("[normal]  debit coded  : %1.2f Mbps\n", debit);
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    start_x86 = std::chrono::system_clock::now();
+    for(int32_t loop = 0; loop < nTest; loop += 1)
+    {
+        top_node_with_pruning<64>(channel, internal, decoded, symbols, size);
+    }
+    stop_x86 = std::chrono::system_clock::now();
+
+    time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+    time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+    time_msec = time_ns / 1000.f / 1000.f; // in seconds
+    time_usec = time_ns / 1000.f; // in seconds
+    time_run  = (time_usec / (float)nTest);
+
+    debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+    printf("[pruning] experiments  : %1.3f sec\n",  time_sec);
+    printf("[pruning] experiments  : %1.2f ms\n",   time_msec);
+    printf("[pruning] one decoding : %1.2f us\n",   time_run);
+    printf("[pruning] debit coded  : %1.2f Mbps\n", debit);
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    start_x86 = std::chrono::system_clock::now();
+    for(int32_t loop = 0; loop < nTest; loop += 1)
+    {
+        dec.execute(channel, internal, decoded, symbols, size);
+    }
+    stop_x86 = std::chrono::system_clock::now();
+
+    time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+    time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+    time_msec = time_ns / 1000.f / 1000.f; // in seconds
+    time_usec = time_ns / 1000.f; // in seconds
+    time_run  = (time_usec / (float)nTest);
+
+    debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+    printf("[special] experiments  : %1.3f sec\n",  time_sec);
+    printf("[special] experiments  : %1.2f ms\n",   time_msec);
+    printf("[special] one decoding : %1.2f us\n",   time_run);
+    printf("[special] debit coded  : %1.2f Mbps\n", debit);
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////
+    //
+    //
 
     delete[] channel;
     delete[] internal;
-
+    delete[] symbols;
+    delete[] decoded;
+    
     return EXIT_SUCCESS;
 }
     
