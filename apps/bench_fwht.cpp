@@ -27,6 +27,7 @@
 #include "../src/fwht/fwht_neon.hpp"
 #include "../src/fwht/fwht_norm_neon.hpp"
 #include "../src/fwht/fwht_avx2.hpp"
+#include "../src/fwht/fwht_norm_avx2.hpp"
 #include <cstring>
 #include <chrono>
 
@@ -90,7 +91,7 @@ int main(int argc, char* argv[])
 
         auto start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==   8) { fwht<  8>( tab_a ); normalize<  8>( tab_a, 0.35355339059f); fwht<  8>( tab_a ); normalize< 16>( tab_a, 0.35355339059f); }
+            if (size ==   8) { fwht<  8>( tab_a ); normalize<  8>( tab_a, 0.35355339059f); fwht<  8>( tab_a ); normalize<  8>( tab_a, 0.35355339059f); }
             if (size ==  16) { fwht< 16>( tab_a ); normalize< 16>( tab_a, 0.25f         ); fwht< 16>( tab_a ); normalize< 16>( tab_a, 0.25f         ); }
             if (size ==  32) { fwht< 32>( tab_a ); normalize< 32>( tab_a, 0.17677669529f); fwht< 32>( tab_a ); normalize< 32>( tab_a, 0.17677669529f); }
             if (size ==  64) { fwht< 64>( tab_a ); normalize< 64>( tab_a, 0.125f        ); fwht< 64>( tab_a ); normalize< 64>( tab_a, 0.125f        ); }
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 
         start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==   8) { fwht<  8>( tab_e, tab_d ); normalize<  8>( tab_e, 0.35355339059f); fwht<  8>( tab_d, tab_e ); normalize< 16>( tab_d, 0.35355339059f); }
+            if (size ==   8) { fwht<  8>( tab_e, tab_d ); normalize<  8>( tab_e, 0.35355339059f); fwht<  8>( tab_d, tab_e ); normalize<  8>( tab_d, 0.35355339059f); }
             if (size ==  16) { fwht< 16>( tab_e, tab_d ); normalize< 16>( tab_e, 0.25f         ); fwht< 16>( tab_d, tab_e ); normalize< 16>( tab_d, 0.25f         ); }
             if (size ==  32) { fwht< 32>( tab_e, tab_d ); normalize< 32>( tab_e, 0.17677669529f); fwht< 32>( tab_d, tab_e ); normalize< 32>( tab_d, 0.17677669529f); }
             if (size ==  64) { fwht< 64>( tab_e, tab_d ); normalize< 64>( tab_e, 0.125f        ); fwht< 64>( tab_d, tab_e ); normalize< 64>( tab_d, 0.125f        ); }
@@ -200,9 +201,30 @@ int main(int argc, char* argv[])
         const bool ok_neon = are_equivalent(tab_i, tab_c, 0.002, size );
         const uint64_t time_neon = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon - start_i_neon).count() / nTest;
         if( ok_neon ){
-            printf(" - [AVX2] fwht \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_neon);
+            printf(" - [AVX2] fwht_avx2      \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_neon);
         }else{
-            printf(" - [AVX2] fwht \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_neon);
+            printf(" - [AVX2] fwht_avx2      \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_neon);
+        }
+#endif
+
+#if defined(__AVX2__)
+
+        auto start_i_avx2 = std::chrono::system_clock::now();
+        for(int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==   8) { fwht_norm_avx2<  8>( tab_d ); fwht_norm_avx2<  8>( tab_d ); }
+            if (size ==  16) { fwht_norm_avx2< 16>( tab_d ); fwht_norm_avx2< 16>( tab_d ); }
+            if (size ==  32) { fwht_norm_avx2< 32>( tab_d ); fwht_norm_avx2< 32>( tab_d ); }
+            if (size ==  64) { fwht_norm_avx2< 64>( tab_d ); fwht_norm_avx2< 64>( tab_d ); }
+            if (size == 128) { fwht_norm_avx2<128>( tab_d ); fwht_norm_avx2<128>( tab_d ); }
+            if (size == 256) { fwht_norm_avx2<256>( tab_d ); fwht_norm_avx2<256>( tab_d ); }
+        }
+        auto stop_i_avx2 = std::chrono::system_clock::now();
+        const bool ok_norm_avx2 = are_equivalent(tab_i, tab_c, 0.002, size );
+        const uint64_t time_norm_avx2 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
+        if( ok_norm_avx2 ){
+            printf(" - [AVX2] fwht_norm_avx2 \033[32mOK\033[0m [%5d ns]\n", (int32_t)time_norm_avx2);
+        }else{
+            printf(" - [AVX2] fwht_norm_avx2 \033[31mKO\033[0m [%5d ns]\n", (int32_t)time_norm_avx2);
         }
 #endif
 
