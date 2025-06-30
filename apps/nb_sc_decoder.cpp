@@ -181,9 +181,11 @@ int main(int argc, char* argv[])
     ///////////////////////////////////////////////////////////////////////////////
     //
     //
+#if 0
     decoder_pruned<64> dec_pruned;
     dec_pruned.f_tree = &pruned_tree;
     dec_pruned.execute(channel, internal, decoded, symbols, size);
+#endif
 
     const  int32_t nTest = (256 * 1024);
 
