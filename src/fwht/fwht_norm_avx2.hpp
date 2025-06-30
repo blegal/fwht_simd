@@ -82,7 +82,7 @@ inline void fwht16_norm_terminale(const __m256 X0, const __m256 X1, value_type y
 	const __m256 BP1 = _mm256_shuffle_ps     (BO2, BO2, 0xB1);
 	const __m256 BP2 = _mm256_add_ps         (BP0, BP1);
 	const __m256 BP3  = _mm256_mul_ps        (BP2, factor);
-	_mm256_storeu_ps( y + 8, BP2 );
+	_mm256_storeu_ps( y + 8, BP3 );
 	//////////////////////////////////////////////////////
 }
 
@@ -223,7 +223,7 @@ inline void fwht256_norm_flat_avx2(value_type x[ ], value_type y[ ], const __m25
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline __m256 fwht8_norm_avx2(const __m256 x)
+inline __m256 fwht8_norm_avx2(const __m256 x, const __m256 factor)
 {
 	const __m256 M0 = _mm256_castsi256_ps( _mm256_setr_epi32( 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000 ) );
 	const __m256 N0 = _mm256_xor_ps(x, M0);
@@ -239,26 +239,27 @@ inline __m256 fwht8_norm_avx2(const __m256 x)
 	const __m256 P0 = _mm256_xor_ps(O2, M2);
 	const __m256 P1 = _mm256_shuffle_ps(O2, O2, 0xB1);
 	const __m256 P2 = _mm256_add_ps(P0, P1);
-	return P2;
+	const __m256 P3 = _mm256_mul_ps(P2, factor);
+	return P3;
 }
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht16_norm_avx2(__m256* B0, __m256* B1)
+inline void fwht16_norm_avx2(__m256* B0, __m256* B1, const __m256 factor)
 {
 	const __m256 C0 = _mm256_add_ps ( *B0, *B1 );
 	const __m256 C1 = _mm256_sub_ps ( *B0, *B1 );
-	*B0 = fwht8_avx2 ( C0 );
-	*B1 = fwht8_avx2 ( C1 );
+	*B0 = fwht8_norm_avx2 ( C0, factor );
+	*B1 = fwht8_norm_avx2 ( C1, factor );
 }
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht32_norm_avx2(__m256* B0, __m256* B1, __m256* B2, __m256* B3)
+inline void fwht32_norm_avx2(__m256* B0, __m256* B1, __m256* B2, __m256* B3, const __m256 factor)
 {
 	__m256 C0 = _mm256_add_ps ( *B0, *B2 );
 	__m256 C1 = _mm256_add_ps ( *B1, *B3 );
@@ -266,8 +267,8 @@ inline void fwht32_norm_avx2(__m256* B0, __m256* B1, __m256* B2, __m256* B3)
 	__m256 C2 = _mm256_sub_ps ( *B0, *B2 );
 	__m256 C3 = _mm256_sub_ps ( *B1, *B3 );
 
-	fwht16_avx2( &C0, &C1 );
-	fwht16_avx2( &C2, &C3 );
+	fwht16_norm_avx2( &C0, &C1, factor );
+	fwht16_norm_avx2( &C2, &C3, factor );
 
 	*B0 = C0;
 	*B1 = C1;
@@ -282,16 +283,17 @@ inline void fwht32_norm_avx2(__m256* B0, __m256* B1, __m256* B2, __m256* B3)
 template < >
 inline void fwht_norm_avx2<8>(value_type x[])
 {
+	const __m256 factor = _mm256_set1_ps ( 0.35355339059f );
 	const __m256 C0 = _mm256_loadu_ps ( x );
-	const __m256 D0 = fwht8_avx2 ( C0 );
+	const __m256 D0 = fwht8_norm_avx2 ( C0, factor );
 	_mm256_storeu_ps( x, D0 );
 }
 template < >
 inline void fwht_norm_avx2<8>(value_type x[], value_type y[])
 {
-	const __m256 factor = _mm256_set1_ps ( 0.125f );
+	const __m256 factor = _mm256_set1_ps ( 0.35355339059f );
 	const __m256 C0 = _mm256_loadu_ps ( x );
-	const __m256 D0 = fwht8_avx2 ( C0 );
+	const __m256 D0 = fwht8_norm_avx2 ( C0, factor );
 	_mm256_storeu_ps( y, D0 );
 }
 //

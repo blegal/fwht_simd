@@ -24,12 +24,14 @@
 */
 #include "../src/fwht/fwht_x86.hpp"
 #include "../src/fwht/fwht_norm_x86.hpp"
-#include "../src/fwht/fwht_neon.hpp"
 #include "../src/fwht/fwht_norm_neon.hpp"
-#include "../src/fwht/fwht_avx2.hpp"
+#include "../src/fwht/fwht_neon.hpp"
 #include "../src/fwht/fwht_norm_avx2.hpp"
+#include "../src/fwht/fwht_avx2.hpp"
 #include <cstring>
 #include <chrono>
+
+#include "../src/structure.hpp"
 
 bool are_equivalent(float* a, float* b, float epsilon, int size) {
     for (int i = 0; i < size; i++) {
@@ -67,7 +69,7 @@ int main(int argc, char* argv[])
 
     const  int32_t nTest = (1024 * 1024); //64 * (1024 * 1024);
 
-    for (int size = 8; size <= 256; size *= 2) {
+    for (int size = 16; size <= 256; size *= 2) {
 
         float* tab_i = new float[size];
         float* tab_a = new float[size];
@@ -84,9 +86,31 @@ int main(int argc, char* argv[])
             tab_b[i] = tab_i[i];
             tab_c[i] = tab_i[i];
             tab_d[i] = tab_i[i];
-            tab_e[i] = tab_e[i];
+            tab_e[i] = tab_i[i];
         }
+#if 0
+        fwht< 64>( tab_a );
+        normalize< 64>( tab_a, 0.125f );
+        show_symbols( tab_a );
+        fwht< 64>( tab_a );
+        normalize< 64>( tab_a, 0.125f );
+        show_symbols( tab_a );
 
+
+        fwht_avx2< 64>( tab_d );
+        normalize< 64>( tab_d, 0.125f );
+        show_symbols( tab_d );
+        fwht_avx2< 64>( tab_d );
+        normalize< 64>( tab_d, 0.125f );
+        show_symbols( tab_d );
+
+        fwht_norm_avx2< 64>( tab_e );
+        show_symbols( tab_e );
+        fwht_norm_avx2< 64>( tab_e );
+        show_symbols( tab_e );
+
+        exit( 0 );
+#endif
         printf("+> testing functions [ll = %4d]\n", size);
 
         auto start_x86 = std::chrono::system_clock::now();

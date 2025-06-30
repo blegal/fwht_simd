@@ -61,8 +61,8 @@ void leaf_node_after_f(
     //
 #if defined(__ARM_NEON__)
     fwht_norm_neon<gf_size>(var->value);
-//#elif defined(__AVX2__)
-//    fwht_avx2<gf_size>(var->value);
+#elif defined(__AVX2__)
+    fwht_avx2<gf_size>(var->value);
 #else
     fwht<gf_size>     (var->value );
     normalize<gf_size>(var->value, 0.125);

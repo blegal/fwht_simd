@@ -53,11 +53,16 @@ void leaf_node(
     }
 
     if( var->is_freq ) {
+#if defined(__ARM_NEON__)
+        fwht_neon<gf_size>(var->value);
+#elif defined(__AVX2__)
+        fwht_avx2<gf_size>(var->value);
+#else
         fwht<gf_size>     (var->value );
         normalize<gf_size>(var->value, 0.125);
         normalize<gf_size>(var->value);
+#endif
         var->is_freq = false;
-
     }
 
     const int max_index = argmax<gf_size>(var->value);
