@@ -27,6 +27,7 @@
 #include "../src/nodes/top_node_with_pruning.hpp"
 
 #include "../src/pruning/decoder_specialized.hpp"
+#include "../src/pruning/decoder_pruned.hpp"
 
 #include "../src/frozen_tree.hpp"
 
@@ -99,6 +100,7 @@ int main(int argc, char* argv[])
     frozen_tree pruned_tree( N );
     pruned_tree.analyze(frozen_symbols, N);
     pruned_tree.dump();
+
 
     printf("\nFrozen matrix:\n");
     for (int i = 0; i < N; i += 1)
@@ -179,6 +181,9 @@ int main(int argc, char* argv[])
     ///////////////////////////////////////////////////////////////////////////////
     //
     //
+    decoder_pruned<64> dec_pruned;
+    dec_pruned.f_tree = &pruned_tree;
+    dec_pruned.execute(channel, internal, decoded, symbols, size);
 
     const  int32_t nTest = (256 * 1024);
 
