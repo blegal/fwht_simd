@@ -13,6 +13,7 @@
 //
 //
 //
+/*
 void local_remove_xors(uint16_t* values, int size)
 {
     if( size == 1 )
@@ -22,9 +23,9 @@ void local_remove_xors(uint16_t* values, int size)
     local_remove_xors(values,          size/2);
     local_remove_xors(values + size/2, size/2);
 }
-
+*/
 template <int gf_size>
-void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_g(
+void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_f(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)
@@ -34,10 +35,21 @@ void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_g(
 {
     for(int i = 0; i < size; i++)
     {
-        const int value = argmax<gf_size>( inputs[i].value );
+#if defined(__ARM_NEON__)
+        fwht_norm_neon<gf_size>(inputs[i].value);
+#elif defined(__AVX2__)
+        fwht_avx2<gf_size>(inputs[i].value);
+#else
+        fwht<gf_size>     (inputs[i].value );
+        normalize<gf_size>(inputs[i].value, 0.125);
+        normalize<gf_size>(inputs[i].value);
+        var->is_freq = false;
+#endif
+        int value = argmax<gf_size>( inputs[i].value );
         symbols[symbol_id + i] = value;
         decoded[symbol_id + i] = value; // should be corrected (it is systematic solution actually)
     }
+//    printf("size = %d\n", size);
     local_remove_xors(decoded + symbol_id, size);
 }
 //

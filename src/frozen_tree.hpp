@@ -168,21 +168,21 @@ private:
         if( sum == n ) {
             if( n == 1 ){
                 for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Leaf rate-0 node found (size = %d)\n", n);
-                array[curr_elmnt] = LEAF_RATE_0;
+                array[next_elmnt] = LEAF_RATE_0;
             }else{
                 for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Rate-0 node found (size = %d)\n", n);
-                array[curr_elmnt] = RATE_0;
+                array[next_elmnt] = RATE_0;
             }
-            return curr_elmnt + 1;
+            return next_elmnt + 1;
         }else if( sum == 0 ) {
             if( n == 1 ) {
                 for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Leaf rate-1 node found (size = %d)\n", n);
-                array[curr_elmnt] = LEAF_RATE_1_FROM_G;
+                array[next_elmnt] = LEAF_RATE_1_FROM_G;
             }else{
                 for(int z = 0; z < level; z += 1) printf("+  ") ; printf("> Rate-1 node found (size = %d)\n", n);
-                array[curr_elmnt] = RATE_1_FROM_G;
+                array[next_elmnt] = RATE_1_FROM_G;
             }
-            return curr_elmnt + 1;
+            return next_elmnt + 1;
         }else{
             for(int z = 0; z < level; z += 1) printf("+  ") ; printf(" >Normal (g) node found (size = %d)\n", n);
             array[next_elmnt] = MID_NODE_FROM_G;

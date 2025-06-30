@@ -33,3 +33,33 @@ void decoder_pruned<gf_size>::middle_node_pruned_rate_0(
 //
 //
 //
+#if 0
+|  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  0  |
+|  1  1  1  0  1  0  0  0  |  1  0  0  0  0  0  0  0  |
+
+|  1  1  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
+|  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
+
+> Execute MID_NODE_FROM_F
+> Execute MID_NODE_FROM_F
+> Execute RATE_0
+> Execute MID_NODE_FROM_G
+> Execute RATE_0
+> Execute MID_NODE_FROM_G
+> Execute RATE_0
+> Execute MID_NODE_FROM_G
+> Execute LEAF_RATE_1_FROM_G
+> Execute MID_NODE_FROM_G
+> Execute MID_NODE_FROM_F
+> Execute MID_NODE_FROM_F
+> Execute RATE_0
+> Execute MID_NODE_FROM_G
+> Execute LEAF_RATE_1_FROM_G
+> Execute MID_NODE_FROM_G
+> Execute RATE_1_FROM_G
+> Execute MID_NODE_FROM_G
+> Execute RATE_1_FROM_G
+> Execute MID_NODE_FROM_G
+> Execute RATE_1_FROM_G
+
+#endif

@@ -34,6 +34,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
     //
     next_node left_edge = f_tree->next_node_status[f_tree_cnt++];
     if( left_edge == RATE_0) {
+#if defined(_DEBUG_DEC_)
+        printf("FF :: RATE_0 (%d)\n", size);
+#endif
         middle_node_pruned_rate_0(
             internal,       // les données d'entrée
             internal + n,   // la mémoire interne pour les calculs
@@ -50,6 +53,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
         exit( EXIT_FAILURE );
 
     }else if( left_edge == LEAF_RATE_0) {
+#if defined(_DEBUG_DEC_)
+        printf("FF :: LEAF_RATE_0 (%d)\n", size);
+#endif
         leaf_node_after_f<gf_size>(
             internal,   // le symbol souple
             decoded,    // les symboles décodés (output du decodeur)
@@ -57,6 +63,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
             symbol_id);
 
     }else if( left_edge == LEAF_RATE_1_FROM_F) {
+#if defined(_DEBUG_DEC_)
+        printf("FF :: LEAF_RATE_1_FROM_F (%d)\n", size);
+#endif
         leaf_node_after_f<gf_size>(
             internal,   // le symbol souple
             decoded,    // les symboles décodés (output du decodeur)
@@ -68,6 +77,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
         exit( EXIT_FAILURE );
 
     }else if( left_edge == MID_NODE_FROM_F) {
+#if defined(_DEBUG_DEC_)
+        printf("FF :: MID_NODE_FROM_F (%d)\n", size);
+#endif
         middle_node_pruned_after_f(
             internal,       // les données d'entrée
             internal + n,   // la mémoire interne pour les calculs
@@ -99,6 +111,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
     //
     next_node right_edge = f_tree->next_node_status[f_tree_cnt++];
     if( right_edge == RATE_0) {
+#if defined(_DEBUG_DEC_)
+        printf("FG :: RATE_0 (%d)\n", size);
+#endif
         middle_node_pruned_rate_0(
             internal,       // les données d'entrée
             internal + n,   // la mémoire interne pour les calculs
@@ -110,9 +125,21 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit( EXIT_FAILURE );
     }else if( right_edge == RATE_1_FROM_G) {
-        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        exit( EXIT_FAILURE );
+#if defined(_DEBUG_DEC_)
+        printf("FG :: RATE_1_FROM_G (%d)\n", size);
+#endif
+        middle_node_pruned_rate_1_after_g(
+            internal,       // les données d'entrée
+            internal + n,   // la mémoire interne pour les calculs
+            decoded,        // les symboles décodés (output du decodeur)
+            symbols,        // les symboles durs
+            n,              // le nombre de données en entrée
+            symbol_id);     // l'identifiant du symbole (à gauche)
+
     }else if( right_edge == LEAF_RATE_0) {
+#if defined(_DEBUG_DEC_)
+        printf("FG :: LEAF_RATE_0 (%d)\n", size);
+#endif
         leaf_node_after_g<gf_size>(
             internal,
             decoded,
@@ -122,6 +149,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit( EXIT_FAILURE );
     }else if( right_edge == LEAF_RATE_1_FROM_G) {
+#if defined(_DEBUG_DEC_)
+        printf("FG :: LEAF_RATE_1_FROM_G (%d)\n", size);
+#endif
         leaf_node_after_g<gf_size>(
             internal,
             decoded,
@@ -131,6 +161,9 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit( EXIT_FAILURE );
     }else if( right_edge == MID_NODE_FROM_G) {
+#if defined(_DEBUG_DEC_)
+        printf("FG :: MID_NODE_FROM_G (%d)\n", size);
+#endif
         middle_node_pruned_after_g(
             internal,
             internal + n,

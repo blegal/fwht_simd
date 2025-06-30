@@ -184,6 +184,17 @@ int main(int argc, char* argv[])
     decoder_pruned<64> dec_pruned;
     dec_pruned.f_tree = &pruned_tree;
     dec_pruned.execute(channel, internal, decoded, symbols, size);
+    printf("\n\nDecoded symbols (final):\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        if (decoded[i] == ref_out[i]){
+            printf("\e[1;32m%2d\e[0m ", decoded[i]);
+        }else{
+            printf("\e[1;31m%2d\e[0m ", decoded[i]);
+        }
+    }printf("\n");
 
     const  int32_t nTest = (256 * 1024);
 
@@ -251,6 +262,29 @@ int main(int argc, char* argv[])
     printf("[special] experiments  : %1.2f ms\n",   time_msec);
     printf("[special] one decoding : %1.2f us\n",   time_run);
     printf("[special] debit coded  : %1.2f Mbps\n", debit);
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    start_x86 = std::chrono::system_clock::now();
+    for(int32_t loop = 0; loop < nTest; loop += 1)
+    {
+        dec_pruned.execute(channel, internal, decoded, symbols, size);
+    }
+    stop_x86 = std::chrono::system_clock::now();
+
+    time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+    time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+    time_msec = time_ns / 1000.f / 1000.f; // in seconds
+    time_usec = time_ns / 1000.f; // in seconds
+    time_run  = (time_usec / (float)nTest);
+
+    debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+    printf("[final  ] experiments  : %1.3f sec\n",  time_sec);
+    printf("[final  ] experiments  : %1.2f ms\n",   time_msec);
+    printf("[final  ] one decoding : %1.2f us\n",   time_run);
+    printf("[final  ] debit coded  : %1.2f Mbps\n", debit);
     //
     //
     /////////////////////////////////////////////////////////////////////////////////
