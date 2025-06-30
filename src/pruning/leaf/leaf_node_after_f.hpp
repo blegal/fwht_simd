@@ -1,0 +1,76 @@
+#pragma once
+//
+//
+//
+//
+//
+#include "../../structure.hpp"
+#include "../../fwht/fwht_avx2.hpp"
+#include "../../const_config_GF64_N64.hpp"
+//
+//
+//
+//
+//
+extern int frozen_symbols[64];
+//
+//
+//
+//
+//
+//#define debug_leaf
+template <int gf_size>
+void leaf_node_after_f(
+    symbols_t* var,
+    uint16_t* decoded,
+    uint16_t* symbols,
+    const int symbol_id)
+{
+#if defined(debug_leaf)
+    printf("-> leaf_node_after_f(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
+#endif
+#if _AUTO_CHECK_
+    if( var->is_freq == false )
+    {
+        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
+        exit( EXIT_FAILURE );
+    }
+#endif
+    if( frozen_symbols[symbol_id] == true )
+    {
+#if defined(debug_leaf)
+    fwht<gf_size>     (var->value );
+    normalize<gf_size>(var->value, 0.125);
+    normalize<gf_size>(var->value);
+    var->is_freq = false;
+    show_symbols( var );
+#endif
+        decoded[symbol_id] = 0;
+        symbols[symbol_id] = 0;
+        return;
+//        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
+//        exit( EXIT_FAILURE );
+    }
+
+    //
+    // Switch from frequency to time domain
+    //
+    fwht<gf_size>     (var->value );
+    normalize<gf_size>(var->value, 0.125);
+    normalize<gf_size>(var->value);
+    var->is_freq = false;
+
+    const int max_index = argmax<gf_size>(var->value);
+#if defined(debug_leaf)
+    printf("\e[1;31m[Leaf : %2d - ArgMax = %2d]\e[0m\n", symbol_id, max_index);
+    show_symbols( var );
+#endif
+
+    decoded[symbol_id] = max_index; 
+    symbols[symbol_id] = max_index;
+}
+//
+//
+//
+//
+//
