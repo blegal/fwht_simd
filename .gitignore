@@ -39,3 +39,7 @@ src/.DS_Store
 .idea/.name
 .DS_Store
 build/
+compile_commands.json
+.cache
+.idea
+.vscode
