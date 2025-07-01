@@ -22,8 +22,8 @@ extern int frozen_symbols[64];
 //
 //
 //
-//#define debug_leaf
 template <int gf_size>
+inline __attribute__((always_inline))
 void leaf_node_after_f(
     symbols_t* var,
     uint16_t* decoded,

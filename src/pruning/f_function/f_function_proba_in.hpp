@@ -16,8 +16,8 @@
 //
 //
 //
-//#define debug_f_function
 template <uint32_t gf_size>
+inline __attribute__((always_inline))
 void f_function_proba_in(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
 {
 #if _AUTO_CHECK_

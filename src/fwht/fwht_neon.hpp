@@ -43,6 +43,9 @@ inline void fwht_neon(float x[ ], float y[ ])
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
+#ifndef  neon_functions
+#define  neon_functions
+
 #define ABCD_to_BADC(a) vrev64q_f32(a)
 #define ABCD_to_CDAB(a) vextq_f32(a)
 
@@ -78,6 +81,7 @@ inline float32x4x2_t vsubq_x2_f32(const float32x4x2_t A, const float32x4x2_t B) 
 	C.val[1] = A.val[1] - B.val[1];
 	return C;
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,7 @@ extern int frozen_symbols[64];
 //
 //
 template <int gf_size>
+inline __attribute__((always_inline))
 void leaf_node_rate_0(
     symbols_t* var,
     uint16_t* decoded,

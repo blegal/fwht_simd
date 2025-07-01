@@ -210,6 +210,17 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
     //
     // 
     //
+    if ( (sum_l == n) && (sum_r == (n-1)) ) {
+        printf("Decoded : ");
+        for (int i = 0; i < size; i++)
+            printf("%2d ", decoded[i]);
+        printf("\n");
+        printf("Symbols : ");
+        for (int i = 0; i < size; i++)
+            printf("%2d ", symbols[i]);
+        printf("\n");
+    }
+
 }
 //
 //

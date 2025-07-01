@@ -14,6 +14,7 @@
 //
 //
 template <int gf_size>
+inline __attribute__((always_inline))
 void decoder_pruned<gf_size>::middle_node_pruned_rate_0(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)

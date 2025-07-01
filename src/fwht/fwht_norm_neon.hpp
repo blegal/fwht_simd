@@ -27,7 +27,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-#ifndef ABCD_to_BADC // SIMD helpers
+#ifndef  neon_functions
+#define  neon_functions
 
 #define ABCD_to_BADC(a) vrev64q_f32(a)
 #define ABCD_to_CDAB(a) vextq_f32(a)
@@ -302,8 +303,9 @@ inline void fwht_norm_neon(float x[ ], float y[ ])
 
 template < > inline void fwht_norm_neon<8>(float x[], float y[])
 {
+	const float32x4_t factor = {0.35355339059f, 0.35355339059f, 0.35355339059f, 0.35355339059f};
 	const float32x4x2_t C0 = vld1q_x2_f32 ( x );
-	const float32x4x2_t D0 = fwht8_neon ( C0.val[0], C0.val[1] );
+	const float32x4x2_t D0 = fwht8_norm_neon ( C0.val[0], C0.val[1], factor);
 	vst1q_x2_f32( y, D0 );
 }
 

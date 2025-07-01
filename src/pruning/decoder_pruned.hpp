@@ -102,10 +102,7 @@ void decoder_pruned<gf_size>::execute(
     // 
     //
     for (int i = 0; i < n; i++) {
-        f_function_proba_in<gf_size>(
-            internal     + i,
-            channel      + i,
-            channel  + n + i);
+        f_function_proba_in<gf_size>(internal + i, channel + i, channel + n + i);
     }
     //
     // 
