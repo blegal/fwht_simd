@@ -1,59 +1,51 @@
 
-#include "../src/fwht/fwht_x86.hpp"
-#include "../src/fwht/fwht_neon.hpp"
-#include "../src/fwht/fwht_avx2.hpp"
-#include <cstring>
-#include <chrono>
+#include "definitions/const_config_GF64_N64.hpp"
+
+#include "fwht/fwht.hpp"
+
+// #if defined (__AVX2__)
+// #include "fwht/fwht_avx2.hpp"
+// #elif defined(__ARM_NEON__)
+// #include "fwht/fwht_neon.hpp"
+// #endif
+
 #include <cstdint>
 #include <cstdlib>
-#include <iostream>
-#include "../src/const_config_GF64_N64.hpp"
-#include "../src/hadamard/hadamard_64.hpp"
-//
-//
-//
+#include <cstring>
+
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
-const int frozen_symbols[] = {-1,  1, -1,  0,  0, -1,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                               0, -1,  0,  0, -1,  0,  0,  0,
-                              -1,  0,  0,  0, -1, -1,  0,  0,
-                              -1,  0,  0,  0, -1, -1,  0,  0};
-//
-//
-//
-//
-//
-struct symbols_t
-{
-    float value[GF];
+// const int frozen_symbols[] = {-1, 1, -1, 0, 0, -1, 0, 0,
+//                               0, -1, 0, 0, -1, 0, 0, 0,
+//                               0, -1, 0, 0, -1, 0, 0, 0,
+//                               0, -1, 0, 0, -1, 0, 0, 0,
+//                               0, -1, 0, 0, -1, 0, 0, 0,
+//                               0, -1, 0, 0, -1, 0, 0, 0,
+//                               -1, 0, 0, 0, -1, -1, 0, 0,
+//                               -1, 0, 0, 0, -1, -1, 0, 0};
+
+struct symbols_t {
+    float    value[GF];
     uint16_t gf[GF]; // to be removed !
-    bool is_freq;
+    bool     is_freq;
 };
 
 template <uint32_t gf_size>
-void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
-{
+void f_function(symbols_t * dst, symbols_t * src_a, symbols_t * src_b) {
 
-    if (src_a->is_freq == false)
-    {
+    if (src_a->is_freq == false) {
         fwht<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
 
-    if (src_b->is_freq == false)
-    {
+    if (src_b->is_freq == false) {
         fwht<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
 
-    for (size_t i = 0; i < gf_size; i++)
-    {
+    for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] = src_a->value[i] * src_b->value[i];
-        dst->gf   [i]  = src_a->gf  [i]; // to be removed !
+        dst->gf[i]    = src_a->gf[i]; // to be removed !
     }
     dst->is_freq = true; // a.a we do CN in FD
 
@@ -61,63 +53,53 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     dst->is_freq = false;
 
     value_type s1 = 0;
-    for (size_t i = 0; i < gf_size; i++)
-    {
+    for (size_t i = 0; i < gf_size; i++) {
         s1 += dst->value[i];
     }
-    for (size_t i = 0; i < gf_size; i++)
-    {
+    for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] /= s1;
     }
 }
 
 template <uint32_t gf_size>
-void g_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b, uint16_t decision_left)
+void g_function(symbols_t * dst, symbols_t * src_a, symbols_t * src_b, uint16_t decision_left)
 
 {
-    symbols_t result;
-    if (src_a->is_freq == true)
-    {
+
+    if (src_a->is_freq == true) {
         fwht<gf_size>(src_a->value);
         src_a->is_freq = false;
     }
 
-    if (src_b->is_freq == true)
-    {
+    if (src_b->is_freq == true) {
         fwht<gf_size>(src_b->value);
         src_b->is_freq = false;
     }
-    uint16_t temp_gf;
+    uint16_t   temp_gf;
     value_type s1 = 0;
 
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        temp_gf = decision_left ^ i;
+    for (size_t i = 0; i < gf_size; i++) {
+        temp_gf             = decision_left ^ i;
         dst->value[temp_gf] = src_a->value[i] * src_b->value[temp_gf]; // a.a in PB VN is element by element multiplication
         // dst->gf[i] = src_a->gf[i];                                     // a.a
         s1 += dst->value[temp_gf];
     }
-    for (size_t i = 0; i < gf_size; i++)
-    {
+    for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] /= s1;
     }
     dst->is_freq = false; // a.a we do VN in PD
 }
 
 template <uint32_t gf_size>
-void final_node(symbols_t *var, uint16_t *decoded, const uint32_t symbol_id)
-{
-    if (var->is_freq)
-    {
+void final_node(symbols_t * var, uint16_t * decoded, const uint32_t symbol_id) {
+    if (var->is_freq) {
         fwht<gf_size>(var->value);
         var->is_freq = false;
     }
-    int max_index = 0;
+    int        max_index = 0;
     value_type max_value = var->value[0];
-    for (int i = 1; i < gf_size; i++)
-    {
-        if (var->value[i] > max_value)
-        {
+    for (int i = 1; i < int(gf_size); i++) {
+        if (var->value[i] > max_value) {
             max_value = var->value[i];
             max_index = i;
         }
@@ -127,62 +109,52 @@ void final_node(symbols_t *var, uint16_t *decoded, const uint32_t symbol_id)
 //
 //
 //
-int main(int argc, char *argv[])
-{
-    symbols_t layers_arr[tot_clust]; // tot_clust=127=1+2+4+8+16+32+64
-    symbols_t *layers[logN + 1];
-    int offset = 0;
-    for (int i = 0; i <= logN; ++i)
-    {
+int main(int, char *[]) {
+    symbols_t   layers_arr[tot_clust]; // tot_clust=127=1+2+4+8+16+32+64
+    symbols_t * layers[logN + 1];
+    int         offset = 0;
+    for (int i = 0; i <= logN; ++i) {
         layers[i] = layers_arr + offset;
         offset += (N >> i);
     }
 
-    bool Roots_arr[tot_clust];
-    bool *Roots[logN + 1];
+    bool   Roots_arr[tot_clust];
+    bool * Roots[logN + 1];
     offset = 0;
-    for (int i = 0; i <= logN; ++i)
-    {
+    for (int i = 0; i <= logN; ++i) {
         Roots[i] = Roots_arr + offset;
         offset += (1 << i);
     }
 
-    const bool* frozen_clust[logN + 1];
+    const bool * frozen_clust[logN + 1];
     offset = 0;
-    for (int i = 0; i < logN + 1; ++i)
-    {
+    for (int i = 0; i < logN + 1; ++i) {
         frozen_clust[i] = frozen_clust_arr + offset;
         offset += (1 << i);
     }
 
-    int N1 = logN * N;
-    uint16_t decoded_arr[N1];
+    constexpr int N1 = logN * N;
+    uint16_t      decoded_arr[N1];
     // each layer should handle its decoded symbols as the will be needed for upper layer VNs processing
-    uint16_t *decoded_layers[logN];
+    uint16_t * decoded_layers[logN];
     offset = 0;
-    for (int i = 0; i < logN; ++i)
-    {
+    for (int i = 0; i < logN; ++i) {
         decoded_layers[i] = decoded_arr + offset;
         offset += N;
     }
-    for (int u = 0; u < 100000; u++)
-    {
+    for (int u = 0; u < 100000; u++) {
 
         // assign channels observation to the first layer
-        for (int i = 0; i < N; ++i)
-        {
-            for (int j = 0; j < GF; ++j)
-            {
+        for (int i = 0; i < N; ++i) {
+            for (int j = 0; j < GF; ++j) {
                 layers[0][i].value[j] = chan[i * GF + j];
-                layers[0][i].gf[j] = j;
+                layers[0][i].gf[j]    = j;
             }
             layers[0][i].is_freq = false;
         }
         // initialize the clusters status (false if not decoded yet)
-        for (int i = 0; i <= logN; ++i)
-        {
-            for (int j = 0; j < (1 << i); ++j)
-            {
+        for (int i = 0; i <= logN; ++i) {
+            for (int j = 0; j < (1 << i); ++j) {
                 Roots[i][j] = frozen_clust[i][j];
             }
         }
@@ -192,25 +164,18 @@ int main(int argc, char *argv[])
 
         int l = 0;
         int s = 0;
-        while (true)
-        {
-            if (!Roots[l + 1][2 * s])
-            {
+        while (true) {
+            if (!Roots[l + 1][2 * s]) {
                 uint32_t len = N >> (l + 1);
 
-                for (int i = 0; i < len; ++i)
-                {
+                for (int i = 0; i < int32_t(len); ++i) {
                     f_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len]);
-                    
                 }
                 l += 1;
                 s *= 2;
-                if (l == logN)
-                {
-                    if (!Roots[logGF][s])
-                    {
+                if (l == logN) {
+                    if (!Roots[logGF][s]) {
                         final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
-                        
                     }
                     Roots[logN][s] = true;
                     l -= 1;
@@ -218,26 +183,20 @@ int main(int argc, char *argv[])
                 }
             }
 
-            else if (!Roots[l + 1][2 * s + 1])
-            {
-                uint32_t len = N >> (l + 1);
+            else if (!Roots[l + 1][2 * s + 1]) {
+                uint32_t len  = N >> (l + 1);
                 uint32_t len1 = N >> l;
 
-                for (int i = 0; i < len; ++i)
-                {
-                    uint32_t id1 = s * len1 + i;
+                for (int i = 0; i < int(len); ++i) {
+                    uint32_t id1      = s * len1 + i;
                     uint16_t decision = decoded_layers[l][id1];
                     g_function<GF>(&layers[l + 1][i], &layers[l][i], &layers[l][i + len], decision);
-                    
                 }
                 l += 1;
                 s = (s << 1) + 1;
-                if (l == logN)
-                {
-                    if (!Roots[logGF][s])
-                    {
+                if (l == logN) {
+                    if (!Roots[logGF][s]) {
                         final_node<GF>(&layers[l][0], decoded_layers[logN - 1], s);
-                        
                     }
                     Roots[logN][s] = true;
                     if (s == (N - 1))
@@ -245,15 +204,12 @@ int main(int argc, char *argv[])
                     l -= 1;
                     s >>= 1;
                 }
-            }
-            else
-            {
-                uint32_t len = N >> (l + 1);
+            } else {
+                uint32_t len  = N >> (l + 1);
                 uint32_t len1 = N >> l;
-                for (int i = 0; i < len; ++i)
-                {
-                    uint32_t id1 = s * len1 + i;
-                    decoded_layers[l - 1][id1] = decoded_layers[l][id1] ^ decoded_layers[l][id1 + len];
+                for (int i = 0; i < int(len); ++i) {
+                    uint32_t id1                     = s * len1 + i;
+                    decoded_layers[l - 1][id1]       = decoded_layers[l][id1] ^ decoded_layers[l][id1 + len];
                     decoded_layers[l - 1][id1 + len] = decoded_layers[l][id1 + len];
                 }
                 Roots[l][s] = true;
@@ -264,30 +220,30 @@ int main(int argc, char *argv[])
     }
 
     printf("\nFrozen matrix:\n");
-    for (int i = 0; i < N; i += 1)
-    {
-        if( (i%16) == 0 )
+    for (int i = 0; i < N; i += 1) {
+        if ((i % 16) == 0)
             printf("\n ");
         printf("%2d ", frozen_clust_arr[i]);
-    }printf("\n");
+    }
+    printf("\n");
 
     printf("\n\nDecoded symbols:\n");
-    for (int i = 0; i < N; i += 1)
-    {
-        if( (i%16) == 0 )
+    for (int i = 0; i < N; i += 1) {
+        if ((i % 16) == 0)
             printf("\n ");
-        if (decoded_layers[logN - 1][i] == ref_out[i]){
-             printf("\e[1;32m%2d\e[0m ", decoded_layers[logN - 1][i]);
-        }else{
-             printf("\e[1;31m%2d\e[0m ", decoded_layers[logN - 1][i]);
+        if (decoded_layers[logN - 1][i] == ref_out[i]) {
+            printf("\e[1;32m%2d\e[0m ", decoded_layers[logN - 1][i]);
+        } else {
+            printf("\e[1;31m%2d\e[0m ", decoded_layers[logN - 1][i]);
         }
-    }printf("\n");
-/*    
-    for (int i = 0; i < N; ++i)
-    {
-        std::cout << decoded_layers[logN - 1][i] << " ";
     }
-    std::cout << std::endl;
-*/
+    printf("\n");
+    /*
+        for (int i = 0; i < N; ++i)
+        {
+            std::cout << decoded_layers[logN - 1][i] << " ";
+        }
+        std::cout << std::endl;
+    */
     return EXIT_SUCCESS;
 }

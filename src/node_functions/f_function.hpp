@@ -1,24 +1,19 @@
 #pragma once
-//
-//
-//
-//
-//
-#include "../structure.hpp"
-#include "../fwht/fwht_x86.hpp"
-#include "../fwht/fwht_neon.hpp"
-#include "../fwht/fwht_norm_neon.hpp"
-#include "../fwht/fwht_avx2.hpp"
-#include "../fwht/fwht_norm_avx2.hpp"
-//
-//
-//
-//
-//
-//#define debug_f_function
+
+#include "utilities/utility_functions.hpp"
+#if defined(__AVX2__)
+// #include "fwht/fwht_avx2.hpp"
+#include "fwht/fwht_norm_avx2.hpp"
+#elif defined(__ARM_NEON__)
+// #include "fwht/fwht_neon.hpp"
+#include "fwht/fwht_norm_neon.hpp"
+#else
+#include "fwht/fwht.hpp"
+#endif
+
+// #define debug_f_function
 template <uint32_t gf_size>
-void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
-{
+void f_function(symbols_t * dst, symbols_t * src_a, symbols_t * src_b) {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
 #if defined(debug_f_function)
@@ -54,10 +49,9 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
-    for (size_t i = 0; i < gf_size; i++)
-    {
+    for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] = src_a->value[i] * src_b->value[i];
-//        dst->gf   [i] = src_a->gf   [i]; // to be removed !
+        //        dst->gf   [i] = src_a->gf   [i]; // to be removed !
     }
     dst->is_freq = true; // a.a we do CN in FD
 
@@ -72,9 +66,9 @@ void f_function(symbols_t *dst, symbols_t *src_a, symbols_t *src_b)
         printf("[debug f] < Conversion Freq. to Proba (dst) [%d]\n", idx);
     }
 #endif
-//#if defined(debug_f_function)
-//    printf("[debug f]"); show_symbols( dst );
-//#endif
+    // #if defined(debug_f_function)
+    //     printf("[debug f]"); show_symbols( dst );
+    // #endif
 }
 //
 //
