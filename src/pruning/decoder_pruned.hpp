@@ -4,7 +4,7 @@
 //
 //
 //
-#include "../frozen_tree.hpp"
+#include "frozen_tree.hpp"
 //
 //
 //
