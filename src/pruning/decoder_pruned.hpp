@@ -78,6 +78,7 @@ frozen_tree* decoder_pruned<gf_size>::f_tree = nullptr;
 //
 //
 //
+#include "leaf/leaf_node_rate_0.hpp"
 #include "node/middle_node_pruned_after_f.hpp"
 #include "node/middle_node_pruned_after_g.hpp"
 #include "node/middle_node_pruned_rate_0.hpp"

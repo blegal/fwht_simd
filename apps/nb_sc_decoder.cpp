@@ -181,7 +181,8 @@ int main(int argc, char* argv[])
     ///////////////////////////////////////////////////////////////////////////////
     //
     //
-#if 0
+#if 1
+    for (int i = 0; i < N; i += 1) decoded[i] = -1;
     decoder_pruned<64> dec_pruned;
     dec_pruned.f_tree = &pruned_tree;
     dec_pruned.execute(channel, internal, decoded, symbols, size);
