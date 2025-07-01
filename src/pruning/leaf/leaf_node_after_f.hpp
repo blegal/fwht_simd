@@ -1,9 +1,5 @@
 #pragma once
-//
-//
-//
-//
-//
+
 #include "definitions/const_config_GF64_N64.hpp"
 #include "utilities/utility_functions.hpp"
 #include "fwht/fwht.hpp"
@@ -11,17 +7,9 @@
 #include "fwht/fwht_neon.hpp"
 #include "fwht/fwht_norm_avx2.hpp"
 #include "fwht/fwht_norm_neon.hpp"
-//
-//
-//
-//
-//
+
 extern int frozen_symbols[64];
-//
-//
-//
-//
-//
+
 // #define debug_leaf
 template <int gf_size>
 void leaf_node_after_f(
