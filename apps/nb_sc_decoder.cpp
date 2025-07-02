@@ -25,6 +25,7 @@
 #include "pruning/decoder_specialized.hpp"
 
 #include "frozen_tree.hpp"
+#include "encoder/polar_encoder.hpp"
 
 //
 //
@@ -33,20 +34,10 @@
 //
 int frozen_symbols[64];
 
-/*
-enum next_node { RATE_0,
-                RATE_1_FROM_F,
-                RATE_1_FROM_G,
-                LEAF_RATE_0,
-                LEAF_RATE_1_FROM_F,
-                LEAF_RATE_1_FROM_G,
-                MID_NODE_FROM_F,
-                MID_NODE_FROM_G};
-next_node pruning[2 * N];
-*/
-
 int main(int, char *[]) {
     constexpr int size = GF;
+
+    polar_encoder encoder(reliab_seq, K, N);
 
     //
     // load the channel symbols
