@@ -18,7 +18,7 @@ void decoder_specialized<gf_size>::middle_node_after_g(
     const int n = size / 2; // Assuming size is the number of symbols
 
     for (int i = 0; i < n; i++) {
-        f_function_proba_in<gf_size>(internal + i, inputs + i, inputs + n + i); // Example operation
+        f_function_proba_in<gf_size>(internal + i, inputs + i, inputs + n + i);
     }
 
     if (n == 1) {
@@ -26,7 +26,8 @@ void decoder_specialized<gf_size>::middle_node_after_g(
             internal, // le symbol souple
             decoded,  // les symboles décodés (output du decodeur)
             symbols,  // le tableau des symboles durs
-            symbol_id);
+            symbol_id,
+            frozen_symbols[symbol_id]); // l'etat frozen ou pas du symbol
     } else {
         middle_node_after_f(
             internal,     // les données d'entrée
@@ -50,7 +51,7 @@ void decoder_specialized<gf_size>::middle_node_after_g(
             internal,
             decoded,
             symbols,
-            symbol_id + n);
+            symbol_id + n, frozen_symbols[symbol_id + n]);
     } else {
         middle_node_after_g(
             internal,

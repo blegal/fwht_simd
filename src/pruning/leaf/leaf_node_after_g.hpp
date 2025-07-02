@@ -20,14 +20,14 @@ void leaf_node_after_g(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
-    const int   symbol_id) {
+    const int   symbol_id, const bool frozen) {
 #if _AUTO_CHECK_
     if (var->is_freq == true) {
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
 #endif
-    if (frozen_symbols[symbol_id] == true) {
+    if (frozen == true) {
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;
         return;

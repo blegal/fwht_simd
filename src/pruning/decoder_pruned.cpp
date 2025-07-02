@@ -1,0 +1,104 @@
+#include "decoder_pruned.hpp"
+
+/**
+ *
+ * @param n
+ * @param frozen_symb
+ */
+template <int gf_size>
+decoder_pruned<gf_size>::decoder_pruned(const int n, const int* frozen_symb)
+    : N(n), f_tree_cnt(0), f_tree(nullptr)
+{
+    internal.resize(N);
+    symbols.resize (N);
+    frozen.resize  (N);
+
+    for (int i = 0; i < N; i++) {
+        frozen[i] = frozen_symb[i];
+    }
+}
+
+/**
+ *
+ */
+template <int gf_size>
+decoder_pruned<gf_size>::decoder_pruned() :
+    N(0), f_tree_cnt(0), f_tree(nullptr)
+
+{
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+}
+
+
+// These headers are not used directly but defines template functions and MUST be included here
+#include "node/middle_node_pruned_after_f.hpp"        // IWYU pragma: keep
+#include "node/middle_node_pruned_after_g.hpp"        // IWYU pragma: keep
+#include "node/middle_node_pruned_rate_0.hpp"         // IWYU pragma: keep
+#include "node/middle_node_pruned_rate_1_after_f.hpp" // IWYU pragma: keep
+#include "node/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
+
+template <int gf_size>
+void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t *  decoded)
+{
+    f_tree_cnt = 0;
+
+    const int n = N / 2; // Assuming size is the number of symbols
+    //
+    //
+    //
+    for (int i = 0; i < n; i++) {
+        f_function_proba_in<gf_size>(internal + i, channel + i, channel + n + i);
+    }
+    //
+    //
+    //
+    next_node left_edge = f_tree->next_node_status[f_tree_cnt++];
+    if (left_edge != MID_NODE_FROM_F) {
+        exit(EXIT_FAILURE);
+    }
+    middle_node_pruned_after_f(
+        internal,
+        internal + n,
+        decoded,
+        symbols,
+        n,
+        0); // On descend à gauche
+    //
+    //
+    //
+    for (int i = 0; i < n; i++) {
+        g_function_proba_in<gf_size>(
+            internal + i,    // memory space for the result
+            channel + i,     // values from the right child
+            channel + n + i, // values from the right child
+            symbols[i]);     // decoded symbols from the left child
+    }
+    //
+    //
+    //
+    next_node right_edge = f_tree->next_node_status[f_tree_cnt++];
+    if (right_edge != MID_NODE_FROM_G) {
+        exit(EXIT_FAILURE);
+    }
+    middle_node_pruned_after_g(
+        internal,
+        internal + n,
+        decoded,
+        symbols,
+        n,
+        n); // On descend à droite
+
+    // No H computations as we are at the top node and we have a non systematic code !!!
+}
+//
+//
+//
+void instanciate() {
+    decoder_pruned< 16> dec_16;
+    decoder_pruned< 32> dec_32;
+    decoder_pruned< 64> dec_64;
+    decoder_pruned<128> dec_128;
+    decoder_pruned<256> dec_256;
+}

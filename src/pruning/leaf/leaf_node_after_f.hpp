@@ -17,7 +17,8 @@ void leaf_node_after_f(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
-    const int   symbol_id) {
+    const bool symbol_id,
+    const bool frozen) {
 #if defined(debug_leaf)
     printf("-> leaf_node_after_f(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
 #endif
@@ -27,7 +28,7 @@ void leaf_node_after_f(
         exit(EXIT_FAILURE);
     }
 #endif
-    if (frozen_symbols[symbol_id] == true) {
+    if (frozen == true) {
 #if defined(debug_leaf)
         fwht<gf_size>(var->value);
         normalize<gf_size>(var->value, 0.125);

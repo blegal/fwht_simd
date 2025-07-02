@@ -16,7 +16,7 @@ add_compile_options (-Wall -Wextra)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
-add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp)
+add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
 target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries (nb_sc_decoder PUBLIC utilities)
 

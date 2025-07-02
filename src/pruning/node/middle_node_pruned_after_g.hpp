@@ -84,11 +84,11 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_g(
 #endif
         if (sum_l != 0)
             printf("Error %s %d\n", __FILE__, __LINE__);
-        leaf_node_after_f<gf_size>(
+            leaf_node_after_f<gf_size>(
             internal, // le symbol souple
             decoded,  // les symboles décodés (output du decodeur)
             symbols,  // le tableau des symboles durs
-            symbol_id);
+            symbol_id, frozen[symbol_id]);
 
     } else if (left_edge == LEAF_RATE_1_FROM_G) {
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
@@ -182,7 +182,8 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_g(
             internal,
             decoded,
             symbols,
-            symbol_id + n);
+            symbol_id + n,
+            frozen[symbol_id + n]);
     } else if (right_edge == MID_NODE_FROM_F) {
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);

@@ -21,6 +21,7 @@
 #if defined(__ARM_NEON__)
 #include <arm_neon.h>
 #include <string>
+#include <cassert>
 
 //
 //

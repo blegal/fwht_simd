@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    const int N;
     const int K;
+    const int N;
     std::vector<uint8_t> liste;
 };

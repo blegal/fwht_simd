@@ -26,7 +26,7 @@ void decoder_specialized<gf_size>::middle_node_after_f(
             internal, // le symbol souple
             decoded,  // les symboles décodés (output du decodeur)
             symbols,  // le tableau des symboles durs
-            symbol_id);
+            symbol_id, frozen[symbol_id]);
     } else {
         middle_node_after_f(
             internal,     // les données d'entrée
@@ -50,7 +50,8 @@ void decoder_specialized<gf_size>::middle_node_after_f(
             internal,
             decoded,
             symbols,
-            symbol_id + n);
+            symbol_id + n,
+            frozen[symbol_id + n]);
     } else {
         middle_node_after_g(
             internal,

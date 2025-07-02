@@ -84,39 +84,6 @@ inline float32x4x2_t vsubq_x2_f32(const float32x4x2_t A, const float32x4x2_t B) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-float32x4x2_t fwht8_neon_chatgpt(const float32x4_t a, const float32x4_t b) {
-    // Charger les 8 valeurs d’entrée
-
-    // Étape 1 : (a + b) et (a - b)
-    const float32x4_t s = vaddq_f32(a, b); // x0 + x4, x1 + x5, ...
-    const float32x4_t d = vsubq_f32(a, b); // x0 - x4, x1 - x5, ...
-
-    // Réarranger pour étape 2 : regroupement par paires
-    const float32x4x2_t step1 = {s, d};
-
-    // Étape 2 sur les 4 premiers éléments (s)
-    const float32x2_t s_low  = vget_low_f32(s);         // x0+x4, x1+x5
-    const float32x2_t s_high = vget_high_f32(s);        // x2+x6, x3+x7
-    const float32x2_t s_sum  = vadd_f32(s_low, s_high); // (x0+x4)+(x2+x6), ...
-    const float32x2_t s_diff = vsub_f32(s_low, s_high);
-
-    // Étape 2 sur les 4 suivants (d)
-    const float32x2_t d_low  = vget_low_f32(d);  // x0−x4, x1−x5
-    const float32x2_t d_high = vget_high_f32(d); // x2−x6, x3−x7
-    const float32x2_t d_sum  = vadd_f32(d_low, d_high);
-    const float32x2_t d_diff = vsub_f32(d_low, d_high);
-
-    // Combinaison finale
-    float32x4x2_t resu;
-    resu.val[0] = vcombine_f32(s_sum, s_diff); // WHT[0..3]
-    resu.val[1] = vcombine_f32(d_sum, d_diff); // WHT[4..7]
-    return resu;
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1) {
     float32x4x2_t    resu;
     const uint32x4_t m0 = {0x00000000, 0x00000000, 0x80000000, 0x80000000};

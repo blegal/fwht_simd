@@ -57,7 +57,8 @@ inline void normalize(value_type x[], const value_type fact) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht_tuile(const value_type inp[8], value_type outp[8]) {
+//inline void fwht_tuile(const value_type inp[8], value_type outp[8]) {
+inline void fwht_tuile(const value_type* inp, value_type* outp) {
     value_type L1[8], L2[8];
     L1[0] = inp[0] + inp[4];
     L1[1] = inp[1] + inp[5];
@@ -92,7 +93,7 @@ inline void fwht_tuile(const value_type inp[8], value_type outp[8]) {
 //
 //
 template <>
-inline void fwht<8>(value_type inp[8]) {
+inline void fwht<8>(value_type* inp) {
     value_type part_1[8];
     for (int i = 0; i < 4; i++) {
         part_1[i]     = inp[i] + inp[i + 4];
@@ -118,7 +119,7 @@ inline void fwht<8>(value_type * dst, const value_type * src) {
 //
 //
 template <>
-inline void fwht<16>(value_type inp[16]) {
+inline void fwht<16>(value_type* inp) {
     value_type part_1[8];
     value_type part_2[8];
 
@@ -148,7 +149,7 @@ inline void fwht<16>(value_type * dst, const value_type * src) {
 //
 //
 template <>
-inline void fwht<32>(value_type inp[32]) {
+inline void fwht<32>(value_type* inp) {
     value_type part_1[16];
     value_type part_2[16];
 
@@ -183,7 +184,7 @@ inline void fwht<32>(value_type * dst, const value_type * src) {
 //
 //
 template <>
-inline void fwht<64>(value_type inp[64]) {
+inline void fwht<64>(value_type* inp) {
     value_type part_1[32];
     value_type part_2[32];
 
@@ -204,7 +205,7 @@ inline void fwht<64>(value_type inp[64]) {
 //
 //
 template <>
-inline void fwht<64>(value_type * dst, const value_type * src) {
+inline void fwht<64>(value_type* dst, const value_type* src) {
     for (int i = 0; i < 32; i++) {
         dst[i]      = src[i] + src[i + 32];
         dst[32 + i] = src[i] - src[i + 32];
@@ -218,7 +219,7 @@ inline void fwht<64>(value_type * dst, const value_type * src) {
 //
 //
 template <>
-inline void fwht<128>(value_type inp[128]) {
+inline void fwht<128>(value_type* inp) {
     value_type part_1[64], part_2[64];
 
     for (int i = 0; i < 64; i++) {
@@ -252,7 +253,7 @@ inline void fwht<128>(value_type * dst, const value_type * src) {
 //
 //
 template <>
-inline void fwht<256>(value_type inp[256]) {
+inline void fwht<256>(value_type* inp) {
     value_type part_1[128];
     value_type part_2[128];
 
@@ -273,7 +274,7 @@ inline void fwht<256>(value_type inp[256]) {
 //
 //
 template <>
-inline void fwht<256>(value_type * dst, const value_type * src) {
+inline void fwht<256>(value_type* dst, const value_type* src) {
     for (int i = 0; i < 128; i++) {
         dst[i]       = src[i] + src[i + 128];
         dst[128 + i] = src[i] - src[i + 128];

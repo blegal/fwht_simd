@@ -26,6 +26,8 @@
 
 #include "frozen_tree.hpp"
 #include "encoder/polar_encoder.hpp"
+#include "demodulator/demodulator.hpp"
+
 
 //
 //
@@ -37,7 +39,52 @@ int frozen_symbols[64];
 int main(int, char *[]) {
     constexpr int size = GF;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // initialize the frozen symbols array
+    //
+    uint16_t * symbols = new uint16_t[N];
+    for (int i = 0; i < N; i += 1)
+        frozen_symbols[i] = true;
+    for (int i = 0; i < K; i += 1)
+        frozen_symbols[reliab_seq[i]] = false; // i c'est pour le DEBUG, on pourrait mettre 0
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector<uint16_t>   symbol_k(K);
+    std::vector<uint16_t>   symbol_n(N);
+    std::vector<symbols_t>  llrs_n(N);
+    std::vector<uint16_t>   decoded_n(N);
+    std::vector<uint16_t>   decoded_k(K);
+
+    //
+    //
+    //
+    for (int i = 0; i < size; i++) {
+        symbol_k[i] = rand()%GF;
+    }
+
+    //
+    //
+    //
     polar_encoder encoder(reliab_seq, K, N);
+    encoder.encode( symbol_n.data(), symbol_k.data() );
+
+    //
+    // No modulation and no noise there
+    //
+    decoder_specialized<64> decoder(N, frozen_symbols);
+    decoder.execute(llrs_n.data(), decoded_n.data());
+
+    //
+    //
+    //
+    demodulator<GF> demod( N );
+    encoder.decode(decoded_k.data(), decoded_n.data());
+
+    //
+    //  decoding
+    //
 
     //
     // load the channel symbols
@@ -46,12 +93,9 @@ int main(int, char *[]) {
     for (int i = 0; i < N; i += 1) {
         for (int j = 0; j < GF; j += 1) {
             channel[i].value[j] = chan[GF * i + j];
-            //            channel[i].gf   [j] = j;
             channel[i].is_freq = false;
         }
-        //      normalize< 64>( channel[i].value ); // added probability normalization BLG
         normalize<GF>(channel[i].value);
-        //      show_symbols( channel + i );
     }
 
     //
@@ -61,20 +105,9 @@ int main(int, char *[]) {
     for (int i = 0; i < N; i += 1) {
         for (int j = 0; j < GF; j += 1) {
             internal[i].value[j] = 0.f;
-            //            internal[i].gf   [j] = j;
         }
     }
 
-    //
-    // initialize the frozen symbols array
-    //
-    uint16_t * symbols = new uint16_t[N];
-    for (int i = 0; i < N; i += 1)
-        frozen_symbols[i] = true;
-    for (int i = 0; i < K; i += 1)
-        frozen_symbols[reliab_seq[i]] = false; // i c'est pour le DEBUG, on pourrait mettre 0
-
-    //  const int n_nodes = frozen_tree(frozen_symbols, 0, pruning, 0, N);
 
     frozen_tree pruned_tree(N);
     pruned_tree.analyze(frozen_symbols, N);
@@ -116,7 +149,6 @@ int main(int, char *[]) {
         }
     }
     printf("\n");
-
     //
     //
     ///////////////////////////////////////////////////////////////////////////////
@@ -135,15 +167,14 @@ int main(int, char *[]) {
         }
     }
     printf("\n");
-
     //
     //
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Call the top node function to decode the symbols
+    // Décodeur spécialisé mais sans pruning
     //
     decoder_specialized<64> dec;
-    dec.execute(channel, internal, decoded, symbols, size);
+    dec.execute(channel, decoded);
     printf("\n\nDecoded symbols (class):\n");
     for (int i = 0; i < N; i += 1) {
         if ((i % 16) == 0)
@@ -155,17 +186,16 @@ int main(int, char *[]) {
         }
     }
     printf("\n");
-
     //
     //
     ///////////////////////////////////////////////////////////////////////////////
     //
+    // Décodeur spécialisé AVEC pruning
     //
-#if 1
     for (int i = 0; i < N; i += 1) decoded[i] = -1;
-    decoder_pruned<64> dec_pruned;
-    dec_pruned.f_tree = &pruned_tree;
-    dec_pruned.execute(channel, internal, decoded, symbols, size);
+    decoder_pruned<64> dec_pruned(N, frozen_symbols);   // Ici
+    dec_pruned.f_tree = &pruned_tree;                   // Ici
+    dec_pruned.execute(channel, decoded);
     printf("\n\nDecoded symbols (final):\n");
     for (int i = 0; i < N; i += 1)
     {
@@ -177,8 +207,11 @@ int main(int, char *[]) {
             printf("\e[1;31m%2d\e[0m ", decoded[i]);
         }
     }printf("\n");
-#endif
-
+    //
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    //
     const int32_t nTest = (256 * 1024);
 
     auto start_x86 = std::chrono::system_clock::now();
@@ -226,8 +259,8 @@ int main(int, char *[]) {
     //
     //
     start_x86 = std::chrono::system_clock::now();
-    for (int32_t loop = 0; loop < nTest; loop += 1) {
-        dec.execute(channel, internal, decoded, symbols, size);
+    for (int loop = 0; loop < nTest; loop += 1) {
+        dec.execute(channel, decoded);
     }
     stop_x86 = std::chrono::system_clock::now();
 
@@ -250,7 +283,7 @@ int main(int, char *[]) {
     start_x86 = std::chrono::system_clock::now();
     for(int32_t loop = 0; loop < nTest; loop += 1)
     {
-        dec_pruned.execute(channel, internal, decoded, symbols, size);
+        dec_pruned.execute(channel, decoded);
     }
     stop_x86 = std::chrono::system_clock::now();
 
