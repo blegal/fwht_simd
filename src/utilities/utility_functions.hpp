@@ -1,13 +1,7 @@
 #pragma once
 #include <cstdio>
 
-#include "definitions/const_config_GF64_N64.hpp"
-
-struct symbols_t {
-    float value[GF];
-    //    uint8_t  gf   [GF]; // to be removed !
-    bool is_freq;
-};
+#include "definitions/custom_types.hpp"
 
 template <int gf_size>
 void normalize(float * tab) {
@@ -34,7 +28,9 @@ int argmax(const float * value) {
     return max_index;
 }
 
-void show_symbols(const symbols_t * symbols);
+void local_remove_xors(uint16_t * values, int size);
+
+	void show_symbols(const symbols_t * symbols);
 
 void show_symbols(const float * symbols);
 

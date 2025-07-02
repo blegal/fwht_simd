@@ -1,18 +1,12 @@
 #pragma once
-//
-//
-//
-//
-//
-#include "../f_function/f_function_freq_in.hpp"
-#include "../g_function/g_function_freq_in.hpp"
-#include "../leaf/leaf_node_after_f.hpp"
-#include "../leaf/leaf_node_after_g.hpp"
-//
-//
-//
-//
-//
+
+#include "pruning/decoder_pruned.hpp"
+#include "pruning/leaf/leaf_node_rate_0.hpp"
+#include "pruning/leaf/leaf_node_after_g.hpp"
+#include "pruning/leaf/leaf_node_after_f.hpp"
+#include "pruning/f_function/f_function_freq_in.hpp"
+#include "pruning/g_function/g_function_freq_in.hpp"
+
 template <int gf_size>
 void decoder_pruned<gf_size>::middle_node_pruned_after_f(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)

@@ -1,4 +1,6 @@
 
+#include "pruning/decoder_pruned.hpp"
+
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -20,7 +22,6 @@
 #include "nodes/top_node.hpp"
 #include "nodes/top_node_with_pruning.hpp"
 
-#include "pruning/decoder_pruned.hpp"
 #include "pruning/decoder_specialized.hpp"
 
 #include "frozen_tree.hpp"

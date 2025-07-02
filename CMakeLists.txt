@@ -18,6 +18,7 @@ add_compile_options (-Wall -Wextra)
 
 add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp)
 target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries (nb_sc_decoder PUBLIC utilities)
 
 #######################################################################################################################################
 
