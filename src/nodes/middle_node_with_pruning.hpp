@@ -16,7 +16,7 @@ void remove_xors(uint16_t* values, int size)
 {
     if( size == 1 )
         return;
-    for(int i = 0; i < size/2; i += 1)
+        for(int i = 0; i < size/2; i += 1)
         values[i] ^= values[i + size/2];
     remove_xors(values,          size/2);
     remove_xors(values + size/2, size/2);
@@ -35,6 +35,7 @@ void middle_node_with_pruning(
     int size,               // Size is the number of symbols (should be a power of 2)
     const int symbol_id)    // Symbol ID is the index of the FIRST symbol in the symbols array
 {
+    const int n = size / 2; // Assuming size is the number of symbols
 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -79,7 +80,50 @@ void middle_node_with_pruning(
     //
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    const int n = size / 2; // Assuming size is the number of symbols
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+#if 0
+    if( (sum == (size-1)) && (frozen_symbols[symbol_id + (size-1)] == false) ) {
+#if defined(debug_rate_1)
+        printf("Frozen pruning in REP mode\n");
+#endif
+        // la decision dure sur size/2-1 = n-1 ???
+        if ( inputs[n-1].is_freq )
+            fwht<gf_size>( inputs[n-1].value );
+        const int value = argmax<gf_size>( inputs[n-1].value );
+        for(int i = 0; i < size; i++)
+        {
+            symbols[symbol_id + i] = value;
+            decoded[symbol_id + i] = 0; // should be corrected (it is systematic solution actually)
+#if defined(debug_rate_1)
+            printf("-> hard decision [%2d] = %d\n", symbol_id + i, symbols[symbol_id + i]);
+#endif
+        }
+        decoded[symbol_id + (size-1)] = value; // should be corrected (it is systematic solution actually)
+#if 0
+        if ( (sum == (size-1)) && (frozen_symbols[symbol_id + (size-1)] == false) ) {
+            printf("> Sum : %d and Size : %d\n", sum, size);
+            printf("> FrozenS : ");
+            for (int i = 0; i < size; i++)
+                printf("%2d ", frozen_symbols[symbol_id + i]);
+            printf("\n");
+            printf("> Decoded : ");
+            for (int i = 0; i < size; i++)
+                printf("%2d ", decoded[i]);
+            printf("\n");
+            printf("> Symbols : ");
+            for (int i = 0; i < size; i++)
+                printf("%2d ", symbols[i]);
+            printf("\n");
+        }
+        exit( EXIT_FAILURE );
+#endif
+        return;
+    }
+#endif
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     //
     // 
     //
@@ -141,6 +185,23 @@ void middle_node_with_pruning(
     //
     // 
     //
+#if 0
+    if ( (sum == (size-1)) && (frozen_symbols[symbol_id + (size-1)] == false) ) {
+        printf("> Sum : %d and Size : %d\n", sum, size);
+        printf("> FrozenS : ");
+        for (int i = 0; i < size; i++)
+            printf("%2d ", frozen_symbols[symbol_id + i]);
+        printf("\n");
+        printf("> Decoded : ");
+        for (int i = 0; i < size; i++)
+            printf("%2d ", decoded[i]);
+        printf("\n");
+        printf("> Symbols : ");
+        for (int i = 0; i < size; i++)
+            printf("%2d ", symbols[i]);
+        printf("\n");
+    }
+#endif
 }
 //
 //

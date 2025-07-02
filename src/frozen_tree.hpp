@@ -9,6 +9,8 @@
 enum next_node { RATE_0,
                 RATE_1_FROM_F,
                 RATE_1_FROM_G,
+                REP_FROM_F,
+                REP_FROM_G,
                 LEAF_RATE_0,
                 LEAF_RATE_1_FROM_F,
                 LEAF_RATE_1_FROM_G,
@@ -58,6 +60,12 @@ public:
                     break;
                 case RATE_1_FROM_G:
                     std::cout << "> Execute RATE_1_FROM_G" << std::endl;
+                    break;
+                case REP_FROM_F:
+                    std::cout << "> Execute REP_FROM_F" << std::endl;
+                    break;
+                case REP_FROM_G:
+                    std::cout << "> Execute REP_FROM_G" << std::endl;
                     break;
                 case LEAF_RATE_0:
                     std::cout << "> Execute LEAF_RATE_0" << std::endl;
