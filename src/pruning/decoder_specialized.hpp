@@ -1,9 +1,9 @@
 #pragma once
-//
-//
-//
-//
-//
+
+#include "definitions/custom_types.hpp"
+#include "pruning/f_function/f_function_proba_in.hpp"
+#include "pruning/g_function/g_function_proba_in.hpp"
+
 template <int gf_size = 64>
 class decoder_specialized {
 public:
@@ -31,14 +31,11 @@ private:
         int         size,     // Size is the number of symbols (should be a power of 2)
         const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
 };
-//
-//
-//
-#include "node/middle_node_after_f.hpp"
-#include "node/middle_node_after_g.hpp"
-//
-//
-//
+
+// These headers are not used directly but defines template functions and MUST be included here
+#include "node/middle_node_after_f.hpp" // IWYU pragma: keep
+#include "node/middle_node_after_g.hpp" // IWYU pragma: keep
+
 template <int gf_size>
 void decoder_specialized<gf_size>::execute(
     symbols_t * channel,  // Channel symbols are the input symbols (from the right)
@@ -67,9 +64,7 @@ void decoder_specialized<gf_size>::execute(
         symbols,
         n,
         0); // On descend à gauche
-    //
-    //
-    //
+
     for (int i = 0; i < n; i++) {
         g_function_proba_in<gf_size>(
             internal + i,    // memory space for the result
@@ -77,9 +72,7 @@ void decoder_specialized<gf_size>::execute(
             channel + n + i, // values from the right child
             symbols[i]);     // decoded symbols from the left child
     }
-    //
-    //
-    //
+
     middle_node_after_g(
         internal,
         internal + n,
@@ -87,16 +80,7 @@ void decoder_specialized<gf_size>::execute(
         symbols,
         n,
         n); // On descend à droite
-    //
-    //
-    //
+
     // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    //
-    //
 }
-//
-//
-//
-//
-//
+

@@ -1,18 +1,11 @@
 #pragma once
-//
-//
-//
-//
-//
-#include "../f_function/f_function_proba_in.hpp"
-#include "../g_function/g_function_proba_in.hpp"
-#include "../leaf/leaf_node_after_f.hpp"
-#include "../leaf/leaf_node_after_g.hpp"
-//
-//
-//
-//
-//
+
+#include "pruning/decoder_specialized.hpp"
+#include "pruning/f_function/f_function_proba_in.hpp"
+#include "pruning/g_function/g_function_proba_in.hpp"
+#include "pruning/leaf/leaf_node_after_f.hpp"
+#include "pruning/leaf/leaf_node_after_g.hpp"
+
 template <int gf_size>
 void decoder_specialized<gf_size>::middle_node_after_g(
     symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
@@ -23,15 +16,11 @@ void decoder_specialized<gf_size>::middle_node_after_g(
     const int   symbol_id)  // Symbol ID is the index of the FIRST symbol in the symbols array
 {
     const int n = size / 2; // Assuming size is the number of symbols
-    //
-    //
-    //
+
     for (int i = 0; i < n; i++) {
         f_function_proba_in<gf_size>(internal + i, inputs + i, inputs + n + i); // Example operation
     }
-    //
-    //
-    //
+
     if (n == 1) {
         leaf_node_after_f<gf_size>(
             internal, // le symbol souple
@@ -47,9 +36,7 @@ void decoder_specialized<gf_size>::middle_node_after_g(
             n,            // le nombre de données en entrée
             symbol_id);   // l'identifiant du symbole (à gauche)
     }
-    //
-    //
-    //
+
     for (int i = 0; i < n; i++) {
         g_function_proba_in<gf_size>(
             internal + i,
@@ -57,9 +44,7 @@ void decoder_specialized<gf_size>::middle_node_after_g(
             inputs + n + i,
             symbols[symbol_id + i]); // Example operation
     }
-    //
-    //
-    //
+
     if (n == 1) {
         leaf_node_after_g<gf_size>(
             internal,
@@ -75,18 +60,8 @@ void decoder_specialized<gf_size>::middle_node_after_g(
             n,
             symbol_id + n);
     }
-    //
-    //
-    //
+
     for (int i = 0; i < n; i++) {
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
     }
-    //
-    //
-    //
 }
-//
-//
-//
-//
-//
