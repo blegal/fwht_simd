@@ -179,7 +179,6 @@ int main(int, char *[]) {
     ///////////////////////////////////////////////////////////////////////////////
     //
     //
-    exit( 0 );
     const int32_t nTest = (256 * 1024);
     auto start_x86 = std::chrono::system_clock::now();
     for (int32_t loop = 0; loop < nTest; loop += 1) {
