@@ -102,7 +102,38 @@ int main(int, char *[]) {
     //
     // No modulation and no noise there
     //
+#if 0
+    std::vector< std::vector< softdata_t >> noisy_sig(N, std::vector<softdata_t>(bin_table[0].size(), (softdata_t)0.0));
 
+    for (int i = 0; i < int(noisy_sig.size()); i++)
+        noisy_sig[i] = bin_mod_dict[ NSYMB[i] ];
+    // awgn_channel_noise(sigma, RepRndGn, 0, noisy_sig);
+    {
+        uint16_t q1 = noisy_sig[0].size();
+        vector<vector<softdata_t>> noise_table(N, vector<softdata_t>(q1, 0));
+        std::normal_distribution<double> norm_dist(0, sigma);
+        {
+            for (int i = 0; i < N; i++)
+            {
+
+                for (int j = 0; j < q1; j++)
+                {
+                    noise_table[i][j] = (softdata_t)norm_dist(gen);
+                }
+            }
+        }
+
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < q1; j++)
+                noisy_sig[i][j] += noise_table[i][j];
+    }
+    vector<vector<softdata_t>> chan_LLR(N, vector<softdata_t>(q, 0));
+    Channel_LLR(noisy_sig, bin_table, q, sigma, chan_LLR);
+    for (int i = 0; i < N; i++)
+    {
+        chan_LLR_sorted[i].intrinsic_LLR = chan_LLR[i];
+    }
+#endif
     //
     //
     //

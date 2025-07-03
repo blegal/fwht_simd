@@ -5,7 +5,7 @@
 
 template <int gf_size>
 void normalize(float * tab) {
-    float sum = 0.0000001f;
+    float sum = 1e-32f;
     for (int i = 0; i < gf_size; i += 1) {
         sum += tab[i];
     }
@@ -19,6 +19,19 @@ template <int gf_size>
 int argmax(const float * value) {
     int   max_index = 0;
     float max_value = value[0];
+    for (int i = 1; i < gf_size; i++) {
+        if (value[i] > max_value) {
+            max_value = value[i];
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+
+template <int gf_size>
+int argmax(const double * value) {
+    int    max_index = 0;
+    double max_value = value[0];
     for (int i = 1; i < gf_size; i++) {
         if (value[i] > max_value) {
             max_value = value[i];
@@ -58,7 +71,7 @@ void show_symbols(const float * symbols) {
     for (int i = 0; i < gf_size; i += 1) {
         if ((i % 16) == 0)
             printf("\n(DD)  %2d : ", i);
-        if (symbols[i] >= 0.2f)
+        if (symbols[i] >= 0.1f)
             printf("\e[1;32m%+6.4f\e[0m ", symbols[i]);
         else
             printf("%+6.4f ", symbols[i]);
@@ -66,4 +79,20 @@ void show_symbols(const float * symbols) {
     }
     const int symb = argmax<gf_size>(symbols);
     printf("\n(DD)     : sum = %f | argmax = %d\n", sum, symb);
+}
+
+template <int gf_size>
+void show_symbols(const double * symbols) {
+    double sum = 0.f;
+    for (int i = 0; i < gf_size; i += 1) {
+        if ((i % 16) == 0)
+            printf("\n(DD)  %2d : ", i);
+        if (symbols[i] >= 0.2f)
+            printf("\e[1;32m%+6.4lf\e[0m ", symbols[i]);
+        else
+            printf("%+6.4f ", symbols[i]);
+        sum += symbols[i];
+    }
+    const int symb = argmax<gf_size>(symbols);
+    printf("\n(DD)     : sum = %lf | argmax = %d\n", sum, symb);
 }
