@@ -14,11 +14,11 @@ public:
     }
 
     void demodulate(symbols_t* dst, const uint16_t* src) const {
-        for (int i = 0; i < K; i++) {
+        for (int i = 0; i < N; i++)
+        {
             dst[i].is_freq = false;
-            for (int j = 0; j < K; j++) {
+            for (int j = 0; j < K; j++)
                 dst[i].value[j] = 0.f;
-            }
             dst[i].value[ src[i] ] = 1.f;
         }
     }

@@ -8,7 +8,6 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
-
 add_compile_options (-march=native -mtune=native -O3 -ffast-math)
 add_compile_options (-Wall -Wextra)
 
@@ -19,6 +18,14 @@ add_compile_options (-Wall -Wextra)
 add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
 target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries (nb_sc_decoder PUBLIC utilities)
+
+#######################################################################################################################################
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
+
+add_executable (simulator ${CMAKE_CURRENT_SOURCE_DIR}/apps/simulator.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
+target_include_directories (simulator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries (simulator PUBLIC utilities)
 
 #######################################################################################################################################
 

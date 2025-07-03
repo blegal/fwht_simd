@@ -7,7 +7,7 @@ target_include_directories (utilities PUBLIC ${CMAKE_SOURCE_DIR}/src)
 add_executable (bench_fwht ${CMAKE_CURRENT_SOURCE_DIR}/fwht/bench_fwht.cpp)
 target_include_directories (bench_fwht PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
-add_executable (test_function_f ${CMAKE_CURRENT_SOURCE_DIR}/node_functions/test_function_f.cpp)
-target_include_directories (test_function_f PUBLIC ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries (test_function_f PUBLIC utilities)
+#add_executable (test_function_f ${CMAKE_CURRENT_SOURCE_DIR}/node_functions/test_function_f.cpp)
+#target_include_directories (test_function_f PUBLIC ${CMAKE_SOURCE_DIR}/src)
+#target_link_libraries (test_function_f PUBLIC utilities)
 

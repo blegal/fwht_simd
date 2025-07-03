@@ -37,7 +37,6 @@
 int frozen_symbols[64];
 
 int main(int, char *[]) {
-    constexpr int size = GF;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -50,59 +49,6 @@ int main(int, char *[]) {
         frozen_symbols[reliab_seq[i]] = false; // i c'est pour le DEBUG, on pourrait mettre 0
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    std::vector<uint16_t>   symbol_k(K);
-    std::vector<uint16_t>   symbol_n(N);
-    std::vector<symbols_t>  llrs_n(N);
-    std::vector<uint16_t>   decoded_n(N);
-    std::vector<uint16_t>   decoded_k(K);
-
-    //
-    //
-    //
-    for (int i = 0; i < size; i++) {
-        symbol_k[i] = rand()%GF;
-    }
-
-    //
-    //
-    //
-    polar_encoder encoder(reliab_seq, K, N);
-    encoder.encode( symbol_n.data(), symbol_k.data() ); // dst <= F(src)
-
-    //
-    // No modulation and no noise there
-    //
-
-    //
-    //
-    //
-    demodulator<GF> demod( N );
-    demod.demodulate(llrs_n.data(), symbol_n.data()); // dst <= F(src)
-
-    //
-    //  decoding
-    //
-    decoder_specialized<GF> decoder(N, frozen_symbols);
-    decoder.execute(llrs_n.data(), decoded_n.data());
-
-    //
-    //  Extracting initial K symbole
-    //
-    encoder.decode( decoded_k.data(), decoded_n.data() ); // dst <= F(src)
-
-    // We should have the same symbols
-    bool isOk = true;
-    for (int i = 0; i < K; i += 1) {
-        if (symbol_k[i] != decoded_n[i]) {
-            isOk = false;
-        }
-    }
-    if (isOk) {
-        printf("Decoder OK\n");
-    }else {
-        printf("Decoder ERROR\n");
-    }
 
     //
     // load the channel symbols
@@ -145,7 +91,7 @@ int main(int, char *[]) {
     //
     // Clear the decoded symbols array
     //
-    uint16_t * decoded = new uint16_t[size];
+    uint16_t * decoded = new uint16_t[N];
     for (int i = 0; i < N; i += 1)
         decoded[i] = 0;
 
@@ -156,7 +102,7 @@ int main(int, char *[]) {
     // Call the top node function to decode the symbols
     //
     for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
-    top_node<64>(channel, internal, decoded, symbols, size);
+    top_node<64>(channel, internal, decoded, symbols, N);
     printf("\n\nDecoded symbols (normal):\n");
     for (int i = 0; i < N; i += 1) {
         if ((i % 16) == 0)
@@ -175,7 +121,7 @@ int main(int, char *[]) {
     // Call the top node function to decode the symbols
     //
     for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
-    top_node_with_pruning<64>(channel, internal, decoded, symbols, size);
+    top_node_with_pruning<64>(channel, internal, decoded, symbols, N);
     printf("\n\nDecoded symbols (pruning):\n");
     for (int i = 0; i < N; i += 1) {
         if ((i % 16) == 0)
@@ -194,7 +140,7 @@ int main(int, char *[]) {
     // Décodeur spécialisé mais sans pruning
     //
     for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
-    decoder_specialized<64> dec(N, frozen_symbols);
+    decoder_specialized<GF> dec(N, frozen_symbols);
     dec.execute(channel, decoded);
     printf("\n\nDecoded symbols (class):\n");
     for (int i = 0; i < N; i += 1) {
@@ -214,7 +160,7 @@ int main(int, char *[]) {
     // Décodeur spécialisé AVEC pruning
     //
     for (int i = 0; i < N; i += 1) decoded[i] = -1;
-    decoder_pruned<64> dec_pruned(N, frozen_symbols);   // Ici
+    decoder_pruned<GF> dec_pruned(N, frozen_symbols);   // Ici
     dec_pruned.f_tree = &pruned_tree;                   // Ici
     dec_pruned.execute(channel, decoded);
     printf("\n\nDecoded symbols (final):\n");
@@ -237,7 +183,7 @@ int main(int, char *[]) {
 
     auto start_x86 = std::chrono::system_clock::now();
     for (int32_t loop = 0; loop < nTest; loop += 1) {
-        top_node<64>(channel, internal, decoded, symbols, size);
+        top_node<64>(channel, internal, decoded, symbols, N);
     }
     auto stop_x86 = std::chrono::system_clock::now();
 
@@ -259,7 +205,7 @@ int main(int, char *[]) {
     //
     start_x86 = std::chrono::system_clock::now();
     for (int32_t loop = 0; loop < nTest; loop += 1) {
-        top_node_with_pruning<64>(channel, internal, decoded, symbols, size);
+        top_node_with_pruning<64>(channel, internal, decoded, symbols, N);
     }
     stop_x86 = std::chrono::system_clock::now();
 
