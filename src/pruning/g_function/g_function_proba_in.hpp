@@ -6,10 +6,10 @@
 // #define debug_g_function
 template <int gf_size>
 void g_function_proba_in(
-    symbols_t * dst,   // the data to be computed for the left side of the graph
-    symbols_t * src_a, // the upper value set from the right side of the graph
-    symbols_t * src_b, // the lower value set from the right side of the graph
-    uint32_t    src_c  // the computed symbols coming from the left side of the graph
+          symbols_t * dst,   // the data to be computed for the left side of the graph
+    const symbols_t * src_a, // the upper value set from the right side of the graph
+    const symbols_t * src_b, // the lower value set from the right side of the graph
+    const uint32_t    src_c  // the computed symbols coming from the left side of the graph
 ) {
     //
     //  Process the mulitplication to support precomputed symbols

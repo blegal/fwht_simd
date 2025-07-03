@@ -325,7 +325,7 @@ int main(int argc, char *[]) {
         auto           stop_i_neon_norm = std::chrono::system_clock::now();
         const bool     ok_neon_norm     = are_equivalent(tab_i, tab_d, 0.002, size);
         const uint64_t time_neon_norm   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon_norm - start_i_neon_norm).count() / nTest;
-        if (ok_x86_n) {
+        if (ok_neon_norm) {
             printf(" - [NEON] fwht_norm_neon \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon_norm);
         } else {
             printf(" - [NEON] fwht_norm_neon \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_neon_norm);

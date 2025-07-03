@@ -9,6 +9,7 @@ class decoder_pruned {
 public:
     decoder_pruned();
     decoder_pruned(const int n, const int* frozen_symb);
+    ~decoder_pruned();
 
     void execute(const symbols_t * channel, uint16_t* decoded);
 
@@ -54,9 +55,9 @@ private:
         const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
 
 private:
-    std::vector<symbols_t> internal;
-    std::vector<uint16_t>  symbols;
-    std::vector<uint32_t>  frozen;
+    symbols_t* internal;
+    uint16_t*  symbols;
+    uint32_t*  frozen;
 
     const int N;
     int           f_tree_cnt;

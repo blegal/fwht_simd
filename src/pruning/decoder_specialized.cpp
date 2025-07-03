@@ -17,9 +17,9 @@ decoder_specialized<gf_size>::decoder_specialized(
     const int n,
     const int* frozen_symb ) : N(n)
 {
-    internal.resize(N);
-    symbols.resize (N);
-    frozen.resize  (N);
+    internal = new symbols_t[N];
+    symbols  = new uint16_t [N];
+    frozen   = new uint32_t [N];
 
     for (int i = 0; i < N; i++) {
         frozen[i] = frozen_symb[i];
@@ -32,9 +32,20 @@ decoder_specialized<gf_size>::decoder_specialized(
 template <int gf_size>
 decoder_specialized<gf_size>::decoder_specialized() : N(0)
 {
+    internal = nullptr;
+    symbols  = nullptr;
+    frozen   = nullptr;
     printf("(EE) Error we should never be there...\n");
     printf("(EE) %s %d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
+}
+
+template <int gf_size>
+decoder_specialized<gf_size>::~decoder_specialized()
+{
+    delete[]internal;
+    delete[]symbols;
+    delete[]frozen;
 }
 
 template <int gf_size>
@@ -81,14 +92,12 @@ void decoder_specialized<gf_size>::execute(
 
     // No H computations as we are at the top node and we have a non systematic code !!!
 }
-
 //
 //
 //
-void instanciate() {
-    decoder_specialized< 16> dec_16;
-    decoder_specialized< 32> dec_32;
-    decoder_specialized< 64> dec_64;
-    decoder_specialized<128> dec_128;
-    decoder_specialized<256> dec_256;
-}
+template class decoder_specialized< 16>;
+template class decoder_specialized< 32>;
+template class decoder_specialized< 64>;
+template class decoder_specialized<128>;
+template class decoder_specialized<256>;
+template class decoder_specialized<512>;

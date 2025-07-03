@@ -12,7 +12,7 @@
 
 // #define debug_f_function
 template <uint32_t gf_size>
-inline __attribute__((always_inline)) void f_function_proba_in(symbols_t * dst, symbols_t * src_a, symbols_t * src_b) {
+inline __attribute__((always_inline)) void f_function_proba_in(symbols_t * dst, const symbols_t * src_a, const symbols_t * src_b) {
 #if _AUTO_CHECK_
     if (src_a->is_freq == true) // Switch from time to frequency domain
     {

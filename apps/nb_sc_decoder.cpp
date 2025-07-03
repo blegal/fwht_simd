@@ -173,7 +173,7 @@ int main(int, char *[]) {
     //
     // Décodeur spécialisé mais sans pruning
     //
-    decoder_specialized<64> dec;
+    decoder_specialized<64> dec(N, frozen_symbols);
     dec.execute(channel, decoded);
     printf("\n\nDecoded symbols (class):\n");
     for (int i = 0; i < N; i += 1) {

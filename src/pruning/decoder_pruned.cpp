@@ -9,9 +9,9 @@ template <int gf_size>
 decoder_pruned<gf_size>::decoder_pruned(const int n, const int* frozen_symb)
     : N(n), f_tree_cnt(0), f_tree(nullptr)
 {
-    internal.resize(N);
-    symbols.resize (N);
-    frozen.resize  (N);
+    internal = new symbols_t[N];
+    symbols  = new uint16_t [N];
+    frozen   = new uint32_t [N];
 
     for (int i = 0; i < N; i++) {
         frozen[i] = frozen_symb[i];
@@ -26,11 +26,21 @@ decoder_pruned<gf_size>::decoder_pruned() :
     N(0), f_tree_cnt(0), f_tree(nullptr)
 
 {
+    internal = nullptr;
+    symbols  = nullptr;
+    frozen   = nullptr;
     printf("(EE) Error we should never be there...\n");
     printf("(EE) %s %d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
 }
 
+template <int gf_size>
+decoder_pruned<gf_size>::~decoder_pruned()
+{
+    delete[]internal;
+    delete[]symbols;
+    delete[]frozen;
+}
 
 // These headers are not used directly but defines template functions and MUST be included here
 #include "node/middle_node_pruned_after_f.hpp"        // IWYU pragma: keep
@@ -40,7 +50,7 @@ decoder_pruned<gf_size>::decoder_pruned() :
 #include "node/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
 
 template <int gf_size>
-void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t *  decoded)
+void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * decoded)
 {
     f_tree_cnt = 0;
 
@@ -95,10 +105,9 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t *  dec
 //
 //
 //
-void instanciate() {
-    decoder_pruned< 16> dec_16;
-    decoder_pruned< 32> dec_32;
-    decoder_pruned< 64> dec_64;
-    decoder_pruned<128> dec_128;
-    decoder_pruned<256> dec_256;
-}
+template class decoder_pruned< 16>;
+template class decoder_pruned< 32>;
+template class decoder_pruned< 64>;
+template class decoder_pruned<128>;
+template class decoder_pruned<256>;
+template class decoder_pruned<512>;
