@@ -13,7 +13,7 @@ public:
     {
     }
 
-    void demodulate(symbols_t* dst, const uint8_t* src) const {
+    void demodulate(symbols_t* dst, const uint16_t* src) const {
         for (int i = 0; i < K; i++) {
             dst[i].is_freq = false;
             for (int j = 0; j < K; j++) {

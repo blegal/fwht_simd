@@ -19,26 +19,13 @@
 //
 //
 // #define debug_g_function
-template <int gf_size>
+template <int gf_size> inline __attribute__((always_inline))
 void g_function_freq_in(
     symbols_t * dst,   // the data to be computed for the left side of the graph
     symbols_t * src_a, // the upper value set from the right side of the graph
     symbols_t * src_b, // the lower value set from the right side of the graph
-    uint32_t    src_c)    // the computed symbols coming from the left side of the graph
+    const uint32_t    src_c)    // the computed symbols coming from the left side of the graph
 {
-    //
-    //  Process the mulitplication to support precomputed symbols
-    //
-#if _AUTO_CHECK_
-    if (src_a->is_freq == false) {
-        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-    if (src_b->is_freq == false) {
-        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-#endif
 #if defined(__ARM_NEON__)
     fwht_norm_neon<gf_size>(src_a->value);
 #elif defined(__AVX2__)
@@ -67,7 +54,6 @@ void g_function_freq_in(
     for (size_t i = 0; i < gf_size; i++) {
         const int idx   = src_c ^ i;
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
-        //        dst->gf   [i  ] = idx;//src_a->gf   [i]; // to be removed !
     }
 
     normalize<gf_size>(dst->value); // temporal

@@ -1,5 +1,9 @@
 #pragma once
-
+//
+//
+//
+//
+//
 #include "definitions/const_config_GF64_N64.hpp"
 #include "utilities/utility_functions.hpp"
 #include "fwht/fwht.hpp"
@@ -7,40 +11,23 @@
 #include "fwht/fwht_neon.hpp"
 #include "fwht/fwht_norm_avx2.hpp"
 #include "fwht/fwht_norm_neon.hpp"
-
-extern int frozen_symbols[64];
-
-// #define debug_leaf
-template <int gf_size>
-inline __attribute__((always_inline))
+//
+//
+//
+//
+//
+template <int gf_size> inline __attribute__((always_inline))
 void leaf_node_after_f(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
-    const bool symbol_id,
-    const bool frozen) {
-#if defined(debug_leaf)
-    printf("-> leaf_node_after_f(%d) : frozen = %d\n", symbol_id, frozen_symbols[symbol_id]);
-#endif
-#if _AUTO_CHECK_
-    if (var->is_freq == false) {
-        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-#endif
+    const int symbol_id,
+    const bool frozen)
+{
     if (frozen == true) {
-#if defined(debug_leaf)
-        fwht<gf_size>(var->value);
-        normalize<gf_size>(var->value, 0.125);
-        normalize<gf_size>(var->value);
-        var->is_freq = false;
-        show_symbols(var);
-#endif
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;
         return;
-        //        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        //        exit( EXIT_FAILURE );
     }
 
     //

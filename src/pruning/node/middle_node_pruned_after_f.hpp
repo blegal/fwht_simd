@@ -21,8 +21,8 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_f(
     int sum_l = 0;
     int sum_r = 0;
     for(int i = 0; i < n; i++) {
-        sum_l += frozen_symbols[symbol_id + i];
-        sum_r += frozen_symbols[symbol_id + i + n];
+        sum_l += frozen[symbol_id + i];
+        sum_r += frozen[symbol_id + i + n];
     }
 #endif
     //

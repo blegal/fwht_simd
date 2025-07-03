@@ -68,23 +68,41 @@ int main(int, char *[]) {
     //
     //
     polar_encoder encoder(reliab_seq, K, N);
-    encoder.encode( symbol_n.data(), symbol_k.data() );
+    encoder.encode( symbol_n.data(), symbol_k.data() ); // dst <= F(src)
 
     //
     // No modulation and no noise there
     //
-    decoder_specialized<64> decoder(N, frozen_symbols);
-    decoder.execute(llrs_n.data(), decoded_n.data());
 
     //
     //
     //
     demodulator<GF> demod( N );
-    encoder.decode(decoded_k.data(), decoded_n.data());
+    demod.demodulate(llrs_n.data(), symbol_n.data()); // dst <= F(src)
 
     //
     //  decoding
     //
+    decoder_specialized<GF> decoder(N, frozen_symbols);
+    decoder.execute(llrs_n.data(), decoded_n.data());
+
+    //
+    //  Extracting initial K symbole
+    //
+    encoder.decode( decoded_k.data(), decoded_n.data() ); // dst <= F(src)
+
+    // We should have the same symbols
+    bool isOk = true;
+    for (int i = 0; i < K; i += 1) {
+        if (symbol_k[i] != decoded_n[i]) {
+            isOk = false;
+        }
+    }
+    if (isOk) {
+        printf("Decoder OK\n");
+    }else {
+        printf("Decoder ERROR\n");
+    }
 
     //
     // load the channel symbols
@@ -137,6 +155,7 @@ int main(int, char *[]) {
     //
     // Call the top node function to decode the symbols
     //
+    for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
     top_node<64>(channel, internal, decoded, symbols, size);
     printf("\n\nDecoded symbols (normal):\n");
     for (int i = 0; i < N; i += 1) {
@@ -155,6 +174,7 @@ int main(int, char *[]) {
     //
     // Call the top node function to decode the symbols
     //
+    for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
     top_node_with_pruning<64>(channel, internal, decoded, symbols, size);
     printf("\n\nDecoded symbols (pruning):\n");
     for (int i = 0; i < N; i += 1) {
@@ -173,6 +193,7 @@ int main(int, char *[]) {
     //
     // Décodeur spécialisé mais sans pruning
     //
+    for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
     decoder_specialized<64> dec(N, frozen_symbols);
     dec.execute(channel, decoded);
     printf("\n\nDecoded symbols (class):\n");
