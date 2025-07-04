@@ -15,30 +15,12 @@
 //
 //
 //
-template <int gf_size>
-int argmax(const double * value) {
-    int    max_index = 0;
-    double max_value = value[0];
-    for (int i = 1; i < gf_size; i++) {
-        if (value[i] > max_value) {
-            max_value = value[i];
-            max_index = i;
-        }
-    }
-    return max_index;
-}
-
 #ifdef __AVX2__
 #include <immintrin.h>
 
-void vec_cplx_max_index_x86(
-        const float* real,
-        const float* imag,
-        const int length, int* position, float* valeur
-    )
+template<int length> void argmax(const float* values, int* position, float* valeur)
 {
     const int simd  = sizeof(__m256) / sizeof(float);
-    //const int first = length & ~(simd - 1);
 
     const __m256i increment  = _mm256_setr_epi32(8, 8, 8, 8, 8, 8, 8, 8);
           __m256i indices    = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
@@ -50,14 +32,10 @@ void vec_cplx_max_index_x86(
 #endif
     for (int i = 0; i < length; i += simd)
     {
-        const __m256 re     = _mm256_loadu_ps (real + i);
-        const __m256 im     = _mm256_loadu_ps (imag + i);
-        const __m256 rr     = re * re;
-        const __m256 ii     = im * im;
-        const __m256 values = rr + ii;
-        const __m256 gt     = _mm256_cmp_ps   (values, maxvalues, _CMP_GT_OQ);
+        const __m256 value  = _mm256_loadu_ps (values + i);
+        const __m256 gt     = _mm256_cmp_ps   (value, maxvalues, _CMP_GT_OQ);
         maxindices          = _mm256_blendv_epi8(maxindices, indices, _mm256_castps_si256(gt));
-        maxvalues           = _mm256_max_ps   (values, maxvalues);
+        maxvalues           = _mm256_max_ps   (value, maxvalues);
         indices             = _mm256_add_epi32(indices, increment);
     }
 
@@ -100,42 +78,25 @@ void vec_cplx_max_index_x86(
 //
 //
 //
-void vec_cplx_max_index_x86(
-        const complex<float>* RI,
-        const int length, int* position, float* valeur
-)
+template<int length> int argmax(const float* values)
 {
-    constexpr int simd    = sizeof(__m256) / sizeof(float);
-    constexpr int simdx2  = 2 * simd;
-
-    const float* real = ((const float*)RI);
-    const float* imag = ((const float*)RI) + simd;
+    const int simd  = sizeof(__m256) / sizeof(float);
 
     const __m256i increment  = _mm256_setr_epi32(8, 8, 8, 8, 8, 8, 8, 8);
-          __m256i indices    = _mm256_setr_epi32(0, 1, 4, 5, 2, 3, 6, 7);   // a cause des _mm256_shuffle_ps
+          __m256i indices    = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
           __m256i maxindices = _mm256_setzero_si256();
           __m256  maxvalues  = _mm256_setzero_ps();
 
-    const int length_iq = 2 * length;
 #if defined (__clang__)
     #pragma unroll
 #endif
-    for (int i = 0; i < length_iq; i += simdx2)
+    for (int i = 0; i < length; i += simd)
     {
-        const __m256 inLo = _mm256_loadu_ps  (real); // Q3 I3 Q2 I2 Q1 I1 Q0 I0
-        const __m256 inHi = _mm256_loadu_ps  (imag); // Q7 I7 Q6 I6 Q5 I5 Q4 I4
-        const __m256 re   = _mm256_shuffle_ps(inLo, inHi, _MM_SHUFFLE (2, 0, 2, 0));
-        const __m256 im   = _mm256_shuffle_ps(inLo, inHi, _MM_SHUFFLE (3, 1, 3, 1));
-        const __m256 rr   = re * re;
-        const __m256 ii   = im * im;
-        const __m256 vals = rr + ii;
-
-        const __m256 gt = _mm256_cmp_ps     (vals, maxvalues, _CMP_GT_OQ);
-        maxindices      = _mm256_blendv_epi8(maxindices, indices, _mm256_castps_si256(gt));
-        maxvalues       = _mm256_max_ps     (vals, maxvalues);
-        indices         = _mm256_add_epi32(indices, increment);
-        real           += simdx2;
-        imag           += simdx2;
+        const __m256 value  = _mm256_loadu_ps (values + i);
+        const __m256 gt     = _mm256_cmp_ps   (value, maxvalues, _CMP_GT_OQ);
+        maxindices          = _mm256_blendv_epi8(maxindices, indices, _mm256_castps_si256(gt));
+        maxvalues           = _mm256_max_ps   (value, maxvalues);
+        indices             = _mm256_add_epi32(indices, increment);
     }
 
     float   values_array [simd];
@@ -166,9 +127,8 @@ void vec_cplx_max_index_x86(
             }
         }
     }
-    *position = maxindex;
-    *valeur   = sqrtf( maxvalue );
-}
+    return  maxindex;
+};
 //
 //
 //
@@ -176,31 +136,4 @@ void vec_cplx_max_index_x86(
 //
 //
 //
-int vec_cplx_max_index_x86(const complex<float>* RI, const int length)
-{
-    int   position;
-    float valeur;
-    vec_cplx_max_index_x86(RI, length, &position, &valeur);
-    return position;
-}
-//
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-int vec_cplx_max_index_x86(const float* real, const float* imag, const int length)
-{
-    int   position;
-    float valeur;
-    vec_cplx_max_index_x86(real, imag, length, &position, &valeur);
-    return position;
-}
-//
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
+#endif

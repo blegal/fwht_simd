@@ -107,9 +107,19 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
 //
 //
 //
-template class decoder_pruned< 16>;
-template class decoder_pruned< 32>;
+#if GF == 16
+    template class decoder_pruned< 16>;
+#elif GF == 32
+    template class decoder_pruned< 32>;
+#elif GF == 64
+#endif
+
 template class decoder_pruned< 64>;
-template class decoder_pruned<128>;
-template class decoder_pruned<256>;
-template class decoder_pruned<512>;
+
+#if GF == 128
+    template class decoder_pruned<128>;
+#elif GF == 256
+    template class decoder_pruned<256>;
+#elif GF == 512
+    template class decoder_pruned<512>;
+#endif

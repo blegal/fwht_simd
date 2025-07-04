@@ -95,9 +95,19 @@ void decoder_specialized<gf_size>::execute(
 //
 //
 //
-template class decoder_specialized< 16>;
-template class decoder_specialized< 32>;
+#if GF == 16
+    template class decoder_specialized< 16>;
+#elif GF == 32
+    template class decoder_specialized< 32>;
+#elif GF == 64
+#endif
+
 template class decoder_specialized< 64>;
-template class decoder_specialized<128>;
-template class decoder_specialized<256>;
-template class decoder_specialized<512>;
+
+#if GF == 128
+    template class decoder_specialized<128>;
+#elif GF == 256
+    template class decoder_specialized<256>;
+#elif GF == 512
+    template class decoder_specialized<512>;
+#endif

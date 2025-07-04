@@ -228,7 +228,7 @@ private:
                 printf("+  ");
             printf("> Node REP_G node found (%d)\n", n);
             array[curr_elmnt] = REP_FROM_G;
-            next_elmnt = curr_elmnt + 1;
+            return next_elmnt + 1;
         } else {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");

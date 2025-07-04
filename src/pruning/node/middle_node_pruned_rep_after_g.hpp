@@ -14,7 +14,7 @@ void middle_node_pruned_rep_after_g(
 {
         // ON PEUT REUTILISER LE SYMBOL n°0 POUR LES CALCULS
         // + NORMALISATION A LA VOLEE
-#if 0 // optimization
+#if 1 // optimization
         float temp[gf_size];
         for (int j = 0; j < gf_size; j++)
             temp[j] = inputs[0].value[j] * inputs[1].value[j];

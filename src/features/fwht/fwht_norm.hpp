@@ -221,7 +221,7 @@ inline void fwht_norm_internal<256>(value_type* inp, const float fact) {
     fwht_norm_internal<128>(part_2, fact);
 
     for (int i = 0; i < 128; i++) {
-        inp[i + 0]   = part_1[i];
+        inp[i +   0] = part_1[i];
         inp[i + 128] = part_2[i];
     }
 }
