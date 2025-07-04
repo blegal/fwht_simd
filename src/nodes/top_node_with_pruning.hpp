@@ -13,49 +13,27 @@ void top_node_with_pruning(
     uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
     const int   size)       // Size is the number of symbols (should be a power of 2)
 {
-#if defined(__DEBUG__)
-    printf("top_node_with_pruning(%d)\n", size);
-#endif
     const int n = size / 2; // Assuming size is the number of symbols
     //
     //
     //
     for (int i = 0; i < n; i++) {
-        f_function<gf_size>(
-            internal + i,
-            channel + i,
-            channel + n + i);
+        f_function<gf_size>( internal + i, channel + i, channel + n + i);
     }
     //
     //
     //
-    middle_node_with_pruning<gf_size>(
-        internal,
-        internal + n,
-        decoded,
-        symbols,
-        n,
-        0); // On descend à gauche
+    middle_node_with_pruning<gf_size>( internal, internal + n, decoded, symbols, n, 0);
     //
     //
     //
     for (int i = 0; i < n; i++) {
-        g_function<gf_size>(
-            internal + i,    // memory space for the result
-            channel + i,     // values from the right child
-            channel + n + i, // values from the right child
-            symbols[i]);     // decoded symbols from the left child
+        g_function<gf_size>( internal + i, channel + i, channel + n + i, symbols[i]);
     }
     //
     //
     //
-    middle_node_with_pruning<gf_size>(
-        internal,
-        internal + n,
-        decoded,
-        symbols,
-        n,
-        n); // On descend à droite
+    middle_node_with_pruning<gf_size>( internal, internal + n, decoded, symbols, n, n);
     //
     //
     //
