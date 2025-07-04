@@ -22,45 +22,19 @@ void decoder_specialized<gf_size>::middle_node_after_f(
     }
 
     if (n == 1) {
-        leaf_node_after_f<gf_size>(
-            internal, // le symbol souple
-            decoded,  // les symboles décodés (output du decodeur)
-            symbols,  // le tableau des symboles durs
-            symbol_id,
-        frozen[symbol_id]);
+        leaf_node_after_f<gf_size>(internal, decoded, symbols, symbol_id, frozen[symbol_id]);
     } else {
-        middle_node_after_f(
-            internal,     // les données d'entrée
-            internal + n, // la mémoire interne pour les calculs
-            decoded,      // les symboles décodés (output du decodeur)
-            symbols,      // les symboles durs
-            n,            // le nombre de données en entrée
-            symbol_id);   // l'identifiant du symbole (à gauche)
+        middle_node_after_f( internal, internal + n, decoded, symbols, n, symbol_id);
     }
 
     for (int i = 0; i < n; i++) {
-        g_function_freq_in<gf_size>(
-            internal + i,
-            inputs + i,
-            inputs + n + i,
-            symbols[symbol_id + i]); // Example operation
+        g_function_freq_in<gf_size>(internal + i, inputs + i, inputs + n + i, symbols[symbol_id + i]);
     }
 
     if (n == 1) {
-        leaf_node_after_g<gf_size>(
-            internal,
-            decoded,
-            symbols,
-            symbol_id + n,
-            frozen[symbol_id + n]);
+        leaf_node_after_g<gf_size>(internal, decoded, symbols, symbol_id + n, frozen[symbol_id + n]);
     } else {
-        middle_node_after_g(
-            internal,
-            internal + n,
-            decoded,
-            symbols,
-            n,
-            symbol_id + n);
+        middle_node_after_g(internal, internal + n, decoded, symbols, n, symbol_id + n);
     }
 
     for (int i = 0; i < n; i++) {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utilities/utility_functions.hpp"
-#include "fwht/fwht.hpp"
+#include "features/archi.hpp"
 
 // #define debug_g_function
 template <int gf_size> inline __attribute__((always_inline))

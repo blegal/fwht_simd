@@ -246,24 +246,28 @@ int main(int, char *[]) {
     /////////////////////////////////////////////////////////////////////////////////
     //
     //
-    start_x86 = std::chrono::system_clock::now();
-    for(int32_t loop = 0; loop < nTest; loop += 1)
-    {
-        dec_pruned.execute(channel, decoded);
+    for (int x = 0; x < 60; x += 1) {
+        start_x86 = std::chrono::system_clock::now();
+        for(int32_t loop = 0; loop < nTest; loop += 1)
+        {
+            dec_pruned.execute(channel, decoded);
+        }
+        stop_x86 = std::chrono::system_clock::now();
+
+        time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+        time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+        time_msec = time_ns / 1000.f / 1000.f; // in seconds
+        time_usec = time_ns / 1000.f; // in seconds
+        time_run  = (time_usec / (float)nTest);
+
+        debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+        if ( x == 0 ) {
+            printf("[final  ] experiments  : %1.3f sec\n",  time_sec);
+            printf("[final  ] experiments  : %1.2f ms\n",   time_msec);
+            printf("[final  ] one decoding : %1.2f us\n",   time_run);
+        }
+        printf("[final  ] debit coded  : %1.2f Mbps\n", debit);
     }
-    stop_x86 = std::chrono::system_clock::now();
-
-    time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
-    time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
-    time_msec = time_ns / 1000.f / 1000.f; // in seconds
-    time_usec = time_ns / 1000.f; // in seconds
-    time_run  = (time_usec / (float)nTest);
-
-    debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
-    printf("[final  ] experiments  : %1.3f sec\n",  time_sec);
-    printf("[final  ] experiments  : %1.2f ms\n",   time_msec);
-    printf("[final  ] one decoding : %1.2f us\n",   time_run);
-    printf("[final  ] debit coded  : %1.2f Mbps\n", debit);
     //
     //
     /////////////////////////////////////////////////////////////////////////////////

@@ -53,7 +53,7 @@ private:
         uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
         int         size,     // Size is the number of symbols (should be a power of 2)
         const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
-
+        
 private:
     symbols_t* internal;
     uint16_t*  symbols;

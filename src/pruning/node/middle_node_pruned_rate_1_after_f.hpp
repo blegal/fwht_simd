@@ -13,21 +13,11 @@ void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_f(
     const int  symbol_id) // Symbol ID is the index of the FIRST symbol in the symbols array
 {
     for (int i = 0; i < size; i++) {
-#if defined(__ARM_NEON__)
-        fwht_norm_neon<gf_size>(inputs[i].value);
-#elif defined(__AVX2__)
-        fwht_avx2<gf_size>(inputs[i].value);
-#else
-        fwht<gf_size>(inputs[i].value);
-        normalize<gf_size>(inputs[i].value, 0.125);
-        normalize<gf_size>(inputs[i].value);
-        var->is_freq = false;
-#endif
-        int value              = argmax<gf_size>(inputs[i].value);
+        FWHT_NORM<gf_size>(inputs[i].value);
+        const int value  = argmax<gf_size>(inputs[i].value);
         symbols[symbol_id + i] = value;
-        decoded[symbol_id + i] = value; // should be corrected (it is systematic solution actually)
+        decoded[symbol_id + i] = value;
     }
-    //    printf("size = %d\n", size);
     local_remove_xors(decoded + symbol_id, size);
 }
 

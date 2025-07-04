@@ -48,6 +48,8 @@ decoder_pruned<gf_size>::~decoder_pruned()
 #include "node/middle_node_pruned_rate_0.hpp"         // IWYU pragma: keep
 #include "node/middle_node_pruned_rate_1_after_f.hpp" // IWYU pragma: keep
 #include "node/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
+#include "node/middle_node_pruned_rep_after_f.hpp"    // IWYU pragma: keep
+#include "node/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
 
 template <int gf_size>
 void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * decoded)

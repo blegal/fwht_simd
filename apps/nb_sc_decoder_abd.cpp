@@ -1,13 +1,7 @@
 
 #include "definitions/const_config_GF64_N64.hpp"
 
-#include "fwht/fwht.hpp"
-
-// #if defined (__AVX2__)
-// #include "fwht/fwht_avx2.hpp"
-// #elif defined(__ARM_NEON__)
-// #include "fwht/fwht_neon.hpp"
-// #endif
+#include "features/archi.hpp"
 
 #include <cstdint>
 #include <cstdlib>

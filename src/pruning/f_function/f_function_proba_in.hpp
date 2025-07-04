@@ -1,59 +1,25 @@
 #pragma once
 
-#include "utilities/utility_functions.hpp"
-#if defined(__AVX2__)
-#include "fwht/fwht_norm_avx2.hpp"
-#elif defined(__ARM_NEON__)
-#include "fwht/fwht_norm_neon.hpp"
-#else
-#include "fwht/fwht.hpp"
-// #include "fwht/fwht_norm.hpp"
-#endif
+#include "features/archi.hpp"
 
 // #define debug_f_function
-template <uint32_t gf_size>
-inline __attribute__((always_inline)) void f_function_proba_in(symbols_t * dst, const symbols_t * src_a, const symbols_t * src_b) {
-#if _AUTO_CHECK_
-    if (src_a->is_freq == true) // Switch from time to frequency domain
-    {
-        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-
-    if (src_b->is_freq == true) {
-        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-#endif
+template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_proba_in(
+    symbols_t * dst,
+    const symbols_t * src_a,
+    const symbols_t * src_b)
+{
     symbols_t tmp_a;
     for (int i = 0; i < int(gf_size); i++)
         tmp_a.value[i] = src_a->value[i];
-#if defined(__ARM_NEON__)
-    fwht_norm_neon<gf_size>(tmp_a.value);
-#elif defined(__AVX2__)
-    fwht_norm_avx2<gf_size>(tmp_a.value);
-//    fwht_avx2<gf_size>(tmp_a.value);
-//    normalize<gf_size>(tmp_a.value, 0.125);
-#else
-    fwht<gf_size>(tmp_a.value);
-    normalize<gf_size>(tmp_a.value, 0.125);
-#endif
 
+    FWHT_NORM<gf_size>(tmp_a.value);
     tmp_a.is_freq = true;
 
     symbols_t tmp_b;
     for (int i = 0; i < int(gf_size); i++)
         tmp_b.value[i] = src_b->value[i];
-#if defined(__ARM_NEON__)
-    fwht_norm_neon<gf_size>(tmp_b.value);
-#elif defined(__AVX2__)
-    fwht_norm_avx2<gf_size>(tmp_b.value);
-//    fwht_avx2<gf_size>(tmp_b.value);
-//    normalize<gf_size>(tmp_b.value, 0.125);
-#else
-    fwht<gf_size>(tmp_b.value);
-    normalize<gf_size>(tmp_b.value, 0.125);
-#endif
+
+    FWHT_NORM<gf_size>(tmp_b.value);
     tmp_b.is_freq = true;
 
     //
@@ -61,11 +27,8 @@ inline __attribute__((always_inline)) void f_function_proba_in(symbols_t * dst, 
     //
     for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] = tmp_a.value[i] * tmp_b.value[i];
-        //        dst->gf   [i] = src_a->gf  [i]; // to be removed !
     }
     dst->is_freq = true; // a.a we do CN in FD
-    //    show_symbols( dst );
-    //    exit( 0 );
 }
 //
 //

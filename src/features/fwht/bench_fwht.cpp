@@ -23,15 +23,7 @@
  *
  */
 
-#include "fwht/fwht.hpp"
-#include "fwht/fwht_norm.hpp"
-#if defined(__ARM_NEON__)
-#include "fwht/fwht_neon.hpp"
-#include "fwht/fwht_norm_neon.hpp"
-#elif defined(__AVX2__)
-#include "fwht/fwht_avx2.hpp"
-#include "fwht/fwht_norm_avx2.hpp"
-#endif
+#include "features/archi.hpp"
 
 #include <chrono>
 #include <cstring>

@@ -4,12 +4,7 @@
 //
 //
 //
-#include "utilities/utility_functions.hpp"
-#include "fwht/fwht.hpp"
-#include "fwht/fwht_avx2.hpp"
-#include "fwht/fwht_neon.hpp"
-#include "fwht/fwht_norm_avx2.hpp"
-#include "fwht/fwht_norm_neon.hpp"
+#include "features/archi.hpp"
 
 #include "definitions/const_config_GF64_N64.hpp"
 #include "../../hadamard/hadamard_64.hpp"
@@ -26,37 +21,32 @@ void g_function_freq_in(
     symbols_t * src_b, // the lower value set from the right side of the graph
     const uint32_t    src_c)    // the computed symbols coming from the left side of the graph
 {
-#if defined(__ARM_NEON__)
-    fwht_norm_neon<gf_size>(src_a->value);
-#elif defined(__AVX2__)
-    fwht_norm_avx2<gf_size>(src_a->value);
-//    fwht_avx2<gf_size>(src_a->value);
-//    normalize<gf_size>(src_a->value, 0.125);
-#else
-    fwht<gf_size>(src_a->value);
-    normalize<gf_size>(src_a->value, 0.125);
-#endif
+    FWHT_NORM<gf_size>(src_a->value);
     src_a->is_freq = false;
 
-#if defined(__ARM_NEON__)
-    fwht_norm_neon<gf_size>(src_b->value);
-#elif defined(__AVX2__)
-    fwht_norm_avx2<gf_size>(src_b->value);
-//    fwht_avx2<gf_size>(src_b->value);
-//    normalize<gf_size>(src_b->value, 0.125);
-#else
-    fwht<gf_size>(src_b->value);
-    normalize<gf_size>(src_b->value, 0.125);
-#endif
+    FWHT_NORM<gf_size>(src_b->value);
     src_b->is_freq = false;
 
-    // Abdallah computations ...
+//#define BAD_OPTIMIZATION
+#if defined(BAD_OPTIMIZATION)
+    float sum = 0.f;
+#endif
     for (size_t i = 0; i < gf_size; i++) {
-        const int idx   = src_c ^ i;
-        dst->value[idx] = src_a->value[i] * src_b->value[idx];
+        const int   idx = src_c ^ i;
+        const float val = src_a->value[i] * src_b->value[idx];
+        dst->value[idx] = val;
+#if defined(BAD_OPTIMIZATION)
+        sum            += val;
+#endif
     }
-
-    normalize<gf_size>(dst->value); // temporal
+#if defined(BAD_OPTIMIZATION)
+    const float inv_sum = 1.f / sum;
+    for (size_t i = 0; i < gf_size; i++) {
+        dst->value[i] *= inv_sum;
+    }
+#else
+    normalize<gf_size>(dst->value);
+#endif
     dst->is_freq = false;
 }
 //

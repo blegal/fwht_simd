@@ -15,7 +15,7 @@ void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_g(
     for (int i = 0; i < size; i++) {
         const int value        = argmax<gf_size>(inputs[i].value);
         symbols[symbol_id + i] = value;
-        decoded[symbol_id + i] = value; // should be corrected (it is systematic solution actually)
+        decoded[symbol_id + i] = value;
     }
     local_remove_xors(decoded + symbol_id, size);
 }

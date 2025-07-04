@@ -6,7 +6,7 @@
 //
 #include "definitions/const_config_GF64_N64.hpp"
 #include "utilities/utility_functions.hpp"
-#include "fwht/fwht_avx2.hpp"
+#include "features/archi.hpp"
 //
 //
 //

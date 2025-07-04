@@ -11,20 +11,29 @@ void middle_node_pruned_rep_after_f(
     int        size,     // Size is the number of symbols (should be a power of 2)
     const int  symbol_id // Symbol ID is the index of the FIRST symbol in the symbols array
 ) {
-#if defined(__ARM_NEON__)
-    fwht_norm_neon<gf_size>(inputs[size - 1].value);
-#elif defined(__AVX2__)
-    fwht_avx2<gf_size>(inputs[i].value);
-#else
-    fwht<gf_size>(inputs[i].value);
-    normalize<gf_size>(inputs[i].value, 0.125);
-    normalize<gf_size>(inputs[i].value);
-    var->is_freq = false;
-#endif
-    int value = argmax<gf_size>(inputs[size - 1].value);
-    for (int i = 0; i < size; i++) {
-        symbols[symbol_id + i] = value;
-        decoded[symbol_id + i] = value;
-    }
+        for(int i = 0; i < size; i++) {
+            FWHT_NORM<gf_size>(inputs[i].value);
+            inputs[i].is_freq = false;
+        }
+
+        float temp[gf_size];
+        for (int j = 0; j < gf_size; j++)
+            temp[j] = inputs[0].value[j] * inputs[1].value[j];
+
+        for(int i = 2; i < size; i++){
+            if( (i & 0x1) == 1)
+            normalize<gf_size>( temp );
+            for (int j = 0; j < gf_size; j++)
+                temp[j] *= inputs[i].value[j] ;
+        }
+
+        const int value = argmax<gf_size>( temp );
+
+        for(int i = 0; i < size; i++)
+        {
+            symbols[symbol_id + i] = value;
+            decoded[symbol_id + i] = 0; // should be corrected (it is systematic solution actually)
+        }
+        decoded[symbol_id + (size-1)] = value; // should be corrected (it is systematic solution actually)
 }
 

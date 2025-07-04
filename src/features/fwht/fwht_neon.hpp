@@ -47,7 +47,7 @@ inline void fwht_neon(float x[], float y[]) {
 #define ABCD_to_BADC(a) vrev64q_f32(a)
 #define ABCD_to_CDAB(a) vextq_f32(a)
 
-void show_vector(const float32x4_t reg, const std::string str) {
+inline void show_vector(const float32x4_t reg, const std::string str) {
     float tab[4];
     vst1q_f32(tab, reg);
     printf("[%s] : float32x4_t[%6.3f, %6.3f, %6.3f, %6.3f]\n", str.c_str(), tab[0], tab[1], tab[2], tab[3]);

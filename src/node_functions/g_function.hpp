@@ -4,12 +4,7 @@
 //
 //
 //
-#include "utilities/utility_functions.hpp"
-#include "fwht/fwht.hpp"
-#include "fwht/fwht_avx2.hpp"
-#include "fwht/fwht_neon.hpp"
-#include "fwht/fwht_norm_avx2.hpp"
-#include "fwht/fwht_norm_neon.hpp"
+#include "features/archi.hpp"
 //
 //
 //

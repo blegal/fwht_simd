@@ -159,6 +159,12 @@ private:
                 array[curr_elmnt] = RATE_1_FROM_F;
             }
             next_elmnt = curr_elmnt + 1;
+        } else if ( (sum == (n-1)) && (frozen[curr_frozen + n - 1] == false) ) {
+            for (int z = 0; z < level; z += 1)
+                printf("+  ");
+            printf("> Leaf REP_F node found (%d)\n", n);
+            array[curr_elmnt] = REP_FROM_F;
+            next_elmnt = curr_elmnt + 1;
         } else {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");
@@ -217,6 +223,12 @@ private:
                 array[next_elmnt] = RATE_1_FROM_G;
             }
             return next_elmnt + 1;
+        } else if ( (sum == (n-1)) && (frozen[curr_frozen + size - 1] == false) ) {
+            for (int z = 0; z < level; z += 1)
+                printf("+  ");
+            printf("> Node REP_G node found (%d)\n", n);
+            array[curr_elmnt] = REP_FROM_G;
+            next_elmnt = curr_elmnt + 1;
         } else {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");

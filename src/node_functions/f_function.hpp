@@ -1,17 +1,7 @@
 #pragma once
 
-#include "utilities/utility_functions.hpp"
-#if defined(__AVX2__)
-// #include "fwht/fwht_avx2.hpp"
-#include "fwht/fwht_norm_avx2.hpp"
-#elif defined(__ARM_NEON__)
-// #include "fwht/fwht_neon.hpp"
-#include "fwht/fwht_norm_neon.hpp"
-#else
-#include "fwht/fwht.hpp"
-#endif
+#include "features/archi.hpp"
 
-// #define debug_f_function
 template <uint32_t gf_size>
 void f_function(symbols_t * dst, symbols_t * src_a, symbols_t * src_b) {
     if (src_a->is_freq == false) // Switch from time to frequency domain
