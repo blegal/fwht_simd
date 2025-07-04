@@ -21,7 +21,7 @@ void middle_node_pruned_rep_after_g(
 
         for(int i = 2; i < size; i++){
             if( (i & 0x1) == 1)
-            normalize<gf_size>( temp );
+                normalize<gf_size>( temp );
             for (int j = 0; j < gf_size; j++)
                 temp[j] *= inputs[i].value[j] ;
         }

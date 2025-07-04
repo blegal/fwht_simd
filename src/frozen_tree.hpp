@@ -14,11 +14,14 @@ enum next_node { RATE_0,
                  RATE_1_FROM_G,
                  REP_FROM_F,
                  REP_FROM_G,
+                 SPC_FROM_F,
+                 SPC_FROM_G,
                  LEAF_RATE_0,
                  LEAF_RATE_1_FROM_F,
                  LEAF_RATE_1_FROM_G,
                  MID_NODE_FROM_F,
-                 MID_NODE_FROM_G };
+                 MID_NODE_FROM_G
+                };
 
 class frozen_tree {
 public:
@@ -59,34 +62,34 @@ public:
                     printf("> Execute RATE_0\n");
                     break;
                 case RATE_1_FROM_F:
-                    printf("> Execute RATE_1_FROM_F");
+                    printf("> Execute RATE_1_FROM_F\n");
                     break;
                 case RATE_1_FROM_G:
-                    printf("> Execute RATE_1_FROM_G");
+                    printf("> Execute RATE_1_FROM_G\n");
                     break;
                 case REP_FROM_F:
-                    printf("> Execute REP_FROM_F");
+                    printf("> Execute REP_FROM_F\n");
                     break;
                 case REP_FROM_G:
-                    printf("> Execute REP_FROM_G");
+                    printf("> Execute REP_FROM_G\n");
                     break;
                 case LEAF_RATE_0:
-                    printf("> Execute LEAF_RATE_0");
+                    printf("> Execute LEAF_RATE_0\n");
                     break;
                 case LEAF_RATE_1_FROM_F:
-                    printf("> Execute LEAF_RATE_1_FROM_F");
+                    printf("> Execute LEAF_RATE_1_FROM_F\n");
                     break;
                 case LEAF_RATE_1_FROM_G:
-                    printf("> Execute LEAF_RATE_1_FROM_G");
+                    printf("> Execute LEAF_RATE_1_FROM_G\n");
                     break;
                 case MID_NODE_FROM_F:
-                    printf("> Execute MID_NODE_FROM_F");
+                    printf("> Execute MID_NODE_FROM_F\n");
                     break;
                 case MID_NODE_FROM_G:
-                    printf("> Execute MID_NODE_FROM_G");
+                    printf("> Execute MID_NODE_FROM_G\n");
                     break;
                 default:
-                    printf("> Execute ?????? > FAILURE !");
+                    printf("> Execute ?????? > FAILURE !\n");
                     exit(EXIT_FAILURE);
                     break;
             }
