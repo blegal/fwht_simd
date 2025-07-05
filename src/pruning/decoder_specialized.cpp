@@ -49,9 +49,7 @@ decoder_specialized<gf_size>::~decoder_specialized()
 }
 
 template <int gf_size>
-void decoder_specialized<gf_size>::execute(
-    symbols_t * channel,  // Channel symbols are the input symbols (from the right)
-    uint16_t *  decoded)  // Symbols are the ones going from leafs to root (done on the left)
+void decoder_specialized<gf_size>::execute(symbols_t* channel, uint16_t*  decoded)
 {
     const int n = N / 2;
     //
@@ -75,22 +73,13 @@ void decoder_specialized<gf_size>::execute(
         0); // On descend à gauche
 
     for (int i = 0; i < n; i++) {
-        g_function_proba_in<gf_size>(
-            internal + i,    // memory space for the result
-            channel + i,     // values from the right child
-            channel + n + i, // values from the right child
-            symbols[i]);     // decoded symbols from the left child
+        g_function_proba_in<gf_size>(internal + i, channel + i, channel + n + i, symbols[i]);
     }
 
-    middle_node_after_g(
-        internal,
-        internal + n,
-        decoded,
-        symbols,
-        n,
-        n); // On descend à droite
-
+    middle_node_after_g(internal, internal + n, decoded, symbols, n, n);
+    //
     // No H computations as we are at the top node and we have a non systematic code !!!
+    //
 }
 //
 //

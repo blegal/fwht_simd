@@ -67,18 +67,17 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
     //
     //
     next_node left_edge = f_tree->next_node_status[f_tree_cnt++];
-    if (left_edge != MID_NODE_FROM_F) {
+    if (left_edge == RATE_0) {
+       middle_node_pruned_rate_0( internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
+    }else if (left_edge == REP_FROM_F) {
+       middle_node_pruned_rep_after_f<gf_size>( internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
+    }else if (left_edge == MID_NODE_FROM_F) {
+       middle_node_pruned_after_f( internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
+    }else {
         printf("(EE) Error we should never be there...\n");
         printf("(EE) %s %d\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
-    middle_node_pruned_after_f(
-        internal,
-        internal + n,
-        decoded,
-        symbols,
-        n,
-        0); // On descend à gauche
     //
     //
     //
@@ -93,18 +92,15 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
     //
     //
     next_node right_edge = f_tree->next_node_status[f_tree_cnt++];
-    if (right_edge != MID_NODE_FROM_G) {
+    if ( right_edge == RATE_1_FROM_G ) {
+        middle_node_pruned_rate_1_after_g( internal, internal + n, decoded, symbols, n, n); // On descend à droite
+    }else if ( right_edge == MID_NODE_FROM_G ){
+        middle_node_pruned_after_g( internal, internal + n, decoded, symbols, n, n); // On descend à droite
+    }else{
         printf("(EE) Error we should never be there...\n");
         printf("(EE) %s %d\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
-    middle_node_pruned_after_g(
-        internal,
-        internal + n,
-        decoded,
-        symbols,
-        n,
-        n); // On descend à droite
 
     // No H computations as we are at the top node and we have a non systematic code !!!
 }

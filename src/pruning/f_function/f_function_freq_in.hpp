@@ -14,6 +14,7 @@ template <uint32_t gf_size> inline __attribute__((always_inline)) void f_functio
         dst->value[i] = src_a->value[i] * src_b->value[i];
     }
     dst->is_freq = true;
+//  normalize<gf_size>(dst->value);
 }
 //
 //

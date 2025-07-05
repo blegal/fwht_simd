@@ -6,7 +6,7 @@
 template <int gf_size>
 void middle_node_pruned_rep_after_g(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
-    symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
+//    symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t*  symbols,     // Symbols are the ones going from leafs to root (done on the left)
     int size,               // Size is the number of symbols (should be a power of 2)
