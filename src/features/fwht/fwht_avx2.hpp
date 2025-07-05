@@ -29,14 +29,14 @@
 #include "definitions/const_config_GF64_N64.hpp"
 
 template <uint16_t GF>
-inline void fwht_avx2(value_type x[]) {
+inline void fwht_avx2(float x[]) {
     assert(x != 0);
     assert(true);
     exit(x != nullptr);
 }
 
 template <uint16_t GF>
-inline void fwht_avx2(value_type x[], value_type y[]) {
+inline void fwht_avx2(float x[], float y[]) {
     assert(x != 0);
     assert(y != 0);
     assert(true);
@@ -47,7 +47,7 @@ inline void fwht_avx2(value_type x[], value_type y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht16_terminale(const __m256 X0, const __m256 X1, value_type y[]) {
+inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
@@ -84,20 +84,20 @@ inline void fwht16_terminale(const __m256 X0, const __m256 X1, value_type y[]) {
     //////////////////////////////////////////////////////
 }
 
-inline void fwht16_flat_avx2(value_type x[], value_type y[]) {
+inline void fwht16_flat_avx2(float x[], float y[]) {
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
     fwht16_terminale(X0, X1, y);
 }
 
-inline void fwht32_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, value_type y[]) {
+inline void fwht32_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, float y[]) {
     const __m256 A0 = X0 + X2, A1 = X1 + X3;
     const __m256 B0 = X0 - X2, B1 = X1 - X3;
     fwht16_terminale(A0, A1, y + 0);
     fwht16_terminale(B0, B1, y + 16);
 }
 
-inline void fwht32_flat_avx2(value_type x[], value_type y[]) {
+inline void fwht32_flat_avx2(float x[], float y[]) {
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
     const __m256 X2 = _mm256_loadu_ps(x + 16);
@@ -110,7 +110,7 @@ inline void fwht32_flat_avx2(value_type x[], value_type y[]) {
     fwht16_terminale(M0, M1, y + 16);
 }
 
-inline void fwht64_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, value_type y[]) {
+inline void fwht64_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, float y[]) {
     const __m256 A0 = X0 + X4, A1 = X1 + X5;
     const __m256 A2 = X2 + X6, A3 = X3 + X7;
     const __m256 B0 = X0 - X4, B1 = X1 - X5;
@@ -120,7 +120,7 @@ inline void fwht64_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 
     fwht32_terminale(B0, B1, B2, B3, y + 32);
 }
 
-inline void fwht64_flat_avx2(value_type x[], value_type y[]) {
+inline void fwht64_flat_avx2(float x[], float y[]) {
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
     const __m256 X2 = _mm256_loadu_ps(x + 16);
@@ -139,7 +139,7 @@ inline void fwht64_flat_avx2(value_type x[], value_type y[]) {
     fwht32_terminale(B0, B1, B2, B3, y + 32);
 }
 
-inline void fwht128_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, __m256 X8, __m256 X9, __m256 X10, __m256 X11, __m256 X12, __m256 X13, __m256 X14, __m256 X15, value_type y[]) {
+inline void fwht128_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, __m256 X8, __m256 X9, __m256 X10, __m256 X11, __m256 X12, __m256 X13, __m256 X14, __m256 X15, float y[]) {
     const __m256 A0 = X0 + X8, A1 = X1 + X9, A2 = X2 + X10, A3 = X3 + X11;
     const __m256 A4 = X4 + X12, A5 = X5 + X13, A6 = X6 + X14, A7 = X7 + X15;
     const __m256 B0 = X0 - X8, B1 = X1 - X9, B2 = X2 - X10, B3 = X3 - X11;
@@ -148,7 +148,7 @@ inline void fwht128_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256
     fwht64_terminale(B0, B1, B2, B3, B4, B5, B6, B7, y + 64);
 }
 
-inline void fwht128_flat_avx2(value_type x[], value_type y[]) {
+inline void fwht128_flat_avx2(float x[], float y[]) {
     const __m256 X0  = _mm256_loadu_ps(x + 0);
     const __m256 X1  = _mm256_loadu_ps(x + 8);
     const __m256 X2  = _mm256_loadu_ps(x + 16);
@@ -169,7 +169,7 @@ inline void fwht128_flat_avx2(value_type x[], value_type y[]) {
     fwht128_terminale(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y);
 }
 
-inline void fwht256_flat_avx2(value_type x[], value_type y[]) {
+inline void fwht256_flat_avx2(float x[], float y[]) {
     const __m256 X0  = (_mm256_loadu_ps(x + 0) + _mm256_loadu_ps(x + 128));
     const __m256 X1  = (_mm256_loadu_ps(x + 8) + _mm256_loadu_ps(x + 136));
     const __m256 X2  = (_mm256_loadu_ps(x + 16) + _mm256_loadu_ps(x + 144));
@@ -266,13 +266,13 @@ inline void fwht32_avx2(__m256 * B0, __m256 * B1, __m256 * B2, __m256 * B3) {
 //
 //
 template <>
-inline void fwht_avx2<8>(value_type x[]) {
+inline void fwht_avx2<8>(float x[]) {
     const __m256 C0 = _mm256_loadu_ps(x);
     const __m256 D0 = fwht8_avx2(C0);
     _mm256_storeu_ps(x, D0);
 }
 template <>
-inline void fwht_avx2<8>(value_type x[], value_type y[]) {
+inline void fwht_avx2<8>(float x[], float y[]) {
     const __m256 C0 = _mm256_loadu_ps(x);
     const __m256 D0 = fwht8_avx2(C0);
     _mm256_storeu_ps(y, D0);
@@ -283,11 +283,11 @@ inline void fwht_avx2<8>(value_type x[], value_type y[]) {
 //
 //
 template <>
-inline void fwht_avx2<16>(value_type x[]) {
+inline void fwht_avx2<16>(float x[]) {
     fwht16_flat_avx2(x, x);
 }
 template <>
-inline void fwht_avx2<16>(value_type x[], value_type y[]) {
+inline void fwht_avx2<16>(float x[], float y[]) {
     fwht16_flat_avx2(x, y);
 }
 //
@@ -296,11 +296,11 @@ inline void fwht_avx2<16>(value_type x[], value_type y[]) {
 //
 //
 template <>
-inline void fwht_avx2<32>(value_type x[]) {
+inline void fwht_avx2<32>(float x[]) {
     fwht32_flat_avx2(x, x);
 }
 template <>
-inline void fwht_avx2<32>(value_type x[], value_type y[]) {
+inline void fwht_avx2<32>(float x[], float y[]) {
     fwht32_flat_avx2(x, y);
 }
 //
@@ -309,11 +309,11 @@ inline void fwht_avx2<32>(value_type x[], value_type y[]) {
 //
 //
 template <>
-inline void fwht_avx2<64>(value_type x[]) {
+inline void fwht_avx2<64>(float x[]) {
     fwht64_flat_avx2(x, x);
 }
 template <>
-inline void fwht_avx2<64>(value_type x[], value_type y[]) {
+inline void fwht_avx2<64>(float x[], float y[]) {
     fwht64_flat_avx2(x, y);
 }
 //
@@ -322,11 +322,11 @@ inline void fwht_avx2<64>(value_type x[], value_type y[]) {
 //
 //
 template <>
-inline void fwht_avx2<128>(value_type x[]) {
+inline void fwht_avx2<128>(float x[]) {
     fwht128_flat_avx2(x, x);
 }
 template <>
-inline void fwht_avx2<128>(value_type x[], value_type y[]) {
+inline void fwht_avx2<128>(float x[], float y[]) {
     fwht128_flat_avx2(x, y);
 }
 //
@@ -335,12 +335,12 @@ inline void fwht_avx2<128>(value_type x[], value_type y[]) {
 //
 //
 template <>
-inline void fwht_avx2<256>(value_type x[]) {
+inline void fwht_avx2<256>(float x[]) {
     fwht256_flat_avx2(x, x);
 }
 
 template <>
-inline void fwht_avx2<256>(value_type x[], value_type y[]) {
+inline void fwht_avx2<256>(float x[], float y[]) {
     fwht256_flat_avx2(x, y);
 }
 #endif
