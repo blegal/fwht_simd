@@ -68,6 +68,8 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
     //
     next_node left_edge = f_tree->next_node_status[f_tree_cnt++];
     if (left_edge != MID_NODE_FROM_F) {
+        printf("(EE) Error we should never be there...\n");
+        printf("(EE) %s %d\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
     middle_node_pruned_after_f(
@@ -92,6 +94,8 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
     //
     next_node right_edge = f_tree->next_node_status[f_tree_cnt++];
     if (right_edge != MID_NODE_FROM_G) {
+        printf("(EE) Error we should never be there...\n");
+        printf("(EE) %s %d\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
     middle_node_pruned_after_g(
@@ -107,19 +111,18 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
 //
 //
 //
-#if GF == 16
+#if _GF_ == 16
     template class decoder_pruned< 16>;
-#elif GF == 32
+#elif _GF_ == 32
     template class decoder_pruned< 32>;
-#elif GF == 64
-#endif
-
-template class decoder_pruned< 64>;
-
-#if GF == 128
+#elif _GF_ == 64
+    template class decoder_pruned< 64>;
+#elif _GF_ == 128
     template class decoder_pruned<128>;
-#elif GF == 256
+#elif _GF_ == 256
     template class decoder_pruned<256>;
-#elif GF == 512
+#elif _GF_ == 1024
     template class decoder_pruned<512>;
+#elif _GF_ == 512
+    template class decoder_pruned<1024>;
 #endif
