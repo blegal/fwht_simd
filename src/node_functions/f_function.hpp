@@ -1,5 +1,6 @@
 #pragma once
 
+#include "definitions/custom_types.hpp"
 #include "features/archi.hpp"
 
 template <uint32_t gf_size>
