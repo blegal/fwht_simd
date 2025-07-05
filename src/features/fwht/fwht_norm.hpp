@@ -32,26 +32,26 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <uint16_t GF>
-inline void fwht_norm(value_type x[]) {
+template <uint16_t galois_size>
+inline void fwht_norm(float* x) {
     assert(x != 0);
     assert(true);
     exit(x != NULL); // pour gerer le release mode
 }
-template <uint16_t GF>
-inline void fwht_norm_internal(value_type x[], const float fact) {
+template <uint16_t galois_size>
+inline void fwht_norm_internal(float* x, const float fact) {
     assert(x    != nullptr);
     assert(fact != 0.f);
     assert(true);
-    exit(x != NULL); // pour gerer le release mode
+    exit( (x != nullptr) && (fact != 0.f)); // pour gerer le release mode
 }
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht_norm_tuile(const value_type* inp, value_type* outp, const float fact) {
-    value_type L1[8], L2[8];
+inline void fwht_norm_tuile(const float* inp, float* outp, const float fact) {
+    float L1[8], L2[8];
     L1[0] = (inp[0] + inp[4]);
     L1[1] = (inp[1] + inp[5]);
     L1[2] = (inp[2] + inp[6]);
@@ -85,15 +85,15 @@ inline void fwht_norm_tuile(const value_type* inp, value_type* outp, const float
 //
 //
 template <>
-inline void fwht_norm_internal<8>(value_type* inp, const float fact) {
-    value_type part_1[8];
+inline void fwht_norm_internal<8>(float* inp, const float fact) {
+    float part_1[8];
     for (int i = 0; i < 4; i++)
         part_1[i] = inp[i] + inp[i + 4];
     fwht_norm_tuile(part_1, inp, fact);
 }
 //
 template <>
-inline void fwht_norm<8>(value_type* inp) {
+inline void fwht_norm<8>(float* inp) {
     fwht_norm_internal<8>(inp, 0.35355339059f);
 }
 //
@@ -102,9 +102,9 @@ inline void fwht_norm<8>(value_type* inp) {
 //
 //
 template <>
-inline void fwht_norm_internal<16>(value_type* inp, const float fact) {
-    value_type part_1[8];
-    value_type part_2[8];
+inline void fwht_norm_internal<16>(float* inp, const float fact) {
+    float part_1[8];
+    float part_2[8];
 
     for (int i = 0; i < 8; i++)
         part_1[i] = inp[i] + inp[i + 8];
@@ -116,7 +116,7 @@ inline void fwht_norm_internal<16>(value_type* inp, const float fact) {
 }
 //
 template <>
-inline void fwht_norm<16>(value_type* inp) {
+inline void fwht_norm<16>(float* inp) {
     fwht_norm_internal<16>(inp, 0.25f);
 }
 //
@@ -125,9 +125,9 @@ inline void fwht_norm<16>(value_type* inp) {
 //
 //
 template <>
-inline void fwht_norm_internal<32>(value_type* inp, const float fact) {
-    value_type part_1[16];
-    value_type part_2[16];
+inline void fwht_norm_internal<32>(float* inp, const float fact) {
+    float part_1[16];
+    float part_2[16];
 
     for (int i = 0; i < 16; i++) {
         part_1[i] = inp[i] + inp[i + 16];
@@ -144,7 +144,7 @@ inline void fwht_norm_internal<32>(value_type* inp, const float fact) {
 }
 //
 template <>
-inline void fwht_norm<32>(value_type* inp) {
+inline void fwht_norm<32>(float* inp) {
     fwht_norm_internal<32>(inp, 0.17677669529f);
 }
 //
@@ -153,9 +153,9 @@ inline void fwht_norm<32>(value_type* inp) {
 //
 //
 template <>
-inline void fwht_norm_internal<64>(value_type* inp, const float fact) {
-    value_type part_1[32];
-    value_type part_2[32];
+inline void fwht_norm_internal<64>(float* inp, const float fact) {
+    float part_1[32];
+    float part_2[32];
 
     for (int i = 0; i < 32; i++) {
         part_1[i] = inp[i] + inp[i + 32];
@@ -172,7 +172,7 @@ inline void fwht_norm_internal<64>(value_type* inp, const float fact) {
 }
 //
 template <>
-inline void fwht_norm<64>(value_type* inp) {
+inline void fwht_norm<64>(float* inp) {
     fwht_norm_internal<64>(inp, 0.125f);
 }
 //
@@ -181,8 +181,8 @@ inline void fwht_norm<64>(value_type* inp) {
 //
 //
 template <>
-inline void fwht_norm_internal<128>(value_type* inp, const float fact) {
-    value_type part_1[64], part_2[64];
+inline void fwht_norm_internal<128>(float* inp, const float fact) {
+    float part_1[64], part_2[64];
 
     for (int i = 0; i < 64; i++) {
         part_1[i] = inp[i] + inp[i + 64];
@@ -199,7 +199,7 @@ inline void fwht_norm_internal<128>(value_type* inp, const float fact) {
 }
 //
 template <>
-inline void fwht_norm<128>(value_type* inp) {
+inline void fwht_norm<128>(float* inp) {
     fwht_norm_internal<128>(inp, 0.08838834764f);
 }
 //
@@ -208,9 +208,9 @@ inline void fwht_norm<128>(value_type* inp) {
 //
 //
 template <>
-inline void fwht_norm_internal<256>(value_type* inp, const float fact) {
-    value_type part_1[128];
-    value_type part_2[128];
+inline void fwht_norm_internal<256>(float* inp, const float fact) {
+    float part_1[128];
+    float part_2[128];
 
     for (int i = 0; i < 128; i++) {
         part_1[i] = inp[i] + inp[i + 128];
@@ -227,7 +227,7 @@ inline void fwht_norm_internal<256>(value_type* inp, const float fact) {
 }
 //
 template <>
-inline void fwht_norm<256>(value_type* inp) {
+inline void fwht_norm<256>(float* inp) {
     fwht_norm_internal<256>(inp, 0.0625f);
 }
 //

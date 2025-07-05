@@ -1,3 +1,4 @@
+#include "definitions/const_config_GF64_N64.hpp"
 
 #include "pruning/decoder_pruned.hpp"
 
@@ -19,8 +20,8 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "nodes/top_node.hpp"
-#include "nodes/top_node_with_pruning.hpp"
+#include "nodes/decoder_naive.hpp"
+#include "nodes/decoder_naive_pruning.hpp"
 
 #include "pruning/decoder_specialized.hpp"
 
@@ -42,10 +43,10 @@ int main(int, char *[]) {
     //
     // initialize the frozen symbols array
     //
-    uint16_t * symbols = new uint16_t[N];
-    for (int i = 0; i < N; i += 1)
+    uint16_t * symbols = new uint16_t[_N_];
+    for (int i = 0; i < _N_; i += 1)
         frozen_symbols[i] = true;
-    for (int i = 0; i < K; i += 1)
+    for (int i = 0; i <  _K_; i += 1)
         frozen_symbols[reliab_seq[i]] = false; // i c'est pour le DEBUG, on pourrait mettre 0
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,33 +54,33 @@ int main(int, char *[]) {
     //
     // load the channel symbols
     //
-    symbols_t * channel = new symbols_t[N];
-    for (int i = 0; i < N; i += 1) {
-        for (int j = 0; j < GF; j += 1) {
-            channel[i].value[j] = chan[GF * i + j];
+    symbols_t * channel = new symbols_t[_N_];
+    for (int i = 0; i < _N_; i += 1) {
+        for (int j = 0; j < _GF_; j += 1) {
+            channel[i].value[j] = chan[_GF_ * i + j];
             channel[i].is_freq = false;
         }
-        normalize<GF>(channel[i].value);
+        normalize<_GF_>(channel[i].value);
     }
 
     //
     // Clear the internal memory space
     //
-    symbols_t * internal = new symbols_t[N];
-    for (int i = 0; i < N; i += 1) {
-        for (int j = 0; j < GF; j += 1) {
+    symbols_t * internal = new symbols_t[_N_];
+    for (int i = 0; i < _N_; i += 1) {
+        for (int j = 0; j < _GF_; j += 1) {
             internal[i].value[j] = 0.f;
         }
     }
 
 
-    frozen_tree pruned_tree(N);
-    pruned_tree.analyze(frozen_symbols, N);
+    frozen_tree pruned_tree(_N_);
+    pruned_tree.analyze(frozen_symbols, _N_);
     pruned_tree.dump();
 
 
     printf("\nFrozen matrix:\n");
-    for (int i = 0; i < N; i += 1) {
+    for (int i = 0; i < _N_; i += 1) {
         if ((i % 8) == 0)
             printf(" | ");
         if ((i % 16) == 0)
@@ -91,8 +92,8 @@ int main(int, char *[]) {
     //
     // Clear the decoded symbols array
     //
-    uint16_t * decoded = new uint16_t[N];
-    for (int i = 0; i < N; i += 1)
+    uint16_t * decoded = new uint16_t[_N_];
+    for (int i = 0; i < _N_; i += 1)
         decoded[i] = 0;
 
     //
@@ -101,10 +102,11 @@ int main(int, char *[]) {
     //
     // Call the top node function to decode the symbols
     //
-    for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
-    top_node<64>(channel, internal, decoded, symbols, N);
+    for (int i = 0; i < _N_; i += 1) { decoded[i] = -1; }
+    decoder_naive<_GF_> dec_naive(_N_, frozen_symbols);
+    dec_naive.execute(channel, decoded);
     printf("\n\nDecoded symbols (normal):\n");
-    for (int i = 0; i < N; i += 1) {
+    for (int i = 0; i < _N_; i += 1) {
         if ((i % 16) == 0)
             printf("\n ");
         if (decoded[i] == ref_out[i]) {
@@ -120,10 +122,11 @@ int main(int, char *[]) {
     //
     // Call the top node function to decode the symbols
     //
-    for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
-    top_node_with_pruning<64>(channel, internal, decoded, symbols, N);
+    for (int i = 0; i < _N_; i += 1) { decoded[i] = -1; }
+    decoder_naive_pruning<_GF_> dec_naive_p(_N_, frozen_symbols);
+    dec_naive_p.execute(channel, decoded);
     printf("\n\nDecoded symbols (pruning):\n");
-    for (int i = 0; i < N; i += 1) {
+    for (int i = 0; i < _N_; i += 1) {
         if ((i % 16) == 0)
             printf("\n ");
         if (decoded[i] == ref_out[i]) {
@@ -139,11 +142,11 @@ int main(int, char *[]) {
     //
     // Décodeur spécialisé mais sans pruning
     //
-    for (int i = 0; i < N; i += 1) { decoded[i] = -1; }
-    decoder_specialized<GF> dec(N, frozen_symbols);
+    for (int i = 0; i < _N_; i += 1) { decoded[i] = -1; }
+    decoder_specialized<_GF_> dec(_N_, frozen_symbols);
     dec.execute(channel, decoded);
     printf("\n\nDecoded symbols (class):\n");
-    for (int i = 0; i < N; i += 1) {
+    for (int i = 0; i < _N_; i += 1) {
         if ((i % 16) == 0)
             printf("\n ");
         if (decoded[i] == ref_out[i]) {
@@ -159,12 +162,12 @@ int main(int, char *[]) {
     //
     // Décodeur spécialisé AVEC pruning
     //
-    for (int i = 0; i < N; i += 1) decoded[i] = -1;
-    decoder_pruned<GF> dec_pruned(N, frozen_symbols);   // Ici
+    for (int i = 0; i < _N_; i += 1) decoded[i] = -1;
+    decoder_pruned<_GF_> dec_pruned(_N_, frozen_symbols);   // Ici
     dec_pruned.f_tree = &pruned_tree;                   // Ici
     dec_pruned.execute(channel, decoded);
     printf("\n\nDecoded symbols (final):\n");
-    for (int i = 0; i < N; i += 1)
+    for (int i = 0; i < _N_; i += 1)
     {
         if( (i%16) == 0 )
             printf("\n ");
@@ -182,7 +185,7 @@ int main(int, char *[]) {
     const int32_t nTest = (256 * 1024);
     auto start_x86 = std::chrono::system_clock::now();
     for (int32_t loop = 0; loop < nTest; loop += 1) {
-        top_node<64>(channel, internal, decoded, symbols, N);
+        dec_naive.execute(channel, decoded);
     }
     auto stop_x86 = std::chrono::system_clock::now();
 
@@ -192,7 +195,7 @@ int main(int, char *[]) {
     float time_usec = time_ns / 1000.f;                   // in seconds
     float time_run  = (time_usec / (float) nTest);
 
-    float debit = ((float) N * (float) logGF) / time_run; // in Ksymbols/s
+    float debit = ((float) _N_ * (float) _logGF_) / time_run; // in Ksymbols/s
     printf("[normal]  experiments  : %1.3f sec\n", time_sec);
     printf("[normal]  experiments  : %1.2f ms\n", time_msec);
     printf("[normal]  one decoding : %1.2f us\n", time_run);
@@ -204,7 +207,7 @@ int main(int, char *[]) {
     //
     start_x86 = std::chrono::system_clock::now();
     for (int32_t loop = 0; loop < nTest; loop += 1) {
-        top_node_with_pruning<64>(channel, internal, decoded, symbols, N);
+        dec_naive_p.execute(channel, decoded);
     }
     stop_x86 = std::chrono::system_clock::now();
 
@@ -214,7 +217,7 @@ int main(int, char *[]) {
     time_usec = time_ns / 1000.f;                   // in seconds
     time_run  = (time_usec / (float) nTest);
 
-    debit = ((float) N * (float) logGF) / time_run; // in Ksymbols/s
+    debit = ((float) _N_ * (float) _logGF_) / time_run; // in Ksymbols/s
     printf("[pruning] experiments  : %1.3f sec\n", time_sec);
     printf("[pruning] experiments  : %1.2f ms\n", time_msec);
     printf("[pruning] one decoding : %1.2f us\n", time_run);
@@ -236,7 +239,7 @@ int main(int, char *[]) {
     time_usec = time_ns / 1000.f;                   // in seconds
     time_run  = (time_usec / (float) nTest);
 
-    debit = ((float) N * (float) logGF) / time_run; // in Ksymbols/s
+    debit = ((float) _N_ * (float) _logGF_) / time_run; // in Ksymbols/s
     printf("[special] experiments  : %1.3f sec\n", time_sec);
     printf("[special] experiments  : %1.2f ms\n", time_msec);
     printf("[special] one decoding : %1.2f us\n", time_run);
@@ -260,7 +263,7 @@ int main(int, char *[]) {
         time_usec = time_ns / 1000.f; // in seconds
         time_run  = (time_usec / (float)nTest);
 
-        debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+        debit = ((float)_N_ * (float)_logGF_) / time_run; // in Ksymbols/s
         if ( x == 0 ) {
             printf("[final  ] experiments  : %1.3f sec\n",  time_sec);
             printf("[final  ] experiments  : %1.2f ms\n",   time_msec);

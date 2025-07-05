@@ -284,7 +284,7 @@ inline void fwht256_norm_flat_neon(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <uint16_t GF>
+template <uint16_t galois_size>
 inline void fwht_norm_neon(float x[], float y[]) {
     assert(x != 0);
     assert(y != 0);
@@ -315,7 +315,7 @@ inline void fwht_norm_neon<256>(float x[], float y[]) { fwht256_norm_flat_neon(x
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <uint16_t GF>
+template <uint16_t galois_size>
 inline void fwht_norm_neon(float x[]) {
     assert(x != 0);
     assert(true);

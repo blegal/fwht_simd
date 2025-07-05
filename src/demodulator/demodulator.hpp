@@ -17,9 +17,9 @@ public:
         for (int i = 0; i < N; i++)
         {
             dst[i].is_freq = false;
-            for (int j = 0; j < K; j++)
-                dst[i].value[j] = 0.f;
-            dst[i].value[ src[i] ] = 1.f;
+            for (int j = 0; j < GF; j++)    // toutes les probabilités à zero
+                dst[i].value[j] = 0.f;      // pour l'initialisation
+            dst[i].value[ src[i] ] = 1.f;   // on met le bon symbole à 100%
         }
     }
 

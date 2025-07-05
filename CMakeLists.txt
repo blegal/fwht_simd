@@ -15,7 +15,12 @@ add_compile_options (-Wall -Wextra)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
-add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
+add_executable (nb_sc_decoder   ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive.cpp
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive_pruning.cpp
+)
 target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries (nb_sc_decoder PUBLIC utilities)
 
@@ -23,18 +28,57 @@ target_link_libraries (nb_sc_decoder PUBLIC utilities)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
-add_executable (simulator ${CMAKE_CURRENT_SOURCE_DIR}/apps/simulator.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
-target_include_directories (simulator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries (simulator PUBLIC utilities)
+add_executable(simulator_dec1
+        ${CMAKE_CURRENT_SOURCE_DIR}/apps/simulator_dec1.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive_pruning.cpp
+)
+target_include_directories (simulator_dec1 PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (simulator_dec1 PUBLIC utilities)
 
 #######################################################################################################################################
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
-# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lm")
+add_executable(simulator_dec2
+        ${CMAKE_CURRENT_SOURCE_DIR}/apps/simulator_dec2.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive_pruning.cpp
+)
+target_include_directories (simulator_dec2 PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (simulator_dec2 PUBLIC utilities)
 
-add_executable(nb_sc_decoder_abd ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder_abd.cpp)
-target_include_directories(nb_sc_decoder_abd PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+#######################################################################################################################################
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
+
+add_executable(simulator_dec3
+        ${CMAKE_CURRENT_SOURCE_DIR}/apps/simulator_dec3.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive_pruning.cpp
+)
+target_include_directories (simulator_dec3 PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (simulator_dec3 PUBLIC utilities)
+
+#######################################################################################################################################
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
+
+add_executable(simulator_dec4
+        ${CMAKE_CURRENT_SOURCE_DIR}/apps/simulator_dec4.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/nodes/decoder_naive_pruning.cpp
+)
+target_include_directories (simulator_dec4 PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (simulator_dec4 PUBLIC utilities)
 
 #######################################################################################################################################
 

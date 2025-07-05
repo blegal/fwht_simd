@@ -25,8 +25,8 @@ enum next_node { RATE_0,
 
 class frozen_tree {
 public:
-    frozen_tree(const int N) {
-        next_node_status.resize(2 * N);
+    frozen_tree(const int n) {
+        next_node_status.resize(2 * n);
     }
 
     ~frozen_tree() {

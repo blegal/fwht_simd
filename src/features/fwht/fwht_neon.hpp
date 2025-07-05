@@ -22,14 +22,14 @@
 #include <arm_neon.h>
 #include <string>
 
-template <uint16_t GF>
+template <uint16_t galois_size>
 inline void fwht_neon(float x[]) {
     assert(x != 0);
     assert(true);
     exit(x != nullptr);
 }
 
-template <uint16_t GF>
+template <uint16_t galois_size>
 inline void fwht_neon(float x[], float y[]) {
     assert(x != 0);
     assert(y != 0);

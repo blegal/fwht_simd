@@ -1,10 +1,20 @@
 #pragma once
 
-#include "definitions/const_config_GF64_N64.hpp"
+#include <cstdint>
+#include "definitions/code.hpp"
 
+//
+// For generic NB polar decoders
+//
 struct symbols_t {
-    float value[GF];
-    //    uint8_t  gf   [GF]; // to be removed !
+    float value[_GF_];
     bool is_freq;
+};
+
+//
+// For specialized NB polar decoders
+//
+struct symbols_s {
+    float value[_GF_];
 };
 
