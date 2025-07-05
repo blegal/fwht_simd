@@ -6,7 +6,7 @@
 
 #include "definitions/custom_types.hpp"
 
-template<int GF>
+template<int gf_size>
 class demodulator {
 public:
     demodulator(const int n) : N(n)
@@ -17,9 +17,11 @@ public:
         for (int i = 0; i < N; i++)
         {
             dst[i].is_freq = false;
-            for (int j = 0; j < GF; j++)    // toutes les probabilités à zero
+            for (int j = 0; j < gf_size; j++)    // toutes les probabilités à zero
                 dst[i].value[j] = 0.f;      // pour l'initialisation
             dst[i].value[ src[i] ] = 1.f;   // on met le bon symbole à 100%
+            //printf("Processing symbol %2d\n", i);
+            //show_symbols<gf_size>( dst[i].value );
         }
     }
 
