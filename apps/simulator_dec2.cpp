@@ -21,8 +21,10 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "../src/decoders/classic/decoder_naive.hpp"
-#include "../src/decoders/prunic_static/decoder_naive_pruning.hpp"
+#include "decoders/naive/decoder_naive.hpp"
+#include "decoders/naive_pruning/decoder_naive_pruning.hpp"
+#include "decoders/specialized/decoder_specialized.hpp"
+#include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
 
 #include "../src/decoders/specialized/decoder_specialized.hpp"
 

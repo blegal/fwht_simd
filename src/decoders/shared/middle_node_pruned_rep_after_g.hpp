@@ -1,7 +1,6 @@
 #pragma once
 
 #include "utilities/utility_functions.hpp"
-#include "../pruning_fly/decoder_pruned.hpp"
 
 template <int gf_size>
 void middle_node_pruned_rep_after_g(

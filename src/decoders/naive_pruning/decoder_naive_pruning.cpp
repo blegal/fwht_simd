@@ -1,6 +1,7 @@
 #include "decoder_naive_pruning.hpp"
 #include "decoders/shared/f_function.hpp"
 #include "decoders/shared/g_function.hpp"
+#include "utilities/utility_functions.hpp"
 //
 //
 //
@@ -103,6 +104,56 @@ void decoder_naive_pruning<gf_size>::execute(symbols_t * channel, uint16_t *  de
 //
 //
 //
+bool fix_xor_list(int *list1, const int *list2, int N) {
+    int total_xor = 0;
+    for (int i = 0; i < N; i++) {
+        total_xor ^= list1[i];
+    }
+
+    if (total_xor == 0) {
+        // Déjà correct, rien à changer
+        return true;
+    }
+
+    for (int i = 0; i < N; i++) {
+        int current_xor = total_xor ^ list1[i];
+        for (int j = 0; j < N; j++) {
+            int new_xor = current_xor ^ list2[j];
+            if (new_xor == 0) {
+                // On a trouvé un remplacement valide → applique-le !
+                list1[i] = list2[j];
+                return true;
+            }
+        }
+    }
+
+    // Aucun remplacement possible
+    return false;
+}
+
+template <int gf_size>
+void argmax2_indices(const float *arr, int *max1_idx, int *max2_idx) {
+    float first_max_value  = arr[0];
+    float second_max_value = 0.f;
+    *max1_idx =  0;
+    *max2_idx = -1;
+
+    for (int i = 1; i < gf_size; i++)
+    {
+        if (arr[i] > first_max_value) {
+            // Décale le premier vers le second
+            second_max_value = first_max_value;
+            *max2_idx        = *max1_idx;
+
+            first_max_value = arr[i];
+            *max1_idx = i;
+        } else if (arr[i] > second_max_value) {
+            second_max_value = arr[i];
+            *max2_idx = i;
+        }
+    }
+}
+
 template <int gf_size>
 void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
     symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
@@ -204,18 +255,19 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
     //
     // SINGLE PARITY NODE
     //
-#if 0
+//#define SPC_NODE
+#if defined(SPC_NODE)
     int check_node = 0;
-    if( (sum == 1) && (frozen_symbols[symbol_id] == true) ) {
+    if( (sum == 1) && (frozen[symbol_id] == true) ) {
 #define debug_rate_spc
 #if defined(debug_rate_spc)
         printf("Frozen pruning in SPC mode [%d::%d]\n", symbol_id, size);
 #endif
-
         for(int i = 0; i < size; i++)
             if ( inputs[i].is_freq == true ) {
                 fwht<gf_size>( inputs[i].value );
                 inputs[i].is_freq = false;
+                normalize<gf_size>(inputs[i].value);
             }
 
         for (int i = 0; i < size; i++) {
@@ -230,13 +282,40 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
             remove_xors(decoded + symbol_id, size);
             return;
         } else {
-            printf("-> CN equation is NOT validated !\n");
+            printf("-> CN equation is NOT validated (first round)\n");
             remove_xors(decoded + symbol_id, size);
             for (int j = 0; j < size; j++) {
                 printf("  - symbol [%d :: %d] (%f) - Un = %d\n", j, symbols[symbol_id + j], inputs[j].value[symbols[symbol_id + j]], decoded[j + symbol_id]);
             }
             for (int j = 0; j < size; j++)
                 show_symbols< gf_size >( inputs[j].value );
+
+            printf("-> Testing second round\n");
+            int arg_1[32];
+            int arg_2[32];
+            for (int j = 0; j < size; j++) {
+                argmax2_indices<gf_size>(inputs[j].value, arg_1 + j, arg_2 + j);
+                printf("  - [%d] arg_1(%2d) and arg_1(%2d)\n", j, arg_1[j], arg_2[j]);
+            }
+            //
+            bool isOK = fix_xor_list(arg_1, arg_2, size);
+            if ( isOK ) {
+                printf("-> CN equation is validated !\n");
+                for (int j = 0; j < size; j++)
+                    printf("  - arg_1 [%d] (%2d)\n", j, arg_1[j]);
+
+                for (int j = 0; j < size; j++) {
+                    symbols[symbol_id + j] = arg_1[j];
+                    decoded[symbol_id + j] = arg_1[j]; // should be corrected (it is systematic solution actually)
+                }
+                remove_xors(decoded + symbol_id, size);
+                for (int j = 0; j < size; j++) {
+                    printf("  - symbol [%d :: %d] (%f) - Un = %d\n", j, symbols[symbol_id + j], inputs[j].value[symbols[symbol_id + j]], decoded[j + symbol_id]);
+                }
+                return;
+            } else {
+                printf("-> CN equation is NOT validated (second round)\n");
+            }
         }
 #endif
     }
@@ -278,6 +357,15 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
     for (int i = 0; i < n; i++) {
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
     }
+#if defined(SPC_NODE)
+    if( check_node )
+    {
+        for (int i = 0; i < size; i++) {
+            printf("(DD) symbols[%d] = %3d and decoded = %3d\n", symbol_id + i, symbols[symbol_id + i], decoded[symbol_id + i]);
+        }
+        exit(EXIT_FAILURE);
+    }
+#endif
     //
     //
     //

@@ -1,76 +1,81 @@
-#!/usr/bin/env python3
-
-import subprocess
 import argparse
+import os
+import subprocess
 import sys
 
-# ===============================
-# 1) Parse des arguments
-# ===============================
-parser = argparse.ArgumentParser(description="Build & run simulator with dynamic config")
-
-parser.add_argument(
-    "--decoder",
-    type=str,
-    choices=["dec1", "dec2", "dec3", "dec4"],
-    required=True,
-    help="Nom du décodeur : dec1, dec2, dec3 ou dec4"
-)
-
-parser.add_argument(
-    "--platform",
-    type=str,
-    required=True,
-    help="Nom de la plateforme (chaîne de caractères)"
-)
-
-args = parser.parse_args()
-decoder = args.decoder
-platform = args.platform
-
-# ===============================
-# 2) Paramètres généraux
-# ===============================
-CONFIG_FILE = "config_code.hpp"
-N_values = [2 ** i for i in range(3, 11)]  # 8 à 1024
-GF = 64
-simulator_exec = f"./simulator_{decoder}"
-
-print(f"=== Script lancé avec : decoder={decoder} | platform={platform} ===")
-
-# ===============================
-# 3) Boucle sur N
-# ===============================
-for N in N_values:
-    print(f"\n=== Génération pour N = {N} ===")
-
-    # Génération du fichier config_code.hpp
-    content = f"""#ifndef CONFIG_CODE_H
+def generate_config_header(N, GF):
+    header_content = f"""#ifndef CONFIG_CODE_H
 #define CONFIG_CODE_H
 #include "codes/N{N}_GF{GF}.hpp"
 #endif
 """
-    with open(CONFIG_FILE, "w") as f:
-        f.write(content)
-    print(f"✅ {CONFIG_FILE} généré pour N = {N}, GF = {GF}.")
+    with open("../src/definitions/code.hpp", "w") as f:
+        f.write(header_content)
 
-    # Compilation avec make
-    print("Compilation en cours...")
-    try:
-        subprocess.run(["make"], check=True)
-        print(f"✅ Compilation pour N = {N} terminée avec succès.")
-    except subprocess.CalledProcessError:
-        print(f"❌ Erreur lors de la compilation pour N = {N}. Arrêt du script.")
+def compile_project():
+    print("🛠️  Compilation...")
+    result = subprocess.run(["make"])
+    if result.returncode != 0:
+        print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
 
-    # Exécution du simulateur + log
-    output_file = f"{decoder}_N{N}_GF{GF}_{platform}.log"
-    print(f"Exécution de {simulator_exec} ... (log : {output_file})")
+def run_executable(N, GF, decoder, platform, log_dir):
+    executable = "./benchmarking"
+    log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
+    cmd = [executable, "--decoder", decoder]
 
-    with open(output_file, "w") as outfile:
-        try:
-            subprocess.run([simulator_exec], stdout=outfile, stderr=subprocess.STDOUT, check=True)
-            print(f"✅ Exécution terminée. Trace sauvegardée dans {output_file}")
-        except subprocess.CalledProcessError:
-            print(f"❌ Erreur lors de l'exécution pour N = {N}. Arrêt du script.")
+    print(f"🚀 Exécution: {cmd} pour N={N}")
+
+    with open(log_file, "w") as f:
+        result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
+        if result.returncode != 0:
+            print(f"❌ Erreur: échec de l'exécution pour N={N} (code retour {result.returncode}).")
             sys.exit(1)
+
+def generate_report(log_dir, decoder, platform, GF, Ns):
+    report_file = os.path.join(log_dir, f"rapport_{decoder}_{platform}.txt")
+    with open(report_file, "w") as report:
+        header = "N K GF CodedThgt InfoThgt Latency"
+        report.write(header + "\n")
+
+        for N in Ns:
+            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
+            if os.path.isfile(log_file):
+                with open(log_file, "r") as f:
+                    lines = f.readlines()
+                    if lines:
+                        last_line = lines[-1].strip()
+                        report.write(f"{last_line}\n")
+                    else:
+                        report.write(f"{N} MISSING_DATA\n")
+            else:
+                report.write(f"{N} MISSING_LOG\n")
+
+    print(f"📄 Rapport généré: {report_file}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Compile, exécute et génère un rapport de benchmarking.")
+    parser.add_argument("--decoder", required=True, choices=["dec1", "dec2", "dec3", "dec4"], help="Nom du décodeur (ex: dec1)")
+    parser.add_argument("--platform", required=True, help="Nom de la plateforme pour le nommage du log")
+    args = parser.parse_args()
+
+    GF = 64  # fixe ou tu peux le rendre paramétrable
+    Ns = [8, 16, 32, 64, 128, 256, 512, 1024]
+
+    log_dir = "log"
+    os.makedirs(log_dir, exist_ok=True)
+
+    for N in Ns:
+        print(f"🔧 Génération config pour N={N}, GF={GF}")
+        generate_config_header(N, GF)
+
+        compile_project()
+
+        run_executable(N, GF, args.decoder, args.platform, log_dir)
+
+    generate_report(log_dir, args.decoder, args.platform, GF, Ns)
+    print("✅ Tout est terminé.")
+
+if __name__ == "__main__":
+    main()

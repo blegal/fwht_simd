@@ -23,7 +23,8 @@ public:
         for (int i = K; i < N; i++)
             dst[ reliab_seq[i] ] = 0;
 
-             if( N ==   16 ) polar_encode<  16>( dst );
+             if( N ==    8 ) polar_encode<   8>( dst );
+        else if( N ==   16 ) polar_encode<  16>( dst );
         else if( N ==   32 ) polar_encode<  32>( dst );
         else if( N ==   64 ) polar_encode<  64>( dst );
         else if( N ==  128 ) polar_encode< 128>( dst );

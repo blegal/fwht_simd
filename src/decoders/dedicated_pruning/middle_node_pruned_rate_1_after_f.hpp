@@ -1,7 +1,7 @@
 #pragma once
 
+#include "dedicated_pruning.hpp"
 #include "utilities/utility_functions.hpp"
-#include "decoder_pruned.hpp"
 
 template <int gf_size>
 void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_f(

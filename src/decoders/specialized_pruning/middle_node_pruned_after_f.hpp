@@ -1,16 +1,16 @@
 #pragma once
 
-#include "decoder_pruned.hpp"
-#include "decoders/shared/leaf_node_rate_0.hpp"
-#include "decoders/shared/leaf_node_after_g.hpp"
-#include "decoders/shared/leaf_node_after_f.hpp"
+#include "decoder_specialized_pruning.hpp"
 #include "decoders/shared/f_function_freq_in.hpp"
 #include "decoders/shared/g_function_freq_in.hpp"
+#include "decoders/shared/leaf_node_after_f.hpp"
+#include "decoders/shared/leaf_node_after_g.hpp"
+#include "decoders/shared/leaf_node_rate_0.hpp"
 #include "decoders/shared/middle_node_pruned_rep_after_f.hpp"
-#include "decoders/shared/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
+#include "decoders/shared/middle_node_pruned_rep_after_g.hpp" // IWYU pragma: keep
 
 template <int gf_size>
-void decoder_pruned<gf_size>::middle_node_pruned_after_f(
+void decoder_specialized_pruning<gf_size>::middle_node_pruned_after_f(
     symbols_t* inputs,      // Inputs are the symbols from the channel (from the right)
     symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,     // Decoded symbols are the final output of the decoder (done on the left)

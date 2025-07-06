@@ -5,11 +5,11 @@
 #include <vector>
 
 template <int gf_size>
-class decoder_pruned {
+class dedicated_pruning {
 public:
-    decoder_pruned();
-    decoder_pruned(const int n, const int* frozen_symb);
-    ~decoder_pruned();
+    dedicated_pruning();
+    dedicated_pruning(const int n, const int* frozen_symb);
+    ~dedicated_pruning();
 
     void execute(const symbols_t * channel, uint16_t* decoded);
 

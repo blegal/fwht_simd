@@ -1,14 +1,15 @@
 #pragma once
 #include "definitions/custom_types.hpp"
-#include "../shared/f_function_proba_in.hpp"
-#include "../shared/g_function_proba_in.hpp"
+#include "decoders/decoder.hpp"
+#include "decoders/shared/f_function_proba_in.hpp"
+#include "decoders/shared/g_function_proba_in.hpp"
 #include <vector>
 
 template <int gf_size>
-class decoder_specialized {
+class decoder_specialized : public decoder{
 public:
     decoder_specialized();
-    decoder_specialized(const int n, const int* frozen_symb);
+    decoder_specialized(int n, const int* frozen_symb);
     ~decoder_specialized();
 
 

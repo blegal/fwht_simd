@@ -1,12 +1,13 @@
 #pragma once
 #include "definitions/custom_types.hpp"
+#include "decoders/decoder.hpp"
 //
 //
 //
 //
 //
 template <int gf_size>
-class decoder_naive_pruning {
+class decoder_naive_pruning : public decoder {
 public:
     decoder_naive_pruning();
     decoder_naive_pruning(const int n, const int* frozen_symb);

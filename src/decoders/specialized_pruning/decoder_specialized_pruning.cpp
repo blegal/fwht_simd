@@ -1,4 +1,4 @@
-#include "decoders/pruning_fly/decoder_pruned.hpp"
+#include "decoder_specialized_pruning.hpp"
 
 /**
  *
@@ -6,7 +6,7 @@
  * @param frozen_symb
  */
 template <int gf_size>
-decoder_pruned<gf_size>::decoder_pruned(const int n, const int* frozen_symb)
+decoder_specialized_pruning<gf_size>::decoder_specialized_pruning(const int n, const int* frozen_symb)
     : N(n), f_tree_cnt(0), f_tree(nullptr)
 {
     internal = new symbols_t[N];
@@ -22,7 +22,7 @@ decoder_pruned<gf_size>::decoder_pruned(const int n, const int* frozen_symb)
  *
  */
 template <int gf_size>
-decoder_pruned<gf_size>::decoder_pruned() :
+decoder_specialized_pruning<gf_size>::decoder_specialized_pruning() :
     N(0), f_tree_cnt(0), f_tree(nullptr)
 
 {
@@ -35,7 +35,7 @@ decoder_pruned<gf_size>::decoder_pruned() :
 }
 
 template <int gf_size>
-decoder_pruned<gf_size>::~decoder_pruned()
+decoder_specialized_pruning<gf_size>::~decoder_specialized_pruning()
 {
     delete[]internal;
     delete[]symbols;
@@ -47,12 +47,12 @@ decoder_pruned<gf_size>::~decoder_pruned()
 #include "middle_node_pruned_rate_1_after_f.hpp"
 #include "decoders/shared/middle_node_pruned_rep_after_f.hpp"
 #include "decoders/shared/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
-#include "decoders/pruning_fly//middle_node_pruned_after_g.hpp"        // IWYU pragma: keep
-#include "decoders/pruning_fly/middle_node_pruned_rate_0.hpp"         // IWYU pragma: keep
-#include "decoders/pruning_fly/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
+#include "decoders/specialized_pruning/middle_node_pruned_after_g.hpp"        // IWYU pragma: keep
+#include "decoders/specialized_pruning/middle_node_pruned_rate_0.hpp"         // IWYU pragma: keep
+#include "decoders/specialized_pruning/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
 
 template <int gf_size>
-void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * decoded)
+void decoder_specialized_pruning<gf_size>::execute(symbols_t * channel, uint16_t * decoded)
 {
     f_tree_cnt = 0;
 
@@ -108,17 +108,17 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
 //
 //
 #if _GF_ == 16
-    template class decoder_pruned< 16>;
+    template class decoder_specialized_pruning< 16>;
 #elif _GF_ == 32
-    template class decoder_pruned< 32>;
+    template class decoder_specialized_pruning< 32>;
 #elif _GF_ == 64
-    template class decoder_pruned< 64>;
+    template class decoder_specialized_pruning< 64>;
 #elif _GF_ == 128
-    template class decoder_pruned<128>;
+    template class decoder_specialized_pruning<128>;
 #elif _GF_ == 256
-    template class decoder_pruned<256>;
+    template class decoder_specialized_pruning<256>;
 #elif _GF_ == 1024
-    template class decoder_pruned<512>;
+    template class decoder_specialized_pruning<512>;
 #elif _GF_ == 512
-    template class decoder_pruned<1024>;
+    template class decoder_specialized_pruning<1024>;
 #endif

@@ -1,11 +1,15 @@
-#include "definitions/const_config_GF64_N64.hpp"
-
-#include "../src/decoders/pruning_fly/decoder_pruned.hpp"
-
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+
+#include "definitions/const_config_GF64_N64.hpp"
+
+#include "decoders/naive/decoder_naive.hpp"
+#include "decoders/naive_pruning/decoder_naive_pruning.hpp"
+#include "decoders/specialized/decoder_specialized.hpp"
+#include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
+
 
 #include "definitions/const_config_GF64_N64.hpp"
 #include "utilities/utility_functions.hpp"
@@ -20,8 +24,6 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "../src/decoders/classic/decoder_naive.hpp"
-#include "../src/decoders/prunic_static/decoder_naive_pruning.hpp"
 
 #include "../src/decoders/specialized/decoder_specialized.hpp"
 
@@ -163,7 +165,7 @@ int main(int, char *[]) {
     // Décodeur spécialisé AVEC pruning
     //
     for (int i = 0; i < _N_; i += 1) decoded[i] = -1;
-    decoder_pruned<_GF_> dec_pruned(_N_, frozen_symbols);   // Ici
+    decoder_specialized_pruning<_GF_> dec_pruned(_N_, frozen_symbols);   // Ici
     dec_pruned.f_tree = &pruned_tree;                   // Ici
     dec_pruned.execute(channel, decoded);
     printf("\n\nDecoded symbols (final):\n");

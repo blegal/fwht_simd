@@ -21,7 +21,10 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "../src/decoders/classic/decoder_naive.hpp"
+#include "decoders/naive/decoder_naive.hpp"
+#include "decoders/naive_pruning/decoder_naive_pruning.hpp"
+#include "decoders/specialized/decoder_specialized.hpp"
+#include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
 
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
@@ -33,7 +36,7 @@
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
 
-int main(int, char *[]) {
+int main(int argc, char* argv[]) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -42,6 +45,38 @@ int main(int, char *[]) {
     const int  N = _N_;
     const int  K =  (3 * N) / 4;
     const int GF = _GF_;
+
+    std::string dec_type = "dec1";
+    float code_rate  = 0.5f;
+    bool is_colored  = true;
+
+    for(int i = 1; i < argc; i++)
+    {
+        if(std::string(argv[i]) == "--dec")
+        {
+            dec_type = std::string(argv[i+1]);
+        }
+        else if(std::string(argv[i]) == "--decoder")
+        {
+            dec_type = std::string(argv[i+1]);
+        }
+        else if(std::string(argv[i]) == "--no-color")
+        {
+            is_colored = false;
+        }
+        else if(std::string(argv[i]) == "--nocolor")
+        {
+            is_colored = false;
+        }
+        else if(std::string(argv[i]) == "--rate")
+        {
+            code_rate = std::atof(argv[i+1]);
+        }
+        else if(std::string(argv[i]) == "--code-rate")
+        {
+            code_rate = std::atof(argv[i+1]);
+        }
+    }
 
 #ifdef __AVX512BW__
     printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation program (AVX512 version)\n");
@@ -65,12 +100,12 @@ int main(int, char *[]) {
     printf("# + Intel ICC/ICPC version %d.%d\n", __INTEL_COMPILER, __INTEL_COMPILER_BUILD_DATE);
 #elif defined(__GNUC__) || defined(__GNUG__)
     /* GNU GCC/G++. --------------------------------------------- */
-    printf("# + GNU GCC/G++ version %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    printf("#(II) + GNU GCC/G++ version %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #elif defined(_MSC_VER)
     /* Microsoft Visual Studio. --------------------------------- */
-    printf("# + Microsoft Visual Studio\n");
+    printf("#(II) + Microsoft Visual Studio\n");
 #else
-    #error "# + Undetected compiler !"
+    #error "#(II) + Undetected compiler !"
 #endif
 
 #if (defined(__ICC) || defined(__INTEL_COMPILER)) == 0
@@ -129,7 +164,9 @@ int main(int, char *[]) {
     for (int i = 0; i < K; i += 1) {
         if ( ((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
-        printf("\e[1;32m%2d\e[0m ", symbol_k[i]);
+
+        if( is_colored ) printf("\e[1;32m%2d\e[0m ", symbol_k[i]);
+        else             printf("%2d ", symbol_k[i]);
     }
     printf("\n");
 
@@ -147,7 +184,8 @@ int main(int, char *[]) {
     for (int i = 0; i < N; i += 1) {
         if ( ((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
-        printf("\e[1;32m%2d\e[0m ", symbol_n[i]);
+        if( is_colored ) printf("\e[1;32m%2d\e[0m ", symbol_n[i]);
+        else             printf("%2d ", symbol_n[i]);
     }
     printf("\n");
 
@@ -202,8 +240,21 @@ int main(int, char *[]) {
     //
     //  decoding
     //
-    decoder_naive<GF> decoder(N, frozen_symbols);
-    decoder.execute(llrs_n.data(), decoded_n.data());
+    decoder* dec;
+    if (dec_type == "dec1") {
+        dec = new decoder_naive<GF>(N, frozen_symbols);
+    }else if (dec_type == "dec2") {
+        dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
+    }else if (dec_type == "dec3") {
+        dec = new decoder_specialized<GF>(N, frozen_symbols);
+    }else if (dec_type == "dec4") {
+        dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
+    }else {
+        printf("#(II) Error : unknown decoder type\n");
+        exit(1);
+    }
+//    decoder_naive<GF> decoder(N, frozen_symbols);
+    dec->execute(llrs_n.data(), decoded_n.data());
 
     printf("#(II)\n");
     printf("#(II) N Decoded symbols (%3d) :\n", N);
@@ -228,10 +279,14 @@ int main(int, char *[]) {
     for (int i = 0; i < K; i += 1) {
         if ( ((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
-        if (symbol_k[i] == decoded_k[i]) {
-            printf("\e[1;32m%2d\e[0m ", decoded_k[i]);
-        } else {
-            printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
+        if( is_colored ){
+            if (symbol_k[i] == decoded_k[i]) {
+                printf("\e[1;32m%2d\e[0m ", decoded_k[i]);
+            } else {
+                printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
+            }
+        }else{
+            printf("%2d ", decoded_k[i]);
         }
     }
 /*
@@ -279,7 +334,7 @@ int main(int, char *[]) {
         const auto start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1)
         {
-            decoder.execute(llrs_n.data(), decoded_n.data());
+            dec->execute(llrs_n.data(), decoded_n.data());
         }
         const auto stop_x86 = std::chrono::system_clock::now();
 
@@ -303,7 +358,7 @@ int main(int, char *[]) {
         }
         const auto curr = std::chrono::system_clock::now();
         const float ctime= std::chrono::duration_cast<std::chrono::seconds>(curr - debut).count();
-        if ( ctime > 10 ){
+        if ( ctime > 30.f ){
             printf("#(II)\n");
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, ctime);
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
@@ -312,6 +367,8 @@ int main(int, char *[]) {
             break;
         }
     }
+
+    delete dec;
 
     return EXIT_SUCCESS;
 }

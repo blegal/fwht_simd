@@ -1,12 +1,13 @@
 #pragma once
 #include "definitions/custom_types.hpp"
+#include "decoders/decoder.hpp"
 //
 //
 //
 //
 //
 template <int gf_size>
-class decoder_naive {
+class decoder_naive : public decoder {
 public:
     decoder_naive();
     decoder_naive(const int n, const int* frozen_symb);
