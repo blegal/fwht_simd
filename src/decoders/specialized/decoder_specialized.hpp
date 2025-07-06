@@ -1,7 +1,7 @@
 #pragma once
 #include "definitions/custom_types.hpp"
-#include "pruning/f_function/f_function_proba_in.hpp"
-#include "pruning/g_function/g_function_proba_in.hpp"
+#include "../shared/f_function_proba_in.hpp"
+#include "../shared/g_function_proba_in.hpp"
 #include <vector>
 
 template <int gf_size>

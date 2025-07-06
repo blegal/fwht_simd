@@ -1,4 +1,4 @@
-#include "decoder_pruned.hpp"
+#include "decoders/pruning_fly/decoder_pruned.hpp"
 
 /**
  *
@@ -43,13 +43,13 @@ decoder_pruned<gf_size>::~decoder_pruned()
 }
 
 // These headers are not used directly but defines template functions and MUST be included here
-#include "node/middle_node_pruned_after_f.hpp"        // IWYU pragma: keep
-#include "node/middle_node_pruned_after_g.hpp"        // IWYU pragma: keep
-#include "node/middle_node_pruned_rate_0.hpp"         // IWYU pragma: keep
-#include "node/middle_node_pruned_rate_1_after_f.hpp" // IWYU pragma: keep
-#include "node/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
-#include "node/middle_node_pruned_rep_after_f.hpp"    // IWYU pragma: keep
-#include "node/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
+#include "middle_node_pruned_after_f.hpp"
+#include "middle_node_pruned_rate_1_after_f.hpp"
+#include "decoders/shared/middle_node_pruned_rep_after_f.hpp"
+#include "decoders/shared/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
+#include "decoders/pruning_fly//middle_node_pruned_after_g.hpp"        // IWYU pragma: keep
+#include "decoders/pruning_fly/middle_node_pruned_rate_0.hpp"         // IWYU pragma: keep
+#include "decoders/pruning_fly/middle_node_pruned_rate_1_after_g.hpp" // IWYU pragma: keep
 
 template <int gf_size>
 void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * decoded)

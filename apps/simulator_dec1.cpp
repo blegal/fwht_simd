@@ -1,7 +1,7 @@
 
 #include "../src/definitions/code.hpp"
 
-#include "pruning/decoder_specialized.hpp"
+#include "../src/decoders/specialized/decoder_specialized.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -21,9 +21,8 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "nodes/decoder_naive.hpp"
+#include "../src/decoders/classic/decoder_naive.hpp"
 
-#include "frozen_tree.hpp"
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
 
@@ -123,11 +122,13 @@ int main(int, char *[]) {
     for (int i = 0; i < K; i++) {
         symbol_k[i] = rand()%GF;
     }
-
-    printf("\n\nK Generatred symbols (%d):\n", K);
+    printf("#(II)\n");
+    printf("#(II) K Generatred symbols (%3d) :\n", K);
+    printf("#(II) ---------------------------\n");
+    printf("#(II)");
     for (int i = 0; i < K; i += 1) {
-        if ((i % 16) == 0)
-            printf("\n ");
+        if ( ((i % 16) == 0))
+            printf("\n#(II) %3d | ", i);
         printf("\e[1;32m%2d\e[0m ", symbol_k[i]);
     }
     printf("\n");
@@ -139,10 +140,13 @@ int main(int, char *[]) {
     polar_encoder encoder(reliab_seq, K, N);
     encoder.encode( symbol_n.data(), symbol_k.data() ); // dst <= F(src)
 
-    printf("\n\nN Encoded symbols (%d):\n", N);
+    printf("#(II)\n");
+    printf("#(II) N Encoded symbols (%d):\n", N);
+    printf("#(II) ---------------------------\n");
+    printf("#(II)");
     for (int i = 0; i < N; i += 1) {
-        if ((i % 16) == 0)
-            printf("\n ");
+        if ( ((i % 16) == 0))
+            printf("\n#(II) %3d | ", i);
         printf("\e[1;32m%2d\e[0m ", symbol_n[i]);
     }
     printf("\n");
@@ -201,11 +205,14 @@ int main(int, char *[]) {
     decoder_naive<GF> decoder(N, frozen_symbols);
     decoder.execute(llrs_n.data(), decoded_n.data());
 
-    printf("\n\nN decoded symbols:\n");
+    printf("#(II)\n");
+    printf("#(II) N Decoded symbols (%3d) :\n", N);
+    printf("#(II) ------------------------\n");
+    printf("#(II)");
     for (int i = 0; i < N; i += 1) {
-        if ((i % 16) == 0)
-            printf("\n ");
-        printf("%2d ", decoded_n[i]);
+        if ( ((i % 16) == 0))
+            printf("\n#(II) %3d | ", i);
+        printf("%2d ", symbol_n[i]);
     }
     printf("\n");
 
@@ -214,7 +221,22 @@ int main(int, char *[]) {
     //
     encoder.decode( decoded_k.data(), decoded_n.data() ); // dst <= F(src)
 
-    printf("\n\nK decoded symbols:\n");
+    printf("#(II)\n");
+    printf("#(II) K decoded symbols (%3d) :\n", K);
+    printf("#(II) ------------------------\n");
+    printf("#(II)");
+    for (int i = 0; i < K; i += 1) {
+        if ( ((i % 16) == 0))
+            printf("\n#(II) %3d | ", i);
+        if (symbol_k[i] == decoded_k[i]) {
+            printf("\e[1;32m%2d\e[0m ", decoded_k[i]);
+        } else {
+            printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
+        }
+    }
+/*
+    printf("\n");
+    printf("\n\n:\n");
     for (int i = 0; i < K; i += 1) {
         if ((i % 16) == 0)
             printf("\n ");
@@ -224,6 +246,7 @@ int main(int, char *[]) {
             printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
         }
     }
+*/
     printf("\n");
 
     //
@@ -233,7 +256,6 @@ int main(int, char *[]) {
     // Call the top node function to decode the symbols
     //
 
-
     // We should have the same symbols
     int nErrors = 0;
     for (int i = 0; i < K; i += 1) {
@@ -241,10 +263,11 @@ int main(int, char *[]) {
             nErrors += 1;
         }
     }
+    printf("#(II)\n");
     if ( nErrors == 0 ) {
-        printf("Decoder OK\n");
+        printf("#(II) Decoder behavior : OK\n");
     }else {
-        printf("Decoder ERROR (%d/%d)\n", nErrors, K);
+        printf("#(II) Decoder behavior : ERROR\n");
     }
 
     double nRunTest = 0;
@@ -272,16 +295,20 @@ int main(int, char *[]) {
 
         const auto debit = ((double)N * (double)_logGF_) / time_run; // in Ksymbols/s
         if ( x == 0 ) {
-            printf("[GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, time_sec);
-            printf("[GF=%d, N=%d, k=%d : SPEC] experiments  : %1.2f ms\n",   GF, N, K, time_msec);
-            printf("[GF=%d, N=%d, k=%d : SPEC] one decoding : %1.2f us\n",   GF, N, K, time_run);
-            printf("[GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
+            printf("#(II)\n");
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, time_sec);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.2f ms\n",   GF, N, K, time_msec);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] one decoding : %1.2f us\n",   GF, N, K, time_run);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
         }
         const auto curr = std::chrono::system_clock::now();
         const float ctime= std::chrono::duration_cast<std::chrono::seconds>(curr - debut).count();
         if ( ctime > 10 ){
-            printf("[GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, ctime);
-            printf("[GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
+            printf("#(II)\n");
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, ctime);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
+            printf("#(II)\n");
+            printf("%d %d %d %f %f\n", N, K, GF, debit, time_run);
             break;
         }
     }

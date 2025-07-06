@@ -1,11 +1,11 @@
 #pragma once
 
-#include "pruning/decoder_pruned.hpp"
-#include "pruning/g_function/g_function_proba_in.hpp"
-#include "pruning/f_function/f_function_proba_in.hpp"
-#include "pruning/leaf/leaf_node_rate_0.hpp"
-#include "pruning/node/middle_node_pruned_rep_after_f.hpp"    // IWYU pragma: keep
-#include "pruning/node/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
+#include "decoder_pruned.hpp"
+#include "decoders/shared/g_function_proba_in.hpp"
+#include "decoders/shared/f_function_proba_in.hpp"
+#include "decoders/shared/leaf_node_rate_0.hpp"
+#include "decoders/shared/middle_node_pruned_rep_after_f.hpp"
+#include "decoders/shared/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
 
 template <int gf_size>
 void decoder_pruned<gf_size>::middle_node_pruned_after_g(

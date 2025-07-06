@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pruning/decoder_pruned.hpp"
+#include "decoder_pruned.hpp"
 
 template <int gf_size>
 inline __attribute__((always_inline)) void decoder_pruned<gf_size>::middle_node_pruned_rate_0(

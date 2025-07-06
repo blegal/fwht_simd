@@ -1,7 +1,7 @@
 
 #include "../src/definitions/code.hpp"
 
-#include "pruning/decoder_pruned.hpp"
+#include "../src/decoders/pruning_fly/decoder_pruned.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -21,10 +21,10 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "nodes/decoder_naive.hpp"
-#include "nodes/decoder_naive_pruning.hpp"
+#include "../src/decoders/classic/decoder_naive.hpp"
+#include "../src/decoders/prunic_static/decoder_naive_pruning.hpp"
 
-#include "pruning/decoder_specialized.hpp"
+#include "../src/decoders/specialized/decoder_specialized.hpp"
 
 #include "frozen_tree.hpp"
 #include "encoder/polar_encoder.hpp"

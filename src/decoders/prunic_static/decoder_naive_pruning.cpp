@@ -1,6 +1,6 @@
 #include "decoder_naive_pruning.hpp"
-#include "node_functions/f_function.hpp"
-#include "node_functions/g_function.hpp"
+#include "decoders/shared/f_function.hpp"
+#include "decoders/shared/g_function.hpp"
 //
 //
 //
