@@ -22,7 +22,7 @@ def compile_project():
 def run_executable(N, GF, decoder, platform, log_dir):
     executable = "./benchmarking"
     log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
-    cmd = [executable, "--decoder", decoder]
+    cmd = [executable, "--decoder", decoder, "--no-color"]
 
     print(f"🚀 Exécution: {cmd} pour N={N} et GF={GF}")
 
