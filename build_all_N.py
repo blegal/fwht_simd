@@ -33,7 +33,7 @@ def run_executable(N, GF, decoder, platform, log_dir):
             sys.exit(1)
 
 def generate_report(log_dir, decoder, platform, GF, Ns):
-    report_file = os.path.join(log_dir, f"rapport_{decoder}_{platform}.txt")
+    report_file = os.path.join(log_dir, f"thgt_N_{decoder}_{platform}.txt")
     with open(report_file, "w") as report:
         header = "N K GF CodedThgt InfoThgt Latency"
         report.write(header + "\n")
