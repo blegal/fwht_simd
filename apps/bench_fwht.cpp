@@ -28,12 +28,18 @@
 #include <chrono>
 #include <cstring>
 
+#include "utilities/utility_functions.hpp"
+
 bool are_equivalent(float * a, float * b, float epsilon, int size) {
     for (int i = 0; i < size; i++) {
         float diff = abs(a[i] - b[i]);
         if (diff > epsilon) {
-            printf("- maximum absolute error is : %f\n", diff);
-            printf("- a[%d] = %f and b[%d] = %f\n", i, a[i], i, b[i]);
+            printf("   -> maximum absolute error is : %f : a[%d] = %f and b[%d] = %f\n", diff, i, a[i], i, b[i]);
+/*
+            show_symbols(a, size);
+            normalize(b, size);
+            show_symbols(b, size);
+*/
             return false;
         }
     }
@@ -61,7 +67,7 @@ int main(int argc, char *[]) {
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    const int32_t nTest = 64 * 1024;//(1024 * 1024);
+    const int32_t nTest = 1;//64 * 1024;//(1024 * 1024);
 
     for (int size = 16; size <= 1024; size *= 2) {
 
@@ -70,8 +76,15 @@ int main(int argc, char *[]) {
         float * tab_z = new float[size];
 
         for (int i = 0; i < size; i++) {
-            tab_i[i] = ((float) rand()) / ((float) RAND_MAX) - 0.5f;
+            tab_i[i] = ((float) rand()) / ((float) RAND_MAX);
         }
+        tab_i[ rand()%size ] = .5f;
+
+        float sum = 1e-32f;
+        for (int i = 0; i < size; i += 1) { sum += tab_i[i]; }
+        const float factor = 1.f / sum;
+        for (int i = 0; i < size; i++) { tab_i[i] *= factor; }
+
 #if 0
         fwht< 64>( tab_a );
         normalize< 64>( tab_a, 0.125f );
@@ -107,54 +120,14 @@ int main(int argc, char *[]) {
 
         auto start_x86 = std::chrono::system_clock::now();
         for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size == 8) {
-                fwht<8>(tab_a);
-                normalize<8>(tab_a, 0.35355339059f);
-                fwht<8>(tab_a);
-                normalize<8>(tab_a, 0.35355339059f);
-            }
-            if (size == 16) {
-                fwht<16>(tab_a);
-                normalize<16>(tab_a, 0.25f);
-                fwht<16>(tab_a);
-                normalize<16>(tab_a, 0.25f);
-            }
-            if (size == 32) {
-                fwht<32>(tab_a);
-                normalize<32>(tab_a, 0.17677669529f);
-                fwht<32>(tab_a);
-                normalize<32>(tab_a, 0.17677669529f);
-            }
-            if (size == 64) {
-                fwht<64>(tab_a);
-                normalize<64>(tab_a, 0.125f);
-                fwht<64>(tab_a);
-                normalize<64>(tab_a, 0.125f);
-            }
-            if (size == 128) {
-                fwht<128>(tab_a);
-                normalize<128>(tab_a, 0.08838834764f);
-                fwht<128>(tab_a);
-                normalize<128>(tab_a, 0.08838834764f);
-            }
-            if (size == 256) {
-                fwht<256>(tab_a);
-                normalize<256>(tab_a, 0.0625f);
-                fwht<256>(tab_a);
-                normalize<256>(tab_a, 0.0625f);
-            }
-            if (size == 512) {
-                fwht<512>(tab_a);
-                normalize<512>(tab_a, 0.04419417382f);
-                fwht<512>(tab_a);
-                normalize<512>(tab_a, 0.04419417382f);
-            }
-            if (size == 1024) {
-                fwht<1024>(tab_a);
-                normalize<1024>(tab_a, 0.03125f);
-                fwht<1024>(tab_a);
-                normalize<1024>(tab_a, 0.03125f);
-            }
+            if (size ==    8) { fwht<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto     stop_x86 = std::chrono::system_clock::now();
         bool     ok_x86   = are_equivalent(tab_i, tab_a, 0.002, size);
@@ -170,7 +143,7 @@ int main(int argc, char *[]) {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
         //
-
+/*
         start_x86 = std::chrono::system_clock::now();
         memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
@@ -191,7 +164,7 @@ int main(int argc, char *[]) {
         } else {
             printf(" - [GCCV] fwht (2x)      \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86);
         }
-
+*/
         //
         //
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,40 +265,19 @@ int main(int argc, char *[]) {
 #if defined(__AVX2__)
 
         auto start_i_avx2 = std::chrono::system_clock::now();
+        memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size == 8) {
-                fwht_avx2<8>(tab_c);
-                fwht_avx2<8>(tab_c);
-                normalize<8>(tab_c, 1.f / 8.f);
-            }
-            if (size == 16) {
-                fwht_avx2<16>(tab_c);
-                fwht_avx2<16>(tab_c);
-                normalize<16>(tab_c, 1.f / 16.f);
-            }
-            if (size == 32) {
-                fwht_avx2<32>(tab_c);
-                fwht_avx2<32>(tab_c);
-                normalize<32>(tab_c, 1.f / 32.f);
-            }
-            if (size == 64) {
-                fwht_avx2<64>(tab_c);
-                fwht_avx2<64>(tab_c);
-                normalize<64>(tab_c, 1.f / 64.f);
-            }
-            if (size == 128) {
-                fwht_avx2<128>(tab_c);
-                fwht_avx2<128>(tab_c);
-                normalize<128>(tab_c, 1.f / 128.f);
-            }
-            if (size == 256) {
-                fwht_avx2<256>(tab_c);
-                fwht_avx2<256>(tab_c);
-                normalize<256>(tab_c, 1.f / 256.f);
-            }
+            if (size ==    8) { fwht_avx2<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht_avx2<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_avx2<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht_avx2<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_avx2<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht_avx2<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_avx2<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht_avx2<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_avx2< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht_avx2< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_avx2< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht_avx2< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_avx2< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht_avx2< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_avx2<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_avx2<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto           stop_i_avx2 = std::chrono::system_clock::now();
-        const bool     ok_avx2     = are_equivalent(tab_i, tab_c, 0.002, size);
+        const bool     ok_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
         const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
         if (ok_avx2) {
             printf(" - [AVX2] fwht_avx2      \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
@@ -337,34 +289,19 @@ int main(int argc, char *[]) {
 #if defined(__AVX2__)
 
         auto start_i_norm_avx2 = std::chrono::system_clock::now();
+        memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size == 8) {
-                fwht_norm_avx2<8>(tab_d);
-                fwht_norm_avx2<8>(tab_d);
-            }
-            if (size == 16) {
-                fwht_norm_avx2<16>(tab_d);
-                fwht_norm_avx2<16>(tab_d);
-            }
-            if (size == 32) {
-                fwht_norm_avx2<32>(tab_d);
-                fwht_norm_avx2<32>(tab_d);
-            }
-            if (size == 64) {
-                fwht_norm_avx2<64>(tab_d);
-                fwht_norm_avx2<64>(tab_d);
-            }
-            if (size == 128) {
-                fwht_norm_avx2<128>(tab_d);
-                fwht_norm_avx2<128>(tab_d);
-            }
-            if (size == 256) {
-                fwht_norm_avx2<256>(tab_d);
-                fwht_norm_avx2<256>(tab_d);
-            }
+            if (size ==    8) { fwht_norm_avx2<   8>(tab_a); fwht_norm_avx2<   8>(tab_a); }
+            if (size ==   16) { fwht_norm_avx2<  16>(tab_a); fwht_norm_avx2<  16>(tab_a); }
+            if (size ==   32) { fwht_norm_avx2<  32>(tab_a); fwht_norm_avx2<  32>(tab_a); }
+            if (size ==   64) { fwht_norm_avx2<  64>(tab_a); fwht_norm_avx2<  64>(tab_a); }
+            if (size ==  128) { fwht_norm_avx2< 128>(tab_a); fwht_norm_avx2< 128>(tab_a); }
+            if (size ==  256) { fwht_norm_avx2< 256>(tab_a); fwht_norm_avx2< 256>(tab_a); }
+            if (size ==  512) { fwht_norm_avx2< 512>(tab_a); fwht_norm_avx2< 512>(tab_a); }
+            if (size == 1024) { fwht_norm_avx2<1024>(tab_a); fwht_norm_avx2<1024>(tab_a); }
         }
         auto           stop_i_norm_avx2 = std::chrono::system_clock::now();
-        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_d, 0.002, size);
+        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
         const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
         if (ok_norm_avx2) {
             printf(" - [AVX2] fwht_norm_avx2 \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);

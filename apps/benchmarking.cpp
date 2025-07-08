@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     const int GF = _GF_;
 
     std::string dec_type = "dec1";
-    float code_rate  = 0.5f;
+//  float code_rate  = 0.5f;
     bool is_colored  = true;
 
     for(int i = 1; i < argc; i++)
@@ -68,6 +68,7 @@ int main(int argc, char* argv[]) {
         {
             is_colored = false;
         }
+/*
         else if(std::string(argv[i]) == "--rate")
         {
             code_rate = std::atof(argv[i+1]);
@@ -76,6 +77,7 @@ int main(int argc, char* argv[]) {
         {
             code_rate = std::atof(argv[i+1]);
         }
+*/
     }
 
 #ifdef __AVX512BW__

@@ -343,4 +343,44 @@ template <>
 inline void fwht_avx2<256>(float x[], float y[]) {
     fwht256_flat_avx2(x, y);
 }
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_avx2<512>(float x[])
+{
+    for (int i = 0; i < 256; i+= sizeof(__m256)) {
+        const __m256 A = _mm256_loadu_ps(x + i      );
+        const __m256 B = _mm256_loadu_ps(x + i + 256);
+        const __m256 C = _mm256_add_ps (A, B);
+        const __m256 D = _mm256_sub_ps (A, B);
+        _mm256_storeu_ps(x + i +   0, C);
+        _mm256_storeu_ps(x + i + 256, D);
+    }
+    fwht256_flat_avx2(x +   0, x +   0);
+    fwht256_flat_avx2(x + 256, x + 256);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_avx2<1024>(float x[]) {
+    for (int i = 0; i < 512; i+= sizeof(__m256)) {
+        const __m256 A = _mm256_loadu_ps(x + i      );
+        const __m256 B = _mm256_loadu_ps(x + i + 512);
+        const __m256 C = _mm256_add_ps (A, B);
+        const __m256 D = _mm256_sub_ps (A, B);
+        _mm256_storeu_ps(x + i +   0, C);
+        _mm256_storeu_ps(x + i + 512, D);
+    }
+    fwht_avx2<512>(x);
+    fwht_avx2<512>(x + 512);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 #endif

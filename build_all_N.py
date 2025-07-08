@@ -14,7 +14,7 @@ def generate_config_header(N, GF):
 
 def compile_project():
     print("🛠️  Compilation...")
-    result = subprocess.run(["make"])
+    result = subprocess.run(["make","benchmarking"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
@@ -24,7 +24,7 @@ def run_executable(N, GF, decoder, platform, log_dir):
     log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
     cmd = [executable, "--decoder", decoder]
 
-    print(f"🚀 Exécution: {cmd} pour N={N}")
+    print(f"🚀 Exécution: {cmd} pour N={N} et GF={GF}")
 
     with open(log_file, "w") as f:
         result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)

@@ -34,6 +34,7 @@ inline void fwht_norm_avx2(float x[]) {
     exit(x != nullptr);
 }
 
+#if 0
 template <uint16_t GF>
 inline void fwht_norm_avx2(float x[], float y[]) {
     assert(x != 0);
@@ -41,6 +42,7 @@ inline void fwht_norm_avx2(float x[], float y[]) {
     assert(true);
     exit((x != NULL) + (y != NULL));
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,8 +207,45 @@ inline void fwht256_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 x14 = (_mm256_loadu_ps(x + 112) - _mm256_loadu_ps(x + 240));
     const __m256 x15 = (_mm256_loadu_ps(x + 120) - _mm256_loadu_ps(x + 248));
 
-    fwht128_norm_terminale(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y, factor);
+    fwht128_norm_terminale(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y,       factor);
     fwht128_norm_terminale(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, y + 128, factor);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+inline void fwht512_norm_flat_avx2(float* srcdst, const float factor_s = 0.04419417382f)
+{
+    for (int i = 0; i < 256; i+= sizeof(__m256)) {
+        const __m256 A = _mm256_loadu_ps(srcdst + i      );
+        const __m256 B = _mm256_loadu_ps(srcdst + i + 256);
+        const __m256 C = _mm256_add_ps (A, B);
+        const __m256 D = _mm256_sub_ps (A, B);
+        _mm256_storeu_ps(srcdst + i +   0, C);
+        _mm256_storeu_ps(srcdst + i + 256, D);
+    }
+    const __m256 factor = _mm256_set1_ps(factor_s);
+    fwht256_norm_flat_avx2(srcdst,       srcdst,       factor);
+    fwht256_norm_flat_avx2(srcdst + 256, srcdst + 256, factor);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+inline void fwht1024_norm_flat_avx2(float* srcdst)
+{
+    for (int i = 0; i < 512; i+= sizeof(__m256)) {
+        const __m256 A = _mm256_loadu_ps(srcdst + i      );
+        const __m256 B = _mm256_loadu_ps(srcdst + i + 512);
+        const __m256 C = _mm256_add_ps (A, B);
+        const __m256 D = _mm256_sub_ps (A, B);
+        _mm256_storeu_ps(srcdst + i +   0, C);
+        _mm256_storeu_ps(srcdst + i + 512, D);
+    }
+    fwht512_norm_flat_avx2(srcdst,       0.03125f);
+    fwht512_norm_flat_avx2(srcdst + 512, 0.03125f);
 }
 //
 //
@@ -274,6 +313,7 @@ inline void fwht_norm_avx2<8>(float x[]) {
     const __m256 D0     = fwht8_norm_avx2(C0, factor);
     _mm256_storeu_ps(x, D0);
 }
+#if 0
 template <>
 inline void fwht_norm_avx2<8>(float x[], float y[]) {
     const __m256 factor = _mm256_set1_ps(0.35355339059f);
@@ -281,6 +321,7 @@ inline void fwht_norm_avx2<8>(float x[], float y[]) {
     const __m256 D0     = fwht8_norm_avx2(C0, factor);
     _mm256_storeu_ps(y, D0);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,11 +332,13 @@ inline void fwht_norm_avx2<16>(float x[]) {
     const __m256 factor = _mm256_set1_ps(0.25f);
     fwht16_norm_flat_avx2(x, x, factor);
 }
+#if 0
 template <>
 inline void fwht_norm_avx2<16>(float x[], float y[]) {
     const __m256 factor = _mm256_set1_ps(0.25f);
     fwht16_norm_flat_avx2(x, y, factor);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -306,11 +349,13 @@ inline void fwht_norm_avx2<32>(float x[]) {
     const __m256 factor = _mm256_set1_ps(0.17677669529f);
     fwht32_norm_flat_avx2(x, x, factor);
 }
+#if 0
 template <>
 inline void fwht_norm_avx2<32>(float x[], float y[]) {
     const __m256 factor = _mm256_set1_ps(0.17677669529f);
     fwht32_norm_flat_avx2(x, y, factor);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,11 +366,13 @@ inline void fwht_norm_avx2<64>(float x[]) {
     const __m256 factor = _mm256_set1_ps(0.125f);
     fwht64_norm_flat_avx2(x, x, factor);
 }
+#if 0
 template <>
 inline void fwht_norm_avx2<64>(float x[], float y[]) {
     const __m256 factor = _mm256_set1_ps(0.125f);
     fwht64_norm_flat_avx2(x, y, factor);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,25 +383,48 @@ inline void fwht_norm_avx2<128>(float x[]) {
     const __m256 factor = _mm256_set1_ps(0.08838834764f);
     fwht128_norm_flat_avx2(x, x, factor);
 }
+#if 0
 template <>
 inline void fwht_norm_avx2<128>(float x[], float y[]) {
     const __m256 factor = _mm256_set1_ps(0.08838834764f);
     fwht128_norm_flat_avx2(x, y, factor);
+}
+#endif
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_norm_avx2<256>(float x[]) {
+    const __m256 factor = _mm256_set1_ps(0.0625f);
+    fwht256_norm_flat_avx2(x, x, factor);
+}
+#if 0
+template <> inline void fwht_norm_avx2<256>(float x[], float y[]) {
+    const __m256 factor = _mm256_set1_ps(0.0625f);
+    fwht256_norm_flat_avx2(x, y, factor);
+}
+#endif
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_norm_avx2<512>(float x[]) {
+    fwht512_norm_flat_avx2(x);
 }
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_norm_avx2<256>(float x[]) {
-    const __m256 factor = _mm256_set1_ps(0.0625f);
-    fwht256_norm_flat_avx2(x, x, factor);
+template <> inline void fwht_norm_avx2<1024>(float x[]) {
+    fwht1024_norm_flat_avx2(x);
 }
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
-template <>
-inline void fwht_norm_avx2<256>(float x[], float y[]) {
-    const __m256 factor = _mm256_set1_ps(0.0625f);
-    fwht256_norm_flat_avx2(x, y, factor);
-}
 #endif

@@ -15,6 +15,7 @@ void normalize(float * tab) {
     }
 }
 
+
 #if 0
 #include <immintrin.h>
 template <int gf_size>
