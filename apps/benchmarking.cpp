@@ -364,7 +364,7 @@ int main(int argc, char* argv[]) {
         }
         const auto curr = std::chrono::system_clock::now();
         const float ctime= std::chrono::duration_cast<std::chrono::seconds>(curr - debut).count();
-        if ( ctime > 30.f ){
+        if ( ctime > 60.f ){
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, ctime);
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
             printf("#(II)\n");
