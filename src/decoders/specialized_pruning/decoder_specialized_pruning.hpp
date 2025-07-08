@@ -57,10 +57,11 @@ private:
 private:
     symbols_t* internal;
     uint16_t*  symbols;
-    uint32_t*  frozen;
+    int*       frozen;
 
     const int N;
     int           f_tree_cnt;
-public:
+
     frozen_tree * f_tree;
+    frozen_tree pruned_tree;
 };

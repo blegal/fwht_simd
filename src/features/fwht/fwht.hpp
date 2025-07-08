@@ -287,3 +287,78 @@ inline void fwht<256>(float* dst, const float* src) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht<512>(float* inp) {
+    float part_1[256];
+    float part_2[256];
+
+    for (int i = 0; i < 256; i++) {
+        part_1[i] = inp[i] + inp[i + 128];
+        part_2[i] = inp[i] - inp[i + 128];
+    }
+
+    fwht<256>(part_1);
+    fwht<256>(part_2);
+
+    for (int i = 0; i < 256; i++) {
+        inp[i +   0]   = part_1[i];
+        inp[i + 256] = part_2[i];
+    }
+}
+//
+//
+//
+template <>
+inline void fwht<512>(float* dst, const float* src) {
+    for (int i = 0; i < 256; i++) {
+        dst[i]       = src[i] + src[i + 256];
+        dst[256 + i] = src[i] - src[i + 256];
+    }
+    fwht<256>(dst, dst);
+    fwht<256>(dst + 256, dst + 256);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht<1024>(float* inp) {
+    float part_1[512];
+    float part_2[512];
+
+    for (int i = 0; i < 512; i++) {
+        part_1[i] = inp[i] + inp[i + 128];
+        part_2[i] = inp[i] - inp[i + 128];
+    }
+
+    fwht<512>(part_1);
+    fwht<512>(part_2);
+
+    for (int i = 0; i < 512; i++) {
+        inp[i +   0]   = part_1[i];
+        inp[i + 512] = part_2[i];
+    }
+}
+//
+//
+//
+template <>
+inline void fwht<1024>(float* dst, const float* src) {
+    for (int i = 0; i < 256; i++) {
+        dst[i]       = src[i] + src[i + 256];
+        dst[256 + i] = src[i] - src[i + 256];
+    }
+    fwht<256>(dst, dst);
+    fwht<256>(dst + 256, dst + 256);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//

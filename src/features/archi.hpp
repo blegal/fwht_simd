@@ -11,6 +11,7 @@
 #if defined(__ARM_NEON__)
 #include "fwht/fwht_neon.hpp"
 #include "fwht/fwht_norm_neon.hpp"
+#include "fwht/fwht_norm_neon_v2.hpp"
 #endif
 
 #if defined(__AVX2__)
@@ -19,7 +20,10 @@
 #endif
 
 #if defined(__ARM_NEON__)
+
+//    #define FWHT_NORM lwht_norm_generic
     #define FWHT_NORM fwht_norm_neon
+//    #define FWHT_NORM lwht_norm_generic
 #elif defined(__AVX2__)
     #define FWHT_NORM fwht_norm_avx2
 #else

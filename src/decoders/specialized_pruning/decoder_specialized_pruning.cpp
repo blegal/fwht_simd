@@ -7,15 +7,19 @@
  */
 template <int gf_size>
 decoder_specialized_pruning<gf_size>::decoder_specialized_pruning(const int n, const int* frozen_symb)
-    : N(n), f_tree_cnt(0), f_tree(nullptr)
+    : N(n), f_tree_cnt(0), f_tree(nullptr), pruned_tree(_N_)
 {
     internal = new symbols_t[N];
     symbols  = new uint16_t [N];
-    frozen   = new uint32_t [N];
+    frozen   = new int      [N];
 
     for (int i = 0; i < N; i++) {
         frozen[i] = frozen_symb[i];
     }
+
+    pruned_tree.analyze(frozen, _N_);
+    pruned_tree.dump();
+    f_tree = &pruned_tree;                   // Ici
 }
 
 /**
@@ -23,7 +27,7 @@ decoder_specialized_pruning<gf_size>::decoder_specialized_pruning(const int n, c
  */
 template <int gf_size>
 decoder_specialized_pruning<gf_size>::decoder_specialized_pruning() :
-    N(0), f_tree_cnt(0), f_tree(nullptr)
+    N(0), f_tree_cnt(0), f_tree(nullptr), pruned_tree(_N_)
 
 {
     internal = nullptr;
@@ -107,7 +111,9 @@ void decoder_specialized_pruning<gf_size>::execute(symbols_t * channel, uint16_t
 //
 //
 //
-#if _GF_ == 16
+#if _GF_ == 8
+    template class decoder_specialized_pruning< 8>;
+#elif _GF_ == 16
     template class decoder_specialized_pruning< 16>;
 #elif _GF_ == 32
     template class decoder_specialized_pruning< 32>;
@@ -117,8 +123,8 @@ void decoder_specialized_pruning<gf_size>::execute(symbols_t * channel, uint16_t
     template class decoder_specialized_pruning<128>;
 #elif _GF_ == 256
     template class decoder_specialized_pruning<256>;
-#elif _GF_ == 1024
-    template class decoder_specialized_pruning<512>;
 #elif _GF_ == 512
+    template class decoder_specialized_pruning<512>;
+#elif _GF_ == 1024
     template class decoder_specialized_pruning<1024>;
 #endif

@@ -447,7 +447,9 @@ void decoder_naive_pruning<gf_size>::leaf_node(
 //
 //
 //
-#if _GF_ == 16
+#if _GF_ == 8
+    template class decoder_naive_pruning<  8>;
+#elif _GF_ == 16
     template class decoder_naive_pruning< 16>;
 #elif _GF_ == 32
     template class decoder_naive_pruning< 32>;

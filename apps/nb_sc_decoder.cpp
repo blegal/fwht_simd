@@ -76,9 +76,9 @@ int main(int, char *[]) {
     }
 
 
-    frozen_tree pruned_tree(_N_);
-    pruned_tree.analyze(frozen_symbols, _N_);
-    pruned_tree.dump();
+//  frozen_tree pruned_tree(_N_);
+//  pruned_tree.analyze(frozen_symbols, _N_);
+//  pruned_tree.dump();
 
 
     printf("\nFrozen matrix:\n");
@@ -166,7 +166,7 @@ int main(int, char *[]) {
     //
     for (int i = 0; i < _N_; i += 1) decoded[i] = -1;
     decoder_specialized_pruning<_GF_> dec_pruned(_N_, frozen_symbols);   // Ici
-    dec_pruned.f_tree = &pruned_tree;                   // Ici
+//  dec_pruned.f_tree = &pruned_tree;                   // Ici
     dec_pruned.execute(channel, decoded);
     printf("\n\nDecoded symbols (final):\n");
     for (int i = 0; i < _N_; i += 1)

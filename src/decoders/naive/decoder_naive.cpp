@@ -154,7 +154,9 @@ template <int gf_size> void decoder_naive<gf_size>::leaf_node(
 //
 //
 //
-#if _GF_ == 16
+#if _GF_ == 8
+    template class decoder_naive<  8>;
+#elif _GF_ == 16
     template class decoder_naive< 16>;
 #elif _GF_ == 32
     template class decoder_naive< 32>;

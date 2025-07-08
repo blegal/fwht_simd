@@ -29,7 +29,7 @@
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
 
-
+#include "features/fwht/fwht_norm_neon_v2.hpp"
 //
 //
 //
@@ -120,6 +120,8 @@ int main(int argc, char* argv[]) {
     std::cout << "#(II) + GF equals : " << GF << std::endl;
     std::cout << "#(II) +  N equals : " << N << std::endl;
     std::cout << "#(II) +  K equals : " << K << std::endl;
+    std::cout << "#(II)" << std::endl;
+    std::cout << "#(II) +  Decoder  : " << dec_type << std::endl;
     std::cout << "#(II)" << std::endl;
 
     int frozen_symbols[N];
@@ -330,7 +332,7 @@ int main(int argc, char* argv[]) {
 
     const int32_t nTest = (1024 * 1024 / GF);
     const auto debut = std::chrono::system_clock::now();
-    for (int x = 0; x < 60; x += 1) {
+    for (int x = 0; x < 256*65536; x += 1) {
         const auto start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1)
         {
@@ -355,11 +357,12 @@ int main(int argc, char* argv[]) {
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.2f ms\n",   GF, N, K, time_msec);
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] one decoding : %1.2f us\n",   GF, N, K, time_run);
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
+            printf("#(II)\n");
+            printf("#(II) Running 30s burning test !\n");
         }
         const auto curr = std::chrono::system_clock::now();
         const float ctime= std::chrono::duration_cast<std::chrono::seconds>(curr - debut).count();
         if ( ctime > 30.f ){
-            printf("#(II)\n");
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, ctime);
             printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
             printf("#(II)\n");

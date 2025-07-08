@@ -22,20 +22,20 @@
 #include <arm_neon.h>
 #include <string>
 
-template <uint16_t galois_size>
-inline void fwht_neon(float x[]) {
+template <uint16_t galois_size> inline void fwht_neon(float x[]) {
     assert(x != 0);
     assert(true);
     exit(x != nullptr);
 }
 
-template <uint16_t galois_size>
-inline void fwht_neon(float x[], float y[]) {
+#if 0
+template <uint16_t galois_size> inline void fwht_neon(float x[], float y[]) {
     assert(x != 0);
     assert(y != 0);
     assert(true);
     exit((x != NULL) + (y != NULL));
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,21 +61,26 @@ inline float32x4x2_t vld1q_x2_f32(const float * ptr) {
 }
 
 inline void vst1q_x2_f32(float * ptr, const float32x4x2_t A) {
-    vst1q_f32(ptr, A.val[0]);
+    vst1q_f32(ptr + 0, A.val[0]);
     vst1q_f32(ptr + 4, A.val[1]);
 }
 
+//inline void vst1q_x2_f32(float * ptr, const float32x4x2_t A) {
+//    vst1q_f32(ptr + 0, A.val[0]);
+//    vst1q_f32(ptr + 4, A.val[1]);
+//}
+
 inline float32x4x2_t vaddq_x2_f32(const float32x4x2_t A, const float32x4x2_t B) {
     float32x4x2_t C;
-    C.val[0] = A.val[0] + B.val[0];
-    C.val[1] = A.val[1] + B.val[1];
+    C.val[0] = vaddq_f32(A.val[0], B.val[0]);
+    C.val[1] = vaddq_f32(A.val[1], B.val[1]);
     return C;
 }
 
 inline float32x4x2_t vsubq_x2_f32(const float32x4x2_t A, const float32x4x2_t B) {
     float32x4x2_t C;
-    C.val[0] = A.val[0] - B.val[0];
-    C.val[1] = A.val[1] - B.val[1];
+    C.val[0] = vsubq_f32(A.val[0], B.val[0]);
+    C.val[1] = vsubq_f32(A.val[1], B.val[1]);
     return C;
 }
 #endif
@@ -224,7 +229,8 @@ inline void fwht128_flat_neon(float x[], float y[]) {
     fwht128_neon(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y);
 }
 
-inline void fwht256_flat_neon(float x[], float y[]) {
+inline void fwht256_flat_neon(float x[], float y[])
+{
     const float32x4x2_t X0  = vaddq_x2_f32(vld1q_x2_f32(x + 0), vld1q_x2_f32(x + 128));
     const float32x4x2_t X1  = vaddq_x2_f32(vld1q_x2_f32(x + 8), vld1q_x2_f32(x + 136));
     const float32x4x2_t X2  = vaddq_x2_f32(vld1q_x2_f32(x + 16), vld1q_x2_f32(x + 144));
@@ -268,140 +274,145 @@ inline void fwht256_flat_neon(float x[], float y[]) {
 //
 //
 #if 0
-inline float32x4x2_t fwht8_avx2(const float32x4x2_t x)
-{
-	const float32x4x2_t M0 = _mm256_castsi256_ps( _mm256_setr_epi32( 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000 ) );
-	const float32x4x2_t N0 = _mm256_xor_ps(x, M0);
-	const float32x4x2_t N1 = _mm256_permute2f128_ps(x, x, 0x01);
-	const float32x4x2_t N2 = vaddq_x2_f32(N0, N1);
-
-	const float32x4x2_t M1 = _mm256_castsi256_ps( _mm256_setr_epi32( 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000 ) );
-	const float32x4x2_t O0 = _mm256_xor_ps(N2, M1);
-	const float32x4x2_t O1 = _mm256_shuffle_ps(N2, N2, 0x4E);
-	const float32x4x2_t O2 = vaddq_x2_f32(O0, O1);
-
-	const float32x4x2_t M2 = _mm256_castsi256_ps( _mm256_setr_epi32( 0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000 ) );
-	const float32x4x2_t P0 = _mm256_xor_ps(O2, M2);
-	const float32x4x2_t P1 = _mm256_shuffle_ps(O2, O2, 0xB1);
-	const float32x4x2_t P2 = vaddq_x2_f32(P0, P1);
-	return P2;
-}
-#endif
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-#if 0
-inline void fwht16_avx2(float32x4x2_t* B0, float32x4x2_t* B1)
-{
-	const float32x4x2_t C0 = vaddq_x2_f32 ( *B0, *B1 );
-	const float32x4x2_t C1 = vsubq_x2_f32 ( *B0, *B1 );
-	*B0 = fwht8_avx2 ( C0 );
-	*B1 = fwht8_avx2 ( C1 );
-}
-#endif
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-#if 0
-inline void fwht32_avx2(float32x4x2_t* B0, float32x4x2_t* B1, float32x4x2_t* B2, float32x4x2_t* B3)
-{
-	const float32x4x2_t C0 = vaddq_x2_f32 ( *B0, *B2 );
-	const float32x4x2_t C1 = vaddq_x2_f32 ( *B1, *B3 );
-	fwht16_avx2( &C0, &C1 );
-	*B0 = C0;
-	*B1 = C1;
-	const float32x4x2_t C2 = vsubq_x2_f32 ( *B0, *B2 );
-	const float32x4x2_t C3 = vsubq_x2_f32 ( *B1, *B3 );
-	fwht16_avx2( &C2, &C3 );
-	*B2 = C2;
-	*B3 = C3;
-}
-#endif
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_neon<8>(float x[], float y[]) {
+template <> inline void fwht_neon<8>(float x[], float y[]) {
     const float32x4x2_t C0 = vld1q_x2_f32(x);
     const float32x4x2_t D0 = fwht8_neon(C0.val[0], C0.val[1]);
     vst1q_x2_f32(y, D0);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_neon<8>(float x[]) {
+#if 0
+template <> inline void fwht_neon<8>(float x[]) {
     fwht_neon<8>(x, x);
 }
-template <>
-inline void fwht_neon<16>(float x[]) {
+#endif
+template <> inline void fwht_neon<16>(float x[]) {
     fwht16_flat_neon(x, x);
 }
-template <>
-inline void fwht_neon<16>(float x[], float y[]) {
+#if 0
+template <> inline void fwht_neon<16>(float x[], float y[]) {
     fwht16_flat_neon(x, y);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_neon<32>(float x[]) {
+template <> inline void fwht_neon<32>(float x[]) {
     fwht32_flat_neon(x, x);
 }
-template <>
-inline void fwht_neon<32>(float x[], float y[]) {
+#if 0
+template <> inline void fwht_neon<32>(float x[], float y[]) {
     fwht32_flat_neon(x, y);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_neon<64>(float x[]) {
+template <> inline void fwht_neon<64>(float x[]) {
     fwht64_flat_neon(x, x);
 }
-template <>
-inline void fwht_neon<64>(float x[], float y[]) {
+#if 0
+template <> inline void fwht_neon<64>(float x[], float y[]) {
     fwht64_flat_neon(x, y);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_neon<128>(float x[]) {
+template <> inline void fwht_neon<128>(float x[]) {
     fwht128_flat_neon(x, x);
 }
-template <>
-inline void fwht_neon<128>(float x[], float y[]) {
+#if 0
+template <> inline void fwht_neon<128>(float x[], float y[]) {
     fwht128_flat_neon(x, y);
 }
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_neon<256>(float x[]) {
+template <> inline void fwht_neon<256>(float x[]) {
     fwht256_flat_neon(x, x);
 }
-
-template <>
-inline void fwht_neon<256>(float x[], float y[]) {
+#if 0
+template <> inline void fwht_neon<256>(float x[], float y[]) {
     fwht256_flat_neon(x, y);
 }
+#endif
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_neon<512>(float x[])
+{
+    for (int i = 0; i < 256; i+= sizeof(float32x4_t)) {
+        const float32x4_t A = vld1q_f32(x + i      );
+        const float32x4_t B = vld1q_f32(x + i + 256);
+        const float32x4_t C = vaddq_f32 (A, B);
+        const float32x4_t D = vsubq_f32 (A, B);
+        vst1q_f32(x + i +   0, C);
+        vst1q_f32(x + i + 256, D);
+    }
+    fwht256_flat_neon(x +   0, x +   0);
+    fwht256_flat_neon(x + 256, x + 256);
+}
+#if 0
+template <> inline void fwht_neon<512>(float x[], float y[]) {
+    for (int i = 0; i < 256; i+= sizeof(float32x4_t)) {
+        const float32x4_t A = vld1q_f32(x + i      );
+        const float32x4_t B = vld1q_f32(x + i + 256);
+        const float32x4_t C = vaddq_f32 (A, B);
+        const float32x4_t D = vsubq_f32 (A, B);
+        vst1q_f32(x + i +   0, C);
+        vst1q_f32(x + i + 256, D);
+    }
+    fwht256_flat_neon(x +   0, y +   0);
+    fwht256_flat_neon(x + 256, y + 256);
+}
+#endif
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_neon<1024>(float x[]) {
+    for (int i = 0; i < 512; i+= sizeof(float32x4_t)) {
+        const float32x4_t A = vld1q_f32(x + i      );
+        const float32x4_t B = vld1q_f32(x + i + 512);
+        const float32x4_t C = vaddq_f32 (A, B);
+        const float32x4_t D = vsubq_f32 (A, B);
+        vst1q_f32(x + i +   0, C);
+        vst1q_f32(x + i + 512, D);
+    }
+    fwht256_flat_neon(x +   0, x +   0);
+    fwht256_flat_neon(x + 512, x + 512);
+}
+#if 0
+template <> inline void fwht_neon<1024>(float x[], float y[]) {
+    for (int i = 0; i < 512; i+= sizeof(float32x4_t)) {
+        const float32x4_t A = vld1q_f32(x + i      );
+        const float32x4_t B = vld1q_f32(x + i + 512);
+        const float32x4_t C = vaddq_f32 (A, B);
+        const float32x4_t D = vsubq_f32 (A, B);
+        vst1q_f32(x + i +   0, C);
+        vst1q_f32(x + i + 512, D);
+    }
+    fwht256_flat_neon(x +   0, y +   0);
+    fwht256_flat_neon(x + 512, y + 512);
+}
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

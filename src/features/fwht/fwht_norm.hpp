@@ -50,7 +50,7 @@ inline void fwht_norm_internal(float* x, const float fact) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht_norm_tuile(const float* inp, float* outp, const float fact) {
+inline void fwht_norm_tuile(float* inp,  const float fact) {
     float L1[8], L2[8];
     L1[0] = (inp[0] + inp[4]);
     L1[1] = (inp[1] + inp[5]);
@@ -70,30 +70,29 @@ inline void fwht_norm_tuile(const float* inp, float* outp, const float fact) {
     L2[5] = (L1[5] + L1[7]);
     L2[7] = (L1[5] - L1[7]);
 
-    outp[0] = (L2[0] + L2[1]) * fact;
-    outp[1] = (L2[0] - L2[1]) * fact;
-    outp[2] = (L2[2] + L2[3]) * fact;
-    outp[3] = (L2[2] - L2[3]) * fact;
-    outp[4] = (L2[4] + L2[5]) * fact;
-    outp[5] = (L2[4] - L2[5]) * fact;
-    outp[6] = (L2[6] + L2[7]) * fact;
-    outp[7] = (L2[6] - L2[7]) * fact;
+    inp[0] = (L2[0] + L2[1]) * fact;
+    inp[1] = (L2[0] - L2[1]) * fact;
+    inp[2] = (L2[2] + L2[3]) * fact;
+    inp[3] = (L2[2] - L2[3]) * fact;
+    inp[4] = (L2[4] + L2[5]) * fact;
+    inp[5] = (L2[4] - L2[5]) * fact;
+    inp[6] = (L2[6] + L2[7]) * fact;
+    inp[7] = (L2[6] - L2[7]) * fact;
 }
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_norm_internal<8>(float* inp, const float fact) {
-    float part_1[8];
-    for (int i = 0; i < 4; i++)
-        part_1[i] = inp[i] + inp[i + 4];
-    fwht_norm_tuile(part_1, inp, fact);
+template <> inline void fwht_norm_internal<8>(float* inp, const float fact) {
+//    for (int i = 0; i < 4; i++) {
+//
+//    }
+//        part_1[i] = inp[i] + inp[i + 4];
+    fwht_norm_tuile(inp, fact);
 }
 //
-template <>
-inline void fwht_norm<8>(float* inp) {
+template <> inline void fwht_norm<8>(float* inp) {
     fwht_norm_internal<8>(inp, 0.35355339059f);
 }
 //
@@ -101,22 +100,20 @@ inline void fwht_norm<8>(float* inp) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_norm_internal<16>(float* inp, const float fact) {
-    float part_1[8];
-    float part_2[8];
+template <> inline void fwht_norm_internal<16>(float* inp, const float fact) {
 
-    for (int i = 0; i < 8; i++)
-        part_1[i] = inp[i] + inp[i + 8];
-    for (int i = 0; i < 8; i++)
-        part_2[i] = inp[i] - inp[i + 8];
+    for (int i = 0; i < 8; i++) {
+        const float A = inp[i] + inp[i + 8];
+        const float B = inp[i] - inp[i + 8];
+        inp[i    ] = A;
+        inp[i + 8] = B;
+    }
 
-    fwht_norm_tuile(part_1, inp + 0, fact);
-    fwht_norm_tuile(part_2, inp + 8, fact);
+    fwht_norm_tuile(inp + 0, fact);
+    fwht_norm_tuile(inp + 8, fact);
 }
 //
-template <>
-inline void fwht_norm<16>(float* inp) {
+template <> inline void fwht_norm<16>(float* inp) {
     fwht_norm_internal<16>(inp, 0.25f);
 }
 //
@@ -124,23 +121,16 @@ inline void fwht_norm<16>(float* inp) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_norm_internal<32>(float* inp, const float fact) {
-    float part_1[16];
-    float part_2[16];
+template <> inline void fwht_norm_internal<32>(float* inp, const float fact) {
 
     for (int i = 0; i < 16; i++) {
-        part_1[i] = inp[i] + inp[i + 16];
-        part_2[i] = inp[i] - inp[i + 16];
+        const float A = inp[i] + inp[i + 16];
+        const float B = inp[i] - inp[i + 16];
+        inp[i     ] = A;
+        inp[i + 16] = B;
     }
-
-    fwht_norm_internal<16>(part_1, fact);
-    fwht_norm_internal<16>(part_2, fact);
-
-    for (int i = 0; i < 16; i++) {
-        inp[i]      = part_1[i];
-        inp[16 + i] = part_2[i];
-    }
+    fwht_norm_internal<16>(inp,      fact);
+    fwht_norm_internal<16>(inp + 16, fact);
 }
 //
 template <>
@@ -154,21 +144,14 @@ inline void fwht_norm<32>(float* inp) {
 //
 template <>
 inline void fwht_norm_internal<64>(float* inp, const float fact) {
-    float part_1[32];
-    float part_2[32];
-
     for (int i = 0; i < 32; i++) {
-        part_1[i] = inp[i] + inp[i + 32];
-        part_2[i] = inp[i] - inp[i + 32];
+        const float A = inp[i] + inp[i + 32];
+        const float B = inp[i] - inp[i + 32];
+        inp[i     ] = A;
+        inp[i + 32] = B;
     }
-
-    fwht_norm_internal<32>(part_1, fact);
-    fwht_norm_internal<32>(part_2, fact);
-
-    for (int i = 0; i < 32; i++) {
-        inp[i]      = part_1[i];
-        inp[32 + i] = part_2[i];
-    }
+    fwht_norm_internal<32>(inp,      fact);
+    fwht_norm_internal<32>(inp + 32, fact);
 }
 //
 template <>
@@ -181,21 +164,16 @@ inline void fwht_norm<64>(float* inp) {
 //
 //
 template <>
-inline void fwht_norm_internal<128>(float* inp, const float fact) {
-    float part_1[64], part_2[64];
-
+inline void fwht_norm_internal<128>(float* inp, const float fact)
+{
     for (int i = 0; i < 64; i++) {
-        part_1[i] = inp[i] + inp[i + 64];
-        part_2[i] = inp[i] - inp[i + 64];
+        const float A = inp[i] + inp[i + 64];
+        const float B = inp[i] - inp[i + 64];
+        inp[i     ] = A;
+        inp[i + 64] = B;
     }
-
-    fwht_norm_internal<64>(part_1, fact);
-    fwht_norm_internal<64>(part_2, fact);
-
-    for (int i = 0; i < 64; i++) {
-        inp[i + 0]  = part_1[i];
-        inp[i + 64] = part_2[i];
-    }
+    fwht_norm_internal<64>(inp +  0, fact);
+    fwht_norm_internal<64>(inp + 64, fact);
 }
 //
 template <>
@@ -209,26 +187,61 @@ inline void fwht_norm<128>(float* inp) {
 //
 template <>
 inline void fwht_norm_internal<256>(float* inp, const float fact) {
-    float part_1[128];
-    float part_2[128];
-
     for (int i = 0; i < 128; i++) {
-        part_1[i] = inp[i] + inp[i + 128];
-        part_2[i] = inp[i] - inp[i + 128];
+        const float A = inp[i] + inp[i + 128];
+        const float B = inp[i] - inp[i + 128];
+        inp[i      ] = A;
+        inp[i + 128] = B;
     }
-
-    fwht_norm_internal<128>(part_1, fact);
-    fwht_norm_internal<128>(part_2, fact);
-
-    for (int i = 0; i < 128; i++) {
-        inp[i +   0] = part_1[i];
-        inp[i + 128] = part_2[i];
-    }
+    fwht_norm_internal<128>(inp,       fact);
+    fwht_norm_internal<128>(inp + 128, fact);
 }
 //
 template <>
 inline void fwht_norm<256>(float* inp) {
     fwht_norm_internal<256>(inp, 0.0625f);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht_norm_internal<512>(float* inp, const float fact) {
+    for (int i = 0; i < 256; i++) {
+        const float A = inp[i] + inp[i + 256];
+        const float B = inp[i] - inp[i + 256];
+        inp[i      ] = A;
+        inp[i + 256] = B;
+    }
+    fwht_norm_internal<256>(inp +   0, fact);
+    fwht_norm_internal<256>(inp + 256, fact);
+}
+//
+template <>
+inline void fwht_norm<512>(float* inp) {
+    fwht_norm_internal<512>(inp, 0.04419417382f);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht_norm_internal<1024>(float* inp, const float fact) {
+    for (int i = 0; i < 512; i++) {
+        const float A = inp[i] + inp[i + 512];
+        const float B = inp[i] - inp[i + 512];
+        inp[i      ] = A;
+        inp[i + 512] = B;
+    }
+    fwht_norm_internal<512>(inp +   0, fact);
+    fwht_norm_internal<512>(inp + 512, fact);
+}
+//
+template <>
+inline void fwht_norm<1024>(float* inp) {
+    fwht_norm_internal<1024>(inp, 0.03125f);
 }
 //
 //

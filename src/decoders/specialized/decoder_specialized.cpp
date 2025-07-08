@@ -83,8 +83,10 @@ void decoder_specialized<gf_size>::execute(symbols_t* channel, uint16_t*  decode
 //
 //
 
-#if _GF_ == 16
-    template class decoder_specialized< 16>;
+#if _GF_ == 8
+    template class decoder_specialized< 8>;
+#elif _GF_ == 16
+template class decoder_specialized< 16>;
 #elif _GF_ == 32
     template class decoder_specialized< 32>;
 #elif _GF_ == 64
