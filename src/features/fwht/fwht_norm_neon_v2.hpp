@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#if defined(__ARM_NEON__)
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 #include <arm_neon.h>
 #include <string>
 #include <cassert>

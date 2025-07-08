@@ -43,7 +43,7 @@ using namespace std;
 
 #if defined(__SSE4_2__) || defined(__AVX2__) || defined(__AVX512F__)
 #include <immintrin.h>
-#elif defined(__ARM_NEON__)
+#elif defined(__ARM_NEON__) || defined(__ARM_NEON)
 #include <arm_neon.h>
 #endif
 
@@ -652,7 +652,7 @@ __inline void __attribute__((__always_inline__)) reorder(__m256i * dest, const c
 }
 #endif
 
-#ifdef __ARM_NEON__ // ARM  NEON 128 bits
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 template <>
 __inline void __attribute__((__always_inline__)) reorder(int8x8_t * dest, const char * src, int N) // a = sign, b = value
 {
@@ -665,7 +665,7 @@ __inline void __attribute__((__always_inline__)) reorder(int8x8_t * dest, const 
 }
 #endif
 
-#ifdef __ARM_NEON__ // ARM  NEON 128 bits
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 template <>
 __inline void __attribute__((__always_inline__)) reorder(int8x16_t * dest, const char * src, int N) // a = sign, b = value
 {
@@ -763,7 +763,7 @@ __inline void __attribute__((__always_inline__)) ireorder(char * dest, const __m
 }
 #endif
 
-#ifdef __ARM_NEON__ // ARM  NEON 128 bits
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 template <>
 __inline void __attribute__((__always_inline__)) ireorder(char * dest, const int8x8_t * src, int N) {
     char * ptr = (char *) src;
@@ -775,7 +775,7 @@ __inline void __attribute__((__always_inline__)) ireorder(char * dest, const int
 }
 #endif
 
-#ifdef __ARM_NEON__ // ARM  NEON 128 bits
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
 template <>
 __inline void __attribute__((__always_inline__)) ireorder(char * dest, const int8x16_t * src, int N) {
     char * ptr = (char *) src;
