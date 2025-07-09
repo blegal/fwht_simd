@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include <thread>
+using namespace std::chrono_literals;
 
 #include "utilities/utility_functions.hpp"
 
@@ -29,13 +31,28 @@
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
 
+struct env_simu{
+    bool ended;
+    int  n_decoded;
+    std::vector<symbols_t> llrs_n;
+    std::vector<uint16_t>  decoded_n;
+    decoder*               dec;
+};
+
+static void thread_run_decoder(env_simu* env)
+{
+    while ( env->ended == false ) {
+        env->dec->execute(env->llrs_n.data(), env->decoded_n.data());
+        env->n_decoded += 1;
+    }
+}
+
 #include "features/fwht/fwht_norm_neon_v2.hpp"
 //
 //
 //
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
-
 int main(int argc, char* argv[]) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,11 +60,11 @@ int main(int argc, char* argv[]) {
     // initialize the frozen symbols array
     //
     const int  N = _N_;
-    const int  K =  (3 * N) / 4;
     const int GF = _GF_;
+    int K  =  (3 * N) / 4;
+    int nThreads = 1;
 
     std::string dec_type = "dec1";
-//  float code_rate  = 0.5f;
     bool is_colored  = true;
 
     for(int i = 1; i < argc; i++)
@@ -55,10 +72,12 @@ int main(int argc, char* argv[]) {
         if(std::string(argv[i]) == "--dec")
         {
             dec_type = std::string(argv[i+1]);
+            i += 1;
         }
         else if(std::string(argv[i]) == "--decoder")
         {
             dec_type = std::string(argv[i+1]);
+            i += 1;
         }
         else if(std::string(argv[i]) == "--no-color")
         {
@@ -68,16 +87,28 @@ int main(int argc, char* argv[]) {
         {
             is_colored = false;
         }
-/*
         else if(std::string(argv[i]) == "--rate")
         {
-            code_rate = std::atof(argv[i+1]);
+            float code_rate = std::atof(argv[i+1]);
+            K = code_rate * N;
+            i += 1;
         }
         else if(std::string(argv[i]) == "--code-rate")
         {
-            code_rate = std::atof(argv[i+1]);
+            float code_rate = std::atof(argv[i+1]);
+            K = code_rate * N;
+            i += 1;
         }
-*/
+        else if(std::string(argv[i]) == "--thread")
+        {
+            nThreads = std::atoi(argv[i+1]);
+            i += 1;
+        }
+        else if(std::string(argv[i]) == "--threads")
+        {
+            nThreads = std::atoi(argv[i+1]);
+            i += 1;
+        }
     }
 
 #ifdef __AVX512BW__
@@ -329,12 +360,13 @@ int main(int argc, char* argv[]) {
         printf("#(II) Decoder behavior : ERROR\n");
     }
 
+#if 0
     double nRunTest = 0;
     double nTotalus = 0;
 
     const int32_t nTest = (1024 * 1024 / GF);
     const auto debut = std::chrono::system_clock::now();
-    for (int x = 0; x < 256*65536; x += 1) {
+    for (int runs = 0; runs < 256*65536; runs += 1) {
         const auto start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1)
         {
@@ -353,25 +385,96 @@ int main(int argc, char* argv[]) {
         const double time_run  = (nTotalus / nRunTest);
 
         const auto debit = ((double)N * (double)_logGF_) / time_run; // in Ksymbols/s
-        if ( x == 0 ) {
+        if ( runs == 0 ) {
             printf("#(II)\n");
-            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, time_sec);
-            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.2f ms\n",   GF, N, K, time_msec);
-            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] one decoding : %1.2f us\n",   GF, N, K, time_run);
-            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments    : %1.3f sec\n",  GF, N, K, time_sec);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments    : %1.2f ms\n",   GF, N, K, time_msec);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] decoded frames : %d\n",   GF, N, K, nRunTest);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] one decoding   : %1.2f us\n",   GF, N, K, time_run);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded    : %1.2f Mbps\n", GF, N, K, debit);
             printf("#(II)\n");
             printf("#(II) Running 30s burning test !\n");
         }
         const auto curr = std::chrono::system_clock::now();
         const float ctime= std::chrono::duration_cast<std::chrono::seconds>(curr - debut).count();
         if ( ctime > 60.f ){
-            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments  : %1.3f sec\n",  GF, N, K, ctime);
-            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded  : %1.2f Mbps\n", GF, N, K, debit);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] experiments    : %1.3f sec\n",  GF, N, K, ctime);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] decoded frames : %d\n",   GF, N, K, nRunTest);
+            printf("#(II) [GF=%d, N=%d, k=%d : SPEC] debit coded    : %1.2f Mbps\n", GF, N, K, debit);
             printf("#(II)\n");
             printf("%d %d %d %f %f\n", N, K, GF, debit, time_run);
             break;
         }
     }
+
+
+    //
+    // On cree les thread qui sont automatiquement lancés
+    //
+#if 0
+    std::thread t [nThreads];
+    for (int i = 0; i < length; i += step)
+    {
+        t[i/step] = std::thread(
+            thread_vec_max_index, src,
+            i, i + step,
+            priv_maxv + (i/step),     // PAS de passage par REF sinon std::ref()
+            priv_idx  + (i/step)      // PAS de passage par REF sinon std::ref()
+            );
+    }
+#endif
+    //
+    // On attend que tous les threads aient terminé
+    //
+#endif
+
+    if ( nThreads != 0 ) {
+        std::vector<env_simu> liste(nThreads);
+//        env_simu liste[nThreads];
+        for (int i = 0; i < nThreads; i += 1) {
+            liste[i].ended     = false;
+            liste[i].n_decoded = 0;
+            liste[i].llrs_n    = llrs_n;
+            liste[i].decoded_n = decoded_n;
+            if (dec_type == "dec1") { liste[i].dec = new decoder_naive<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec2") { liste[i].dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec3") { liste[i].dec = new decoder_specialized<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec4") { liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
+            }else { printf("#(II) Error : unknown decoder type\n"); exit(1); }
+        }
+
+        std::thread t_runs[128];
+        const auto m_start = std::chrono::system_clock::now();
+
+        for (int i = 0; i < nThreads; i += 1)
+            t_runs[i] = std::thread(thread_run_decoder, liste.data() + i);
+
+        std::this_thread::sleep_for(60000ms);
+
+        for (int i = 0; i < nThreads; ++i)
+            liste[i].ended = true;
+
+        for (int i = 0; i < nThreads; ++i)
+            t_runs[i].join();
+
+        const auto m_stop = std::chrono::system_clock::now();
+
+        int fRunTest = 0;
+        for (int i = 0; i < nThreads; ++i)
+            fRunTest += liste[i].n_decoded;
+
+        const float nTotalus  = std::chrono::duration_cast<std::chrono::microseconds>(m_stop - m_start).count();
+        const float time_run  = (nTotalus / fRunTest);
+        const float debit     = ((double)N * (double)_logGF_) / time_run;
+        printf("#(II)\n");
+        printf("#(II) #threads exec. : %d\n", nThreads);
+        printf("#(II) MultiCore time : %1.3f sec\n",  nTotalus / 1000000.f);
+        printf("#(II) #decode frames : %d\n", fRunTest);
+        printf("#(II) Coded through .: %1.3f Mbps\n",  debit);
+        printf("#(II)\n");
+        printf("%d %d %d %1.2f %d\n", N, K, GF, debit, (int)time_run);
+    }
+
 
     delete dec;
 
