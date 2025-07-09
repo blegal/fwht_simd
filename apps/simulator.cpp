@@ -24,7 +24,7 @@
 
 #include "pruning/decoder_specialized.hpp"
 
-#include "frozen_tree.hpp"
+#include "utilities/frozen_tree.hpp"
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
 

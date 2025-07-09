@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdint>
-
+#include "features/archi.hpp"
 #include "definitions/custom_types.hpp"
 
 template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_freq_in(
@@ -12,7 +11,7 @@ template <uint32_t gf_size> inline __attribute__((always_inline)) void f_functio
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
-    for (int i = 0; i < int(gf_size); i++) {
+    for (size_t i = 0; i < int(gf_size); i++) {
         dst->value[i] = src_a->value[i] * src_b->value[i];
     }
     dst->is_freq = true;

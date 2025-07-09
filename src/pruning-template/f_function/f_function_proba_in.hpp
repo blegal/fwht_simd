@@ -1,7 +1,6 @@
 #pragma once
 
 #include "features/archi.hpp"
-#include "definitions/custom_types.hpp"
 
 // #define debug_f_function
 template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_proba_in(

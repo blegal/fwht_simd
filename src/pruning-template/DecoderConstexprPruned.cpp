@@ -1,6 +1,4 @@
-#include "decoder_pruned.hpp"
-
-#include <cstdio>
+#include "DecoderConstexprPruned.hpp"
 
 /**
  *
@@ -8,40 +6,16 @@
  * @param frozen_symb
  */
 template <int gf_size>
-decoder_pruned<gf_size>::decoder_pruned(const int n, const int* frozen_symb)
-    : N(n), f_tree_cnt(0), f_tree(nullptr)
-{
+DecoderConstexprPruned<gf_size>::DecoderConstexprPruned(int n) : N(n) {
     internal = new symbols_t[N];
     symbols  = new uint16_t [N];
-    frozen   = new uint32_t [N];
-
-    for (int i = 0; i < N; i++) {
-        frozen[i] = frozen_symb[i];
-    }
-}
-
-/**
- *
- */
-template <int gf_size>
-decoder_pruned<gf_size>::decoder_pruned() :
-    N(0), f_tree_cnt(0), f_tree(nullptr)
-
-{
-    internal = nullptr;
-    symbols  = nullptr;
-    frozen   = nullptr;
-    printf("(EE) Error we should never be there...\n");
-    printf("(EE) %s %d\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
 }
 
 template <int gf_size>
-decoder_pruned<gf_size>::~decoder_pruned()
+DecoderConstexprPruned<gf_size>::~DecoderConstexprPruned()
 {
     delete[]internal;
     delete[]symbols;
-    delete[]frozen;
 }
 
 // These headers are not used directly but defines template functions and MUST be included here
@@ -54,7 +28,7 @@ decoder_pruned<gf_size>::~decoder_pruned()
 #include "node/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
 
 template <int gf_size>
-void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * decoded)
+void DecoderConstexprPruned<gf_size>::execute(const symbols_t * channel, uint16_t * decoded)
 {
     f_tree_cnt = 0;
 
@@ -68,7 +42,7 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
     //
     //
     //
-    NodeType left_edge = f_tree->next_node_status[f_tree_cnt++];
+    NodeType left_edge = next_node_status[f_tree_cnt++];
     if (left_edge != MID_NODE_FROM_F) {
         exit(EXIT_FAILURE);
     }
@@ -92,7 +66,7 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
     //
     //
     //
-    NodeType right_edge = f_tree->next_node_status[f_tree_cnt++];
+    NodeType right_edge = next_node_status[f_tree_cnt++];
     if (right_edge != MID_NODE_FROM_G) {
         exit(EXIT_FAILURE);
     }
@@ -106,22 +80,6 @@ void decoder_pruned<gf_size>::execute(const symbols_t * channel, uint16_t * deco
 
     // No H computations as we are at the top node and we have a non systematic code !!!
 }
-//
-//
-//
-#if GF == 16
-    template class decoder_pruned< 16>;
-#elif GF == 32
-    template class decoder_pruned< 32>;
-#elif GF == 64
-#endif
 
-template class decoder_pruned< 64>;
+template class DecoderConstexprPruned<GF>;
 
-#if GF == 128
-    template class decoder_pruned<128>;
-#elif GF == 256
-    template class decoder_pruned<256>;
-#elif GF == 512
-    template class decoder_pruned<512>;
-#endif

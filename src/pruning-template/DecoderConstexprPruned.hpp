@@ -1,17 +1,17 @@
 #pragma once
 
+#include "definitions/const_config_GF64_N64.hpp"
 #include "definitions/custom_types.hpp"
-#include "utilities/frozen_tree.hpp"
-#include <vector>
+
+#include "constexpr_frozen_tree.hpp"
 
 template <int gf_size>
-class decoder_pruned {
+class DecoderConstexprPruned {
 public:
-    decoder_pruned();
-    decoder_pruned(const int n, const int * frozen_symb);
-    ~decoder_pruned();
+    DecoderConstexprPruned(int n);
+    ~DecoderConstexprPruned();
 
-    void execute(const symbols_t * channel, uint16_t * decoded);
+    void execute(const symbols_t * channel, uint16_t* decoded);
 
 private:
     void middle_node_pruned_after_f(
@@ -53,15 +53,12 @@ private:
         uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
         int         size,     // Size is the number of symbols (should be a power of 2)
         const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
-
+        
 private:
-    symbols_t * internal;
-    uint16_t *  symbols;
-    uint32_t *  frozen;
+    symbols_t* internal;
+    uint16_t*  symbols;
+    uint32_t*  frozen;
 
-    const int N;
-    int       f_tree_cnt;
-
-public:
-    frozen_tree * f_tree;
+    int N;
+    int f_tree_cnt;
 };

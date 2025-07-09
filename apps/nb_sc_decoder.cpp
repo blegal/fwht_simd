@@ -1,5 +1,8 @@
 
 #include "pruning/decoder_pruned.hpp"
+#if defined(NEXT) && NEXT==1
+#include "pruning-template/DecoderConstexprPruned.hpp"
+#endif
 
 #include <chrono>
 #include <cstdint>
@@ -24,7 +27,7 @@
 
 #include "pruning/decoder_specialized.hpp"
 
-#include "frozen_tree.hpp"
+#include "utilities/frozen_tree.hpp"
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
 
@@ -174,11 +177,32 @@ int main(int, char *[]) {
             printf("\e[1;31m%2d\e[0m ", decoded[i]);
         }
     }printf("\n");
+    
+#if defined(NEXT) && NEXT==1 
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Décodeur spécialisé AVEC pruning et arbre pré-généré
+    //
+    for (int i = 0; i < N; i += 1) decoded[i] = -1;
+    DecoderConstexprPruned<GF> dec_constexpr_pruned(N);   // Ici
+    dec_constexpr_pruned.execute(channel, decoded);
+    printf("\n\nDecoded symbols (final next):\n");
+    for (int i = 0; i < N; i += 1)
+    {
+        if( (i%16) == 0 )
+            printf("\n ");
+        if (decoded[i] == ref_out[i]){
+            printf("\e[1;32m%2d\e[0m ", decoded[i]);
+        }else{
+            printf("\e[1;31m%2d\e[0m ", decoded[i]);
+        }
+    }printf("\n");
     //
     //
     ///////////////////////////////////////////////////////////////////////////////
     //
     //
+#endif
     const int32_t nTest = (256 * 1024);
     auto start_x86 = std::chrono::system_clock::now();
     for (int32_t loop = 0; loop < nTest; loop += 1) {
@@ -246,7 +270,7 @@ int main(int, char *[]) {
     /////////////////////////////////////////////////////////////////////////////////
     //
     //
-    for (int x = 0; x < 60; x += 1) {
+    for (int x = 0; x < 5; x += 1) {
         start_x86 = std::chrono::system_clock::now();
         for(int32_t loop = 0; loop < nTest; loop += 1)
         {
@@ -272,7 +296,37 @@ int main(int, char *[]) {
     //
     /////////////////////////////////////////////////////////////////////////////////
     //
+#if defined(NEXT) && NEXT == 1
+	//
+	/////////////////////////////////////////////////////////////////////////////////
     //
+    //
+    for (int x = 0; x < 5; x += 1) {
+        start_x86 = std::chrono::system_clock::now();
+        for(int32_t loop = 0; loop < nTest; loop += 1)
+        {
+            dec_constexpr_pruned.execute(channel, decoded);
+        }
+        stop_x86 = std::chrono::system_clock::now();
+
+        time_ns   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count();
+        time_sec  = time_ns / 1000.f / 1000.f / 1000.f; // in seconds
+        time_msec = time_ns / 1000.f / 1000.f; // in seconds
+        time_usec = time_ns / 1000.f; // in seconds
+        time_run  = (time_usec / (float)nTest);
+
+        debit = ((float)N * (float)logGF) / time_run; // in Ksymbols/s
+        if ( x == 0 ) {
+            printf("[final++] experiments  : %1.3f sec\n",  time_sec);
+            printf("[final++] experiments  : %1.2f ms\n",   time_msec);
+            printf("[final++] one decoding : %1.2f us\n",   time_run);
+        }
+        printf("[final++] debit coded  : %1.2f Mbps\n", debit);
+    }
+    //
+    //
+    /////////////////////////////////////////////////////////////////////////////////
+#endif
 
     delete[] channel;
     delete[] internal;

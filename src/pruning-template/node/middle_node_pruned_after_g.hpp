@@ -1,14 +1,15 @@
 #pragma once
 
-#include "pruning/decoder_pruned.hpp"
-#include "pruning/g_function/g_function_proba_in.hpp"
-#include "pruning/f_function/f_function_proba_in.hpp"
-#include "pruning/leaf/leaf_node_rate_0.hpp"
-#include "pruning/node/middle_node_pruned_rep_after_f.hpp"    // IWYU pragma: keep
-#include "pruning/node/middle_node_pruned_rep_after_g.hpp"    // IWYU pragma: keep
+#include "pruning-template/DecoderConstexprPruned.hpp"
+#include "pruning-template/f_function/f_function_proba_in.hpp"
+#include "pruning-template/g_function/g_function_proba_in.hpp"
+#include "pruning-template/leaf/leaf_node_after_f.hpp"
+#include "pruning-template/leaf/leaf_node_rate_0.hpp"
+#include "pruning-template/node/middle_node_pruned_rep_after_f.hpp" // IWYU pragma: keep
+#include "pruning-template/node/middle_node_pruned_rep_after_g.hpp" // IWYU pragma: keep
 
 template <int gf_size>
-void decoder_pruned<gf_size>::middle_node_pruned_after_g(
+void DecoderConstexprPruned<gf_size>::middle_node_pruned_after_g(
     symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
     symbols_t * internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
@@ -25,16 +26,12 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_g(
         sum_r += frozen[symbol_id + i + n];
     }
 #endif
-    //
-    //
-    //
+
     for (int i = 0; i < n; i++) {
         f_function_proba_in<gf_size>(internal + i, inputs + i, inputs + n + i); // Example operation
     }
-    //
-    //
-    //
-    NodeType left_edge = f_tree->next_node_status[f_tree_cnt++];
+
+    NodeType left_edge = next_node_status[f_tree_cnt++];
     if (left_edge == RATE_0) {
 #if defined(_DEBUG_DEC_)
         printf("GF :: RATE_0 (%d)\n", size);
@@ -66,12 +63,20 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_g(
     } else if (left_edge == RATE_1_FROM_G) {
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
-    } else if (left_edge == LEAF_RATE_0)        { leaf_node_rate_0              <gf_size>(internal, decoded, symbols, symbol_id, frozen[symbol_id]);
-    } else if (left_edge == LEAF_RATE_1_FROM_F) { leaf_node_after_f             <gf_size>(internal, decoded, symbols, symbol_id, frozen[symbol_id]);
-    } else if (left_edge == REP_FROM_F)         { middle_node_pruned_rep_after_f<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id);
-    } else if (left_edge == MID_NODE_FROM_F)    { middle_node_pruned_after_f(internal, internal + n, decoded, symbols, n, symbol_id);   // l'identifiant du symbole (à gauche)
-    } else if (left_edge == LEAF_RATE_1_FROM_G) { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit(EXIT_FAILURE);
-    } else if (left_edge == MID_NODE_FROM_G)    { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit(EXIT_FAILURE);
+    } else if (left_edge == LEAF_RATE_0) {
+        leaf_node_rate_0<gf_size>(internal, decoded, symbols, symbol_id, frozen[symbol_id]);
+    } else if (left_edge == LEAF_RATE_1_FROM_F) {
+        leaf_node_after_f<gf_size>(internal, decoded, symbols, symbol_id, frozen[symbol_id]);
+    } else if (left_edge == REP_FROM_F) {
+        middle_node_pruned_rep_after_f<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id);
+    } else if (left_edge == MID_NODE_FROM_F) {
+        middle_node_pruned_after_f(internal, internal + n, decoded, symbols, n, symbol_id); // l'identifiant du symbole (à gauche)
+    } else if (left_edge == LEAF_RATE_1_FROM_G) {
+        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    } else if (left_edge == MID_NODE_FROM_G) {
+        printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     } else {
         printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -89,7 +94,7 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_g(
     //
     //
     //
-    NodeType right_edge = f_tree->next_node_status[f_tree_cnt++];
+    NodeType right_edge = next_node_status[f_tree_cnt++];
     if (right_edge == RATE_0) {
 #if defined(_DEBUG_DEC_)
         printf("GF :: RATE_0 (%d)\n", size);
@@ -112,8 +117,8 @@ void decoder_pruned<gf_size>::middle_node_pruned_after_g(
 #if defined(_DEBUG_DEC_)
         printf("GF :: RATE_1_FROM_G (%d)\n", size);
 #endif
-        if (sum_r != 0)
-            printf("Error %s %d\n", __FILE__, __LINE__);
+        //if (sum_r != 0)
+        //    printf("Error %s %d\n", __FILE__, __LINE__);
         middle_node_pruned_rate_1_after_g(
             internal,
             internal + n,

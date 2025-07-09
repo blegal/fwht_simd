@@ -1,0 +1,25 @@
+#include "utilities/NodeType.hpp"
+constexpr NodeType next_node_status[22] = {
+    MID_NODE_FROM_F,
+    REP_FROM_F,
+    MID_NODE_FROM_G,
+    MID_NODE_FROM_F,
+    REP_FROM_F,
+    MID_NODE_FROM_G,
+    REP_FROM_F,
+    RATE_1_FROM_G,
+    MID_NODE_FROM_G,
+    MID_NODE_FROM_F,
+    REP_FROM_F,
+    RATE_1_FROM_G,
+    RATE_1_FROM_G,
+    MID_NODE_FROM_G,
+    MID_NODE_FROM_F,
+    MID_NODE_FROM_F,
+    MID_NODE_FROM_F,
+    RATE_0,
+    RATE_1_FROM_G,
+    RATE_1_FROM_G,
+    RATE_1_FROM_G,
+    RATE_1_FROM_G
+};

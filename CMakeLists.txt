@@ -9,15 +9,26 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
 add_compile_options (-march=native -mtune=native -O3 -ffast-math)
-add_compile_options (-Wall -Wextra)
+add_compile_options (-Wall -Wextra -g)
 
 #######################################################################################################################################
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
+add_library (decoder_pruning ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp)
+target_link_libraries (decoder_pruning PUBLIC utilities frozentree)
 
-add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_pruned.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
-target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries (nb_sc_decoder PUBLIC utilities)
+add_library (decoder_specialized ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning/decoder_specialized.cpp)
+target_link_libraries (decoder_specialized PUBLIC utilities frozentree)
+
+add_library (decoder_constexpr_pruning EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/src/pruning-template/DecoderConstexprPruned.cpp)
+target_link_libraries (decoder_constexpr_pruning PUBLIC utilities frozentree)
+
+add_executable (nb_sc_decoder ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp)
+target_link_libraries (nb_sc_decoder PUBLIC decoder_specialized decoder_pruning)
+
+add_executable (nb_sc_decoder_next EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp)
+target_compile_definitions (nb_sc_decoder_next PUBLIC NEXT=1)
+target_link_libraries (nb_sc_decoder_next PUBLIC decoder_specialized decoder_pruning decoder_constexpr_pruning)
 
 #######################################################################################################################################
 
