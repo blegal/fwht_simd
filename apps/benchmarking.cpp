@@ -61,7 +61,8 @@ int main(int argc, char* argv[]) {
     //
     const int  N = _N_;
     const int GF = _GF_;
-    int K  =  (3 * N) / 4;
+    float code_rate = 0.75f;
+    int K  =  (int)( ((float)N) * code_rate);
     int nThreads = 1;
     auto run_time = 60000ms;
 
@@ -90,13 +91,13 @@ int main(int argc, char* argv[]) {
         }
         else if(std::string(argv[i]) == "--rate")
         {
-            float code_rate = std::atof(argv[i+1]);
+            code_rate = std::atof(argv[i+1]);
             K = code_rate * N;
             i += 1;
         }
         else if(std::string(argv[i]) == "--code-rate")
         {
-            float code_rate = std::atof(argv[i+1]);
+            code_rate = std::atof(argv[i+1]);
             K = code_rate * N;
             i += 1;
         }
@@ -480,7 +481,7 @@ int main(int argc, char* argv[]) {
         printf("#(II) #decode frames : %d\n", fRunTest);
         printf("#(II) Coded through .: %1.3f Mbps\n",  debit);
         printf("#(II)\n");
-        printf("%d %d %d %1.2f %d\n", N, K, GF, debit, (int)time_run);
+        printf("%d %d %1.3f %d %1.2f %d\n", N, K, code_rate, GF, debit, (int)time_run);
     }
 
     delete dec;
