@@ -28,13 +28,14 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_after_f(
     //
     // 
     //
+//  printf("-> middle_node_pruned_after_f (size = %d, f_tree_cnt =%d) - left  = %s\n", size, f_tree_cnt, s_next_node[f_tree->next_node_status[f_tree_cnt]].c_str());
     next_node left_edge = f_tree->next_node_status[f_tree_cnt++];
-    if( left_edge == RATE_0)                   { middle_node_pruned_rate_0              (internal, internal + n, decoded, symbols, n, symbol_id);
-    }else if( left_edge == RATE_1_FROM_F)      { middle_node_pruned_rate_1_after_f      (internal, internal + n, decoded, symbols, n, symbol_id); printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit( EXIT_FAILURE );
-    }else if( left_edge == LEAF_RATE_0)        { leaf_node_rate_0<gf_size>              (decoded, symbols, symbol_id);
-    }else if( left_edge == LEAF_RATE_1_FROM_F) { leaf_node_after_f<gf_size>             (internal, decoded, symbols, symbol_id, frozen[symbol_id]);
-    }else if( left_edge == MID_NODE_FROM_F)    { middle_node_pruned_after_f             (internal, internal + n, decoded, symbols, n, symbol_id);
-    }else if( left_edge == REP_FROM_F)         { middle_node_pruned_rep_after_f<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id);
+    if( left_edge == RATE_0)                   { middle_node_pruned_rate_0              (internal, internal + n, decoded, symbols, n, symbol_id                   );
+    }else if( left_edge == RATE_1_FROM_F)      { middle_node_pruned_rate_1_after_f      (internal, internal + n, decoded, symbols, n, symbol_id                   );
+    }else if( left_edge == LEAF_RATE_0)        { leaf_node_rate_0<gf_size>              (                              decoded, symbols,        symbol_id                   );
+    }else if( left_edge == LEAF_RATE_1_FROM_F) { leaf_node_after_f<gf_size>             (      internal,               decoded, symbols,        symbol_id, frozen[symbol_id]);
+    }else if( left_edge == MID_NODE_FROM_F)    { middle_node_pruned_after_f             (internal, internal + n, decoded, symbols, n, symbol_id                   );
+    }else if( left_edge == REP_FROM_F)         { middle_node_pruned_rep_after_f<gf_size>(internal, internal + n, decoded, symbols, n, symbol_id                   );
 #if 0
     }else if( left_edge == LEAF_RATE_1_FROM_G) { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit( EXIT_FAILURE );
     }else if( left_edge == RATE_1_FROM_G)      { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit( EXIT_FAILURE );
@@ -50,13 +51,14 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_after_f(
     //
     // 
     //
+//  printf("-> middle_node_pruned_after_f (size = %d, f_tree_cnt = %d) - right = %s\n", size, f_tree_cnt, s_next_node[f_tree->next_node_status[f_tree_cnt]].c_str());
     next_node right_edge = f_tree->next_node_status[f_tree_cnt++];
-    if( right_edge == RATE_0)                   { middle_node_pruned_rate_0              (internal, internal + n,  decoded, symbols, n, symbol_id);
-    }else if( right_edge == RATE_1_FROM_G)      { middle_node_pruned_rate_1_after_g      (internal, internal + n, decoded, symbols, n, symbol_id + n);
-    }else if( right_edge == LEAF_RATE_0)        { leaf_node_rate_0<gf_size>              (decoded, symbols, symbol_id + n);
-    }else if( right_edge == LEAF_RATE_1_FROM_G) { leaf_node_after_g<gf_size>             (internal, decoded, symbols, symbol_id + n, frozen[symbol_id + n]);
-    }else if( right_edge == REP_FROM_G)         { middle_node_pruned_rep_after_g<gf_size>(internal, /*internal + n,*/ decoded, symbols,n, symbol_id + n);
-    }else if( right_edge == MID_NODE_FROM_G)    { middle_node_pruned_after_g             (internal, internal + n, decoded, symbols,n, symbol_id + n);
+    if( right_edge == RATE_0)                   { middle_node_pruned_rate_0              (internal, internal + n, decoded, symbols, n, symbol_id + n                       );
+    }else if( right_edge == RATE_1_FROM_G)      { middle_node_pruned_rate_1_after_g      (internal, internal + n, decoded, symbols, n, symbol_id + n                       );
+    }else if( right_edge == LEAF_RATE_0)        { leaf_node_rate_0<gf_size>              (                              decoded, symbols,        symbol_id + n                       );
+    }else if( right_edge == LEAF_RATE_1_FROM_G) { leaf_node_after_g<gf_size>             (      internal,               decoded, symbols,        symbol_id + n, frozen[symbol_id + n]);
+    }else if( right_edge == REP_FROM_G)         { middle_node_pruned_rep_after_g<gf_size>(      internal,               decoded, symbols,n,  symbol_id + n                       );
+    }else if( right_edge == MID_NODE_FROM_G)    { middle_node_pruned_after_g             (internal, internal + n, decoded, symbols,n,  symbol_id + n                       );
 #if 0
     }else if( right_edge == RATE_1_FROM_F)      { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit( EXIT_FAILURE );
     }else if( right_edge == LEAF_RATE_1_FROM_F) { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit( EXIT_FAILURE );

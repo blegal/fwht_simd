@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
 enum next_node { RATE_0,
@@ -22,6 +23,21 @@ enum next_node { RATE_0,
                  MID_NODE_FROM_F,
                  MID_NODE_FROM_G
                 };
+
+static std::string s_next_node[] = {
+    "RATE_0",
+    "RATE_1_FROM_F",
+    "RATE_1_FROM_G",
+    "REP_FROM_F",
+    "REP_FROM_G",
+    "SPC_FROM_F",
+    "SPC_FROM_G",
+    "LEAF_RATE_0",
+    "LEAF_RATE_1_FROM_F",
+    "LEAF_RATE_1_FROM_G",
+    "MID_NODE_FROM_F",
+    "MID_NODE_FROM_G"
+};
 
 class frozen_tree {
 public:
@@ -57,6 +73,7 @@ public:
         int level = 0;
         for (int i = 0; i < int(next_node_status.size()); i++) {
             add_space(level);
+            printf(" [%3d] ", i);
             switch (next_node_status[i]) {
                 case RATE_0:
                     printf("> Execute RATE_0\n");
@@ -140,12 +157,12 @@ private:
             if (n == 1) {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Leaf rate-0 node found (%d)\n", n);
+                printf("> Leaf rate-0 node found (%d) [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = LEAF_RATE_0;
             } else {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Rate-0 node found (%d)\n", n);
+                printf("> Rate-0 node found (%d)  [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = RATE_0;
             }
             next_elmnt = curr_elmnt + 1;
@@ -153,25 +170,25 @@ private:
             if (n == 1) {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Leaf rate-1 node found (%d)\n", n);
+                printf("> Leaf rate-1 node found (%d) [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = LEAF_RATE_1_FROM_F;
             } else {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Rate-1 node found (%d)\n", n);
+                printf("> Rate-1 node found (%d) [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = RATE_1_FROM_F;
             }
             next_elmnt = curr_elmnt + 1;
         } else if ( (sum == (n-1)) && (frozen[curr_frozen + n - 1] == false) ) {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");
-            printf("> Leaf REP_F node found (%d)\n", n);
+            printf("> Leaf REP_F node found (%d) [elmt : %d]\n", n, curr_elmnt);
             array[curr_elmnt] = REP_FROM_F;
             next_elmnt = curr_elmnt + 1;
         } else {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");
-            printf("> Normal (f) node found (%d)\n", n);
+            printf("> Normal (f) node found (%d) [elmt : %d]\n", n, curr_elmnt);
             array[curr_elmnt] = MID_NODE_FROM_F;
             next_elmnt        = execute(
                 frozen,
@@ -204,12 +221,12 @@ private:
             if (n == 1) {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Leaf rate-0 node found (size = %d)\n", n);
+                printf("> Leaf rate-0 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = LEAF_RATE_0;
             } else {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Rate-0 node found (size = %d)\n", n);
+                printf("> Rate-0 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = RATE_0;
             }
             return next_elmnt + 1;
@@ -217,25 +234,25 @@ private:
             if (n == 1) {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Leaf rate-1 node found (size = %d)\n", n);
+                printf("> Leaf rate-1 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = LEAF_RATE_1_FROM_G;
             } else {
                 for (int z = 0; z < level; z += 1)
                     printf("+  ");
-                printf("> Rate-1 node found (size = %d)\n", n);
+                printf("> Rate-1 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = RATE_1_FROM_G;
             }
             return next_elmnt + 1;
         } else if ( (sum == (n-1)) && (frozen[curr_frozen + size - 1] == false) ) {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");
-            printf("> Node REP_G node found (%d)\n", n);
-            array[curr_elmnt] = REP_FROM_G;
+            printf("> Node REP_G node found (%d) [elmt : %d]\n", n, next_elmnt);
+            array[next_elmnt] = REP_FROM_G;
             return next_elmnt + 1;
         } else {
             for (int z = 0; z < level; z += 1)
                 printf("+  ");
-            printf(" >Normal (g) node found (size = %d)\n", n);
+            printf(" >Normal (g) node found (size = %d) [elmt : %d]\n", n, next_elmnt);
 
             array[next_elmnt] = MID_NODE_FROM_G;
             int final_elmnt   = execute(
