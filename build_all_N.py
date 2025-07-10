@@ -19,10 +19,10 @@ def compile_project():
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
 
-def run_executable(N, GF, decoder, platform, log_dir):
+def run_executable(N, GF, decoder, platform, cores, time, log_dir):
     executable = "./benchmarking"
     log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
-    cmd = [executable, "--decoder", decoder, "--no-color"]
+    cmd = [executable, "--decoder", decoder, "--no-color", "--cores" , cores, "--time", time]
 
     print(f"🚀 Exécution: {cmd} pour N={N} et GF={GF}")
 
@@ -56,8 +56,10 @@ def generate_report(log_dir, decoder, platform, GF, Ns):
 
 def main():
     parser = argparse.ArgumentParser(description="Compile, exécute et génère un rapport de benchmarking.")
-    parser.add_argument("--decoder", required=True, choices=["dec1", "dec2", "dec3", "dec4"], help="Nom du décodeur (ex: dec1)")
+    parser.add_argument("--decoder",  required=True, choices=["dec1", "dec2", "dec3", "dec4"], help="Nom du décodeur (ex: dec1)")
     parser.add_argument("--platform", required=True, help="Nom de la plateforme pour le nommage du log")
+    parser.add_argument("--cores",    required=True, help="Nombre de coeurs actifs")
+    parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
     GF = 64  # fixe ou tu peux le rendre paramétrable
@@ -72,7 +74,7 @@ def main():
 
         compile_project()
 
-        run_executable(N, GF, args.decoder, args.platform, log_dir)
+        run_executable(N, GF, args.decoder, args.platform, args.cores, args.time, log_dir)
 
     generate_report(log_dir, args.decoder, args.platform, GF, Ns)
     print("✅ Tout est terminé.")
