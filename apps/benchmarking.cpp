@@ -63,12 +63,13 @@ int main(int argc, char* argv[]) {
     const int GF = _GF_;
     int K  =  (3 * N) / 4;
     int nThreads = 1;
+    auto run_time = 60000ms;
+
 
     std::string dec_type = "dec1";
     bool is_colored  = true;
 
-    for(int i = 1; i < argc; i++)
-    {
+    for(int i = 1; i < argc; i++) {
         if(std::string(argv[i]) == "--dec")
         {
             dec_type = std::string(argv[i+1]);
@@ -109,7 +110,14 @@ int main(int argc, char* argv[]) {
             nThreads = std::atoi(argv[i+1]);
             i += 1;
         }
+        else if(std::string(argv[i]) == "--time")
+        {
+            const int sec = std::atoi(argv[i+1]);
+            run_time = sec * 1000ms;
+            i += 1;
+        }
     }
+
 
 #ifdef __AVX512BW__
     printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation program (AVX512 version)\n");
@@ -449,7 +457,7 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < nThreads; i += 1)
             t_runs[i] = std::thread(thread_run_decoder, liste.data() + i);
 
-        std::this_thread::sleep_for(60000ms);
+        std::this_thread::sleep_for( run_time );
 
         for (int i = 0; i < nThreads; ++i)
             liste[i].ended = true;
@@ -474,7 +482,6 @@ int main(int argc, char* argv[]) {
         printf("#(II)\n");
         printf("%d %d %d %1.2f %d\n", N, K, GF, debit, (int)time_run);
     }
-
 
     delete dec;
 
