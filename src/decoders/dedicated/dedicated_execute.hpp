@@ -19,25 +19,25 @@ void decoder_dedicated<gf_size>::execute(symbols_t * channel, uint16_t * decoded
 //		show_symbols<gf_size>(channel + i);
 
 // NODE LEVEL (64)
-	f_function_proba_in<64>(internal, channel, channel + 32, 32);
+	f_function_proba_in<gf_size>(internal, channel, channel + 32, 32);
 
 //	for (int i = 0; i < 32; i += 1)
 //		show_symbols<gf_size>(internal + i);
 //	exit(EXIT_FAILURE);
 
 // NODE LEVEL (32)
-	f_function_freq_in       <64>(internal + 32, internal + 0, internal + 16, 16);
+	f_function_freq_in       <gf_size>(internal + 32, internal + 0, internal + 16, 16);
 //	for (int i = 0; i < 16; i += 1)
 //		show_symbols<gf_size>(internal + i + 32);
 //	exit(EXIT_FAILURE);
 // NODE LEVEL (16)
-	f_function_freq_in       <64>(internal + 48, internal + 32, internal + 40, 8);
+	f_function_freq_in       <gf_size>(internal + 48, internal + 32, internal + 40, 8);
 //	for (int i = 0; i < 8; i += 1)
 //		show_symbols<gf_size>(internal + i + 48);
 //	exit(EXIT_FAILURE);
 
-	middle_node_pruned_rate_0<64>(decoded + 0, symbols + 0, 8);
-	g_function_freq_in       <64>(internal + 48, internal + 32, internal + 40, symbols + 0, 8);
+	middle_node_pruned_rate_0<gf_size>(decoded + 0, symbols + 0, 8);
+	g_function_freq_in       <gf_size>(internal + 48, internal + 32, internal + 40, symbols + 0, 8);
 //	for (int i = 0; i < 8; i += 1)
 //		show_symbols<gf_size>(internal + i + 48);
 //	exit(EXIT_FAILURE);

@@ -12,10 +12,10 @@
 //
 //
 template <int gf_size> inline __attribute__((always_inline)) void g_function_freq_in(
-    symbols_t * dst,   // the data to be computed for the left side of the graph
-    symbols_t * src_a, // the upper value set from the right side of the graph
-    symbols_t * src_b, // the lower value set from the right side of the graph
-    const uint16_t* src_c,    // the computed symbols coming from the left side of the graph
+          symbols_t* __restrict dst,   // the data to be computed for the left side of the graph
+          symbols_t* __restrict src_a, // the upper value set from the right side of the graph
+          symbols_t* __restrict src_b, // the lower value set from the right side of the graph
+    const uint16_t*  __restrict src_c,    // the computed symbols coming from the left side of the graph
     const int n_symbols)
 {
     for (int s = 0; s < n_symbols; s++)

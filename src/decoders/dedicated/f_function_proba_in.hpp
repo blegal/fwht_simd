@@ -12,10 +12,11 @@
 //
 //
 template <int gf_size> inline __attribute__((always_inline)) void f_function_proba_in(
-    symbols_t * dst,
-    const symbols_t * src_a,
-    const symbols_t * src_b, const int n_symbols)
-{
+          symbols_t* __restrict dst,
+    const symbols_t* __restrict src_a,
+    const symbols_t* __restrict src_b,
+    const int n_symbols
+) {
     for (int s = 0; s < n_symbols; s++)
     {
         symbols_t tmp_a;
