@@ -7,14 +7,25 @@
  */
 template <int gf_size>
 decoder_dedicated<gf_size>::decoder_dedicated(const int n, const int* frozen_symb)
-    : N(n), f_tree_cnt(0), f_tree(nullptr), pruned_tree(_N_)
 {
-    internal = new symbols_t[N];
-    symbols  = new uint16_t [N];
-    frozen   = new int      [N];
+    internal = new symbols_t[n];
+    symbols  = new uint16_t [n];
 
-    for (int i = 0; i < N; i++) {
-        frozen[i] = frozen_symb[i];
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += (frozen_symb[i] == false);
+    }
+
+    if ( N_gen != n ) {
+        printf("(EE) Error we should never be there...\n");
+        printf("(EE) %s %d\n", __FILE__, __LINE__);
+        exit( EXIT_FAILURE );
+    }
+
+    if ( K_gen != sum ) {
+        printf("(EE) Error we should never be there...\n");
+        printf("(EE) %s %d\n", __FILE__, __LINE__);
+        exit( EXIT_FAILURE );
     }
 }
 
@@ -22,13 +33,10 @@ decoder_dedicated<gf_size>::decoder_dedicated(const int n, const int* frozen_sym
  *
  */
 template <int gf_size>
-decoder_dedicated<gf_size>::decoder_dedicated() :
-    N(0), f_tree_cnt(0), f_tree(nullptr), pruned_tree(_N_)
-
+decoder_dedicated<gf_size>::decoder_dedicated()
 {
     internal = nullptr;
     symbols  = nullptr;
-    frozen   = nullptr;
     printf("(EE) Error we should never be there...\n");
     printf("(EE) %s %d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
@@ -39,7 +47,6 @@ decoder_dedicated<gf_size>::~decoder_dedicated()
 {
     delete[]internal;
     delete[]symbols;
-    delete[]frozen;
 }
 
 #include "dedicated_execute.hpp"

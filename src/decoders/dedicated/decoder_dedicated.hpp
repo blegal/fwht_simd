@@ -16,13 +16,13 @@ public:
 private:
     symbols_t* internal;
     uint16_t*  symbols;
-    int*       frozen;
+//    int*       frozen;
 
-    const int N;
-    int           f_tree_cnt;
+//    const int N;
+//    int           f_tree_cnt;
 
-    frozen_tree * f_tree;
-    frozen_tree pruned_tree;
+//    frozen_tree * f_tree;
+//    frozen_tree pruned_tree;
 
     static const int N_gen;
     static const int K_gen;

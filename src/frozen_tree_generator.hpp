@@ -119,13 +119,42 @@ private:
     {
         const int n = size / 2; // Assuming size is the number of symbols
 
+        //
+        // Analyse de la branche gauche
+        //
+
+        int sum_l = 0;
+        for (int i = 0; i < n; i++) sum_l += frozen[curr_frozen + i];
+
+        const bool is_rate0_after_f = (sum_l == n);
+        const bool is_rate1_after_f = (sum_l == 0);
+        const bool is_rep_after_f   = (sum_l == (n-1)) && (frozen[curr_frozen + n - 1] == false);
+
+        int sum_r = 0;
+        for (int i = 0; i < n; i++) sum_r += frozen[curr_frozen + n + i];
+
+        const bool is_rate0_after_g = (sum_r == n);
+        const bool is_rate1_after_g = (sum_r == 0);
+        const bool is_rep_after_g   = (sum_r == (n-1)) && (frozen[curr_frozen + n - 1] == false);
+
+        //
+        //
+        //
+
         ofile << "// NODE LEVEL (" << size << ")\n",
 
         indentation(level); printf("NODE LEVEL (%d)\n", size);
         indentation(level); printf("F edge : ");
         for (int i = 0; i < n; i++) { printf("%d", frozen[curr_frozen + i]); } printf("\n");
 
-        if ( level == 1 ) {
+
+        if ( is_rate0_after_f ) {
+            //
+            // Rien à faire du tout !
+            //
+            ofile << "\t" << "// f_function_freq_in<" << GF << ">(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !" << std::endl;
+
+        } else if ( level == 1 ) {
             indentation(level); printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (f) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
             ofile << "\t" << "f_function_proba_in<" << GF << ">(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
         }else {
@@ -139,17 +168,10 @@ private:
         }
 
         //
-        // Analyse de la branche gauche
-        //
-        int sum = 0;
-        for (int i = 0; i < n; i++)
-            sum += frozen[curr_frozen + i];
-
-        //
         //
         //
         int next_elmnt;
-        if (sum == n) {
+        if ( is_rate0_after_f ) {
             if (n == 1) {
                 indentation(level); printf("> Leaf rate-0 node found (%d)\n", n);
                 indentation(level); printf("\e[1;31m LEAF_RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
@@ -162,7 +184,8 @@ private:
                 array[curr_elmnt] = RATE_0;
             }
             next_elmnt = curr_elmnt + 1;
-        } else if (sum == 0) {
+
+        } else if ( is_rate1_after_f ) {
             if (n == 1) {
                 indentation(level); printf("> Leaf rate-1 node found (%d)\n", n);
                 indentation(level); printf("\e[1;31m LEAF_RATE_1_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
@@ -175,7 +198,8 @@ private:
                 array[curr_elmnt] = RATE_1_FROM_F;
             }
             next_elmnt = curr_elmnt + 1;
-        } else if ( (sum == (n-1)) && (frozen[curr_frozen + n - 1] == false) ) {
+
+        } else if ( is_rep_after_f ) {
             indentation(level); printf("> Leaf REP_F node found (%d)\n", n);
             indentation(level); printf("\e[1;31m REP_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
             ofile << "\t" << "middle_node_pruned_rep_after_f<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n <<");" << std::endl;
@@ -200,7 +224,19 @@ private:
         indentation(level); printf("G edge : ");
         for (int i = 0; i < n; i++) printf("%d", frozen[curr_frozen + n + i]); printf("\n");
 
-        if ( level == 1 ) {
+        if ( is_rate0_after_f ) {
+            //
+            // SIMPLIFICATION DU NOEUD G SI ON A EU UN RATE 0 APRES G !
+            //
+            if ( pred_is_f ) {
+                indentation(level); printf("\e[1;31m Internal[%d...%d] <= SPECIAL Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
+                ofile << "\t" << "g_function_freq_in_after_rate_0<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+            }else {
+                indentation(level); printf("\e[1;31m Internal[%d...%d] <= SPECIAL Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
+                ofile << "\t" << "g_function_proba_in_after_rate_0<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+            }
+
+        }else if ( level == 1 ) {
             indentation(level); printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (g) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
             ofile << "\t" << "g_function_proba_in<" << GF << ">(internal, channel, channel + " << n << ", symbols, " << n << ");" << std::endl;
         }else {
@@ -216,15 +252,9 @@ private:
         //
         //
         //
-        sum = 0;
-        for (int i = 0; i < n; i++)
-            sum += frozen[curr_frozen + n + i];
-        //
-        //
-        //
 
         int final_offset;
-        if (sum == n) {
+        if ( is_rate0_after_g ) {
             if (n == 1) {
                 indentation(level); printf("> Leaf rate-0 node found (size = %d)\n", n);
                 indentation(level); printf("\e[1;31m LEAF_RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen + n, n);
@@ -237,7 +267,8 @@ private:
                 array[next_elmnt] = RATE_0;
             }
             final_offset = next_elmnt + 1;
-        } else if (sum == 0) {
+
+        } else if (is_rate1_after_g ) {
             if (n == 1) {
                 indentation(level); printf("> Leaf rate-1 node found (size = %d)\n", n);
                 indentation(level); printf("\e[1;31m LEAF_RATE_1_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
@@ -250,12 +281,14 @@ private:
                 array[next_elmnt] = RATE_1_FROM_G;
             }
             final_offset = next_elmnt + 1;
-        } else if ( (sum == (n-1)) && (frozen[curr_frozen + size - 1] == false) ) {
+
+        } else if ( is_rep_after_g ) {
             for (int z = 0; z < level; z += 1) printf("+  "); printf("> Node REP_G node found (%d)\n", n);
             indentation(level); printf("\e[1;31m REP_NodeSymbols (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 ofile << "\t" << "middle_node_pruned_rep_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n <<");" << std::endl;
             array[curr_elmnt] = REP_FROM_G;
             final_offset      = next_elmnt + 1;
+
         } else {
             indentation(level); printf(" >Normal (g) node found (size = %d)\n", n);
             array[next_elmnt] = MID_NODE_FROM_G;

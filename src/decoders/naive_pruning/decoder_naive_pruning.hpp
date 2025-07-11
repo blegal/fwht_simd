@@ -32,7 +32,7 @@ public:
         int         size,     // Size is the number of symbols (should be a power of 2)
         const int   symbol_id);  // Symbol ID is the index of the FIRST symbol in the symbols array
 
-    void middle_node_rate0(
+    static void middle_node_rate0(
         uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
         int         size,     // Size is the number of symbols (should be a power of 2)
         const int   symbol_id);  // Symbol ID is the index of the FIRST symbol in the symbols array
@@ -41,7 +41,7 @@ public:
         symbols_t * var,
         uint16_t *  decoded,
         uint16_t *  symbols,
-        const int   symbol_id);
+        const int   symbol_id) const;
 
 private:
     symbols_t* internal;

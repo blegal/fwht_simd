@@ -425,8 +425,7 @@ void decoder_naive_pruning<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
-    const int   symbol_id)
-{
+    const int   symbol_id) const {
     if (frozen[symbol_id] == true) {
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;
