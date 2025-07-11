@@ -3,9 +3,9 @@
 #include "features/archi.hpp"
 
 template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_freq_in(
-    symbols_t * dst,
-    const symbols_t * src_a,
-    const symbols_t * src_b)
+    symbols_t * __restrict dst,
+    const symbols_t * __restrict src_a,
+    const symbols_t * __restrict src_b)
 {
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !

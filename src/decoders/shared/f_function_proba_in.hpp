@@ -4,9 +4,9 @@
 
 // #define debug_f_function
 template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_proba_in(
-    symbols_t * dst,
-    const symbols_t * src_a,
-    const symbols_t * src_b)
+    symbols_t * __restrict dst,
+    const symbols_t * __restrict src_a,
+    const symbols_t * __restrict src_b)
 {
     symbols_t tmp_a;
     for (int i = 0; i < int(gf_size); i++)

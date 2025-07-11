@@ -440,6 +440,10 @@ int main(int argc, char* argv[]) {
     //
 #endif
 
+    printf("#(II)\n");
+    std::cout << "#(II) +  Launching throughput measurement (" << dec_type << ")" << std::endl;
+    printf("#(II)\n");
+
     if ( nThreads != 0 ) {
         std::vector<env_simu> liste(nThreads);
 //        env_simu liste[nThreads];

@@ -32,3 +32,23 @@ template <int gf_size> inline __attribute__((always_inline)) void f_function_fre
 //
 //
 //
+template <int gf_size, int n_symbols> inline __attribute__((always_inline)) void f_function_freq_in(
+          symbols_t* __restrict dst,
+    const symbols_t* __restrict src_a,
+    const symbols_t* __restrict src_b
+){
+    for (int s = 0; s < n_symbols; s++)
+    {
+        for (int i = 0; i < gf_size; i++)
+        {
+            // TODO : attention au facteur 10x qui est magique !!!
+            dst[s].value[i] = 10.f * src_a[s].value[i] * src_b[s].value[i];
+        }
+        dst[s].is_freq = true;
+    }
+}
+//
+//
+//
+//
+//
