@@ -11,7 +11,7 @@
 //
 //
 //
-template <int gf_size> inline __attribute__((always_inline)) void f_function_freq_in(
+template <int gf_size> void f_function_freq_in(
           symbols_t* __restrict dst,
     const symbols_t* __restrict src_a,
     const symbols_t* __restrict src_b,
