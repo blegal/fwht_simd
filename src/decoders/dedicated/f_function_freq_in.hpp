@@ -1,0 +1,34 @@
+#pragma once
+//
+//
+//
+//
+//
+#include "features/archi.hpp"
+#include "definitions/custom_types.hpp"
+//
+//
+//
+//
+//
+template <int gf_size> inline __attribute__((always_inline)) void f_function_freq_in(
+    symbols_t* dst,
+    const symbols_t* src_a,
+    const symbols_t* src_b,
+    const int n_symbols)
+{
+    for (int s = 0; s < n_symbols; s++)
+    {
+        for (int i = 0; i < gf_size; i++)
+        {
+            // TODO : attention au facteur 10x qui est magique !!!
+            dst[s].value[i] = 10.f * src_a[s].value[i] * src_b[s].value[i];
+        }
+        dst[s].is_freq = true;
+    }
+}
+//
+//
+//
+//
+//
