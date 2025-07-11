@@ -22,14 +22,30 @@
 //
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
-int main(int, char *[]) {
+int main(int, char *[])
+{
+    float code_rate = 0.75f;
+    int K  =  (int)( ((float)N) * code_rate);
+
+    for(int i = 1; i < argc; i++) {
+        if(std::string(argv[i]) == "--rate")
+        {
+            code_rate = std::atof(argv[i+1]);
+            K = code_rate * N;
+            i += 1;
+        }
+        else if(std::string(argv[i]) == "--code-rate")
+        {
+            code_rate = std::atof(argv[i+1]);
+            K = code_rate * N;
+            i += 1;
+        }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // initialize the frozen symbols array
     //
-    const int _K_ = 3 * _N_ / 4;
-
     int* frozen_symbols = new int[_N_];
     for (int i = 0; i < _N_; i += 1)
         frozen_symbols[i] = true;

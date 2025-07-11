@@ -12,8 +12,18 @@ def generate_config_header(N, GF):
     with open("../src/definitions/code.hpp", "w") as f:
         f.write(header_content)
 
-def compile_project():
-    print("🛠️  Compilation...")
+def compile_project(rate):
+    print("🛠️  Compilation initiale (1/2)...")
+    result = subprocess.run(["make","benchmarking"])
+    if result.returncode != 0:
+        print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
+        sys.exit(1)
+    print(f"🚀 Generation du décodeur dédié...")
+    result = subprocess.run(["./code_generator", "--code-rate", f"0.{rate}"])
+    if result.returncode != 0:
+        print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
+        sys.exit(1)
+    print("🛠️  Compilation finale (2/2)...")
     result = subprocess.run(["make","benchmarking"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
@@ -55,7 +65,7 @@ def generate_report(log_dir, decoder, platform, GF, N, Rs):
 
 def main():
     parser = argparse.ArgumentParser(description="Compile, exécute et génère un rapport de benchmarking.")
-    parser.add_argument("--decoder",  required=True, choices=["dec1", "dec2", "dec3", "dec4"], help="Nom du décodeur (ex: dec1)")
+    parser.add_argument("--decoder",  required=True, choices=["dec1", "dec2", "dec3", "dec4", "dec5"], help="Nom du décodeur (ex: dec1)")
     parser.add_argument("--platform", required=True, help="Nom de la plateforme pour le nommage du log")
     parser.add_argument("--cores",    required=True, help="Nombre de coeurs actifs")
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
@@ -63,7 +73,7 @@ def main():
 
     GF = 64  # fixe ou tu peux le rendre paramétrable
     N  = 64
-    Rs = [25, 33, 40, 50, 66, 75, 80, 90]
+    Rs = [0.20, 0.25, 0.33, 0.40, 0.50, 0.60, 0.66, 0.75, 0.80, 0.90]
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)
@@ -72,7 +82,7 @@ def main():
         print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
         generate_config_header(N, GF)
 
-        compile_project()
+        compile_project(R)
 
         run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
 
