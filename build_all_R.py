@@ -73,7 +73,7 @@ def main():
 
     GF = 64  # fixe ou tu peux le rendre paramétrable
     N  = 64
-    Rs = [0.20, 0.25, 0.33, 0.40, 0.50, 0.60, 0.66, 0.75, 0.80, 0.90]
+    Rs = [20, 25, 33, 40, 50, 60, 66, 75, 80, 90]
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)

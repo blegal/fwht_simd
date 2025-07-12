@@ -22,9 +22,10 @@
 //
 // In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
 //
-int main(int, char *[])
+int main(int argc, char* argv[])
 {
     float code_rate = 0.75f;
+    int N  = _N_;
     int K  =  (int)( ((float)N) * code_rate);
 
     for(int i = 1; i < argc; i++) {
@@ -47,10 +48,10 @@ int main(int, char *[])
     // initialize the frozen symbols array
     //
     int* frozen_symbols = new int[_N_];
-    for (int i = 0; i < _N_; i += 1)
+    for (int i = 0; i < N; i += 1)
         frozen_symbols[i] = true;
 
-    for (int i = 0; i <  _K_; i += 1)
+    for (int i = 0; i <  K; i += 1)
         frozen_symbols[reliab_seq[i]] = false; // i c'est pour le DEBUG, on pourrait mettre 0
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +60,7 @@ int main(int, char *[])
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     printf("\nFrozen matrix:\n");
-    for (int i = 0; i < _N_; i += 1) {
+    for (int i = 0; i < N; i += 1) {
         if ((i % 8) == 0)
             printf(" | ");
         if ((i % 16) == 0)
@@ -70,8 +71,8 @@ int main(int, char *[])
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    frozen_tree_generator pruned_tree(_N_, _GF_);
-    pruned_tree.analyze(frozen_symbols, _N_);
+    frozen_tree_generator pruned_tree(N, _GF_);
+    pruned_tree.analyze(frozen_symbols, N);
 
     delete[] frozen_symbols;
 
