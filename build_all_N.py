@@ -14,17 +14,17 @@ def generate_config_header(N, GF):
 
 def compile_project():
     print("🛠️  Compilation initiale (1/2)...")
-    result = subprocess.run(["make","benchmarking"])
+    result = subprocess.run(["make","all"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
     print(f"🚀 Generation du décodeur dédié...")
-    result = subprocess.run(["./code_generator"])
+    result = subprocess.run(["./code_generator", "--code-rate", "0.50", "--no-verbose"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
         sys.exit(1)
     print("🛠️  Compilation finale (2/2)...")
-    result = subprocess.run(["make","benchmarking"])
+    result = subprocess.run(["make","all"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
@@ -32,7 +32,7 @@ def compile_project():
 def run_executable(N, GF, decoder, platform, cores, time, log_dir):
     executable = "./benchmarking"
     log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
-    cmd = [executable, "--decoder", decoder, "--no-color", "--cores" , cores, "--time", time]
+    cmd = [executable, "--decoder", decoder, "--no-color", "--cores" , cores, "--time", time, "--code-rate", "0.50"]
 
     print(f"🚀 Exécution: {cmd} pour N={N} et GF={GF}")
 
