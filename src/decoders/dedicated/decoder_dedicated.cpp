@@ -19,12 +19,18 @@ decoder_dedicated<gf_size>::decoder_dedicated(const int n, const int* frozen_sym
     if ( N_gen != n ) {
         printf("(EE) Error we should never be there...\n");
         printf("(EE) %s %d\n", __FILE__, __LINE__);
+        printf("(EE) An issue was detected on N value between generated decoder and simulated one:\n");
+        printf("(EE) - N value in generated decoder  = %d\n", N_gen);
+        printf("(EE) - N value in simulated environ. = %d\n", n);
         exit( EXIT_FAILURE );
     }
 
     if ( K_gen != sum ) {
         printf("(EE) Error we should never be there...\n");
         printf("(EE) %s %d\n", __FILE__, __LINE__);
+        printf("(EE) An issue was detected on K value between generated decoder and simulated one:\n");
+        printf("(EE) - K value in generated decoder  = %d\n", K_gen);
+        printf("(EE) - K value in simulated environ. = %d\n", sum);
         exit( EXIT_FAILURE );
     }
 }
