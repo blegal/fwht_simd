@@ -14,17 +14,19 @@ def generate_config_header(N, GF):
 
 def compile_project(rate):
     print("🛠️  Compilation initiale (1/2)...")
-    result = subprocess.run(["make","benchmarking"])
+    result = subprocess.run(["make","all"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
+
     print(f"🚀 Generation du décodeur dédié...")
-    result = subprocess.run(["./code_generator", "--code-rate", f"0.{rate}"])
+    result = subprocess.run(["./code_generator", "--code-rate", f"0.{rate}", "--no-verbose"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
         sys.exit(1)
+
     print("🛠️  Compilation finale (2/2)...")
-    result = subprocess.run(["make","benchmarking"])
+    result = subprocess.run(["make","all"])
     if result.returncode != 0:
         print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
         sys.exit(1)
