@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 #include "../src/definitions/code.hpp"
 
@@ -27,8 +28,23 @@ int main(int argc, char* argv[])
     float code_rate = 0.75f;
     int N  = _N_;
     int K  =  (int)( ((float)N) * code_rate);
+    bool verbose = true;
 
-    for(int i = 1; i < argc; i++) {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    printf("# Run command:\n# ");
+    for(int i = 0; i < argc; i += 1){
+        printf("%s ", argv[i]);
+    }printf("\n");
+    //
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    for(int i = 1; i < argc; i++)
+    {
+        printf("(II) option : [%s]\n", argv[i]);
         if(std::string(argv[i]) == "--rate")
         {
             code_rate = std::atof(argv[i+1]);
@@ -40,8 +56,28 @@ int main(int argc, char* argv[])
             code_rate = std::atof(argv[i+1]);
             K = code_rate * N;
             i += 1;
+        } else if(std::string(argv[i]) == "--no-verbose") {
+            verbose = false;
+            printf("(II) flag --no-verbose: %d\n", verbose);
+        } else if(std::string(argv[i]) == "-verbose") {
+            verbose = true;
+            printf("(II) flag -verbose: %d\n", verbose);
+        } else {
+            printf("(EE) Unknown argument: %s\n", argv[i]);
+            exit(EXIT_FAILURE);
         }
     }
+
+    std::cout << "#(II) Polar code parameters" << std::endl;
+    std::cout << "#(II) ---------------------" << std::endl;
+    std::cout << "#(II)" << std::endl;
+    std::cout << "#(II) + GF equals : " << _GF_ << std::endl;
+    std::cout << "#(II) +  N equals : " <<    N << std::endl;
+    std::cout << "#(II) +  K equals : " <<    K << std::endl;
+    std::cout << "#(II)" << std::endl;
+    std::cout << "#(II) +  verbose  : " << verbose << std::endl;
+    std::cout << "#(II)" << std::endl;
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -59,19 +95,23 @@ int main(int argc, char* argv[])
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    printf("\nFrozen matrix:\n");
-    for (int i = 0; i < N; i += 1) {
-        if ((i % 8) == 0)
-            printf(" | ");
-        if ((i % 16) == 0)
-            printf("\n | ");
-        printf("%2d ", frozen_symbols[i]);
+    if ( verbose == true )
+    {
+        printf("\nFrozen matrix:\n");
+        for (int i = 0; i < N; i += 1) {
+            if ((i % 8) == 0)
+                printf(" | ");
+            if ((i % 16) == 0)
+                printf("\n | ");
+            printf("%2d ", frozen_symbols[i]);
+        }
+        printf(" |\n");
     }
-    printf(" |\n");
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     frozen_tree_generator pruned_tree(N, _GF_);
+    pruned_tree.verbose = verbose;
     pruned_tree.analyze(frozen_symbols, N);
 
     delete[] frozen_symbols;
