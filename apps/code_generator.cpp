@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
     for(int i = 1; i < argc; i++)
     {
-        printf("(II) option : [%s]\n", argv[i]);
+//      printf("(II) option : [%s]\n", argv[i]);
         if(std::string(argv[i]) == "--rate")
         {
             code_rate = std::atof(argv[i+1]);
@@ -58,16 +58,15 @@ int main(int argc, char* argv[])
             i += 1;
         } else if(std::string(argv[i]) == "--no-verbose") {
             verbose = false;
-            printf("(II) flag --no-verbose: %d\n", verbose);
         } else if(std::string(argv[i]) == "-verbose") {
             verbose = true;
-            printf("(II) flag -verbose: %d\n", verbose);
         } else {
             printf("(EE) Unknown argument: %s\n", argv[i]);
             exit(EXIT_FAILURE);
         }
     }
 
+    std::cout << "#(II)" << std::endl;
     std::cout << "#(II) Polar code parameters" << std::endl;
     std::cout << "#(II) ---------------------" << std::endl;
     std::cout << "#(II)" << std::endl;
