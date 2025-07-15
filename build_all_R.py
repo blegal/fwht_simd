@@ -28,12 +28,16 @@ def compile_project(rate):
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
+            result = subprocess.run(["make","code_generator"], stdout=f, stderr=subprocess.STDOUT)
+            if result.returncode != 0:
+                print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
+                sys.exit(1)
             result = subprocess.run(["./code_generator", "--code-rate", f"0.{rate}", "--no-verbose"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
             print(f"🚀 Generation du décodeur dédié...")
-            result = subprocess.run(["./code_generator", "--code-rate", "0.50", "--no-verbose"], stdout=f, stderr=subprocess.STDOUT)
+            result = subprocess.run(["./code_generator", "--code-rate", f"0.{rate}", "--no-verbose"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
                 sys.exit(1)
