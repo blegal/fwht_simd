@@ -41,6 +41,12 @@ int frozen_symbols[64];
 
 int main(int argc, char* argv[])
 {
+    if ( argc != 1 ) {
+        printf("(EE) One or more arugments ?!\n");
+        printf("(EE) - argv[Ø] = %s\n", argv[0]);
+        printf("(EE) - argv[1] = %s\n", argv[1]);
+        return EXIT_FAILURE;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
