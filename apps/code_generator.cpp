@@ -75,9 +75,6 @@ int main(int argc, char* argv[])
     std::cout << "#(II) +  N equals : " <<    N << std::endl;
     std::cout << "#(II) +  K equals : " <<    K << std::endl;
     std::cout << "#(II)" << std::endl;
-    std::cout << "#(II) +  verbose  : " << verbose << std::endl;
-    std::cout << "#(II)" << std::endl;
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
