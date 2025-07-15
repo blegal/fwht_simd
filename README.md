@@ -16,14 +16,14 @@ Then you can configure the project:
 ```
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
 If you want to select your compiler (clang seems to perform better), you can alternatively execute :
 
 ```
-cmake -DCMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=clang++-19 ..
+cmake -DCMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=clang++-20 ..
 ```
 
 Then build the main programs for testing and benchmarking:
