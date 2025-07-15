@@ -154,6 +154,7 @@ private:
             indentation(level); printf("F edge : "); for (int i = 0; i < n; i++) { printf("%d", frozen[curr_frozen + i]); } printf("\n");
         }
 
+
         if (is_rate0_after_f) {
             //
             // Rien à faire du tout !
@@ -162,7 +163,8 @@ private:
                     ">(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !" << std::endl;
         } else if (level == 1) {
             if (verbose) {
-                indentation(level); printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (f) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
+                indentation(level);
+                printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (f) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
             }
             ofile << "\t" << "f_function_proba_in<" << GF << ">(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
         } else {
@@ -181,9 +183,14 @@ private:
             }
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
         //
+        // ON TRAITE L'ARC DESCENDANT A GAUCHE DU NOEUD
         //
+        //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         int next_elmnt;
         if (is_rate0_after_f) {
             if (n == 1) {
@@ -235,8 +242,10 @@ private:
                 indentation(level);
                 printf("\e[1;31m REP_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
             }
-            ofile << "\t" << "middle_node_pruned_rep_after_f<" << GF << ">(internal + " << p_llrs + size <<
-                    ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+            if( level == 1 )
+                ofile << "\t" << "middle_node_pruned_rep_after_f<" << GF << ">(internal + " << p_llrs        << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+            else
+                ofile << "\t" << "middle_node_pruned_rep_after_f<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             array[curr_elmnt] = REP_FROM_F;
             next_elmnt = curr_elmnt + 1;
         } else {
@@ -261,6 +270,14 @@ private:
             indentation(level); printf("G edge : ");
             for (int i = 0; i < n; i++) printf("%d", frozen[curr_frozen + n + i]); printf("\n");
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        //
+        // ON TRAITE L'ARC DESCENDANT A DROITE DU NOEUD
+        //
+        //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         if (is_rate0_after_f) {
             //
