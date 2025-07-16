@@ -1,16 +1,24 @@
 #pragma once
+//
+//
+//
+//
+//
+#include "features/archi.hpp"
+#include "definitions/custom_types.hpp"
+//
+//
+//
+//
+//
+extern void local_remove_xors(uint16_t * values, int size);
 
-#include "utilities/utility_functions.hpp"
-
-template <int gf_size>
-void middle_node_pruned_rep_after_g(
-    symbols_t* __restrict inputs,      // Inputs are the symbols from the channel (from the right)
-//    symbols_t* internal,    // Internal nodes are the symbols computed during the process (to the left)
-    uint16_t*  __restrict decoded,     // Decoded symbols are the final output of the decoder (done on the left)
-    uint16_t*  __restrict symbols,     // Symbols are the ones going from leafs to root (done on the left)
-    int size,               // Size is the number of symbols (should be a power of 2)
-    const int symbol_id)
-{
+template <int gf_size> void middle_node_pruned_rep_after_g(
+    symbols_t* __restrict inputs,  // Inputs are the symbols from the channel (from the right)
+    uint16_t*  __restrict decoded, // Decoded symbols are the final output of the decoder (done on the left)
+    uint16_t*  __restrict symbols, // Symbols are the ones going from leafs to root (done on the left)
+    const int size                 // Size is the number of symbols (should be a power of 2)
+) {
         // ON PEUT REUTILISER LE SYMBOL n°0 POUR LES CALCULS
         // + NORMALISATION A LA VOLEE
 #if 1 // optimization
@@ -45,9 +53,9 @@ void middle_node_pruned_rep_after_g(
 
         for(int i = 0; i < size; i++)
         {
-            symbols[symbol_id + i] = value;
-            decoded[symbol_id + i] = 0;        // should be corrected (it is systematic solution actually)
+            symbols[i] = value;
+            decoded[i] = 0;        // should be corrected (it is systematic solution actually)
         }
-        decoded[symbol_id + (size-1)] = value; // should be corrected (it is systematic solution actually)
+        decoded[size-1] = value; // should be corrected (it is systematic solution actually)
 }
 

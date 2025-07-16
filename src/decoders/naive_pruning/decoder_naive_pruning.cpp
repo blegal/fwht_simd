@@ -238,7 +238,6 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
         }
 
         const int value = argmax<gf_size>( temp );
-
         for(int i = 0; i < size; i++)
         {
             symbols[symbol_id + i] = value;
@@ -255,7 +254,7 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
     //
     // SINGLE PARITY NODE
     //
-//#define SPC_NODE
+#define SPC_NODE
 #if defined(SPC_NODE)
     int check_node = 0;
     if( (sum == 1) && (frozen[symbol_id] == true) ) {
@@ -426,8 +425,7 @@ void decoder_naive_pruning<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
-    const int   symbol_id)
-{
+    const int   symbol_id) const {
     if (frozen[symbol_id] == true) {
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;

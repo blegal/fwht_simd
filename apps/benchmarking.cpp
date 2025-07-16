@@ -27,6 +27,7 @@ using namespace std::chrono_literals;
 #include "decoders/naive_pruning/decoder_naive_pruning.hpp"
 #include "decoders/specialized/decoder_specialized.hpp"
 #include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
+#include "decoders/dedicated/decoder_dedicated.hpp"
 
 #include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
@@ -293,6 +294,8 @@ int main(int argc, char* argv[]) {
         dec = new decoder_specialized<GF>(N, frozen_symbols);
     }else if (dec_type == "dec4") {
         dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
+    }else if (dec_type == "dec5") {
+        dec = new decoder_dedicated<GF>(N, frozen_symbols);
     }else {
         printf("#(II) Error : unknown decoder type\n");
         exit(1);
@@ -437,6 +440,10 @@ int main(int argc, char* argv[]) {
     //
 #endif
 
+    printf("#(II)\n");
+    std::cout << "#(II) +  Launching throughput measurement (" << dec_type << ")" << std::endl;
+    printf("#(II)\n");
+
     if ( nThreads != 0 ) {
         std::vector<env_simu> liste(nThreads);
 //        env_simu liste[nThreads];
@@ -446,9 +453,10 @@ int main(int argc, char* argv[]) {
             liste[i].llrs_n    = llrs_n;
             liste[i].decoded_n = decoded_n;
             if (dec_type == "dec1") { liste[i].dec = new decoder_naive<GF>(N, frozen_symbols);
-            }else if (dec_type == "dec2") { liste[i].dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
-            }else if (dec_type == "dec3") { liste[i].dec = new decoder_specialized<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec2") { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
+            }else if (dec_type == "dec3") { liste[i].dec = new decoder_specialized        <GF>(N, frozen_symbols);
             }else if (dec_type == "dec4") { liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec5") { liste[i].dec = new decoder_dedicated          <GF>(N, frozen_symbols);
             }else { printf("#(II) Error : unknown decoder type\n"); exit(1); }
         }
 
