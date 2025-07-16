@@ -268,7 +268,10 @@ private:
         //
         if ( verbose ) {
             indentation(level); printf("G edge : ");
-            for (int i = 0; i < n; i++) printf("%d", frozen[curr_frozen + n + i]); printf("\n");
+            for (int i = 0; i < n; i++) {
+                printf("%d", frozen[curr_frozen + n + i]);
+            }
+            printf("\n");
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
