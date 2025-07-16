@@ -112,6 +112,11 @@ int main(int argc, char* argv[]) {
             nThreads = std::atoi(argv[i+1]);
             i += 1;
         }
+        else if(std::string(argv[i]) == "--cores")
+        {
+            nThreads = std::atoi(argv[i+1]);
+            i += 1;
+        }
         else if(std::string(argv[i]) == "--time")
         {
             const int sec = std::atoi(argv[i+1]);
@@ -165,6 +170,7 @@ int main(int argc, char* argv[]) {
     std::cout << "#(II) +  K equals : " << K << std::endl;
     std::cout << "#(II)" << std::endl;
     std::cout << "#(II) +  Decoder  : " << dec_type << std::endl;
+    std::cout << "#(II) +  nThreads : " << nThreads << std::endl;
     std::cout << "#(II)" << std::endl;
 
     int frozen_symbols[N];
