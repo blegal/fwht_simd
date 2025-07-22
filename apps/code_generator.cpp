@@ -16,7 +16,7 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "frozen_tree_generator.hpp"
+#include "../src/generator/dec_generator.hpp"
 
 //
 //
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    frozen_tree_generator pruned_tree(N, _GF_);
+    dec_generator pruned_tree(N, _GF_);
     pruned_tree.verbose = verbose;
     pruned_tree.analyze(frozen_symbols, N);
 
