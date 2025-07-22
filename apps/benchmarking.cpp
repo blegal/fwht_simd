@@ -93,13 +93,15 @@ int main(int argc, char* argv[]) {
         else if(std::string(argv[i]) == "--rate")
         {
             code_rate = std::atof(argv[i+1]);
-            K = code_rate * N;
+            K         = code_rate * N;
+            code_rate = (float)K / (float)N;
             i += 1;
         }
         else if(std::string(argv[i]) == "--code-rate")
         {
             code_rate = std::atof(argv[i+1]);
-            K = code_rate * N;
+            K         = code_rate * N;
+            code_rate = (float)K / (float)N;
             i += 1;
         }
         else if(std::string(argv[i]) == "--thread")
@@ -495,7 +497,7 @@ int main(int argc, char* argv[]) {
         printf("#(II) #decode frames : %d\n", fRunTest);
         printf("#(II) Coded through .: %1.3f Mbps\n",  debit);
         printf("#(II)\n");
-        printf("%d %d %1.3f %d %1.2f %d\n", N, K, code_rate, GF, debit, (int)time_run);
+        printf("%d %d %2d %d %1.2f %d\n", N, K, (int)(100.f * code_rate), GF, debit, (int)time_run);
     }
 
     delete dec;
