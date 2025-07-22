@@ -36,7 +36,7 @@ template <int gf_size> void middle_node_pruned_spc_after_g(
     }
     //
     int check_node = 0;
-    int arg_1[64];
+    int arg_1[128];
     for (int i = 0; i < size; i++) {
         int value              = argmax<gf_size>(inputs[i].value);
         check_node            ^= value;
@@ -50,7 +50,7 @@ template <int gf_size> void middle_node_pruned_spc_after_g(
         return;
     }
     //
-    int arg_2[64];
+    int arg_2[128];
     for (int j = 0; j < size; j++) {
         arg_2[j] = argmax2<gf_size>(inputs[j].value, arg_1[j]);
     }
