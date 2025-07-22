@@ -53,7 +53,21 @@ private:
         uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
         int         size,     // Size is the number of symbols (should be a power of 2)
         const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
-        
+
+    void middle_node_pruned_spc_after_f(
+        symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
+        uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
+        uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
+        int         size,     // Size is the number of symbols (should be a power of 2)
+        const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
+
+    void middle_node_pruned_spc_after_g(
+        symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
+        uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
+        uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
+        int         size,     // Size is the number of symbols (should be a power of 2)
+        const int   symbol_id); // Symbol ID is the index of the FIRST symbol in the symbols array
+
 private:
     symbols_t* internal;
     uint16_t*  symbols;

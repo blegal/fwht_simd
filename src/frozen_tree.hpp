@@ -90,6 +90,12 @@ public:
                 case REP_FROM_G:
                     printf("> Execute REP_FROM_G\n");
                     break;
+                case SPC_FROM_F:
+                    printf("> Execute SPC_FROM_F\n");
+                    break;
+                case SPC_FROM_G:
+                    printf("> Execute SPC_FROM_G\n");
+                    break;
                 case LEAF_RATE_0:
                     printf("> Execute LEAF_RATE_0\n");
                     break;
@@ -145,49 +151,48 @@ private:
         //
         // Analyse de la branche gauche
         //
-        int sum = 0;
+        int suml = 0;
         for (int i = 0; i < n; i++)
-            sum += frozen[curr_frozen + i];
+            suml += frozen[curr_frozen + i];
 
         //
         //
         //
         int next_elmnt;
-        if (sum == n) {
+        if (suml == n) {
             if (n == 1) {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Leaf rate-0 node found (%d) [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = LEAF_RATE_0;
             } else {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Rate-0 node found (%d)  [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = RATE_0;
             }
             next_elmnt = curr_elmnt + 1;
-        } else if (sum == 0) {
+        } else if (suml == 0) {
             if (n == 1) {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Leaf rate-1 node found (%d) [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = LEAF_RATE_1_FROM_F;
             } else {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Rate-1 node found (%d) [elmt : %d]\n", n, curr_elmnt);
                 array[curr_elmnt] = RATE_1_FROM_F;
             }
             next_elmnt = curr_elmnt + 1;
-        } else if ( (sum == (n-1)) && (frozen[curr_frozen + n - 1] == false) ) {
-            for (int z = 0; z < level; z += 1)
-                printf("+  ");
+        } else if ( (suml == (n-1)) && (frozen[curr_frozen + n - 1] == false) ) {
+            for (int z = 0; z < level; z += 1) printf("+  ");
             printf("> Leaf REP_F node found (%d) [elmt : %d]\n", n, curr_elmnt);
             array[curr_elmnt] = REP_FROM_F;
             next_elmnt = curr_elmnt + 1;
+        } else if ( (suml == 1) && (frozen[curr_frozen] == true) ) {
+            for (int z = 0; z < level; z += 1) printf("+  ");
+            printf("> Leaf SPC_FROM_F node found (%d) [elmt : %d]\n", n, curr_elmnt);
+            array[curr_elmnt] = SPC_FROM_F;
+            next_elmnt = curr_elmnt + 1;
         } else {
-            for (int z = 0; z < level; z += 1)
-                printf("+  ");
+            for (int z = 0; z < level; z += 1) printf("+  ");
             printf("> Normal (f) node found (%d) [elmt : %d]\n", n, curr_elmnt);
             array[curr_elmnt] = MID_NODE_FROM_F;
             next_elmnt        = execute(
@@ -201,57 +206,54 @@ private:
         //
         // Analyse de la branche droite
         //
-        for (int z = 0; z < level; z += 1)
-            printf("+  ");
+        for (int z = 0; z < level; z += 1) printf("+  ");
         printf("G edge : ");
-        for (int i = 0; i < n; i++)
-            printf("%d", frozen[curr_frozen + n + i]);
+        for (int i = 0; i < n; i++) printf("%d", frozen[curr_frozen + n + i]);
         printf("\n");
         //
         //
         //
-        sum = 0;
+        int sumr = 0;
         for (int i = 0; i < n; i++)
-            sum += frozen[curr_frozen + n + i];
+            sumr += frozen[curr_frozen + n + i];
         //
         //
         //
 
-        if (sum == n) {
+        if (sumr == n) {
             if (n == 1) {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Leaf rate-0 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = LEAF_RATE_0;
             } else {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Rate-0 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = RATE_0;
             }
             return next_elmnt + 1;
-        } else if (sum == 0) {
+        } else if (sumr == 0) {
             if (n == 1) {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Leaf rate-1 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = LEAF_RATE_1_FROM_G;
             } else {
-                for (int z = 0; z < level; z += 1)
-                    printf("+  ");
+                for (int z = 0; z < level; z += 1) printf("+  ");
                 printf("> Rate-1 node found (size = %d) [elmt : %d]\n", n, next_elmnt);
                 array[next_elmnt] = RATE_1_FROM_G;
             }
             return next_elmnt + 1;
-        } else if ( (sum == (n-1)) && (frozen[curr_frozen + size - 1] == false) ) {
-            for (int z = 0; z < level; z += 1)
-                printf("+  ");
+        } else if ( (sumr == (n-1)) && (frozen[curr_frozen + size - 1] == false) ) {
+            for (int z = 0; z < level; z += 1) printf("+  ");
             printf("> Node REP_G node found (%d) [elmt : %d]\n", n, next_elmnt);
             array[next_elmnt] = REP_FROM_G;
             return next_elmnt + 1;
+        } else if ( (sumr == 1) && (frozen[curr_frozen] == true) ) {
+            for (int z = 0; z < level; z += 1) printf("+  ");
+            printf("> Node SPC_FROM_G node found (%d) [elmt : %d]\n", n, next_elmnt);
+            array[next_elmnt] = SPC_FROM_G;
+            return next_elmnt + 1;
         } else {
-            for (int z = 0; z < level; z += 1)
-                printf("+  ");
+            for (int z = 0; z < level; z += 1) printf("+  ");
             printf(" >Normal (g) node found (size = %d) [elmt : %d]\n", n, next_elmnt);
 
             array[next_elmnt] = MID_NODE_FROM_G;

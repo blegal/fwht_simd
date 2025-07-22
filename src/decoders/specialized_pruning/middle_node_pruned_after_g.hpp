@@ -61,6 +61,7 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_after_g(
     } else if (right_edge == LEAF_RATE_0)        { leaf_node_rate_0              <gf_size>(                              decoded, symbols,        symbol_id + n);
     } else if (right_edge == LEAF_RATE_1_FROM_G) { leaf_node_after_g             <gf_size>(      internal,               decoded, symbols,        symbol_id + n, frozen[symbol_id + n]);
     } else if (right_edge == REP_FROM_G)         { middle_node_pruned_rep_after_g<gf_size>(      internal,               decoded, symbols, n, symbol_id + n);
+    } else if (right_edge == SPC_FROM_G)         { middle_node_pruned_spc_after_g         (      internal,               decoded, symbols, n, symbol_id + n);
     } else if (right_edge == MID_NODE_FROM_G)    { middle_node_pruned_after_g             (internal, internal + n, decoded, symbols, n, symbol_id + n);
     } else if (right_edge == LEAF_RATE_1_FROM_F) { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit(EXIT_FAILURE);
     } else if (right_edge == MID_NODE_FROM_F)    { printf("(EE) We should never be there (%s, %d)\n", __FILE__, __LINE__); exit(EXIT_FAILURE);
