@@ -22,7 +22,6 @@
 //
 //
 //
-
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include "argmax_neon.hpp"
 #elif defined(__AVX2__)
@@ -30,3 +29,26 @@
 #else
     #include "argmax_x86.hpp"
 #endif
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <int gf_size>
+int argmax2(float *arr, const int argmax1)
+{
+    const float keep  = arr[ argmax1];
+    arr[ argmax1] = 0.f;
+    const int arg2 = argmax<gf_size>(arr);
+    arr[ argmax1] = keep;
+    return arg2;
+}
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
