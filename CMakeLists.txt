@@ -15,14 +15,14 @@ add_compile_options (-Wall -Wextra -Werror)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
-add_executable (nb_sc_decoder   ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp
-        src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
-        src/decoders/specialized/decoder_specialized.cpp
-        src/decoders/naive/decoder_naive.cpp
-        src/decoders/naive_pruning/decoder_naive_pruning.cpp
-)
-target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries (nb_sc_decoder PUBLIC utilities)
+#add_executable (nb_sc_decoder   ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp
+#        src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
+#        src/decoders/specialized/decoder_specialized.cpp
+#        src/decoders/naive/decoder_naive.cpp
+#        src/decoders/naive_pruning/decoder_naive_pruning.cpp
+#)
+#target_include_directories (nb_sc_decoder PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+#target_link_libraries (nb_sc_decoder PUBLIC utilities)
 
 #######################################################################################################################################
 

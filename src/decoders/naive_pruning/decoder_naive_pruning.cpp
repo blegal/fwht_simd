@@ -318,7 +318,7 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
         //
         //
         int check_node = 0;
-        int arg_1[32];
+        uint16_t arg_1[256];
         for (int i = 0; i < size; i++) {
             int value              = argmax<gf_size>(inputs[i].value);
             check_node            ^= value;
@@ -333,7 +333,7 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
             return;
         }
 
-        int arg_2[32];
+        uint16_t arg_2[256];
         for (int j = 0; j < size; j++) {
             arg_2[j] = argmax2<gf_size>(inputs[j].value, arg_1[j]);
         }

@@ -96,22 +96,27 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GF = 16  # fixe ou tu peux le rendre paramétrable
-    N  = 256
-    Rs = [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
+    GFs = [64,  16, 256]
+    Ns  = [64, 256,  32]
+    Rs =  [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)
+    for x in range(0, 3):
+        N =  Ns [x]
+        GF = GFs[x]
+        for R in Rs:
+            print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
+            generate_config_header(N, GF)
 
-    for R in Rs:
-        print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
-        generate_config_header(N, GF)
+            compile_project(R)
 
-        compile_project(R)
+            run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
 
-        run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
+        generate_report(log_dir, args.decoder, args.platform, GF, N, Rs)
 
-    generate_report(log_dir, args.decoder, args.platform, GF, N, Rs)
+        print(f"✅ Sous-partie n°{x+1} terminée)
+
     print("✅ Tout est terminé.")
 #
 #
