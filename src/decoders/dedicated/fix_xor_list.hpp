@@ -11,7 +11,7 @@
 //
 //
 //
-inline bool fix_xor_list(int *list1, const int *list2, const symbols_t* internal, const int N) {
+inline bool fix_xor_list(uint16_t *list1, const uint16_t *list2, const symbols_t* internal, const int N) {
 
     int total_xor   = 0;
     for (int i = 0; i < N; i++)
