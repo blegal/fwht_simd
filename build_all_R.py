@@ -115,7 +115,7 @@ def main():
 
         generate_report(log_dir, args.decoder, args.platform, GF, N, Rs)
 
-        print(f"✅ Sous-partie n°{x+1} terminée)
+        print(f"✅ Sous-partie n°{x+1} terminée")
 
     print("✅ Tout est terminé.")
 #
