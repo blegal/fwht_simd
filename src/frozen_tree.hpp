@@ -186,11 +186,13 @@ private:
             printf("> Leaf REP_F node found (%d) [elmt : %d]\n", n, curr_elmnt);
             array[curr_elmnt] = REP_FROM_F;
             next_elmnt = curr_elmnt + 1;
+#if 0
         } else if ( (suml == 1) && (frozen[curr_frozen] == true) ) {
             for (int z = 0; z < level; z += 1) printf("+  ");
             printf("> Leaf SPC_FROM_F node found (%d) [elmt : %d]\n", n, curr_elmnt);
             array[curr_elmnt] = SPC_FROM_F;
             next_elmnt = curr_elmnt + 1;
+#endif
         } else {
             for (int z = 0; z < level; z += 1) printf("+  ");
             printf("> Normal (f) node found (%d) [elmt : %d]\n", n, curr_elmnt);
@@ -247,11 +249,13 @@ private:
             printf("> Node REP_G node found (%d) [elmt : %d]\n", n, next_elmnt);
             array[next_elmnt] = REP_FROM_G;
             return next_elmnt + 1;
+#if 0
         } else if ( (sumr == 1) && (frozen[curr_frozen] == true) ) {
             for (int z = 0; z < level; z += 1) printf("+  ");
             printf("> Node SPC_FROM_G node found (%d) [elmt : %d]\n", n, next_elmnt);
             array[next_elmnt] = SPC_FROM_G;
             return next_elmnt + 1;
+#endif
         } else {
             for (int z = 0; z < level; z += 1) printf("+  ");
             printf(" >Normal (g) node found (size = %d) [elmt : %d]\n", n, next_elmnt);
