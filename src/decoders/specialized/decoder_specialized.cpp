@@ -41,9 +41,9 @@ decoder_specialized<gf_size>::decoder_specialized() : N(0)
 template <int gf_size>
 decoder_specialized<gf_size>::~decoder_specialized()
 {
-    delete[]internal;
-    delete[]symbols;
-    delete[]frozen;
+    delete[] internal;
+    delete[] symbols;
+    delete[] frozen;
 }
 
 template <int gf_size>
