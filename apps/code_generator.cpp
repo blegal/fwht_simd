@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     std::cout << "#(II) + GF equals : " << _GF_ << std::endl;
     std::cout << "#(II) +  N equals : " <<    N << std::endl;
     std::cout << "#(II) +  K equals : " <<    K << std::endl;
-    std::cout << "#(II) +  R equals : " << (int)code_rate << "\%" << std::endl;
+    std::cout << "#(II) +  R equals : " << (int)(100.f * code_rate) << "\%" << std::endl;
     std::cout << "#(II)" << std::endl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
     std::cout << "#(II) + GF equals : " << GF << std::endl;
     std::cout << "#(II) +  N equals : " << N << std::endl;
     std::cout << "#(II) +  K equals : " << K << std::endl;
-    std::cout << "#(II) +  R equals : " << (int)code_rate << "\%" << std::endl;
+    std::cout << "#(II) +  R equals : " << (int)(100.f * code_rate) << "\%" << std::endl;
     std::cout << "#(II)" << std::endl;
     std::cout << "#(II) +  Decoder  : " << dec_type << std::endl;
     std::cout << "#(II) +  nThreads : " << nThreads << std::endl;
