@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <cmath>
 
 #include "../src/definitions/code.hpp"
 
@@ -48,13 +49,13 @@ int main(int argc, char* argv[])
         if(std::string(argv[i]) == "--rate")
         {
             code_rate = std::atof(argv[i+1]);
-            K = code_rate * N;
+            K = round(code_rate * N);
             i += 1;
         }
         else if(std::string(argv[i]) == "--code-rate")
         {
             code_rate = std::atof(argv[i+1]);
-            K = code_rate * N;
+            K = round(code_rate * N);
             i += 1;
         } else if(std::string(argv[i]) == "--no-verbose") {
             verbose = false;
@@ -73,6 +74,7 @@ int main(int argc, char* argv[])
     std::cout << "#(II) + GF equals : " << _GF_ << std::endl;
     std::cout << "#(II) +  N equals : " <<    N << std::endl;
     std::cout << "#(II) +  K equals : " <<    K << std::endl;
+    std::cout << "#(II) +  R equals : " << (int)code_rate << "\%" << std::endl;
     std::cout << "#(II)" << std::endl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

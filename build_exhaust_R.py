@@ -107,7 +107,7 @@ def main():
         GF = GFs[x]
         for K in range( int(0.20 * N), int(0.95 * N) ):
         #for R in Rs:
-            R = K/N
+            R = int(1000 * K/N)
             print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
             generate_config_header(N, GF)
 

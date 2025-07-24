@@ -93,14 +93,14 @@ int main(int argc, char* argv[]) {
         else if(std::string(argv[i]) == "--rate")
         {
             code_rate = std::atof(argv[i+1]);
-            K         = code_rate * N;
+            K         = round(code_rate * N);
             code_rate = (float)K / (float)N;
             i += 1;
         }
         else if(std::string(argv[i]) == "--code-rate")
         {
             code_rate = std::atof(argv[i+1]);
-            K         = code_rate * N;
+            K         = round(code_rate * N);
             code_rate = (float)K / (float)N;
             i += 1;
         }
@@ -170,6 +170,7 @@ int main(int argc, char* argv[]) {
     std::cout << "#(II) + GF equals : " << GF << std::endl;
     std::cout << "#(II) +  N equals : " << N << std::endl;
     std::cout << "#(II) +  K equals : " << K << std::endl;
+    std::cout << "#(II) +  R equals : " << (int)code_rate << "\%" << std::endl;
     std::cout << "#(II)" << std::endl;
     std::cout << "#(II) +  Decoder  : " << dec_type << std::endl;
     std::cout << "#(II) +  nThreads : " << nThreads << std::endl;
