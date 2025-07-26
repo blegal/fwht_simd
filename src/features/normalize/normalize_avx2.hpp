@@ -3,7 +3,13 @@
 //
 #pragma once
 #include <immintrin.h>
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <int gf_size> void normalize(float * tab) {
     float sum = 1e-32f;
     for (int i = 0; i < gf_size; i += 1) {
@@ -14,7 +20,13 @@ template <int gf_size> void normalize(float * tab) {
         tab[i] *= factor;
     }
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<8>(float * tab) {
     // Charger les 8 floats
     const __m256 v = _mm256_loadu_ps(data);
@@ -43,7 +55,13 @@ template <> void normalize<8>(float * tab) {
     // Écrire le résultat normalisé en place
     _mm256_storeu_ps(data, v_norm);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<16>(float * tab) {
     // Charger les 16 floats en 2 vecteurs
     __m256 v0 = _mm256_loadu_ps(data);       // éléments [0..7]
@@ -81,7 +99,13 @@ template <> void normalize<16>(float * tab) {
     _mm256_storeu_ps(data, v0);
     _mm256_storeu_ps(data + 8, v1);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<32>(float * tab) {
     __m256 v[4];  // 4 x 8 = 32
     __m128 sum128 = _mm_set_ss(1e-32f);
@@ -111,7 +135,13 @@ template <> void normalize<32>(float * tab) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<64>(float * tab) {
     __m256 v[8];  // 8 x 8 = 64
     __m128 sum128 = _mm_set_ss(1e-32f);
@@ -136,7 +166,13 @@ template <> void normalize<64>(float * tab) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<128>(float * tab) {
     __m256 v[16];  // 16 x 8 = 128
     __m128 sum128 = _mm_set_ss(1e-32f);
@@ -161,7 +197,13 @@ template <> void normalize<128>(float * tab) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<256>(float * tab) {
     __m256 v[32];  // 32 x 8 = 256
     __m128 sum128 = _mm_set_ss(1e-32f);
@@ -192,7 +234,13 @@ template <> void normalize<256>(float * tab) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<512>(float * tab) {
     __m256 v[64];  // 64 x 8 = 512
     __m128 sum128 = _mm_set_ss(1e-32f);
@@ -223,7 +271,13 @@ template <> void normalize<512>(float * tab) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <> void normalize<1024>(float * tab) {
     __m256 v[128];  // 128 x 8 = 1024
     __m128 sum128 = _mm_set_ss(1e-32f);
@@ -251,5 +305,10 @@ template <> void normalize<1024>(float * tab) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
-
-#endif
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
