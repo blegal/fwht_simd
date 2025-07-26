@@ -374,13 +374,15 @@ private:
                 indentation(level); printf("\e[1;31m LEAF_RATE_1_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 ofile << "\t" << "leaf_node_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ");" << std::endl;
                 array[next_elmnt] = LEAF_RATE_1_FROM_G;
-            } else {
+            } else if (level != 1) {
                 if ( verbose ) {
                     indentation(level); printf("> Rate-1 node found (size = %d)\n", n);
                     indentation(level); printf("\e[1;31m RATE_1_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
                 ofile << "\t" << "middle_node_pruned_rate_1_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
                 array[next_elmnt] = RATE_1_FROM_G;
+            }else {
+                ofile << "\t" << "middle_node_pruned_rate_1_after_g<" << GF << ">(internal + " << 0 << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
             }
             final_offset = next_elmnt + 1;
         //
