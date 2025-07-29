@@ -16,16 +16,16 @@
 template <int gf_size>
 void decoder_dedicated<gf_size>::execute(symbols_t * channel, uint16_t * decoded)
 {
-// NODE LEVEL (256)
-	f_function_proba_in<16>(internal, channel, channel + 128, 128);
-	middle_node_pruned_rep_after_f<16>(internal + 0, decoded + 0, symbols + 0, 128);
-	g_function_proba_in<16>(internal, channel, channel + 128, symbols, 128);
-	middle_node_pruned_spc_after_g<16>(internal + 0, decoded + 128, symbols + 128, 128);
+// NODE LEVEL (64)
+	f_function_proba_in<1024>(internal, channel, channel + 32, 32);
+	middle_node_pruned_rep_after_f<1024>(internal + 0, decoded + 0, symbols + 0, 32);
+	g_function_proba_in<1024>(internal, channel, channel + 32, symbols, 32);
+	middle_node_pruned_spc_after_g<1024>(internal + 0, decoded + 32, symbols + 32, 32);
 }
 
 template <int gf_size>
-const int decoder_dedicated<gf_size>::N_gen = 256;
+const int decoder_dedicated<gf_size>::N_gen = 64;
 
 template <int gf_size>
-const int decoder_dedicated<gf_size>::K_gen = 128;
+const int decoder_dedicated<gf_size>::K_gen = 32;
 

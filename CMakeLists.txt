@@ -33,8 +33,10 @@ add_executable(benchmarking
         src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
         src/decoders/specialized/decoder_specialized.cpp
         src/decoders/dedicated/decoder_dedicated.cpp
+        src/decoders/nb_sc_decoder/nb_sc_decoder.cpp
         src/decoders/naive/decoder_naive.cpp
         src/decoders/naive_pruning/decoder_naive_pruning.cpp
+        src/encoder/polar_encoder.cpp
 )
 target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (benchmarking PUBLIC utilities)
@@ -55,6 +57,7 @@ target_link_libraries      (fwht_validator PUBLIC utilities)
 
 add_executable(code_generator
         ${CMAKE_CURRENT_SOURCE_DIR}/apps/code_generator.cpp
+        src/encoder/polar_encoder.cpp
 )
 target_include_directories (code_generator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (code_generator PUBLIC utilities)
@@ -65,3 +68,11 @@ add_subdirectory (src)
 
 #######################################################################################################################################
 
+add_library(NbScFFTdec SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/apps/LibNbScFFTdec.cpp
+    src/encoder/polar_encoder.cpp
+)
+target_include_directories (NbScFFTdec PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (NbScFFTdec PUBLIC utilities)
+
+#######################################################################################################################################
