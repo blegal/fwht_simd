@@ -10,7 +10,7 @@
 //
 //
 //
-template <int gf_size> void normalize(float * tab) {
+template <int gf_size> inline void normalize(float * tab) {
     float sum = 1e-32f;
     for (int i = 0; i < gf_size; i += 1) {
         sum += tab[i];
@@ -27,7 +27,7 @@ template <int gf_size> void normalize(float * tab) {
 //
 //
 //
-template <> void normalize<8>(float * tab) {
+template <> inline void normalize<8>(float * data) {
     // Charger les 8 floats
     const __m256 v = _mm256_loadu_ps(data);
 
@@ -62,7 +62,7 @@ template <> void normalize<8>(float * tab) {
 //
 //
 //
-template <> void normalize<16>(float * tab) {
+template <> inline void normalize<16>(float * data) {
     // Charger les 16 floats en 2 vecteurs
     __m256 v0 = _mm256_loadu_ps(data);       // éléments [0..7]
     __m256 v1 = _mm256_loadu_ps(data + 8);   // éléments [8..15]
@@ -106,7 +106,7 @@ template <> void normalize<16>(float * tab) {
 //
 //
 //
-template <> void normalize<32>(float * tab) {
+template <> inline void normalize<32>(float * data) {
     __m256 v[4];  // 4 x 8 = 32
     __m128 sum128 = _mm_set_ss(1e-32f);
 
@@ -142,7 +142,7 @@ template <> void normalize<32>(float * tab) {
 //
 //
 //
-template <> void normalize<64>(float * tab) {
+template <> inline void normalize<64>(float * data) {
     __m256 v[8];  // 8 x 8 = 64
     __m128 sum128 = _mm_set_ss(1e-32f);
 
@@ -173,7 +173,7 @@ template <> void normalize<64>(float * tab) {
 //
 //
 //
-template <> void normalize<128>(float * tab) {
+template <> inline void normalize<128>(float * data) {
     __m256 v[16];  // 16 x 8 = 128
     __m128 sum128 = _mm_set_ss(1e-32f);
 
@@ -204,7 +204,7 @@ template <> void normalize<128>(float * tab) {
 //
 //
 //
-template <> void normalize<256>(float * tab) {
+template <> inline void normalize<256>(float * data) {
     __m256 v[32];  // 32 x 8 = 256
     __m128 sum128 = _mm_set_ss(1e-32f);
 
@@ -241,7 +241,7 @@ template <> void normalize<256>(float * tab) {
 //
 //
 //
-template <> void normalize<512>(float * tab) {
+template <> inline void normalize<512>(float * data) {
     __m256 v[64];  // 64 x 8 = 512
     __m128 sum128 = _mm_set_ss(1e-32f);
 
@@ -278,7 +278,7 @@ template <> void normalize<512>(float * tab) {
 //
 //
 //
-template <> void normalize<1024>(float * tab) {
+template <> inline void normalize<1024>(float * data) {
     __m256 v[128];  // 128 x 8 = 1024
     __m128 sum128 = _mm_set_ss(1e-32f);
 
