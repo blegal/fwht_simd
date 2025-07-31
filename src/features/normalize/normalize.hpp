@@ -3,12 +3,12 @@
 //
 #pragma once
 
-#if defined(__ARM_NEON__) || defined(__ARM_NEON)
-    #include "normalize_neon.hpp"
-#elif defined(__AVX512F__)
-    #include "normalize_avx512.hpp"
+#if defined(__AVX512F__)
+    #include "features/normalize/normalize_avx512.hpp"
 #elif defined(__AVX2__)
-    #include "normalize_avx2.hpp"
+    #include "features/normalize/normalize_avx2.hpp"
+#elif defined(__ARM_NEON__) || defined(__ARM_NEON)
+    #include "features/normalize/normalize_neon.hpp"
 #else
-    #include "normalize_c.hpp"
+    #include "features/normalize/normalize_c.hpp"
 #endif
