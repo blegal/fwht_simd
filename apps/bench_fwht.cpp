@@ -25,6 +25,11 @@
 
 #include "features/archi.hpp"
 
+#if defined(__AVX512F__)
+    #include "features/fwht/fwht_avx512.hpp"
+    #include "features/fwht/fwht_norm_avx512.hpp"
+#endif
+
 #include <chrono>
 #include <cstring>
 
@@ -263,7 +268,7 @@ int main(int argc, char *[]) {
 #endif
 
 #if defined(__AVX2__)
-
+    {
         auto start_i_avx2 = std::chrono::system_clock::now();
         memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
@@ -284,10 +289,11 @@ int main(int argc, char *[]) {
         } else {
             printf(" - [AVX2] fwht_avx2      \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
         }
+    }
 #endif
 
 #if defined(__AVX2__)
-
+    {
         auto start_i_norm_avx2 = std::chrono::system_clock::now();
         memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
@@ -308,7 +314,59 @@ int main(int argc, char *[]) {
         } else {
             printf(" - [AVX2] fwht_norm_avx2 \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
         }
+    }
 #endif
+
+#if defined(__AVX512F__)
+    {
+        auto start_i_avx2 = std::chrono::system_clock::now();
+        memcpy(tab_a, tab_i, size * sizeof(float));
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_avx2<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht_avx2<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_avx2<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht_avx2<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_avx2<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht_avx2<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_avx2<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht_avx2<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_avx2< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht_avx2< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_avx2< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht_avx2< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_avx2< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht_avx2< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_avx2<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_avx2<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
+        }
+        auto           stop_i_avx2 = std::chrono::system_clock::now();
+        const bool     ok_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
+        if (ok_avx2) {
+            printf(" - [AVX2] fwht_avx2      \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
+        } else {
+            printf(" - [AVX2] fwht_avx2      \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
+        }
+    }
+#endif
+
+#if defined(__AVX512F__)
+    {
+        auto start_i_norm_avx2 = std::chrono::system_clock::now();
+        memcpy(tab_a, tab_i, size * sizeof(float));
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_norm_avx2<   8>(tab_a); fwht_norm_avx2<   8>(tab_a); }
+            if (size ==   16) { fwht_norm_avx2<  16>(tab_a); fwht_norm_avx2<  16>(tab_a); }
+            if (size ==   32) { fwht_norm_avx2<  32>(tab_a); fwht_norm_avx2<  32>(tab_a); }
+            if (size ==   64) { fwht_norm_avx2<  64>(tab_a); fwht_norm_avx2<  64>(tab_a); }
+            if (size ==  128) { fwht_norm_avx2< 128>(tab_a); fwht_norm_avx2< 128>(tab_a); }
+            if (size ==  256) { fwht_norm_avx2< 256>(tab_a); fwht_norm_avx2< 256>(tab_a); }
+            if (size ==  512) { fwht_norm_avx2< 512>(tab_a); fwht_norm_avx2< 512>(tab_a); }
+            if (size == 1024) { fwht_norm_avx2<1024>(tab_a); fwht_norm_avx2<1024>(tab_a); }
+        }
+        auto           stop_i_norm_avx2 = std::chrono::system_clock::now();
+        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
+        if (ok_norm_avx2) {
+            printf(" - [AVX2] fwht_norm_avx2 \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
+        } else {
+            printf(" - [AVX2] fwht_norm_avx2 \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
+        }
+    }
+#endif
+
 
         delete[] tab_i;
         delete[] tab_a;
