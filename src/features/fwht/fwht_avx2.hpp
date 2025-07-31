@@ -350,7 +350,8 @@ inline void fwht_avx2<256>(float x[], float y[]) {
 //
 template <> inline void fwht_avx2<512>(float x[])
 {
-    for (int i = 0; i < 256; i+= sizeof(__m256)) {
+    const int simd = sizeof(__m256) / sizeof(float);
+    for (int i = 0; i < 256; i+= simd) {
         const __m256 A = _mm256_loadu_ps(x + i      );
         const __m256 B = _mm256_loadu_ps(x + i + 256);
         const __m256 C = _mm256_add_ps (A, B);
@@ -367,7 +368,8 @@ template <> inline void fwht_avx2<512>(float x[])
 //
 //
 template <> inline void fwht_avx2<1024>(float x[]) {
-    for (int i = 0; i < 512; i+= sizeof(__m256)) {
+    const int simd = sizeof(__m256) / sizeof(float);
+    for (int i = 0; i < 512; i+= simd) {
         const __m256 A = _mm256_loadu_ps(x + i      );
         const __m256 B = _mm256_loadu_ps(x + i + 512);
         const __m256 C = _mm256_add_ps (A, B);

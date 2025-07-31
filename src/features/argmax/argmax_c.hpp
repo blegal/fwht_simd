@@ -6,6 +6,14 @@
 //!     modification, are not permitted with written authorization.
 //!
 //!
+#pragma once
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 #include <cstdint>
 //
 //
@@ -14,25 +22,10 @@
 //
 //
 //
-template <int gf_size>
-int argmax(const float * value) {
-    int    max_index = 0;
-    float  max_value = value[0];
-#if defined (__clang__)
-    #pragma unroll
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
+    #include "argmax_neon.hpp"
+#elif defined(__AVX2__)
+    #include "argmax_avx2.hpp"
+#else
+    #include "argmax_x86.hpp"
 #endif
-    for (int i = 1; i < gf_size; i++) {
-        if (value[i] > max_value) {
-            max_value = value[i];
-            max_index = i;
-        }
-    }
-    return max_index;
-}
-//
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//

@@ -1,20 +1,7 @@
-//!
-//!     Copyright (c) 2020-2023, Bertrand LE GAL
-//!     All rights reserved.
-//!
-//!     Redistribution and use in source and binary forms, with or without
-//!     modification, are not permitted with written authorization.
-//!
-//!
+//
+// Created by legal on 23/07/2025.
+//
 #pragma once
-//
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-#include <cstdint>
 //
 //
 //
@@ -24,10 +11,12 @@
 //
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include "argmax_neon.hpp"
+//#elif defined(__AVX512F__)
+//    #include "argmax_avx512.hpp"
 #elif defined(__AVX2__)
     #include "argmax_avx2.hpp"
 #else
-    #include "argmax_x86.hpp"
+    #include "argmax_c.hpp"
 #endif
 //
 //
@@ -37,7 +26,7 @@
 //
 //
 template <int gf_size>
-int argmax2(float *arr, const int argmax1)
+inline int argmax2(float *arr, const int argmax1)
 {
     const float keep  = arr[ argmax1];
     arr[ argmax1] = 0.f;

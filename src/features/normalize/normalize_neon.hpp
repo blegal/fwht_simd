@@ -3,8 +3,14 @@
 //
 #pragma once
 #include <arm_neon.h>
-
-template <int gf_size> void normalize(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <int gf_size> inline void normalize(float * tab) {
     float sum = 1e-32f;
     for (int i = 0; i < gf_size; i += 1) {
         sum += tab[i];
@@ -14,8 +20,14 @@ template <int gf_size> void normalize(float * tab) {
         tab[i] *= factor;
     }
 }
-
-template <> void normalize<8>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<8>(float * data) {
     float32x4_t v0 = vld1q_f32(data);
     float32x4_t v1 = vld1q_f32(data + 4);
 
@@ -38,8 +50,14 @@ template <> void normalize<8>(float * tab) {
     vst1q_f32(data, v0);
     vst1q_f32(data + 4, v1);
 }
-
-template <> void normalize<16>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<16>(float * data) {
     float32x4_t v0 = vld1q_f32(data);
     float32x4_t v1 = vld1q_f32(data + 4);
     float32x4_t v2 = vld1q_f32(data + 8);
@@ -70,8 +88,14 @@ template <> void normalize<16>(float * tab) {
     vst1q_f32(data + 8, v2);
     vst1q_f32(data + 12, v3);
 }
-
-template <> void normalize<32>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<32>(float * data) {
     float32x4_t v0 = vld1q_f32(data);
     float32x4_t v1 = vld1q_f32(data + 4);
     float32x4_t v2 = vld1q_f32(data + 8);
@@ -117,8 +141,14 @@ template <> void normalize<32>(float * tab) {
     vst1q_f32(data + 24, v6);
     vst1q_f32(data + 28, v7);
 }
-
-template <> void normalize<64>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<64>(float * data) {
     float32x4_t v[16];
     for (int i = 0; i < 16; i++) {
         v[i] = vld1q_f32(data + i * 4);
@@ -141,8 +171,14 @@ template <> void normalize<64>(float * tab) {
         vst1q_f32(data + i * 4, v[i]);
     }
 }
-
-template <> void normalize<128>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<128>(float * data) {
     const int vec_count = 32; // 128 / 4
     float32x4_t v[vec_count];
 
@@ -166,8 +202,14 @@ template <> void normalize<128>(float * tab) {
         vst1q_f32(data + i * 4, v[i]);
     }
 }
-
-template <> void normalize<256>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<256>(float * data) {
     const int vec_count = 64; // 256 / 4
     float32x4_t v[vec_count];
 
@@ -190,11 +232,15 @@ template <> void normalize<256>(float * tab) {
         v[i] = vmulq_f32(v[i], inv_sum_vec);
         vst1q_f32(data + i * 4, v[i]);
     }
-
-    return total_sum;
 }
-
-template <> void normalize<512>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<512>(float * data) {
     const int vec_count = 128; // 512 / 4
     float32x4_t v[vec_count];
 
@@ -218,8 +264,14 @@ template <> void normalize<512>(float * tab) {
         vst1q_f32(data + i * 4, v[i]);
     }
 }
-
-template <> void normalize<1024>(float * tab) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+template <> inline void normalize<1024>(float * data) {
     const int vec_count = 256; // 1024 / 4
     float32x4_t v[vec_count];
 
@@ -243,5 +295,10 @@ template <> void normalize<1024>(float * tab) {
         vst1q_f32(data + i * 4, v[i]);
     }
 }
-
-#endif
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
