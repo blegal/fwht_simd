@@ -325,16 +325,11 @@ inline void fwht512_norm_flat_neon(float* srcdst, const float factor_s = 0.04419
         const float32x4_t A = vld1q_f32(srcdst + i +   0);
         const float32x4_t B = vld1q_f32(srcdst + i + 256);
         const float32x4_t C = vaddq_f32(A, B);
-        const float32x4_t D = vsubq_f32(A, C);
+        const float32x4_t D = vsubq_f32(A, B);
         vst1q_f32(srcdst + i +   0, C);
         vst1q_f32(srcdst + i + 256, D);
     }
-//    for (int i = 0; i < 256; i++) {
-//        const float A = srcdst[i] + srcdst[i + 256];
-//        const float B = srcdst[i] - srcdst[i + 256];
-//        srcdst[i      ] = A;
-//        srcdst[i + 256] = B;
-//    }
+
     fwht256_norm_flat_neon(srcdst,       srcdst,      factor_s);
     fwht256_norm_flat_neon(srcdst + 256, srcdst + 256,factor_s);
 }
@@ -355,13 +350,9 @@ inline void fwht1024_norm_flat_neon(float* srcdst)
         const float32x4_t A = vld1q_f32(srcdst + i +   0);
         const float32x4_t B = vld1q_f32(srcdst + i + 512);
         const float32x4_t C = vaddq_f32(A, B);
-        const float32x4_t D = vsubq_f32(A, C);
+        const float32x4_t D = vsubq_f32(A, B);
         vst1q_f32(srcdst + i +   0, C);
         vst1q_f32(srcdst + i + 512, D);
-//        const float A = srcdst[i] + srcdst[i + 512];
-//        const float B = srcdst[i] - srcdst[i + 512];
-//        srcdst[i      ] = A;
-//        srcdst[i + 512] = B;
     }
     fwht512_norm_flat_neon(srcdst,       0.03125f);
     fwht512_norm_flat_neon(srcdst + 512, 0.03125f);

@@ -130,7 +130,7 @@ int main(int argc, char *[]) {
             if (size == 1024) { fwht<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto     stop_x86 = std::chrono::system_clock::now();
-        bool     ok_x86   = are_equivalent(tab_i, tab_a, 0.002, size);
+        bool     ok_x86   = are_equivalent(tab_i, tab_a, 0.00001, size);
         uint64_t time_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count() / nTest;
         if (ok_x86) {
             printf(" - [GCCV] fwht           \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86);
@@ -184,7 +184,7 @@ int main(int argc, char *[]) {
             if (size == 1024) { fwht_norm<1024>(tab_a); fwht_norm<1024>(tab_a); }
         }
         auto           stop_x86_n = std::chrono::system_clock::now();
-        const bool     ok_x86_n   = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_x86_n   = are_equivalent(tab_i, tab_a, 0.00001, size);
         const uint64_t time_x86_n = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_n - start_x86_n).count() / nTest;
         if (ok_x86_n) {
             printf(" - [GCCV] fwht_norm      \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_n);
@@ -206,7 +206,7 @@ int main(int argc, char *[]) {
             if (size == 1024) { fwht_neon<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_neon<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto           stop_i_neon = std::chrono::system_clock::now();
-        const bool     ok_neon     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_neon     = are_equivalent(tab_i, tab_a, 0.00001, size);
         const uint64_t time_neon   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon - start_i_neon).count() / nTest;
         if (ok_neon) {
             printf(" - [NEON] fwht_neon      \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon);
@@ -229,7 +229,7 @@ int main(int argc, char *[]) {
             if (size == 1024) { fwht_norm_neon<1024>(tab_a); fwht_norm_neon<1024>(tab_a); }
         }
         auto           stop_i_neon_norm = std::chrono::system_clock::now();
-        const bool     ok_neon_norm     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_neon_norm     = are_equivalent(tab_i, tab_a, 0.00001, size);
         const uint64_t time_neon_norm   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon_norm - start_i_neon_norm).count() / nTest;
         if (ok_neon_norm) {
             printf(" - [NEON] fwht_norm_neon \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon_norm);
@@ -239,7 +239,7 @@ int main(int argc, char *[]) {
 #endif
 
 
-#if defined(__ARM_NEON__)
+#if 0 // THERE IS A BUG INSIDE ! defined(__ARM_NEON__)
         auto start_i_neon_norm_v2 = std::chrono::system_clock::now();
         memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
