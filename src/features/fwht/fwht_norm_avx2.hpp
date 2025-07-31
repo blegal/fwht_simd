@@ -19,21 +19,39 @@
 */
 #pragma once
 #ifdef __AVX2__
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 #include "definitions/const_config_GF64_N64.hpp"
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <immintrin.h>
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 template <uint16_t GF>
 inline void fwht_norm_avx2(float x[]) {
     assert(x != 0);
     assert(true);
     exit(x != nullptr);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 #if 0
 template <uint16_t GF>
 inline void fwht_norm_avx2(float x[], float y[]) {
@@ -48,7 +66,7 @@ inline void fwht_norm_avx2(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht16_norm_terminale(const __m256 X0, const __m256 X1, float y[], const __m256 factor) {
+inline void fwht16_norm_term_avx2(const __m256 X0, const __m256 X1, float y[], const __m256 factor) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
@@ -86,20 +104,38 @@ inline void fwht16_norm_terminale(const __m256 X0, const __m256 X1, float y[], c
     _mm256_storeu_ps(y + 8, BP3);
     //////////////////////////////////////////////////////
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 inline void fwht16_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
-    fwht16_norm_terminale(X0, X1, y, factor);
+    fwht16_norm_term_avx2(X0, X1, y, factor);
 }
-
-inline void fwht32_norm_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, float y[], const __m256 factor) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+inline void fwht16_norm_term_avx2(__m256 X0, __m256 X1, __m256 X2, __m256 X3, float y[], const __m256 factor) {
     const __m256 A0 = X0 + X2, A1 = X1 + X3;
     const __m256 B0 = X0 - X2, B1 = X1 - X3;
-    fwht16_norm_terminale(A0, A1, y + 0, factor);
-    fwht16_norm_terminale(B0, B1, y + 16, factor);
+    fwht16_norm_term_avx2(A0, A1, y + 0, factor);
+    fwht16_norm_term_avx2(B0, B1, y + 16, factor);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 inline void fwht32_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
@@ -109,20 +145,32 @@ inline void fwht32_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 m0 = X0 + X2, m1 = X1 + X3;
     const __m256 M0 = X0 - X2, M1 = X1 - X3;
 
-    fwht16_norm_terminale(m0, m1, y + 0, factor);
-    fwht16_norm_terminale(M0, M1, y + 16, factor);
+    fwht16_norm_term_avx2(m0, m1, y + 0, factor);
+    fwht16_norm_term_avx2(M0, M1, y + 16, factor);
 }
-
-inline void fwht64_norm_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, float y[], const __m256 factor) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+inline void fwht64_norm_terminale_avx2(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, float y[], const __m256 factor) {
     const __m256 A0 = X0 + X4, A1 = X1 + X5;
     const __m256 A2 = X2 + X6, A3 = X3 + X7;
     const __m256 B0 = X0 - X4, B1 = X1 - X5;
     const __m256 B2 = X2 - X6, B3 = X3 - X7;
 
-    fwht32_norm_terminale(A0, A1, A2, A3, y + 0, factor);
-    fwht32_norm_terminale(B0, B1, B2, B3, y + 32, factor);
+    fwht16_norm_term_avx2(A0, A1, A2, A3, y + 0, factor);
+    fwht16_norm_term_avx2(B0, B1, B2, B3, y + 32, factor);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 inline void fwht64_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
@@ -138,19 +186,31 @@ inline void fwht64_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 B0 = X0 - X4, B1 = X1 - X5;
     const __m256 B2 = X2 - X6, B3 = X3 - X7;
 
-    fwht32_norm_terminale(A0, A1, A2, A3, y + 0, factor);
-    fwht32_norm_terminale(B0, B1, B2, B3, y + 32, factor);
+    fwht16_norm_term_avx2(A0, A1, A2, A3, y + 0, factor);
+    fwht16_norm_term_avx2(B0, B1, B2, B3, y + 32, factor);
 }
-
-inline void fwht128_norm_terminale(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, __m256 X8, __m256 X9, __m256 X10, __m256 X11, __m256 X12, __m256 X13, __m256 X14, __m256 X15, float y[], const __m256 factor) {
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+inline void fwht128_norm_term_avx2(__m256 X0, __m256 X1, __m256 X2, __m256 X3, __m256 X4, __m256 X5, __m256 X6, __m256 X7, __m256 X8, __m256 X9, __m256 X10, __m256 X11, __m256 X12, __m256 X13, __m256 X14, __m256 X15, float y[], const __m256 factor) {
     const __m256 A0 = X0 + X8, A1 = X1 + X9, A2 = X2 + X10, A3 = X3 + X11;
     const __m256 A4 = X4 + X12, A5 = X5 + X13, A6 = X6 + X14, A7 = X7 + X15;
     const __m256 B0 = X0 - X8, B1 = X1 - X9, B2 = X2 - X10, B3 = X3 - X11;
     const __m256 B4 = X4 - X12, B5 = X5 - X13, B6 = X6 - X14, B7 = X7 - X15;
-    fwht64_norm_terminale(A0, A1, A2, A3, A4, A5, A6, A7, y + 0, factor);
-    fwht64_norm_terminale(B0, B1, B2, B3, B4, B5, B6, B7, y + 64, factor);
+    fwht64_norm_terminale_avx2(A0, A1, A2, A3, A4, A5, A6, A7, y + 0, factor);
+    fwht64_norm_terminale_avx2(B0, B1, B2, B3, B4, B5, B6, B7, y + 64, factor);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 inline void fwht128_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 X0  = _mm256_loadu_ps(x + 0);
     const __m256 X1  = _mm256_loadu_ps(x + 8);
@@ -169,9 +229,15 @@ inline void fwht128_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 X14 = _mm256_loadu_ps(x + 112);
     const __m256 X15 = _mm256_loadu_ps(x + 120);
 
-    fwht128_norm_terminale(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y, factor);
+    fwht128_norm_term_avx2(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y, factor);
 }
-
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
 inline void fwht256_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 X0  = (_mm256_loadu_ps(x + 0) + _mm256_loadu_ps(x + 128));
     const __m256 X1  = (_mm256_loadu_ps(x + 8) + _mm256_loadu_ps(x + 136));
@@ -207,12 +273,14 @@ inline void fwht256_norm_flat_avx2(float x[], float y[], const __m256 factor) {
     const __m256 x14 = (_mm256_loadu_ps(x + 112) - _mm256_loadu_ps(x + 240));
     const __m256 x15 = (_mm256_loadu_ps(x + 120) - _mm256_loadu_ps(x + 248));
 
-    fwht128_norm_terminale(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y,       factor);
-    fwht128_norm_terminale(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, y + 128, factor);
+    fwht128_norm_term_avx2(X0, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, y,       factor);
+    fwht128_norm_term_avx2(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, y + 128, factor);
 }
 //
 //
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 //
 inline void fwht512_norm_flat_avx2(float* srcdst, const float factor_s = 0.04419417382f)
@@ -428,5 +496,4 @@ template <> inline void fwht_norm_avx2<1024>(float x[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-
 #endif
