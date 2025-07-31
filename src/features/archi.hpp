@@ -29,7 +29,7 @@
 //    #define FWHT_NORM lwht_norm_generic
 
 #elif defined(__AVX512F__)
-    #define FWHT_NORM fwht_norm_avx512
+    #define FWHT_NORM fwht_norm_avx2 // fwht_norm_avx512 (it performs better !!!)
 #elif defined(__AVX2__)
     #define FWHT_NORM fwht_norm_avx2
 #else

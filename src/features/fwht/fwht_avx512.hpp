@@ -294,7 +294,8 @@ inline void fwht_avx512<256>(float x[], float y[]) {
 //
 template <> inline void fwht_avx512<512>(float x[])
 {
-    for (int i = 0; i < 256; i+= sizeof(__m512)) {
+    const int simd = sizeof(__m512) / sizeof(float);
+    for (int i = 0; i < 256; i+= simd) {
         const __m512 A = _mm512_loadu_ps(x + i      );
         const __m512 B = _mm512_loadu_ps(x + i + 256);
         const __m512 C = _mm512_add_ps (A, B);
@@ -311,7 +312,8 @@ template <> inline void fwht_avx512<512>(float x[])
 //
 //
 template <> inline void fwht_avx512<1024>(float x[]) {
-    for (int i = 0; i < 512; i+= sizeof(__m512)) {
+    const int simd = sizeof(__m512) / sizeof(float);
+    for (int i = 0; i < 512; i+= simd) {
         const __m512 A = _mm512_loadu_ps(x + i      );
         const __m512 B = _mm512_loadu_ps(x + i + 512);
         const __m512 C = _mm512_add_ps (A, B);

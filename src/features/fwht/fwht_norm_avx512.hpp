@@ -189,7 +189,8 @@ inline void fwht256_norm_flat_avx512(float x[], float y[], const __m512 factor) 
 //
 inline void fwht512_norm_flat_avx512(float* srcdst, const float factor_s = 0.04419417382f)
 {
-    for (int i = 0; i < 256; i+= sizeof(__m512)) {
+    const int simd = sizeof(__m512) / sizeof(float);
+    for (int i = 0; i < 256; i+= simd) {
         const __m512 A = _mm512_loadu_ps(srcdst + i      );
         const __m512 B = _mm512_loadu_ps(srcdst + i + 256);
         const __m512 C = _mm512_add_ps (A, B);
@@ -208,7 +209,8 @@ inline void fwht512_norm_flat_avx512(float* srcdst, const float factor_s = 0.044
 //
 inline void fwht1024_norm_flat_avx512(float* srcdst)
 {
-    for (int i = 0; i < 512; i+= sizeof(__m512)) {
+    const int simd = sizeof(__m512) / sizeof(float);
+    for (int i = 0; i < 512; i+= simd) {
         const __m512 A = _mm512_loadu_ps(srcdst + i      );
         const __m512 B = _mm512_loadu_ps(srcdst + i + 512);
         const __m512 C = _mm512_add_ps (A, B);
