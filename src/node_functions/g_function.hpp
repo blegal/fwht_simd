@@ -71,7 +71,7 @@ void g_function(
     //    show_symbols( src_b );
     //    show_symbols( dst   );
 
-    normalize<gf_size>(dst->value); // temporal
+    normalize<gf_size>(dst->value);// temporal //abdallah_rm
     dst->is_freq = false;
 }
 //

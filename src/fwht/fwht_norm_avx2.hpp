@@ -66,8 +66,8 @@ inline void fwht16_norm_terminale(const __m256 X0, const __m256 X1, value_type y
     const __m256 P0   = _mm256_xor_ps(O2, M2);
     const __m256 P1   = _mm256_shuffle_ps(O2, O2, 0xB1);
     const __m256 P2   = _mm256_add_ps(P0, P1);
-    const __m256 P3   = _mm256_mul_ps(P2, factor);
-    _mm256_storeu_ps(y + 0, P3);
+    // const __m256 P3   = _mm256_mul_ps(P2, factor); //abdallah_rm
+    _mm256_storeu_ps(y + 0, P2);//abdallah_rm
     //////////////////////////////////////////////////////
     //	const __m256 B0 = fwht8_avx2 ( A0 );
     const __m256 BAS = _mm256_sub_ps(X0, X1);
@@ -80,8 +80,8 @@ inline void fwht16_norm_terminale(const __m256 X0, const __m256 X1, value_type y
     const __m256 BP0 = _mm256_xor_ps(BO2, M2);
     const __m256 BP1 = _mm256_shuffle_ps(BO2, BO2, 0xB1);
     const __m256 BP2 = _mm256_add_ps(BP0, BP1);
-    const __m256 BP3 = _mm256_mul_ps(BP2, factor);
-    _mm256_storeu_ps(y + 8, BP3);
+    // const __m256 BP3 = _mm256_mul_ps(BP2, factor);//abdallah_rm
+    _mm256_storeu_ps(y + 8, BP2);//abdallah_rm
     //////////////////////////////////////////////////////
 }
 
@@ -228,8 +228,8 @@ inline __m256 fwht8_norm_avx2(const __m256 x, const __m256 factor) {
     const __m256 P0 = _mm256_xor_ps(O2, M2);
     const __m256 P1 = _mm256_shuffle_ps(O2, O2, 0xB1);
     const __m256 P2 = _mm256_add_ps(P0, P1);
-    const __m256 P3 = _mm256_mul_ps(P2, factor);
-    return P3;
+    // const __m256 P3 = _mm256_mul_ps(P2, factor);//abdallah_rm
+    return P2;
 }
 //
 //

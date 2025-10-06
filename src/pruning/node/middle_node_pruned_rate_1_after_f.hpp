@@ -43,7 +43,8 @@ void decoder_pruned<gf_size>::middle_node_pruned_rate_1_after_f(
         fwht<gf_size>     (inputs[i].value );
         normalize<gf_size>(inputs[i].value, 0.125);
         normalize<gf_size>(inputs[i].value);
-        var->is_freq = false;
+        inputs[i].is_freq =false;
+        
 #endif
         int value = argmax<gf_size>( inputs[i].value );
         symbols[symbol_id + i] = value;

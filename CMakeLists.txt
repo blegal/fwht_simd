@@ -9,8 +9,11 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
 
-add_compile_options (-march=native -mtune=native -O3 -ffast-math)
+# add_compile_options (-march=native -mtune=native -O3 -ffast-math) #release
+# add_compile_options(-g -O0 -Wall -Wextra) #debug1
+add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra)#debug2
 add_compile_options (-Wall -Wextra)
+add_compile_options(-fdiagnostics-color=always)
 
 #######################################################################################################################################
 
