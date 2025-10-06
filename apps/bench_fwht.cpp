@@ -74,7 +74,7 @@ int main(int argc, char *[]) {
 
     const int32_t nTest = (1024 * 1024);
 
-    for (int size = 16; size <= 1024; size *= 2) {
+    for (int size = 16; size <= 4096; size *= 2) {
 
         float * tab_i = new float[size];
         float * tab_a = new float[size];

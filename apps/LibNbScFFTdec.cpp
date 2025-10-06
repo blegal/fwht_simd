@@ -36,8 +36,9 @@ extern "C" nb_sc_dec* allocate_dec( const int N, const int GF, const int* f_vect
     }else if ( GF ==  256 ) { ptr =  new nb_sc_decoder< 256>(N, f_vector);
     }else if ( GF ==  512 ) { ptr =  new nb_sc_decoder< 512>(N, f_vector);
     }else if ( GF == 1024 ) { ptr =  new nb_sc_decoder<1024>(N, f_vector);
-    }else if ( GF == 2048 ) {
-        ptr =  new nb_sc_decoder<2048>(N, f_vector);
+    }else if ( GF == 2048 ) { ptr =  new nb_sc_decoder<2048>(N, f_vector);
+    }else if ( GF == 4096 ) {
+        ptr =  new nb_sc_decoder<4096>(N, f_vector);
     }
 
     if ( ptr == nullptr ) {
@@ -58,7 +59,7 @@ extern "C" nb_sc_dec* allocate_dec( const int N, const int GF, const int* f_vect
 //
 extern "C" polar_encoder* allocate_enc( const int N, const int K, const int GF, const int* f_vector)
 {
-    if ( (GF >= 16) && (GF <= 1024) ) {
+    if ( (GF >= 16) && (GF <= 4096) ) {
         return new polar_encoder(f_vector, K, N);
     }else {
         printf("(EE) Error we should never be there...\n");

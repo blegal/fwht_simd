@@ -394,4 +394,46 @@ template <> inline void fwht_neon<1024>(float* srcdst) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
+template <> inline void fwht_neon<2048>(float* srcdst) {
+    const int simd = sizeof(float32x4_t) / sizeof(float);
+#if defined (__clang__)
+    #pragma unroll
+#endif
+    for (int i = 0; i < 1024; i += simd) {
+        const float32x4_t A = vld1q_f32(srcdst + i +    0);
+        const float32x4_t B = vld1q_f32(srcdst + i + 1024);
+        const float32x4_t C = vaddq_f32(A, B);
+        const float32x4_t D = vsubq_f32(A, B);
+        vst1q_f32(srcdst + i +    0, C);
+        vst1q_f32(srcdst + i + 1024, D);
+    }
+    fwht_neon<1024>(srcdst +    0);
+    fwht_neon<1024>(srcdst + 1024);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <> inline void fwht_neon<4096>(float* srcdst) {
+    const int simd = sizeof(float32x4_t) / sizeof(float);
+#if defined (__clang__)
+    #pragma unroll
+#endif
+    for (int i = 0; i < 2048; i += simd) {
+        const float32x4_t A = vld1q_f32(srcdst + i +    0);
+        const float32x4_t B = vld1q_f32(srcdst + i + 2048);
+        const float32x4_t C = vaddq_f32(A, B);
+        const float32x4_t D = vsubq_f32(A, B);
+        vst1q_f32(srcdst + i +    0, C);
+        vst1q_f32(srcdst + i + 2048, D);
+    }
+    fwht_neon<2048>(srcdst +    0);
+    fwht_neon<2048>(srcdst + 2048);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 #endif
