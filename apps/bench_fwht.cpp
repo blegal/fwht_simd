@@ -72,7 +72,7 @@ int main(int argc, char *[]) {
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    const int32_t nTest = (1024 * 1024);
+    const int32_t nTest = (64 * 1024 * 1024);
 
     for (int size = 16; size <= 4096; size *= 2) {
 
