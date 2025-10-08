@@ -46,6 +46,7 @@
 #include "definitions/const_config_GF64_N64.hpp"
 #include "features/archi.hpp"
 #include "hadamard/hadamard_64.hpp"
+#include "definitions/custom_types.hpp"
 
 // #define debug_g_function
 template <int gf_size>
@@ -61,7 +62,10 @@ inline __attribute__((always_inline)) void g_function_freq_in(
     FWHT_NORM<gf_size>(dst->value);
     dst->is_freq = false;
 
+
     FWHT_NORM<gf_size>(src_b->value);
+    // const float fact = 1/float(gf_size); if src_b will not be further used, no need to normalize
+    // normalize<gf_size>(src_b->value, fact); 
     src_b->is_freq = false;
 
     for (size_t i = 0; i < gf_size; i++) 
@@ -69,4 +73,5 @@ inline __attribute__((always_inline)) void g_function_freq_in(
 
     normalize<gf_size>(dst->value);
     dst->is_freq = false;
+
 }

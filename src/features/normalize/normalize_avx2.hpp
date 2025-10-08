@@ -166,6 +166,21 @@ template <> void inline normalize<64>(float * data) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+
+template <> void inline normalize<64>(float * data, float fact) {
+    __m256 v[8];  // 8 x 8 = 64
+
+    for (int i = 0; i < 8; ++i) {
+        v[i] = _mm256_loadu_ps(data + i * 8);
+
+    }
+
+    __m256 Fact = _mm256_set1_ps(fact);
+    for (int i = 0; i < 8; ++i) {
+        v[i] = _mm256_mul_ps(v[i], Fact);
+        _mm256_storeu_ps(data + i * 8, v[i]);
+    }
+}
 //
 //
 //

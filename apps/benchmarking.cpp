@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     float code_rate = 0.75f;
     int K  =  (int)( ((float)N) * code_rate);
     int nThreads = 1;
-    auto run_time = 6000ms;
+    auto run_time = 30000ms;
 
 
     std::string dec_type = "dec4";
