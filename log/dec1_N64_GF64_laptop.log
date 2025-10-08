@@ -1,0 +1,64 @@
+#(II) Non-binary FFT Successive Cancellation decoder evaluation program (AVX2 version)
+#(II) + developped by Bertrand LE GAL   in 2025...
+#(II) +        and by Abdallah ABDALLAH in 2025...
+#(II) +        and by Camille MONIERE   in 2025...
+#(II)
+#(II) Binary generated : Oct  7 2025 - 12:30:42
+#(II) + GNU GCC/G++ version 12.2.0
+#(II) + Trace date and time : Tue Oct  7 12:30:50 2025 CEST
+#(II)
+#(II) Polar code parameters
+#(II) ---------------------
+#(II)
+#(II) + GF equals : 64
+#(II) +  N equals : 64
+#(II) +  K equals : 32
+#(II) +  R equals : 50%
+#(II)
+#(II) +  Decoder  : dec1
+#(II) +  nThreads : 8
+#(II)
+#(II) Frozen matrix:
+#(II) -------------
+#(II)   0 |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  0  | 
+#(II)  32 |  1  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
+#(II)
+#(II) K Generatred symbols ( 32) :
+#(II) ---------------------------
+#(II)
+#(II)   0 | 39  6 41 51 17 63 10 44 41 13 58 43 50 59 35  6 
+#(II)  16 | 60  2 20 56 27 40 39 13 54 26 46 35 51 31  9 26 
+#(II)
+#(II) N Encoded symbols (64):
+#(II) ---------------------------
+#(II)
+#(II)   0 | 63 59 53 21 39 55 13 30 34 27 24 11 51 60  5  1 
+#(II)  16 | 48 13 56 55 20  7 31 20 41 15 21 44 33 20 59 61 
+#(II)  32 | 37 33 47 15 61 45 23  4 56  1  2 17 41 38 31 27 
+#(II)  48 | 42 23 34 45 14 29  5 14 51 21 15 54 59 14 33 39 
+#(II)
+#(II) N Decoded symbols ( 64) :
+#(II) ------------------------
+#(II)
+#(II)   0 | 63 59 53 21 39 55 13 30 34 27 24 11 51 60  5  1 
+#(II)  16 | 48 13 56 55 20  7 31 20 41 15 21 44 33 20 59 61 
+#(II)  32 | 37 33 47 15 61 45 23  4 56  1  2 17 41 38 31 27 
+#(II)  48 | 42 23 34 45 14 29  5 14 51 21 15 54 59 14 33 39 
+#(II)
+#(II) K decoded symbols ( 32) :
+#(II) ------------------------
+#(II)
+#(II)   0 | 39  6 41 51 17 63 10 44 41 13 58 43 50 59 35  6 
+#(II)  16 | 60  2 20 56 27 40 39 13 54 26 46 35 51 31  9 26 
+#(II)
+#(II) Decoder behavior : OK
+#(II)
+#(II) +  Launching throughput measurement (dec1)
+#(II)
+#(II)
+#(II) #threads exec. : 8
+#(II) MultiCore time : 2.001 sec
+#(II) #decode frames : 350231
+#(II) Coded through .: 67.217 Mbps
+#(II)
+64 32 50 64 67.22 5

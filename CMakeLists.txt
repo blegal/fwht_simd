@@ -9,6 +9,7 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
 add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math) #
+# add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra)#debug2
 add_compile_options (-Wall -Wextra -Werror)
 
 #######################################################################################################################################

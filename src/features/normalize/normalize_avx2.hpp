@@ -13,11 +13,11 @@
 template <int gf_size> inline void normalize(float * data) {
     float sum = 1e-32f;
     for (int i = 0; i < gf_size; i += 1) {
-        sum += tab[i];
+        sum += data[i];
     }
     const float factor = 1.f / sum;
     for (int i = 0; i < gf_size; i++) {
-        tab[i] *= factor;
+        data[i] *= factor;
     }
 }
 //
@@ -241,7 +241,8 @@ template <> void inline normalize<256>(float * data) {
 //
 //
 //
-template <> void inline normalize<512>(float * data {
+template <> void inline normalize<512>(float * data)
+{
     __m256 v[64];  // 64 x 8 = 512
     __m128 sum128 = _mm_set_ss(1e-32f);
 

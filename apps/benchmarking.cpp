@@ -65,10 +65,10 @@ int main(int argc, char* argv[]) {
     float code_rate = 0.75f;
     int K  =  (int)( ((float)N) * code_rate);
     int nThreads = 1;
-    auto run_time = 60000ms;
+    auto run_time = 6000ms;
 
 
-    std::string dec_type = "dec1";
+    std::string dec_type = "dec4";
     bool is_colored  = true;
 
     for(int i = 1; i < argc; i++) {
