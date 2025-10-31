@@ -8,74 +8,52 @@ import sys
 #
 #
 def generate_config_header(N, GF):
-    import os
-
     header_content = f"""#ifndef CONFIG_CODE_H
 #define CONFIG_CODE_H
 #include "codes/N{N}_GF{GF}.hpp"
 #endif
 """
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    code_path = os.path.join(project_root, "src", "definitions", "code.hpp")
-
-    # Ensure the definitions folder exists
-    os.makedirs(os.path.dirname(code_path), exist_ok=True)
-
-    with open(code_path, "w") as f:
+    with open("../src/definitions/code.hpp", "w") as f:
         f.write(header_content)
-
 #
 #
 #
 #
 #
 def compile_project():
-    import os
     log_file = "/tmp/process.log"
-    build_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "build")
-
-    os.makedirs(build_dir, exist_ok=True)
-
     with open(log_file, "w") as f:
         print("🛠️  Compilation initiale (1/2)...")
-
-        result = subprocess.run(["make", "-C", build_dir, "clean"], stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(["make","clean"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
             sys.exit(1)
-
-        result = subprocess.run(["make", "-C", build_dir, "code_generator"], stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(["make","code_generator"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
             sys.exit(1)
-
         print(f"🚀 Generation du décodeur dédié...")
-        result = subprocess.run(
-            [os.path.join(build_dir, "code_generator"), "--code-rate", "0.50", "--no-verbose"],
-            stdout=f, stderr=subprocess.STDOUT
-        )
+        result = subprocess.run(["./code_generator", "--code-rate", "0.50", "--no-verbose"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
             sys.exit(1)
-
         print("🛠️  Compilation finale (2/2)...")
-        result = subprocess.run(["make", "-C", build_dir, "benchmarking"], stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(["make","benchmarking"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
             sys.exit(1)
-
 #
 #
 #
 #
 #
 def run_executable(N, GF, decoder, platform, cores, time, log_dir):
-    import os
-    executable = os.path.join("build", "benchmarking")
+    executable = "./benchmarking"
     log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
     cmd = [executable, "--decoder", decoder, "--no-color", "--cores" , cores, "--time", time, "--code-rate", "0.50"]
 
     print(f"🚀 Exécution: {cmd} pour N={N} et GF={GF}")
+
     with open(log_file, "w") as f:
         result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
@@ -86,14 +64,14 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
 #
 #
 #
-def generate_report(log_dir, decoder, platform, GF, Ns):
-    report_file = os.path.join(log_dir, f"thgt_N_{decoder}_{platform}.txt")
+def generate_report(log_dir, decoder, platform, GF, N):
+    report_file = os.path.join(log_dir, f"thgt_GF_{decoder}_{platform}.txt")
     with open(report_file, "w") as report:
         header = "N K R GF CodedThgt InfoThgt Latency"
         report.write(header + "\n")
 
-        for N in Ns:
-            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
+        for gf in GF:
+            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{gf}_{platform}.log")
             if os.path.isfile(log_file):
                 with open(log_file, "r") as f:
                     lines = f.readlines()
@@ -101,7 +79,7 @@ def generate_report(log_dir, decoder, platform, GF, Ns):
                         last_line = lines[-1].strip()
                         report.write(f"{last_line}\n")
                     else:
-                        report.write(f"{N} MISSING_DATA\n")
+                        report.write(f"{gf} MISSING_DATA\n")
             else:
                 report.write(f"{N} MISSING_LOG\n")
 
@@ -119,21 +97,21 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GF = 64  # fixe ou tu peux le rendre paramétrable
-    Ns = [64]
+    GF = [8, 16, 32, 64, 128, 256, 512, 1024]  # fixe ou tu peux le rendre paramétrable
+    N  = 64
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)
 
-    for N in Ns:
-        print(f"🔧 Génération config pour N={N}, GF={GF}")
-        generate_config_header(N, GF)
+    for gf in GF:
+        print(f"🔧 Génération config pour N={N}, GF={gf}")
+        generate_config_header(N, gf)
 
         compile_project()
 
-        run_executable(N, GF, args.decoder, args.platform, args.cores, args.time, log_dir)
+        run_executable(N, gf, args.decoder, args.platform, args.cores, args.time, log_dir)
 
-    generate_report(log_dir, args.decoder, args.platform, GF, Ns)
+    generate_report(log_dir, args.decoder, args.platform, GF, N)
     print("✅ Tout est terminé.")
 #
 #
