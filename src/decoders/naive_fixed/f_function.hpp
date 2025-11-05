@@ -6,7 +6,7 @@
 template <uint32_t gf_size>
 void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbols_f * __restrict src_b)
 {
-#ifndef _TEST_
+#ifdef _TEST_
     printf("(DD) f_function(--)\n");
 #endif
 
@@ -15,7 +15,7 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
         fwht_norm<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
-#ifndef _TEST_
+#ifdef _TEST_
     if ( is_issue(src_a->value) > 1.f ) {
         printf("(EE) Error in %s %d\n", __FILE__, __LINE__);
         printf("(EE) value = %f\n", is_issue(src_a->value));
@@ -29,7 +29,7 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
         src_b->is_freq = true;
     }
 
-#ifndef _TEST_
+#ifdef _TEST_
     if ( is_issue(src_b->value) > 1.f ) {
         printf("(EE) Error in %s %d\n", __FILE__, __LINE__);
         printf("(EE) value = %f\n", is_issue(src_b->value));
@@ -57,7 +57,7 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
 #endif
     dst->is_freq = true; // a.a we do CN in FD
 
-#ifndef _TEST_
+#ifdef _TEST_
     if ( is_issue(dst->value) > 1.f ) {
         printf("(EE) Error in %s %d\n", __FILE__, __LINE__);
         printf("(EE) value = %f\n", is_issue(dst->value));
