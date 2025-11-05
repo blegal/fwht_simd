@@ -12,7 +12,12 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
 
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
-        fwht_norm<gf_size>(src_a->value);
+        //
+        // On ne normalise pas durant la FWHT CAR cela permet d'avoir des l'energie
+        // du signal normalisée à 1 en sortie de la transformation
+        //
+        // fwht_norm<gf_size>(src_a->value);
+        fwht<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
 #ifdef _TEST_
@@ -25,7 +30,11 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
 
     if (src_b->is_freq == false) // Switch from time to frequency domain
     {
-        fwht_norm<gf_size>(src_b->value);
+        //
+        // On ne normalise pas durant la FWHT CAR cela permet d'avoir des l'energie
+        // du signal normalisée à 1 en sortie de la transformation
+        //
+        fwht<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
 
@@ -49,11 +58,14 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
     for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] =  src_a->value[i] * src_b->value[i];
     }
-    const float fact = 1.f / dst->value[0].to_float();
-    const ap_fixed<16, 16> ffact = fact;    // should be drastically reduced !
-    for (size_t i = 0; i < gf_size; i++) {
-        dst->value[i] = ffact * dst->value[i];
-    }
+    // Plus besoin de normaliser car l'energie qui est
+    // egale à 1 est mulitpliée par 1 => 1
+    // on est normalisé par construction !
+//    const float fact = 1.f / dst->value[0].to_float();
+//    const ap_fixed<16, 16> ffact = fact;    // should be drastically reduced !
+//    for (size_t i = 0; i < gf_size; i++) {
+//        dst->value[i] = ffact * dst->value[i];
+//    }
 #endif
     dst->is_freq = true; // a.a we do CN in FD
 

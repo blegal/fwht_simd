@@ -1,7 +1,10 @@
 #pragma once
 
 #include "f_argmax.hpp"
+#include "f_fwht_norm.hpp"
 #include "f_normalize.hpp"
+
+//#define _TEST_
 
 template <int gf_size>
 void g_function(
@@ -11,10 +14,6 @@ void g_function(
     uint32_t    src_c)    // the computed symbols coming from the left side of the graph
 {
 #ifdef _TEST_
-    printf("(DD) g_function(--)\n");
-#endif
-
-#ifdef _TEST_
     if ( is_issue(src_a->value) > 1.f ) {
         printf("(EE) Error in %s %d\n", __FILE__, __LINE__);
         printf("(EE) value = %f\n", is_issue(src_a->value));
@@ -22,7 +21,18 @@ void g_function(
     }
 #endif
 
-    if (src_a->is_freq == true) {
+    if (src_a->is_freq == true)
+    {
+        //
+        // Pour eviter que la dynamique explose en interne dans la FWHT, il
+        // faut appliquer la normalisation que l'on n'a pas fait en sortie
+        // de la FWHT (fonction F)
+        //
+        const ap_fixed<NBITS, NFRAC> factor = norm_factor_lwht<gf_size>();
+        for (size_t i = 0; i < gf_size; i++) {
+            src_a->value[i] = src_a->value[i] * factor;
+        }
+        // traitement normal en suivant
         fwht_norm<gf_size>(src_a->value);
         src_a->is_freq = false;
     }
@@ -36,6 +46,16 @@ void g_function(
 #endif
 
     if (src_b->is_freq == true) {
+        //
+        // Pour eviter que la dynamique explose en interne dans la FWHT, il
+        // faut appliquer la normalisation que l'on n'a pas fait en sortie
+        // de la FWHT (fonction F)
+        //
+        const ap_fixed<NBITS, NFRAC> factor = norm_factor_lwht<gf_size>();
+        for (size_t i = 0; i < gf_size; i++) {
+            src_b->value[i] = src_b->value[i] * factor;
+        }
+        // traitement normal en suivant
         fwht_norm<gf_size>(src_b->value);
         src_b->is_freq = false;
     }
