@@ -21,7 +21,7 @@ void f_function(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbol
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
     for (size_t i = 0; i < gf_size; i++) {
-        dst->value[i] =  src_a->value[i] * src_b->value[i]; // TODO : attention au facteur 10x qui est magique !!!
+        dst->value[i] =  10.0 * src_a->value[i] * src_b->value[i];
     }
     dst->is_freq = true; // a.a we do CN in FD
 }

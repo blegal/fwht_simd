@@ -54,7 +54,7 @@ void g_function(
     symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
     symbols_t * __restrict src_a, // the upper value set from the right side of the graph
     symbols_t * __restrict src_b, // the lower value set from the right side of the graph
-    uint32_t    src_c)    // the computed symbols coming from the left side of the graph
+    uint32_t    src_c)            // the computed symbols coming from the left side of the graph
 {
     if (src_a->is_freq == true)
     {
@@ -63,9 +63,7 @@ void g_function(
             dst->value[i] = src_a->value[i] * Hadamard[src_c][i];
         }
 
-        // FWHT_NORM<gf_size>(src_a->value);
         FWHT_NORM<gf_size>(dst->value);
-        // src_a->is_freq = false;
         dst->is_freq   = false;
     }
     else
