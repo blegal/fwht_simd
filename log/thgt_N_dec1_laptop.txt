@@ -1,2 +1,0 @@
-N K R GF CodedThgt InfoThgt Latency
-64 32 50 64 67.22 5
