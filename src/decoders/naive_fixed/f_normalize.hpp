@@ -22,8 +22,6 @@ void f_normalize(ap_fixed<NBITS, NINTG> *tab)
     {
         sum = 1.f;
     }
-    float sum1 = (float)sum;
-
     for (int i = 0; i < gf_size; i++)
     {
         tab[i] /= sum;

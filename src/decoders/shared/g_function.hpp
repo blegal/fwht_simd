@@ -45,9 +45,29 @@
 
 #pragma once
 
+#include "definitions/code.hpp"
 #include "features/archi.hpp"
 #include "utilities/utility_functions.hpp"
-#include "hadamard/hadamard_64.hpp"
+
+#if _GF_ == 16
+    #include "hadamard/hadamard_64.hpp"
+#elif _GF_ == 32
+    #include "hadamard/hadamard_128.hpp"
+#elif _GF_ == 64
+    #include "hadamard/hadamard_64.hpp"
+#elif _GF_ == 128
+    #include "hadamard/hadamard_128.hpp"
+#elif _GF_ == 256
+    #include "hadamard/hadamard_256.hpp"
+#elif _GF_ == 512
+    #include "hadamard/hadamard_512.hpp"
+#elif _GF_ == 1024
+    #include "hadamard/hadamard_1024.hpp"
+#elif _GF_ == 1024
+    #include "hadamard/hadamard_2048.hpp"
+#elif _GF_ == 1024
+    #include "hadamard/hadamard_4096.hpp"
+#endif
 
 template <int gf_size>
 void g_function(
