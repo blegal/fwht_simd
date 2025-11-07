@@ -97,19 +97,19 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GF = [8, 16, 32, 64, 128, 256, 512, 1024]  # fixe ou tu peux le rendre paramétrable
-    N  = 64
+    GF = 64  # fixe ou tu peux le rendre paramétrable
+    Ns = [8, 16, 32, 64, 128, 256, 512, 1024]
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)
 
-    for gf in GF:
-        print(f"🔧 Génération config pour N={N}, GF={gf}")
-        generate_config_header(N, gf)
+    for N in Ns:
+        print(f"🔧 Génération config pour N={N}, GF={GF}")
+        generate_config_header(N, GF)
 
         compile_project()
 
-        run_executable(N, gf, args.decoder, args.platform, args.cores, args.time, log_dir)
+        run_executable(N, GF, args.decoder, args.platform, args.cores, args.time, log_dir)
 
     generate_report(log_dir, args.decoder, args.platform, GF, N)
     print("✅ Tout est terminé.")
