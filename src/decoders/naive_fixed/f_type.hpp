@@ -6,8 +6,8 @@
 //
 #include "include/ap_fixed.h"
 //
-#define NBITS   32
-#define NINTG   16
+#define NBITS   26
+#define NINTG   2
 //
 struct symbols_f {
     ap_fixed<NBITS, NINTG> value[_GF_];

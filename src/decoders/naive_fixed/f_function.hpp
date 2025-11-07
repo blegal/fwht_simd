@@ -11,20 +11,18 @@ void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbol
         fwht<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
-
-    if (src_b->is_freq == false) {
+    if (src_b->is_freq == false)
+    {
         fwht<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
-
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
     for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] =  src_a->value[i] * src_b->value[i];
     }
-    dst->is_freq = true; // a.a we do CN in FD
-
+    dst->is_freq = true;
 }
 //
 //
