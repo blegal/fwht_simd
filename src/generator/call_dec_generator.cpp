@@ -1,7 +1,7 @@
-#include "dec_generator.hpp"
-#include "generator/reliab_loader.hpp"
+#include "dec_generator_abd.hpp"
 #include <cstdlib>
 #include <iostream>
+#include <utilities/reliab_loader.hpp>
 #include <vector>
 
 int main(int argc, char * argv[])

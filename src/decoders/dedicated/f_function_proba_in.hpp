@@ -11,12 +11,13 @@
 //
 //
 //
-template <int gf_size> void f_function_proba_in(
-          symbols_t* __restrict dst,
-    const symbols_t* __restrict src_a,
-    const symbols_t* __restrict src_b,
-    const int n_symbols
-) {
+template <int gf_size>
+void f_function_proba_in(
+    symbols_t *__restrict dst,
+    const symbols_t *__restrict src_a,
+    const symbols_t *__restrict src_b,
+    const int n_symbols)
+{
     for (int s = 0; s < n_symbols; s++)
     {
         symbols_t tmp_a;
@@ -36,8 +37,9 @@ template <int gf_size> void f_function_proba_in(
         //
         // Element-wise multiplication of the two input symbols because we are in frequency domain !
         //
-        for (size_t i = 0; i < gf_size; i++) {
-            dst[s].value[i] = 10.f * tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
+        for (size_t i = 0; i < gf_size; i++)
+        {
+            dst[s].value[i] = tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
         }
         dst[s].is_freq = true; // a.a we do CN in FD
     }
@@ -47,11 +49,12 @@ template <int gf_size> void f_function_proba_in(
 //
 //
 //
-template <int gf_size, int n_symbols> inline __attribute__((always_inline)) void f_function_proba_in(
-          symbols_t* __restrict dst,
-    const symbols_t* __restrict src_a,
-    const symbols_t* __restrict src_b
-) {
+template <int gf_size, int n_symbols>
+inline __attribute__((always_inline)) void f_function_proba_in(
+    symbols_t *__restrict dst,
+    const symbols_t *__restrict src_a,
+    const symbols_t *__restrict src_b)
+{
     for (int s = 0; s < n_symbols; s++)
     {
         symbols_t tmp_a;
@@ -71,8 +74,9 @@ template <int gf_size, int n_symbols> inline __attribute__((always_inline)) void
         //
         // Element-wise multiplication of the two input symbols because we are in frequency domain !
         //
-        for (size_t i = 0; i < gf_size; i++) {
-            dst[s].value[i] = 10.f * tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
+        for (size_t i = 0; i < gf_size; i++)
+        {
+            dst[s].value[i] = tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
         }
         dst[s].is_freq = true; // a.a we do CN in FD
     }
