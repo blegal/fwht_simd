@@ -50,23 +50,23 @@
 #include "utilities/utility_functions.hpp"
 
 #if _GF_ == 16
-    #include "hadamard/hadamard_64.hpp"
+    #include "hadamard/Hadamard_64.hpp"
 #elif _GF_ == 32
-    #include "hadamard/hadamard_128.hpp"
+    #include "hadamard/Hadamard_128.hpp"
 #elif _GF_ == 64
-    #include "hadamard/hadamard_64.hpp"
+    #include "hadamard/Hadamard_64.hpp"
 #elif _GF_ == 128
-    #include "hadamard/hadamard_128.hpp"
+    #include "hadamard/Hadamard_128.hpp"
 #elif _GF_ == 256
-    #include "hadamard/hadamard_256.hpp"
+    #include "hadamard/Hadamard_256.hpp"
 #elif _GF_ == 512
-    #include "hadamard/hadamard_512.hpp"
+    #include "hadamard/Hadamard_512.hpp"
 #elif _GF_ == 1024
-    #include "hadamard/hadamard_1024.hpp"
-#elif _GF_ == 1024
-    #include "hadamard/hadamard_2048.hpp"
-#elif _GF_ == 1024
-    #include "hadamard/hadamard_4096.hpp"
+    #include "hadamard/Hadamard_1024.hpp"
+#elif _GF_ == 2048
+    #include "hadamard/Hadamard_2048.hpp"
+#elif _GF_ == 4096
+    #include "./hadamard/Hadamard_4096.hpp"
 #endif
 
 template <int gf_size>

@@ -67,7 +67,7 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
 def generate_report(log_dir, decoder, platform, GF, N):
     report_file = os.path.join(log_dir, f"thgt_GF_{decoder}_{platform}.txt")
     with open(report_file, "w") as report:
-        header = "N K R GF CodedThgt InfoThgt Latency"
+        header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
 
         for gf in GF:
@@ -76,8 +76,8 @@ def generate_report(log_dir, decoder, platform, GF, N):
                 with open(log_file, "r") as f:
                     lines = f.readlines()
                     if lines:
-                        last_line = lines[-1].strip()
-                        report.write(f"{last_line}\n")
+                        last_line = lines[-1]#.strip()
+                        report.write(f"{last_line}")#\n")
                     else:
                         report.write(f"{gf} MISSING_DATA\n")
             else:

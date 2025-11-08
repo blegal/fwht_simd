@@ -502,7 +502,10 @@ int main(int argc, char* argv[]) {
         printf("#(II) #decode frames : %d\n", fRunTest);
         printf("#(II) Coded through .: %1.3f Mbps\n",  debit);
         printf("#(II)\n");
-        printf("%d %d %2d %d %1.2f %d\n", N, K, (int)(100.f * code_rate), GF, debit, (int)time_run);
+
+        const int   icode_rate = (int)(100.f * code_rate);
+        const float debit_info = (int)(debit * code_rate);
+        printf("%4d %4d %4d %4d %7.2f %7.2f %5d\n", N, K, icode_rate, GF, debit, debit_info, (int)time_run);
     }
 
     delete dec;
