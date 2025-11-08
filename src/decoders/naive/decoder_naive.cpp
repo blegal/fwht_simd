@@ -168,8 +168,10 @@ template <int gf_size> void decoder_naive<gf_size>::leaf_node(
     template class decoder_naive<256>;
 #elif _GF_ == 512
     template class decoder_naive<512>;
-#elif _GF_ == 1024
-    template class decoder_naive<1024>;
+#elif _GF_ == 2048
+    template class decoder_naive<2048>;
+#elif _GF_ == 4096
+    template class decoder_naive<4096>;
 #endif
 //
 //

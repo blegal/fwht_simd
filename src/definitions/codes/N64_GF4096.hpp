@@ -1,8 +1,8 @@
 #ifndef CONFIG_CONSTANTS_H
 #define CONFIG_CONSTANTS_H
 
-#define _GF_    512
-#define _logGF_ 9
+#define _GF_    4096
+#define _logGF_ 12
 
 #define _N_     64
 #define _logN_  6

@@ -16,5 +16,5 @@ public:
 private:
     const int K;
     const int N;
-    std::vector<uint8_t> liste;
+    std::vector<uint16_t> liste; // 16 is necessary when GF > 256 !
 };

@@ -64,22 +64,22 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
 #
 #
 #
-def generate_report(log_dir, decoder, platform, GF, N):
-    report_file = os.path.join(log_dir, f"thgt_GF_{decoder}_{platform}.txt")
+def generate_report(log_dir, decoder, platform, GF, Ns):
+    report_file = os.path.join(log_dir, f"thgt_N_{decoder}_{platform}.txt")
     with open(report_file, "w") as report:
-        header = "N K R GF CodedThgt InfoThgt Latency"
+        header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
 
-        for gf in GF:
-            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{gf}_{platform}.log")
+        for N in Ns:
+            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}.log")
             if os.path.isfile(log_file):
                 with open(log_file, "r") as f:
                     lines = f.readlines()
                     if lines:
-                        last_line = lines[-1].strip()
-                        report.write(f"{last_line}\n")
+                        last_line = lines[-1]#.strip()
+                        report.write(f"{last_line}")#\n")
                     else:
-                        report.write(f"{gf} MISSING_DATA\n")
+                        report.write(f"{GF} MISSING_DATA\n")
             else:
                 report.write(f"{N} MISSING_LOG\n")
 
@@ -97,21 +97,21 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GF = [8, 16, 32, 64, 128, 256, 512, 1024]  # fixe ou tu peux le rendre paramétrable
-    N  = 64
+    GF = 64  # fixe ou tu peux le rendre paramétrable
+    Ns = [8, 16, 32, 64, 128, 256, 512, 1024]
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)
 
-    for gf in GF:
-        print(f"🔧 Génération config pour N={N}, GF={gf}")
-        generate_config_header(N, gf)
+    for N in Ns:
+        print(f"🔧 Génération config pour N={N}, GF={GF}")
+        generate_config_header(N, GF)
 
         compile_project()
 
-        run_executable(N, gf, args.decoder, args.platform, args.cores, args.time, log_dir)
+        run_executable(N, GF, args.decoder, args.platform, args.cores, args.time, log_dir)
 
-    generate_report(log_dir, args.decoder, args.platform, GF, N)
+    generate_report(log_dir, args.decoder, args.platform, GF, Ns)
     print("✅ Tout est terminé.")
 #
 #
