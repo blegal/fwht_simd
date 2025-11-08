@@ -8,8 +8,8 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
-add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math) #
-# add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra)#debug2
+# add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math) #
+add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra)#debug2
 # add_compile_options (-Wall -Wextra -Werror)
 add_compile_options (-Wall -Wextra -Wno-unused-parameter)
 
@@ -30,8 +30,8 @@ add_compile_options (-Wall -Wextra -Wno-unused-parameter)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
-add_executable(benchmarking
-        ${CMAKE_CURRENT_SOURCE_DIR}/apps/benchmarking.cpp
+add_executable(ggg
+        ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp
         src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
         src/decoders/specialized/decoder_specialized.cpp
         src/decoders/dedicated/decoder_dedicated.cpp
@@ -41,8 +41,12 @@ add_executable(benchmarking
         src/decoders/naive_pruning/decoder_naive_pruning.cpp
         src/encoder/polar_encoder.cpp
 )
-target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries      (benchmarking PUBLIC utilities)
+target_include_directories (ggg PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (ggg PUBLIC utilities)
+option(EN_ABD_OPTIM "Enable feature" ON)
+if(EN_ABD_OPTIM)
+  target_compile_definitions(ggg PRIVATE ABD_OPTIM)
+endif()
 
 #######################################################################################################################################
 
