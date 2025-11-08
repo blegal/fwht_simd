@@ -2,8 +2,6 @@
 
 // #include "features/archi.hpp"
 
-// #include "definitions/const_config_GF64_N64.hpp"
-
 // // #define debug_g_function
 // template <int gf_size> inline __attribute__((always_inline))
 // void g_function_freq_in(
