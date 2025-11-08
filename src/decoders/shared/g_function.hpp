@@ -45,14 +45,12 @@
 
 #pragma once
 
-#include "definitions/code.hpp"
-#include "features/archi.hpp"
-#include "utilities/utility_functions.hpp"
-
-#if _GF_ == 16
-    #include "hadamard/Hadamard_64.hpp"
+#if _GF_ == 8
+    #include "hadamard/Hadamard_8.hpp"
+#elif _GF_ == 16
+    #include "hadamard/Hadamard_16.hpp"
 #elif _GF_ == 32
-    #include "hadamard/Hadamard_128.hpp"
+    #include "hadamard/Hadamard_32.hpp"
 #elif _GF_ == 64
     #include "hadamard/Hadamard_64.hpp"
 #elif _GF_ == 128
@@ -68,6 +66,10 @@
 #elif _GF_ == 4096
     #include "./hadamard/Hadamard_4096.hpp"
 #endif
+
+#include "definitions/code.hpp"
+#include "features/archi.hpp"
+#include "utilities/utility_functions.hpp"
 
 template <int gf_size>
 void g_function(
