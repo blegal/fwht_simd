@@ -41,9 +41,9 @@
 
 #pragma once
 
-#include "features/archi.hpp"
-#include "hadamard/hadamard_64.hpp"
 #include "definitions/custom_types.hpp"
+#include "features/archi.hpp"
+#include "hadamard/Hadamard_64.hpp"
 
 // #define debug_g_function
 template <int gf_size>
