@@ -111,7 +111,7 @@ def main():
 
         run_executable(N, GF, args.decoder, args.platform, args.cores, args.time, log_dir)
 
-    generate_report(log_dir, args.decoder, args.platform, GF, N)
+    generate_report(log_dir, args.decoder, args.platform, GF, Ns)
     print("✅ Tout est terminé.")
 #
 #
