@@ -18,7 +18,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "definitions/const_config_GF64_N64.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdint>

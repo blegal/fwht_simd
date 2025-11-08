@@ -176,13 +176,17 @@ int main(int argc, char* argv[]) {
     std::cout << "#(II) +  Decoder  : " << dec_type << std::endl;
     std::cout << "#(II) +  nThreads : " << nThreads << std::endl;
     std::cout << "#(II)" << std::endl;
-
+    //
+    //
+    //
     int frozen_symbols[N];
     for (int i = 0; i < N; i += 1)
         frozen_symbols[i] = true;
     for (int i = 0; i < K; i += 1)
         frozen_symbols[reliab_seq[i]] = false;
-
+    //
+    //
+    //
     printf("#(II) Frozen matrix:\n");
     printf("#(II) -------------\n");
     printf("#(II) %3d | ", 0);
@@ -194,7 +198,6 @@ int main(int argc, char* argv[]) {
         printf("%2d ", frozen_symbols[i]);
     }
     printf(" |\n");
-
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -225,10 +228,6 @@ int main(int argc, char* argv[]) {
     }
     printf("\n");
 
-    //
-    //
-    //
-
     polar_encoder encoder(reliab_seq, K, N);
     encoder.encode( symbol_n.data(), symbol_k.data() ); // dst <= F(src)
 
@@ -240,7 +239,7 @@ int main(int argc, char* argv[]) {
         if ( ((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
         if( is_colored ) printf("\e[1;32m%2d\e[0m ", symbol_n[i]);
-        else             printf("%2d ", symbol_n[i]);
+        else             printf("%2d ",              symbol_n[i]);
     }
     printf("\n");
 

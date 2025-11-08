@@ -43,7 +43,6 @@
 
 #pragma once
 
-#include "definitions/const_config_GF64_N64.hpp"
 #include "features/archi.hpp"
 #include "hadamard/hadamard_64.hpp"
 #include "definitions/custom_types.hpp"
