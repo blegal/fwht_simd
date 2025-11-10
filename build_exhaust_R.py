@@ -64,7 +64,7 @@ def run_executable(N, GF, R, decoder, platform, cores, time, log_dir):
 #
 #
 def generate_report(log_dir, decoder, platform, GF, N, Rs):
-    report_file = os.path.join(log_dir, f"thgt_R_N{N}_GF{GF}_{decoder}_{platform}.txt")
+    report_file = os.path.join(log_dir, f"R_{decoder}_{platform}.txt")
     with open(report_file, "w") as report:
         header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
