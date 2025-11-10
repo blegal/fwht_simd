@@ -138,13 +138,13 @@ def main():
         "--Ns",
         nargs="*",
         type=int,
-        default="8 16 32 64 128 256 512 1024",
+        default="-1",
         help="Valeur de N à tester",
     )
     args = parser.parse_args()
 
     GF = 64  # fixe ou tu peux le rendre paramétrable
-    Ns = args.Ns
+    Ns = args.Ns if args.Ns[0] != -1 else [8, 16, 32, 64, 128, 256, 512, 1024]
 
     log_dir = "log"
     os.makedirs(log_dir, exist_ok=True)
