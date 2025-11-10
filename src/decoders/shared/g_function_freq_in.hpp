@@ -9,11 +9,14 @@
 #include "definitions/custom_types.hpp"
 #include "features/archi.hpp"
 
+
 #ifdef ABD_OPTIM
-#if _GF_ == 16
-#include "hadamard/Hadamard_64.hpp"
+#if _GF_ == 8
+#include "hadamard/Hadamard_8.hpp"
+#elif _GF_ == 16
+#include "hadamard/Hadamard_16.hpp"
 #elif _GF_ == 32
-#include "hadamard/Hadamard_128.hpp"
+#include "hadamard/Hadamard_32.hpp"
 #elif _GF_ == 64
 #include "hadamard/Hadamard_64.hpp"
 #elif _GF_ == 128
@@ -24,9 +27,9 @@
 #include "hadamard/Hadamard_512.hpp"
 #elif _GF_ == 1024
 #include "hadamard/Hadamard_1024.hpp"
-#elif _GF_ == 1024
+#elif _GF_ == 2048
 #include "hadamard/Hadamard_2048.hpp"
-#elif _GF_ == 1024
+#elif _GF_ == 4096
 #include "hadamard/Hadamard_4096.hpp"
 #endif
 #endif
