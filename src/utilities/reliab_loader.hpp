@@ -12,20 +12,33 @@ inline std::vector<uint16_t> load_reliability_sequence(int GF, int N, float SNR)
 {
     // Build the file path: ./matrices/GF64/N64/mat_N64_GF64_SNR1.000.txt
     std::ostringstream fname;
-    fname << "./matrices/GF" << GF
+    fname << "../matrices/GF" << GF
           << "/N" << N
           << "/mat_N" << N
           << "_GF" << GF
           << "_SNR" << std::fixed << std::setprecision(3) << SNR
           << ".txt";
-
     std::string   filename = fname.str();
     std::ifstream file(filename);
 
+    //
+    // Patch for Abdallah who does not run its application from build directory ;-)
+    //
     if (!file)
     {
-        std::cerr << "❌ Cannot open reliability file: " << filename << std::endl;
-        std::exit(EXIT_FAILURE);
+        fname << "./matrices/GF" << GF
+              << "/N" << N
+              << "/mat_N" << N
+              << "_GF" << GF
+              << "_SNR" << std::fixed << std::setprecision(3) << SNR
+              << ".txt";
+        filename = fname.str();
+        file.open(filename);
+
+        if (!file) {
+            std::cerr << "❌ Cannot open reliability file: " << filename << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
     }
 
     std::vector<uint16_t> reliab;

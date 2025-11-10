@@ -33,7 +33,7 @@ add_compile_options (-Wall -Wextra -Wno-unused-parameter)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
 
 add_executable(benchmarking
-        ${CMAKE_CURRENT_SOURCE_DIR}/apps/nb_sc_decoder.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/apps/benchmarking.cpp
         src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
         src/decoders/specialized/decoder_specialized.cpp
         src/decoders/dedicated/decoder_dedicated.cpp
