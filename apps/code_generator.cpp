@@ -16,7 +16,6 @@
 #define BMAG "\e[1;35m"
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
-#include <utilities/reliab_loader.hpp>
 
 #include "../src/generator/dec_generator.hpp"
 
@@ -27,7 +26,6 @@
 //
 int main(int argc, char * argv[])
 {
-    float SNR       = -7.5f;
     float code_rate = 0.75f;
     int   N         = _N_;
     int   K         = (int) (((float) N) * code_rate);
@@ -93,8 +91,6 @@ int main(int argc, char * argv[])
     int * frozen_symbols = new int[_N_];
     for (int i = 0; i < N; i += 1)
         frozen_symbols[i] = true;
-
-    std::vector<uint16_t> reliab_seq = load_reliability_sequence(_GF_, N, SNR);
 
     for (int i = 0; i < K; i += 1)
         frozen_symbols[reliab_seq[i]] = false; // i c'est pour le DEBUG, on pourrait mettre 0
