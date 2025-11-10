@@ -25,6 +25,7 @@ using namespace std::chrono_literals;
 
 #include "decoders/naive/decoder_naive.hpp"
 #include "decoders/naive_fixed/decoder_naive_fixed.hpp"
+#include "decoders/naive_cfloat/decoder_naive_cfloat.hpp"
 #include "decoders/naive_pruning/decoder_naive_pruning.hpp"
 #include "decoders/specialized/decoder_specialized.hpp"
 #include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
@@ -300,6 +301,8 @@ int main(int argc, char* argv[]) {
         dec = new decoder_naive<GF>(N, frozen_symbols);
     }else if (dec_type == "dec1_fixed") {
         dec = new decoder_naive_fixed<GF>(N, frozen_symbols);
+    }else if (dec_type == "dec1_cfloat") {
+        dec = new decoder_naive_cfloat<GF>(N, frozen_symbols);
     }else if (dec_type == "dec2") {
         dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
     }else if (dec_type == "dec3") {
@@ -464,12 +467,13 @@ int main(int argc, char* argv[]) {
             liste[i].n_decoded = 0;
             liste[i].llrs_n    = llrs_n;
             liste[i].decoded_n = decoded_n;
-                  if (dec_type == "dec1"      ) { liste[i].dec = new decoder_naive              <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec1_fixed") { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec2"      ) { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec3"      ) { liste[i].dec = new decoder_specialized        <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec4"      ) { liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
-            }else if (dec_type == "dec5"      ) { liste[i].dec = new decoder_dedicated          <GF>(N, frozen_symbols);
+                  if (dec_type == "dec1"       ) { liste[i].dec = new decoder_naive              <GF>(N, frozen_symbols);
+            }else if (dec_type == "dec1_fixed" ) { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
+            }else if (dec_type == "dec1_cfloat") { liste[i].dec = new decoder_naive_cfloat<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec2"       ) { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
+            }else if (dec_type == "dec3"       ) { liste[i].dec = new decoder_specialized        <GF>(N, frozen_symbols);
+            }else if (dec_type == "dec4"       ) { liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
+            }else if (dec_type == "dec5"       ) { liste[i].dec = new decoder_dedicated          <GF>(N, frozen_symbols);
             }else { printf("#(II) Error : unknown decoder type\n"); exit(1); }
         }
 
