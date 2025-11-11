@@ -361,7 +361,7 @@ private:
             } else {
                 indentation(level); printf("> Rate-0 node found (size = %d)\n", n);
                 indentation(level); printf("\e[1;31m RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen + n, n);
-                ofile << "\t" << "middle_node_pruned_rate_0<" << GF << ">(decoded + " << curr_frozen << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rate_0<" << GF << ">(decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
                 array[next_elmnt] = RATE_0;
             }
             final_offset = next_elmnt + 1;
