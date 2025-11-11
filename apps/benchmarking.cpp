@@ -325,7 +325,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < N; i += 1) {
         if ( ((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
-        printf("%2d ", symbol_n[i]);
+        printf("%2d ", decoded_n[i]);
     }
     printf("\n");
 
