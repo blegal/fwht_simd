@@ -335,7 +335,11 @@ private:
         // NORMAL node
         //
         } else {
-            if (pred_is_f) {
+            if ( is_rate0_after_g ) {
+                //
+                // We do not need to perform the computation as their results won't be used !
+                //
+            }else if (pred_is_f) {
                 if (verbose) {
                     indentation(level); printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
