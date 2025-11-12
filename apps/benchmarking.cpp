@@ -6,9 +6,10 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <thread>
+
 using namespace std::chrono_literals;
 
 #include "utilities/utility_functions.hpp"
@@ -23,28 +24,27 @@ using namespace std::chrono_literals;
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
+#include "decoders/dedicated/decoder_dedicated.hpp"
 #include "decoders/naive/decoder_naive.hpp"
-#include "decoders/naive_fixed/decoder_naive_fixed.hpp"
 #include "decoders/naive_cfloat/decoder_naive_cfloat.hpp"
+#include "decoders/naive_fixed/decoder_naive_fixed.hpp"
 #include "decoders/naive_pruning/decoder_naive_pruning.hpp"
 #include "decoders/specialized/decoder_specialized.hpp"
 #include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
-#include "decoders/dedicated/decoder_dedicated.hpp"
 
-#include "encoder/polar_encoder.hpp"
 #include "demodulator/demodulator.hpp"
+#include "encoder/polar_encoder.hpp"
 
-struct env_simu{
-    bool ended;
-    int  n_decoded;
+struct env_simu {
+    bool                   ended;
+    int                    n_decoded;
     std::vector<symbols_t> llrs_n;
     std::vector<uint16_t>  decoded_n;
-    decoder*               dec;
+    decoder *              dec;
 };
 
-static void thread_run_decoder(env_simu* env)
-{
-    while ( env->ended == false ) {
+static void thread_run_decoder(env_simu * env) {
+    while (env->ended == false) {
         env->dec->execute(env->llrs_n.data(), env->decoded_n.data());
         env->n_decoded += 1;
     }
@@ -54,88 +54,71 @@ static void thread_run_decoder(env_simu* env)
 //
 //
 //
-// In frozen symbol array, the value -1 means the symbol is frozen => (symbol = 0)
+// In frozen symbol array, the value -1 means the symbol is frozen => (symbol =
+// 0)
 //
-int main(int argc, char* argv[]) {
+int main(int argc, char * argv[]) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // initialize the frozen symbols array
     //
-    const int  N = _N_;
-    const int GF = _GF_;
-    float code_rate = 0.75f;
-    int K  =  (int)( ((float)N) * code_rate);
-    int nThreads = 1;
-    auto run_time = 30000ms;
+    const int N         = _N_;
+    const int GF        = _GF_;
+    float     code_rate = 0.75f;
+    int       K         = (int) (((float) N) * code_rate);
+    int       nThreads  = 1;
+    auto      run_time  = 30000ms;
 
+    std::string dec_type   = "dec4";
+    bool        is_colored = true;
 
-    std::string dec_type = "dec4";
-    bool is_colored  = true;
-
-    for(int i = 1; i < argc; i++) {
-        if(std::string(argv[i]) == "--dec")
-        {
-            dec_type = std::string(argv[i+1]);
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--dec") {
+            dec_type = std::string(argv[i + 1]);
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--decoder")
-        {
-            dec_type = std::string(argv[i+1]);
+        } else if (std::string(argv[i]) == "--decoder") {
+            dec_type = std::string(argv[i + 1]);
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--no-color")
-        {
+        } else if (std::string(argv[i]) == "--no-color") {
             is_colored = false;
-        }
-        else if(std::string(argv[i]) == "--nocolor")
-        {
+        } else if (std::string(argv[i]) == "--nocolor") {
             is_colored = false;
-        }
-        else if(std::string(argv[i]) == "--rate")
-        {
-            code_rate = std::atof(argv[i+1]);
+        } else if (std::string(argv[i]) == "--rate") {
+            code_rate = std::atof(argv[i + 1]);
             K         = round(code_rate * N);
-            code_rate = (float)K / (float)N;
+            code_rate = (float) K / (float) N;
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--code-rate")
-        {
-            code_rate = std::atof(argv[i+1]);
+        } else if (std::string(argv[i]) == "--code-rate") {
+            code_rate = std::atof(argv[i + 1]);
             K         = round(code_rate * N);
-            code_rate = (float)K / (float)N;
+            code_rate = (float) K / (float) N;
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--thread")
-        {
-            nThreads = std::atoi(argv[i+1]);
+        } else if (std::string(argv[i]) == "--thread") {
+            nThreads = std::atoi(argv[i + 1]);
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--threads")
-        {
-            nThreads = std::atoi(argv[i+1]);
+        } else if (std::string(argv[i]) == "--threads") {
+            nThreads = std::atoi(argv[i + 1]);
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--cores")
-        {
-            nThreads = std::atoi(argv[i+1]);
+        } else if (std::string(argv[i]) == "--cores") {
+            nThreads = std::atoi(argv[i + 1]);
             i += 1;
-        }
-        else if(std::string(argv[i]) == "--time")
-        {
-            const int sec = std::atoi(argv[i+1]);
-            run_time = sec * 1000ms;
+        } else if (std::string(argv[i]) == "--time") {
+            const int sec = std::atoi(argv[i + 1]);
+            run_time      = sec * 1000ms;
             i += 1;
         }
     }
 
-
 #ifdef __AVX512BW__
-    printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation program (AVX512 version)\n");
+    printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation "
+           "program (AVX512 version)\n");
 #elif __AVX2__
-    printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation program (AVX2 version)\n");
+    printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation "
+           "program (AVX2 version)\n");
 #else
-    printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation program (ARM NEON version)\n");
+    printf("#(II) Non-binary FFT Successive Cancellation decoder evaluation "
+           "program (ARM NEON version)\n");
 #endif
 
     printf("#(II) + developped by Bertrand LE GAL   in 2025...\n");
@@ -146,23 +129,27 @@ int main(int argc, char* argv[]) {
 
 #if defined(__clang__)
     /* Clang/LLVM. ---------------------------------------------- */
-    printf("#(II) + Clang/LLVM version %d.%d.%d\n", __clang_major__, __clang_minor__, __clang_patchlevel__);
+    printf("#(II) + Clang/LLVM version %d.%d.%d\n", __clang_major__,
+           __clang_minor__, __clang_patchlevel__);
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
     /* Intel ICC/ICPC. ------------------------------------------ */
-    printf("# + Intel ICC/ICPC version %d.%d\n", __INTEL_COMPILER, __INTEL_COMPILER_BUILD_DATE);
+    printf("# + Intel ICC/ICPC version %d.%d\n", __INTEL_COMPILER,
+           __INTEL_COMPILER_BUILD_DATE);
 #elif defined(__GNUC__) || defined(__GNUG__)
     /* GNU GCC/G++. --------------------------------------------- */
-    printf("#(II) + GNU GCC/G++ version %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    printf("#(II) + GNU GCC/G++ version %d.%d.%d\n", __GNUC__, __GNUC_MINOR__,
+           __GNUC_PATCHLEVEL__);
 #elif defined(_MSC_VER)
     /* Microsoft Visual Studio. --------------------------------- */
     printf("#(II) + Microsoft Visual Studio\n");
 #else
-    #error "#(II) + Undetected compiler !"
+#error "#(II) + Undetected compiler !"
 #endif
 
 #if (defined(__ICC) || defined(__INTEL_COMPILER)) == 0
     std::time_t t = std::time(nullptr);
-    std::cout << "#(II) + Trace date and time : " << std::put_time(std::localtime(&t), "%c %Z") << '\n';
+    std::cout << "#(II) + Trace date and time : "
+              << std::put_time(std::localtime(&t), "%c %Z") << '\n';
     printf("#(II)\n");
 #endif
 
@@ -172,7 +159,8 @@ int main(int argc, char* argv[]) {
     std::cout << "#(II) + GF equals : " << GF << std::endl;
     std::cout << "#(II) +  N equals : " << N << std::endl;
     std::cout << "#(II) +  K equals : " << K << std::endl;
-    std::cout << "#(II) +  R equals : " << (int)(100.f * code_rate) << "\%" << std::endl;
+    std::cout << "#(II) +  R equals : " << (int) (100.f * code_rate) << "\%"
+              << std::endl;
     std::cout << "#(II)" << std::endl;
     std::cout << "#(II) +  Decoder  : " << dec_type << std::endl;
     std::cout << "#(II) +  nThreads : " << nThreads << std::endl;
@@ -192,9 +180,9 @@ int main(int argc, char* argv[]) {
     printf("#(II) -------------\n");
     printf("#(II) %3d | ", 0);
     for (int i = 0; i < N; i += 1) {
-        if ( ((i % 8) == 0) && (i != 0) )
+        if (((i % 8) == 0) && (i != 0))
             printf(" | ");
-        if ( ((i % 32) == 0) && (i != 0))
+        if (((i % 32) == 0) && (i != 0))
             printf("\n#(II) %3d | ", i);
         printf("%2d ", frozen_symbols[i]);
     }
@@ -202,45 +190,48 @@ int main(int argc, char* argv[]) {
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    std::vector<uint16_t>   symbol_k (K);
-    std::vector<uint16_t>   symbol_n (N);
-    std::vector<symbols_t>  llrs_n   (N);
-    std::vector<uint16_t>   decoded_n(N);
-    std::vector<uint16_t>   decoded_k(K);
+    std::vector<uint16_t>  symbol_k(K);
+    std::vector<uint16_t>  symbol_n(N);
+    std::vector<symbols_t> llrs_n(N);
+    std::vector<uint16_t>  decoded_n(N);
+    std::vector<uint16_t>  decoded_k(K);
 
     //
     //
     //
 
     for (int i = 0; i < K; i++) {
-        symbol_k[i] = rand()%GF;
+        symbol_k[i] = rand() % GF;
     }
     printf("#(II)\n");
     printf("#(II) K Generatred symbols (%3d) :\n", K);
     printf("#(II) ---------------------------\n");
     printf("#(II)");
     for (int i = 0; i < K; i += 1) {
-        if ( ((i % 16) == 0))
+        if (((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
 
-        if( is_colored ) printf("\e[1;32m%2d\e[0m ", symbol_k[i]);
-        else             printf("%2d ", symbol_k[i]);
+        if (is_colored)
+            printf("\e[1;32m%2d\e[0m ", symbol_k[i]);
+        else
+            printf("%2d ", symbol_k[i]);
     }
     printf("\n");
 
     polar_encoder encoder(reliab_seq, K, N);
-    encoder.encode( symbol_n.data(), symbol_k.data() ); // dst <= F(src)
+    encoder.encode(symbol_n.data(), symbol_k.data()); // dst <= F(src)
 
     printf("#(II)\n");
     printf("#(II) N Encoded symbols (%d):\n", N);
     printf("#(II) ---------------------------\n");
     printf("#(II)");
     for (int i = 0; i < N; i += 1) {
-        if ( ((i % 16) == 0))
+        if (((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
-        if( is_colored ) printf("\e[1;32m%2d\e[0m ", symbol_n[i]);
-        else             printf("%2d ",              symbol_n[i]);
+        if (is_colored)
+            printf("\e[1;32m%2d\e[0m ", symbol_n[i]);
+        else
+            printf("%2d ", symbol_n[i]);
     }
     printf("\n");
 
@@ -282,7 +273,7 @@ int main(int argc, char* argv[]) {
     //
     //
     //
-    demodulator<GF> demod( N );
+    demodulator<GF> demod(N);
     demod.demodulate(llrs_n.data(), symbol_n.data()); // dst <= F(src)
 #if 0
     printf("\n\nN demodulated symbol LLRs:\n");
@@ -296,26 +287,26 @@ int main(int argc, char* argv[]) {
     //  decoding
     //
 
-    decoder* dec;
+    decoder * dec;
     if (dec_type == "dec1") {
         dec = new decoder_naive<GF>(N, frozen_symbols);
-    }else if (dec_type == "dec1_fixed") {
+    } else if (dec_type == "dec1_fixed") {
         dec = new decoder_naive_fixed<GF>(N, frozen_symbols);
-    }else if (dec_type == "dec1_cfloat") {
+    } else if (dec_type == "dec1_cfloat") {
         dec = new decoder_naive_cfloat<GF>(N, frozen_symbols);
-    }else if (dec_type == "dec2") {
+    } else if (dec_type == "dec2") {
         dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
-    }else if (dec_type == "dec3") {
+    } else if (dec_type == "dec3") {
         dec = new decoder_specialized<GF>(N, frozen_symbols);
-    }else if (dec_type == "dec4") {
+    } else if (dec_type == "dec4") {
         dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
-    }else if (dec_type == "dec5") {
+    } else if (dec_type == "dec5") {
         dec = new decoder_dedicated<GF>(N, frozen_symbols);
-    }else {
+    } else {
         printf("#(II) Error : unknown decoder type\n");
         exit(1);
     }
-//    decoder_naive<GF> decoder(N, frozen_symbols);
+    //    decoder_naive<GF> decoder(N, frozen_symbols);
     dec->execute(llrs_n.data(), decoded_n.data());
 
     printf("#(II)\n");
@@ -323,7 +314,7 @@ int main(int argc, char* argv[]) {
     printf("#(II) ------------------------\n");
     printf("#(II)");
     for (int i = 0; i < N; i += 1) {
-        if ( ((i % 16) == 0))
+        if (((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
         printf("%2d ", decoded_n[i]);
     }
@@ -332,38 +323,38 @@ int main(int argc, char* argv[]) {
     //
     //  Extracting initial K symbols
     //
-    encoder.decode( decoded_k.data(), decoded_n.data() ); // dst <= F(src)
+    encoder.decode(decoded_k.data(), decoded_n.data()); // dst <= F(src)
 
     printf("#(II)\n");
     printf("#(II) K decoded symbols (%3d) :\n", K);
     printf("#(II) ------------------------\n");
     printf("#(II)");
     for (int i = 0; i < K; i += 1) {
-        if ( ((i % 16) == 0))
+        if (((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
-        if( is_colored ){
+        if (is_colored) {
             if (symbol_k[i] == decoded_k[i]) {
                 printf("\e[1;32m%2d\e[0m ", decoded_k[i]);
             } else {
                 printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
             }
-        }else{
+        } else {
             printf("%2d ", decoded_k[i]);
         }
     }
-/*
-    printf("\n");
-    printf("\n\n:\n");
-    for (int i = 0; i < K; i += 1) {
-        if ((i % 16) == 0)
-            printf("\n ");
-        if (symbol_k[i] == decoded_k[i]) {
-            printf("\e[1;32m%2d\e[0m ", decoded_k[i]);
-        } else {
-            printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
+    /*
+        printf("\n");
+        printf("\n\n:\n");
+        for (int i = 0; i < K; i += 1) {
+            if ((i % 16) == 0)
+                printf("\n ");
+            if (symbol_k[i] == decoded_k[i]) {
+                printf("\e[1;32m%2d\e[0m ", decoded_k[i]);
+            } else {
+                printf("\e[1;31m%2d\e[0m ", decoded_k[i]);
+            }
         }
-    }
-*/
+    */
     printf("\n");
 
     //
@@ -381,9 +372,9 @@ int main(int argc, char* argv[]) {
         }
     }
     printf("#(II)\n");
-    if ( nErrors == 0 ) {
+    if (nErrors == 0) {
         printf("#(II) Decoder behavior : OK\n");
-    }else {
+    } else {
         printf("#(II) Decoder behavior : ERROR\n");
     }
 
@@ -456,34 +447,45 @@ int main(int argc, char* argv[]) {
 #endif
 
     printf("#(II)\n");
-    std::cout << "#(II) +  Launching throughput measurement (" << dec_type << ")" << std::endl;
+    std::cout << "#(II) +  Launching throughput measurement (" << dec_type << ")"
+              << std::endl;
     printf("#(II)\n");
 
-    if ( nThreads != 0 ) {
+    if (nThreads != 0) {
         std::vector<env_simu> liste(nThreads);
-//        env_simu liste[nThreads];
+        //        env_simu liste[nThreads];
         for (int i = 0; i < nThreads; i += 1) {
             liste[i].ended     = false;
             liste[i].n_decoded = 0;
             liste[i].llrs_n    = llrs_n;
             liste[i].decoded_n = decoded_n;
-                  if (dec_type == "dec1"       ) { liste[i].dec = new decoder_naive              <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec1_fixed" ) { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec1_cfloat") { liste[i].dec = new decoder_naive_cfloat<GF>(N, frozen_symbols);
-            }else if (dec_type == "dec2"       ) { liste[i].dec = new decoder_naive_pruning      <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec3"       ) { liste[i].dec = new decoder_specialized        <GF>(N, frozen_symbols);
-            }else if (dec_type == "dec4"       ) { liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
-            }else if (dec_type == "dec5"       ) { liste[i].dec = new decoder_dedicated          <GF>(N, frozen_symbols);
-            }else { printf("#(II) Error : unknown decoder type\n"); exit(1); }
+            if (dec_type == "dec1") {
+                liste[i].dec = new decoder_naive<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec1_fixed") {
+                liste[i].dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec1_cfloat") {
+                liste[i].dec = new decoder_naive_cfloat<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec2") {
+                liste[i].dec = new decoder_naive_pruning<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec3") {
+                liste[i].dec = new decoder_specialized<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec4") {
+                liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec5") {
+                liste[i].dec = new decoder_dedicated<GF>(N, frozen_symbols);
+            } else {
+                printf("#(II) Error : unknown decoder type\n");
+                exit(1);
+            }
         }
 
         std::thread t_runs[128];
-        const auto m_start = std::chrono::system_clock::now();
+        const auto  m_start = std::chrono::system_clock::now();
 
         for (int i = 0; i < nThreads; i += 1)
             t_runs[i] = std::thread(thread_run_decoder, liste.data() + i);
 
-        std::this_thread::sleep_for( run_time );
+        std::this_thread::sleep_for(run_time);
 
         for (int i = 0; i < nThreads; ++i)
             liste[i].ended = true;
@@ -497,19 +499,25 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < nThreads; ++i)
             fRunTest += liste[i].n_decoded;
 
-        const float nTotalus  = std::chrono::duration_cast<std::chrono::microseconds>(m_stop - m_start).count();
-        const float time_run  = (nTotalus / fRunTest);
-        const float debit     = ((double)N * (double)_logGF_) / time_run;
+        const float nTotalus = std::chrono::duration_cast<std::chrono::microseconds>(m_stop - m_start)
+                                   .count();
+        const float time_run = (nTotalus / fRunTest);
+        const float debit    = ((double) N * (double) _logGF_) / time_run;
         printf("#(II)\n");
         printf("#(II) #threads exec. : %d\n", nThreads);
-        printf("#(II) MultiCore time : %1.3f sec\n",  nTotalus / 1000000.f);
+        printf("#(II) MultiCore time : %1.3f sec\n", nTotalus / 1000000.f);
         printf("#(II) #decode frames : %d\n", fRunTest);
-        printf("#(II) Coded through .: %1.3f Mbps\n",  debit);
+        printf("#(II) Coded through .: %1.3f Mbps\n", debit);
         printf("#(II)\n");
 
-        const int   icode_rate = (int)(100.f * code_rate);
-        const float debit_info = (int)(debit * code_rate);
-        printf("%4d %4d %4d %4d %7.2f %7.2f %5d\n", N, K, icode_rate, GF, debit, debit_info, (int)time_run);
+        const int   icode_rate = (int) (100.f * code_rate);
+        const float debit_info = (int) (debit * code_rate);
+        printf("%4d %4d %4d %4d %7.2f %7.2f %5d\n", N, K, icode_rate, GF, debit,
+               debit_info, (int) time_run);
+
+        for (int i = 0; i < nThreads; i++) {
+            delete liste[i].dec;
+        }
     }
 
     delete dec;

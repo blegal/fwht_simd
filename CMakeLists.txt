@@ -10,10 +10,17 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
-add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math) #
-# add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra)#debug2
-# add_compile_options (-Wall -Wextra -Werror)
+option (SANITIZE_DECODERS "Add sanitization values" OFF)
+
+if (SANITIZE_DECODERS)
+	set (SANITIZE_CXXFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
+	set (SANITIZE_LDFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
+endif ()
+
+add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math ${SANITIZE_CXXFLAGS})
+# add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra ${SANITIZE_CXXFLAGS})#debug2
 add_compile_options (-Wall -Wextra -Wno-unused-parameter)
+add_link_options (${SANITIZE_LDFLAGS})
 
 #######################################################################################################################################
 
