@@ -59,8 +59,8 @@ public:
     {
         // Ensure output directory exists
         std::filesystem::create_directories("./src/decoders/dedicated");
-        ofile.open("./src/decoders/dedicated/dedicated_execute.hpp");
-        // ofile.open("/home/abdallah_ubuntu/Desktop/NBPolar_decoder/SC_PolarDecFreqDomainFER_Sim/BLG/decoders/dedicated/dedicated_execute.hpp");
+        // ofile.open("./src/decoders/dedicated/dedicated_execute.hpp");
+        ofile.open("/home/abdallah_ubuntu/Desktop/NBPolar_decoder/SC_PolarDecFreqDomainFER_Sim/BLG/decoders/dedicated/dedicated_execute.hpp");
         if (!ofile.is_open())
         {
             printf("❌ Error: cannot open output file './src/decoders/dedicated/dedicated_execute.hpp'\n");
