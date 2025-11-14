@@ -34,10 +34,10 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_spc_after_f(
     uint16_t arg_1[512];
     for (int i = 0; i < size; i++) {
         int value              = argmax<gf_size>(inputs[i].value);
-        check_node            ^= value;
-        symbols[symbol_id + i] = value;
-        decoded[symbol_id + i] = value; // should be corrected (it is systematic solution actually)
-        arg_1  [symbol_id + i] = value;
+        check_node            ^= value; // on xor le symbole
+        symbols[symbol_id + i] = value; // on memorise le symbole (car si le syndrome est OK, c'est fait)
+        decoded[symbol_id + i] = value; // on memorise le symbole (car si le syndrome est OK, c'est fait)
+        arg_1  [i]             = value; // on le met aussi de coté au cas ou...
     }
     //
     if ( check_node == 0 ) {
