@@ -6,8 +6,7 @@
 //!     modification, are not permitted with written authorization.
 //!
 //!
-#ifndef _vec_cplx_max_indexes_
-#define _vec_cplx_max_indexes_
+#pragma once
 //
 //
 //
@@ -16,11 +15,6 @@
 //
 //
 #include <cstdint>
-#include <cmath>
-#include <string>
-#include <complex>
-#include <vector>
-#include <iostream>
 //
 //
 //
@@ -28,7 +22,20 @@
 //
 //
 //
-using namespace std;
+template <int gf_size>
+int f_argmax(const ap_fixed<NBITS, NINTG>* value)
+{
+    int               max_index = 0;
+    ap_fixed<NBITS, NINTG>  max_value = value[0];
+
+    for (int i = 1; i < gf_size; i++) {
+        if (value[i] > max_value) {
+            max_value = value[i];
+            max_index = i;
+        }
+    }
+    return max_index;
+}
 //
 //
 //
@@ -36,13 +43,3 @@ using namespace std;
 //
 //
 //
-extern void vec_cplx_max_indexes(float* real, float* imag, const int length, int& pmax1, int& pmax2);
-extern void vec_cplx_max_indexes(complex<float>* RI,       const int length, int& pmax1, int& pmax2);
-//
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-#endif

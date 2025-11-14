@@ -6,7 +6,7 @@
 //!     modification, are not permitted with written authorization.
 //!
 //!
-#include "argmax.hpp"
+#include "../../../features/argmax/argmax.hpp"
 #include <arm_neon.h>
 //
 //
@@ -15,13 +15,17 @@
 //
 //
 //
-template<int size> inline void argmax(const float* values, int* position, float* valeur)
-{
-    const int32x4_t increment  = { 4, 4, 4, 4 };
-          int32x4_t indices    = { 0, 1, 2, 3 };
-          int32x4_t maxindices = indices;
+#include <arm_neon.h>
 
-    float32x4_t maxvalues  = vld1q_f32( values );
+template<int size>
+inline void argmax_int32(const int32_t* values, int* position, int* valeur)
+{
+    const int32x4_t increment  = {4, 4, 4, 4};
+    int32x4_t indices    = {0, 1, 2, 3};
+    int32x4_t maxindices = indices;
+
+    // Charger les 4 premières valeurs
+    int32x4_t maxvalues = vld1q_s32(values);
 
 #if defined (__clang__)
     #pragma unroll
@@ -29,20 +33,22 @@ template<int size> inline void argmax(const float* values, int* position, float*
     for (int i = 4; i < size; i += 4)
     {
         indices = vaddq_s32(indices, increment);
-        const float32x4_t value  = vld1q_f32( values + i);
-        const uint32x4_t  gt     = vcgtq_f32(value, maxvalues);
-        maxindices               = vbslq_s32(gt, indices, maxindices);
-        maxvalues                = vmaxq_f32(value, maxvalues);
+        const int32x4_t value = vld1q_s32(values + i);
+        const uint32x4_t gt   = vcgtq_s32(value, maxvalues);
+        maxindices             = vbslq_s32(gt, indices, maxindices);
+        maxvalues              = vmaxq_s32(value, maxvalues);
     }
 
-    float   values_array [4];
+    // Extraction scalaire finale
+    int32_t values_array [4];
     int32_t indices_array[4];
 
-    vst1q_f32(values_array,  maxvalues);
+    vst1q_s32(values_array,  maxvalues);
     vst1q_s32(indices_array, maxindices);
 
-    int   maxindex = indices_array[0];
-    float maxvalue =  values_array[0];
+    int maxindex = indices_array[0];
+    int maxvalue = values_array[0];
+
 #if defined (__clang__)
     #pragma unroll
 #endif
@@ -65,37 +71,37 @@ template<int size> inline void argmax(const float* values, int* position, float*
 //
 //
 template<int length>
-inline int argmax(const float* values)
+inline int argmax(const int32_t* values)
 {
-    const int32x4_t increment  = { 4, 4, 4, 4 };
-    int32x4_t indices    = { 0, 1, 2, 3 };
+    const int32x4_t increment  = {4, 4, 4, 4};
+    int32x4_t indices    = {0, 1, 2, 3};
     int32x4_t maxindices = indices;
 
-    float32x4_t maxvalues  = vld1q_f32( values );
+    int32x4_t maxvalues = vld1q_s32(values);
 
 #if defined (__clang__)
-    #pragma unroll
+#pragma unroll
 #endif
     for (int i = 4; i < length; i += 4)
     {
         indices = vaddq_s32(indices, increment);
-        const float32x4_t value  = vld1q_f32( values + i);
-        const uint32x4_t  gt     = vcgtq_f32(value, maxvalues);
-        maxindices               = vbslq_s32(gt, indices, maxindices);
-        maxvalues                = vmaxq_f32(value, maxvalues);
+        const int32x4_t value = vld1q_s32(values + i);
+        const uint32x4_t gt   = vcgtq_s32(value, maxvalues);
+        maxindices             = vbslq_s32(gt, indices, maxindices);
+        maxvalues              = vmaxq_s32(value, maxvalues);
     }
 
-    float   values_array [4];
+    int32_t values_array [4];
     int32_t indices_array[4];
 
-    vst1q_f32(values_array,  maxvalues);
+    vst1q_s32(values_array,  maxvalues);
     vst1q_s32(indices_array, maxindices);
 
-    int   maxindex = indices_array[0];
-    float maxvalue =  values_array[0];
+    int maxindex = indices_array[0];
+    int maxvalue = values_array[0];
 
 #if defined (__clang__)
-    #pragma unroll
+#pragma unroll
 #endif
     for (int i = 1; i < 4; i++)
     {
@@ -105,6 +111,7 @@ inline int argmax(const float* values)
             maxindex = indices_array[i];
         }
     }
+
     return maxindex;
 }
 //
