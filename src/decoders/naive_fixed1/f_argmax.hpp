@@ -23,13 +23,21 @@
 //
 //
 template <int gf_size>
-int f_argmax(const ap_fixed<NBITS, NINTG>* value)
+int f_argmax(const ap_fixed<NBITS, 1> *value)
 {
-    int               max_index = 0;
-    ap_fixed<NBITS, NINTG>  max_value = value[0];
+    // std::cout << "\033c" << std::flush;
+    // for (int i = 0; i < gf_size; i++)
+    // {
+    //     printf("arg_max %d : %.20f \n", i, (float)value[i]);
+    // }
 
-    for (int i = 1; i < gf_size; i++) {
-        if (value[i] > max_value) {
+    int                max_index = 0;
+    ap_fixed<NBITS, 1> max_value = value[0];
+
+    for (int i = 1; i < gf_size; i++)
+    {
+        if (value[i] > max_value)
+        {
             max_value = value[i];
             max_index = i;
         }
