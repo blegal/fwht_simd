@@ -12,14 +12,14 @@
 //
 
 template <int gf_size>
-void conversion(const float *s, symbols_t *f)
+symbols_t decoder_naive_fixed<gf_size>::conversion(const float *s)
 {
     symbols_t f;
     for (int i = 0; i < gf_size; i++)
     {
         f.value[i] = (int64_t)(s[i] * (float)(1u << (NBITS - 1)));
     }
-    f.is_freq = s.is_freq;
+    return f;
 }
 //
 //
@@ -71,7 +71,7 @@ decoder_naive_fixed<gf_size>::~decoder_naive_fixed()
 }
 
 template <int gf_size>
-void decoder_naive_fixed<gf_size>::execute(float *channel, uint16_t *decoded)
+void decoder_naive_fixed<gf_size>::execute(symbols_t1 *channel, uint16_t *decoded)
 {
     const int n = N / 2; // Assuming size is the number of symbols
     //
@@ -80,10 +80,12 @@ void decoder_naive_fixed<gf_size>::execute(float *channel, uint16_t *decoded)
     // symbols_t1 *temp_f_channel = new symbols_t1[N];
     for (int i = 0; i < N; i++)
     {
-        f_channel[i] = conversion<gf_size>(channel[i]);
+        f_channel[i] = conversion(channel[i].value);
+
+        // std::cout << "\033c" << std::flush;
         // for (int j = 0; j < gf_size; j++)
         // {
-        //     printf("%d: %.20f\n", j, (float)temp_f_channel[i].value[j]);
+        //     printf("%d: %.30d\n", j, f_channel[i].value[j]);
         // }
 
         // LZC_shift_at_input<gf_size>(temp_f_channel[i].value, f_channel[i].value);
@@ -211,14 +213,8 @@ void decoder_naive_fixed<gf_size>::leaf_node(
         // fwht<gf_size>(var->value);
         // var->is_freq = false;
 
-        symbols_t2 var1;
-        for (int i = 0; i < gf_size; i++)
-        {
-            var1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)var->value[i];
-        }
-        var1.is_freq = var->is_freq;
-        fwht<gf_size>(var1.value);
-        LZC_shift_after_fwht<gf_size>(var1.value, var->value);
+        fwht<gf_size>(var->value);
+        LZC_normalize<gf_size>(var->value);
         var->is_freq = false;
     }
 

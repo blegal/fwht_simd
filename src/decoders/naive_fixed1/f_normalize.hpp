@@ -10,14 +10,14 @@
 //
 //
 template <int gf_size>
-void f_normalize(ap_fixed<NBITS, 1> *tab)
+void f_normalize(int64_t *tab)
 {
-    ap_fixed<NBITS, 1> sum = 1e-24f;
+    int64_t sum = 1e-24f;
     for (int i = 0; i < gf_size; i += 1)
     {
         sum += tab[i];
     }
-    const ap_fixed<NBITS, 1> zero = 0.f;
+    const int64_t zero = 0.f;
     if (zero == sum)
     {
         sum = 1.f;
@@ -29,7 +29,7 @@ void f_normalize(ap_fixed<NBITS, 1> *tab)
 }
 #if 0
 template <int gf_size>
-void f_normalize(ap_fixed<NBITS, 1>  * tab) {
+void f_normalize(int64_t  * tab) {
     double sum = 0.0;
     for (int i = 0; i < gf_size; i += 1) {
         sum += tab[i].to_double();
@@ -37,7 +37,7 @@ void f_normalize(ap_fixed<NBITS, 1>  * tab) {
     sum = ( sum == 0.0 ) ? 1.f : sum;
 
     for (int i = 0; i < gf_size; i++) {
-        ap_fixed<NBITS, 1>  vv = tab[i].to_double() / sum;
+        int64_t  vv = tab[i].to_double() / sum;
         tab[i] = vv;
     }
 }
@@ -50,13 +50,13 @@ void f_normalize(ap_fixed<NBITS, 1>  * tab) {
 //
 //
 template <int gf_size>
-void f_normalize(ap_fixed<NBITS, 1> *tab, const float norm)
+void f_normalize(int64_t *tab, const float norm)
 {
-    const ap_fixed<NBITS, 1> factor = norm;
+    const int64_t factor = norm;
     for (int i = 0; i < gf_size; i++)
     {
-        const ap_fixed<NBITS, 1> ff = norm * tab[i].to_double();
-        tab[i]                      = ff;
+        const int64_t ff = norm * tab[i];
+        tab[i]           = ff;
     }
 }
 //

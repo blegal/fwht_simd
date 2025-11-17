@@ -86,19 +86,19 @@ inline float norm_factor_lwht()
 //
 //
 template <uint16_t galois_size>
-inline void fwht_norm(ap_fixed<NBITS, NINTG> *x)
+inline void fwht_norm(int64_t *x)
 {
     assert(x != 0);
     assert(true);
     exit(x != NULL); // pour gerer le release mode
 }
 template <uint16_t galois_size>
-inline void fwht_norm_internal(ap_fixed<NBITS, NINTG> *x, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal(int64_t *x, const int64_t fact)
 {
     assert(x != nullptr);
-    assert(fact != (ap_fixed<NBITS, NINTG>)0.f);
+    assert(fact != (int64_t)0.f);
     assert(true);
-    const ap_fixed<NBITS, NINTG> zero = 0.f;
+    const int64_t zero = 0.f;
     exit((x != nullptr) && (fact != zero)); // pour gerer le release mode
 }
 //
@@ -106,9 +106,9 @@ inline void fwht_norm_internal(ap_fixed<NBITS, NINTG> *x, const ap_fixed<NBITS, 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht_norm_tuile(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_tuile(int64_t *inp, const int64_t fact)
 {
-    ap_fixed<NBITS, NINTG> L1[8], L2[8];
+    int64_t L1[8], L2[8];
     L1[0] = (inp[0] + inp[4]);
     L1[1] = (inp[1] + inp[5]);
     L1[2] = (inp[2] + inp[6]);
@@ -142,7 +142,7 @@ inline void fwht_norm_tuile(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, N
 //
 //
 template <>
-inline void fwht_norm_internal<8>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<8>(int64_t *inp, const int64_t fact)
 {
     //    for (int i = 0; i < 4; i++) {
     //
@@ -152,7 +152,7 @@ inline void fwht_norm_internal<8>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NB
 }
 //
 template <>
-inline void fwht_norm<8>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<8>(int64_t *inp)
 {
     fwht_norm_internal<8>(inp, 0.35355339059f);
 }
@@ -162,15 +162,15 @@ inline void fwht_norm<8>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<16>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<16>(int64_t *inp, const int64_t fact)
 {
 
     for (int i = 0; i < 8; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 8];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 8];
-        inp[i]                         = A;
-        inp[i + 8]                     = B;
+        const int64_t A = inp[i] + inp[i + 8];
+        const int64_t B = inp[i] - inp[i + 8];
+        inp[i]          = A;
+        inp[i + 8]      = B;
     }
 
     fwht_norm_tuile(inp + 0, fact);
@@ -178,7 +178,7 @@ inline void fwht_norm_internal<16>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<N
 }
 //
 template <>
-inline void fwht_norm<16>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<16>(int64_t *inp)
 {
     fwht_norm_internal<16>(inp, 0.25f);
 }
@@ -188,22 +188,22 @@ inline void fwht_norm<16>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<32>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<32>(int64_t *inp, const int64_t fact)
 {
 
     for (int i = 0; i < 16; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 16];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 16];
-        inp[i]                         = A;
-        inp[i + 16]                    = B;
+        const int64_t A = inp[i] + inp[i + 16];
+        const int64_t B = inp[i] - inp[i + 16];
+        inp[i]          = A;
+        inp[i + 16]     = B;
     }
     fwht_norm_internal<16>(inp, fact);
     fwht_norm_internal<16>(inp + 16, fact);
 }
 //
 template <>
-inline void fwht_norm<32>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<32>(int64_t *inp)
 {
     fwht_norm_internal<32>(inp, 0.17677669529f);
 }
@@ -213,21 +213,21 @@ inline void fwht_norm<32>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<64>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<64>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 32; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 32];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 32];
-        inp[i]                         = A;
-        inp[i + 32]                    = B;
+        const int64_t A = inp[i] + inp[i + 32];
+        const int64_t B = inp[i] - inp[i + 32];
+        inp[i]          = A;
+        inp[i + 32]     = B;
     }
     fwht_norm_internal<32>(inp, fact);
     fwht_norm_internal<32>(inp + 32, fact);
 }
 //
 template <>
-inline void fwht_norm<64>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<64>(int64_t *inp)
 {
     fwht_norm_internal<64>(inp, 0.125f);
 }
@@ -237,21 +237,21 @@ inline void fwht_norm<64>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<128>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<128>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 64; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 64];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 64];
-        inp[i]                         = A;
-        inp[i + 64]                    = B;
+        const int64_t A = inp[i] + inp[i + 64];
+        const int64_t B = inp[i] - inp[i + 64];
+        inp[i]          = A;
+        inp[i + 64]     = B;
     }
     fwht_norm_internal<64>(inp + 0, fact);
     fwht_norm_internal<64>(inp + 64, fact);
 }
 //
 template <>
-inline void fwht_norm<128>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<128>(int64_t *inp)
 {
     fwht_norm_internal<128>(inp, 0.08838834764f);
 }
@@ -261,21 +261,21 @@ inline void fwht_norm<128>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<256>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<256>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 128; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 128];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 128];
-        inp[i]                         = A;
-        inp[i + 128]                   = B;
+        const int64_t A = inp[i] + inp[i + 128];
+        const int64_t B = inp[i] - inp[i + 128];
+        inp[i]          = A;
+        inp[i + 128]    = B;
     }
     fwht_norm_internal<128>(inp, fact);
     fwht_norm_internal<128>(inp + 128, fact);
 }
 //
 template <>
-inline void fwht_norm<256>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<256>(int64_t *inp)
 {
     fwht_norm_internal<256>(inp, 0.0625f);
 }
@@ -285,21 +285,21 @@ inline void fwht_norm<256>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<512>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<512>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 256; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 256];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 256];
-        inp[i]                         = A;
-        inp[i + 256]                   = B;
+        const int64_t A = inp[i] + inp[i + 256];
+        const int64_t B = inp[i] - inp[i + 256];
+        inp[i]          = A;
+        inp[i + 256]    = B;
     }
     fwht_norm_internal<256>(inp + 0, fact);
     fwht_norm_internal<256>(inp + 256, fact);
 }
 //
 template <>
-inline void fwht_norm<512>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<512>(int64_t *inp)
 {
     fwht_norm_internal<512>(inp, 0.04419417382f);
 }
@@ -309,21 +309,21 @@ inline void fwht_norm<512>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<1024>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<1024>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 512; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 512];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 512];
-        inp[i]                         = A;
-        inp[i + 512]                   = B;
+        const int64_t A = inp[i] + inp[i + 512];
+        const int64_t B = inp[i] - inp[i + 512];
+        inp[i]          = A;
+        inp[i + 512]    = B;
     }
     fwht_norm_internal<512>(inp + 0, fact);
     fwht_norm_internal<512>(inp + 512, fact);
 }
 //
 template <>
-inline void fwht_norm<1024>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<1024>(int64_t *inp)
 {
     fwht_norm_internal<1024>(inp, 0.03125f);
 }
@@ -333,21 +333,21 @@ inline void fwht_norm<1024>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<2048>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<2048>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 1024; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 1024];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 1024];
-        inp[i]                         = A;
-        inp[i + 1024]                  = B;
+        const int64_t A = inp[i] + inp[i + 1024];
+        const int64_t B = inp[i] - inp[i + 1024];
+        inp[i]          = A;
+        inp[i + 1024]   = B;
     }
     fwht_norm_internal<1024>(inp + 0, fact);
     fwht_norm_internal<1024>(inp + 1024, fact);
 }
 //
 template <>
-inline void fwht_norm<2048>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<2048>(int64_t *inp)
 {
     fwht_norm_internal<2048>(inp, 0.02209708691f);
 }
@@ -357,21 +357,21 @@ inline void fwht_norm<2048>(ap_fixed<NBITS, NINTG> *inp)
 //
 //
 template <>
-inline void fwht_norm_internal<4096>(ap_fixed<NBITS, NINTG> *inp, const ap_fixed<NBITS, NINTG> fact)
+inline void fwht_norm_internal<4096>(int64_t *inp, const int64_t fact)
 {
     for (int i = 0; i < 2048; i++)
     {
-        const ap_fixed<NBITS, NINTG> A = inp[i] + inp[i + 2048];
-        const ap_fixed<NBITS, NINTG> B = inp[i] - inp[i + 2048];
-        inp[i]                         = A;
-        inp[i + 2048]                  = B;
+        const int64_t A = inp[i] + inp[i + 2048];
+        const int64_t B = inp[i] - inp[i + 2048];
+        inp[i]          = A;
+        inp[i + 2048]   = B;
     }
     fwht_norm_internal<2048>(inp + 0, fact);
     fwht_norm_internal<2048>(inp + 2048, fact);
 }
 //
 template <>
-inline void fwht_norm<4096>(ap_fixed<NBITS, NINTG> *inp)
+inline void fwht_norm<4096>(int64_t *inp)
 {
     fwht_norm_internal<4096>(inp, 0.015625f);
 }

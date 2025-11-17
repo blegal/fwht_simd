@@ -18,176 +18,70 @@
 #define AP_FIXED_TOOLS
 #include "definitions/custom_types.hpp"
 #include "f_type.hpp"
+#include <climits>
+#include <cmath>
 #include <cstdint>
-//
-//
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-
-// template <int GF_SIZE>
-// void LZC_shift_at_input(const ap_fixed<NBITS + 1, 2> *s,
-//                         ap_fixed<NBITS, 1>           *s1)
-// {
-//     const int W_in = NBITS + 1;
-//     const int I_in = 2;
-//     const int F_in = W_in - I_in;
-
-//     bool any_nonzero = false;
-//     int  k_max       = -999;
-
-//     for (int j = 0; j < GF_SIZE; j++)
-//     {
-//         ap_fixed<NBITS + 1, 2> v = s[j];
-
-//         if (v != 0)
-//         {
-//             any_nonzero            = true;
-//             ap_uint<NBITS> bits    = v.range(NBITS - 1, 0);
-//             int            lz      = bits.countLeadingZeros();
-//             int            msb_pos = (NBITS - 1) - lz;
-//             int            k       = msb_pos - F_in;
-//             if (k > k_max)
-//                 k_max = k;
-//         }
-//     }
-
-//     if (!any_nonzero)
-//     {
-//         for (int j = 0; j < GF_SIZE; j++)
-//             s1[j] = 0;
-//         return;
-//     }
-
-//     int shift = -1 - k_max;
-
-//     for (int j = 0; j < GF_SIZE; j++)
-//     {
-//         ap_fixed<NBITS + 1, 2> v = s[j];
-//         ap_fixed<NBITS + 1, 2> v_scaled;
-
-//         if (shift > 0)
-//             v_scaled = v << shift;
-//         else if (shift < 0)
-//             v_scaled = v >> (-shift);
-//         else
-//             v_scaled = v;
-
-//         s1[j] = (ap_fixed<NBITS, 1>)v_scaled;
-//     }
-// }
 
 template <int GF_SIZE>
-void LZC_shift_after_fwht(const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *s, ap_fixed<NBITS, 1> *s1)
+void LZC_normalize(int64_t *s1)
 {
-    const int W_in = NBITS + _logGF_;
-    const int I_in = 1 + _logGF_;
-    const int F_in = W_in - I_in; // = NBITS - 1 fractional bits
-
-    bool any_nonzero = false;
-    int  k_max       = -999;
-
-    for (int j = 0; j < GF_SIZE; j++)
+    const int64_t    *s       = s1;
+    constexpr int64_t max_val = (1LL << (NBITS - 1)) - 1;
+    constexpr int64_t min_val = -(1LL << (NBITS - 1));
+    constexpr int     F_in    = NBITS - 1;
+    auto              abs64   = [](int64_t x) -> uint64_t
     {
-        ap_fixed<W_in, I_in> v     = s[j];
-        ap_fixed<W_in, I_in> neg_v = -v;
+        if (x == INT64_MIN)
+            return (1ULL << 63);
+        return (x < 0) ? (uint64_t)(-x) : (uint64_t)x;
+    };
+    uint64_t or_all = 0;
+    for (int j = 0; j < GF_SIZE; j++)
+        or_all |= abs64(s[j]);
 
-        bool                 sgn    = v[W_in - 1];
-        ap_fixed<W_in, I_in> temp_v = sgn ? neg_v : v;
-
-        if (v != 0)
-        {
-            any_nonzero           = true;
-            ap_uint<W_in> bits    = temp_v.range(W_in - 1, 0);
-            int           lz      = bits.countLeadingZeros();
-            int           msb_pos = (W_in - 1) - lz;
-
-            int k = msb_pos - F_in;
-            if (k > k_max)
-                k_max = k;
-        }
-    }
-    if (!any_nonzero)
+    if (or_all == 0)
     {
         for (int j = 0; j < GF_SIZE; j++)
             s1[j] = 0;
         return;
     }
+    int msb_pos;
+
+#if defined(__GNUG__)
+    msb_pos = 63 - __builtin_clzll(or_all);
+#else
+    {
+        uint64_t x = or_all;
+        msb_pos    = 0;
+        while (x >>= 1)
+            msb_pos++;
+    }
+#endif
+    int k_max = msb_pos - F_in;
     int shift = -1 - k_max;
     for (int j = 0; j < GF_SIZE; j++)
     {
-        ap_fixed<W_in, I_in> v     = s[j];
-        ap_fixed<W_in, I_in> neg_v = -v;
-        bool                 sgn   = v[W_in - 1];
-        ap_fixed<W_in, I_in> v_abs = sgn ? neg_v : v;
-        ap_fixed<W_in, I_in> v_abs_shifted;
-        if (shift > 0)
-            v_abs_shifted = v_abs << shift;
-        else if (shift < 0)
-            v_abs_shifted = v_abs >> (-shift);
-        else
-            v_abs_shifted = v_abs;
-        ap_fixed<W_in, I_in> neg_v_shifted = (ap_fixed<W_in, I_in>)(-v_abs_shifted);
-        ap_fixed<W_in, I_in> v_norm        = sgn ? neg_v_shifted : v_abs_shifted;
-        s1[j]                              = (ap_fixed<NBITS, 1>)v_norm;
-    }
-}
-
-template <int GF_SIZE>
-void LZC_shift_after_fwht_mult(const ap_fixed<2 * NBITS, 2> *s, ap_fixed<NBITS, 1> *s1)
-{
-    const int W_in = NBITS * 2;
-    const int I_in = 2;
-    const int F_in = W_in - I_in; // = NBITS - 1 fractional bits
-
-    bool any_nonzero = false;
-    int  k_max       = -999;
-
-    for (int j = 0; j < GF_SIZE; j++)
-    {
-        ap_fixed<W_in, I_in> v     = s[j];
-        ap_fixed<W_in, I_in> neg_v = -v;
-
-        bool                 sgn    = v[W_in - 1];
-        ap_fixed<W_in, I_in> temp_v = sgn ? neg_v : v;
-
-        if (v != 0)
+        int64_t  v     = s[j];
+        uint64_t v_abs = abs64(v);
+        int64_t  out;
+        if (shift < 0)
         {
-            any_nonzero           = true;
-            ap_uint<W_in> bits    = temp_v.range(W_in - 1, 0);
-            int           lz      = bits.countLeadingZeros();
-            int           msb_pos = (W_in - 1) - lz;
-
-            int k = msb_pos - F_in;
-            if (k > k_max)
-                k_max = k;
+            int r = -shift;
+            out   = v >> r;
         }
-    }
-    if (!any_nonzero)
-    {
-        for (int j = 0; j < GF_SIZE; j++)
-            s1[j] = 0;
-        return;
-    }
-    int shift = -1 - k_max;
-    for (int j = 0; j < GF_SIZE; j++)
-    {
-        ap_fixed<W_in, I_in> v     = s[j];
-        ap_fixed<W_in, I_in> neg_v = -v;
-        bool                 sgn   = v[W_in - 1];
-        ap_fixed<W_in, I_in> v_abs = sgn ? neg_v : v;
-        ap_fixed<W_in, I_in> v_abs_shifted;
-        if (shift > 0)
-            v_abs_shifted = v_abs << shift;
-        else if (shift < 0)
-            v_abs_shifted = v_abs >> (-shift);
+        else if (shift > 0)
+        {
+            uint64_t mag = v_abs << shift;
+            if (mag >> 63)
+                out = (v >= 0) ? max_val : min_val + 1;
+            else
+                out = (v >= 0) ? (int64_t)mag : -(int64_t)mag;
+        }
         else
-            v_abs_shifted = v_abs;
-        ap_fixed<W_in, I_in> neg_v_shifted = (ap_fixed<W_in, I_in>)(-v_abs_shifted);
-        ap_fixed<W_in, I_in> v_norm        = sgn ? neg_v_shifted : v_abs_shifted;
-        s1[j]                              = (ap_fixed<NBITS, 1>)v_norm;
+        {
+            out = v;
+        }
+        s1[j] = out;
     }
 }
 

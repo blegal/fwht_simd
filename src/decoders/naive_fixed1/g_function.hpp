@@ -59,14 +59,8 @@ void g_function(
         // fwht       <gf_size>(src_a->value);
         // src_a->is_freq = false;
 
-        symbols_t2 src_a1;
-        for (int i = 0; i < gf_size; i++)
-        {
-            src_a1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)src_a->value[i];
-        }
-
-        fwht<gf_size>(src_a1.value);
-        LZC_shift_after_fwht<gf_size>(src_a1.value, src_a->value);
+        fwht<gf_size>(src_a->value);
+        LZC_normalize<gf_size>(src_a->value);
         src_a->is_freq = false;
     }
 
@@ -77,15 +71,10 @@ void g_function(
         // f_normalize<gf_size>(src_b->value, factor);
         // fwht       <gf_size>(src_b->value);
         // src_b->is_freq = false;
-        symbols_t2 src_b1;
-        for (int i = 0; i < gf_size; i++)
-        {
-            src_b1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)src_b->value[i];
-        }
-        src_b1.is_freq = src_b->is_freq;
+        src_b->is_freq = src_b->is_freq;
 
-        fwht<gf_size>(src_b1.value);
-        LZC_shift_after_fwht<gf_size>(src_b1.value, src_b->value);
+        fwht<gf_size>(src_b->value);
+        LZC_normalize<gf_size>(src_b->value);
     }
 
     // for (size_t i = 0; i < gf_size; i++)
@@ -95,16 +84,13 @@ void g_function(
     // }
     // f_normalize<gf_size>(dst->value); // temporal
     // dst->is_freq = false;
-
-    symbols_t3 dst2;
-
     for (size_t i = 0; i < gf_size; i++)
     {
         const int idx   = src_c ^ i;
-        dst2.value[idx] = src_a->value[i] * src_b->value[idx];
+        dst->value[idx] = src_a->value[i] * src_b->value[idx];
     }
     dst->is_freq = false;
-    LZC_shift_after_fwht_mult<gf_size>(dst2.value, dst->value);
+    LZC_normalize<gf_size>(dst->value);
     // std::cout << "\033c" << std::flush;
     // for (int i = 0; i < gf_size; i++)
     // {

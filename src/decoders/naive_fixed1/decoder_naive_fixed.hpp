@@ -16,8 +16,8 @@ class decoder_naive_fixed : public decoder
     decoder_naive_fixed(const int n, const int *frozen_symb);
     ~decoder_naive_fixed();
 
-    void execute(float *channel, uint16_t *decoded);
-    void conversion(float *channel, symbols_t *channel1);
+    void      execute(symbols_t1 *channel, uint16_t *decoded);
+    symbols_t conversion(const float *channel);
 
   private:
     void middle_node(

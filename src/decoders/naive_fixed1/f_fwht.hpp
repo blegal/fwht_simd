@@ -31,7 +31,7 @@
 //
 //
 template <uint16_t galois_size>
-inline void fwht(ap_fixed<NBITS + _logGF_, 1 + _logGF_> x[])
+inline void fwht(int64_t x[])
 {
     assert(x != 0);
     assert(true);
@@ -39,7 +39,7 @@ inline void fwht(ap_fixed<NBITS + _logGF_, 1 + _logGF_> x[])
 }
 
 template <uint16_t galois_size>
-inline void fwht(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht(int64_t *dst, const int64_t *src)
 {
     assert(src != nullptr);
     assert(dst != nullptr);
@@ -48,7 +48,7 @@ inline void fwht(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBI
 }
 
 template <uint16_t galois_size>
-inline void normalize(ap_fixed<NBITS + _logGF_, 1 + _logGF_> x[], const ap_fixed<NBITS + _logGF_, 1 + _logGF_> fact)
+inline void normalize(int64_t x[], const int64_t fact)
 {
     for (int i = 0; i < galois_size; i++)
         x[i] = x[i] * fact;
@@ -60,9 +60,9 @@ inline void normalize(ap_fixed<NBITS + _logGF_, 1 + _logGF_> x[], const ap_fixed
 //
 //
 // inline void fwht_tuile(const ap_fixed<NBITS+_logGF_, 1+_logGF_>  inp[8], ap_fixed<NBITS+_logGF_, 1+_logGF_>  outp[8]) {
-inline void fwht_tuile(const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp, ap_fixed<NBITS + _logGF_, 1 + _logGF_> *outp)
+inline void fwht_tuile(const int64_t *inp, int64_t *outp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> L1[8], L2[8];
+    int64_t L1[8], L2[8];
     L1[0] = inp[0] + inp[4];
     L1[1] = inp[1] + inp[5];
     L1[2] = inp[2] + inp[6];
@@ -96,9 +96,9 @@ inline void fwht_tuile(const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp, ap_fix
 //
 //
 template <>
-inline void fwht<8>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<8>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[8];
+    int64_t part_1[8];
     for (int i = 0; i < 4; i++)
     {
         part_1[i]     = inp[i] + inp[i + 4];
@@ -110,7 +110,7 @@ inline void fwht<8>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<8>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<8>(int64_t *dst, const int64_t *src)
 {
     // ap_fixed<NBITS+_logGF_, 1+_logGF_>  part_1[8];
     for (int i = 0; i < 4; i++)
@@ -126,10 +126,10 @@ inline void fwht<8>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<
 //
 //
 template <>
-inline void fwht<16>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<16>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[8];
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_2[8];
+    int64_t part_1[8];
+    int64_t part_2[8];
 
     for (int i = 0; i < 8; i++)
         part_1[i] = inp[i] + inp[i + 8];
@@ -143,7 +143,7 @@ inline void fwht<16>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<16>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<16>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 8; i++)
     {
@@ -159,10 +159,10 @@ inline void fwht<16>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed
 //
 //
 template <>
-inline void fwht<32>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<32>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[16];
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_2[16];
+    int64_t part_1[16];
+    int64_t part_2[16];
 
     for (int i = 0; i < 16; i++)
     {
@@ -183,7 +183,7 @@ inline void fwht<32>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<32>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<32>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 16; i++)
     {
@@ -199,10 +199,10 @@ inline void fwht<32>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed
 //
 //
 template <>
-inline void fwht<64>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<64>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[32];
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_2[32];
+    int64_t part_1[32];
+    int64_t part_2[32];
 
     for (int i = 0; i < 32; i++)
     {
@@ -223,7 +223,7 @@ inline void fwht<64>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<64>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<64>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 32; i++)
     {
@@ -239,9 +239,9 @@ inline void fwht<64>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed
 //
 //
 template <>
-inline void fwht<128>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<128>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[64], part_2[64];
+    int64_t part_1[64], part_2[64];
 
     for (int i = 0; i < 64; i++)
     {
@@ -262,7 +262,7 @@ inline void fwht<128>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<128>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<128>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 64; i++)
     {
@@ -278,10 +278,10 @@ inline void fwht<128>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixe
 //
 //
 template <>
-inline void fwht<256>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<256>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[128];
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_2[128];
+    int64_t part_1[128];
+    int64_t part_2[128];
 
     for (int i = 0; i < 128; i++)
     {
@@ -302,7 +302,7 @@ inline void fwht<256>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<256>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<256>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 128; i++)
     {
@@ -323,10 +323,10 @@ inline void fwht<256>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixe
 //
 //
 template <>
-inline void fwht<512>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<512>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[256];
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_2[256];
+    int64_t part_1[256];
+    int64_t part_2[256];
 
     for (int i = 0; i < 256; i++)
     {
@@ -347,7 +347,7 @@ inline void fwht<512>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<512>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<512>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 256; i++)
     {
@@ -363,10 +363,10 @@ inline void fwht<512>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixe
 //
 //
 template <>
-inline void fwht<1024>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
+inline void fwht<1024>(int64_t *inp)
 {
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_1[512];
-    ap_fixed<NBITS + _logGF_, 1 + _logGF_> part_2[512];
+    int64_t part_1[512];
+    int64_t part_2[512];
 
     for (int i = 0; i < 512; i++)
     {
@@ -387,7 +387,7 @@ inline void fwht<1024>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *inp)
 //
 //
 template <>
-inline void fwht<1024>(ap_fixed<NBITS + _logGF_, 1 + _logGF_> *dst, const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *src)
+inline void fwht<1024>(int64_t *dst, const int64_t *src)
 {
     for (int i = 0; i < 256; i++)
     {
