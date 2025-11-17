@@ -6,7 +6,7 @@
 //
 #include "include/ap_fixed.h"
 //
-#define NBITS 20
+#define NBITS 22
 //
 struct symbols_f
 {
@@ -15,12 +15,12 @@ struct symbols_f
     bool is_freq;
 };
 
-struct symbols_f1
-{
-    ap_fixed<NBITS + 1, 2> value[_GF_];
-    // ap_fixed<NBITS, 1> value[_GF_];
-    bool is_freq;
-};
+// struct symbols_f1
+// {
+//     ap_fixed<NBITS + 1, 2> value[_GF_];
+//     // ap_fixed<NBITS, 1> value[_GF_];
+//     bool is_freq;
+// };
 
 struct symbols_f2
 {

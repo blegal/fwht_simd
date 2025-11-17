@@ -12,9 +12,9 @@
 //
 
 template <int gf_size>
-symbols_f1 conversion(const symbols_t s)
+symbols_f conversion(const symbols_t s)
 {
-    symbols_f1 f;
+    symbols_f f;
     for (int i = 0; i < gf_size; i++)
     {
         f.value[i] = s.value[i];
@@ -79,16 +79,16 @@ void decoder_naive_fixed<gf_size>::execute(symbols_t *channel, uint16_t *decoded
     //
     //
     //
-    symbols_f1 *temp_f_channel = new symbols_f1[N];
+    // symbols_f1 *temp_f_channel = new symbols_f1[N];
     for (int i = 0; i < N; i++)
     {
-        temp_f_channel[i] = conversion<gf_size>(channel[i]);
+        f_channel[i] = conversion<gf_size>(channel[i]);
         // for (int j = 0; j < gf_size; j++)
         // {
         //     printf("%d: %.20f\n", j, (float)temp_f_channel[i].value[j]);
         // }
 
-        LZC_shift_at_input<gf_size>(temp_f_channel[i].value, f_channel[i].value);
+        // LZC_shift_at_input<gf_size>(temp_f_channel[i].value, f_channel[i].value);
         f_channel[i].is_freq = false;
         // std::cout << "\033c" << std::flush;
 
@@ -97,7 +97,7 @@ void decoder_naive_fixed<gf_size>::execute(symbols_t *channel, uint16_t *decoded
         //     printf("conversion %d: %.20f | %.20f | %.20f\n", j, channel[i], (float)f_channel[i].value[j], (float)temp_f_channel[i].value[j]);
         // }
     }
-    delete[] temp_f_channel;
+    // delete[] temp_f_channel;
 
     //
     //

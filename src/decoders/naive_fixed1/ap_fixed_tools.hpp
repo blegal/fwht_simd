@@ -27,57 +27,57 @@
 //
 //
 
-template <int GF_SIZE>
-void LZC_shift_at_input(const ap_fixed<NBITS + 1, 2> *s,
-                        ap_fixed<NBITS, 1>           *s1)
-{
-    const int W_in = NBITS + 1;
-    const int I_in = 2;
-    const int F_in = W_in - I_in;
+// template <int GF_SIZE>
+// void LZC_shift_at_input(const ap_fixed<NBITS + 1, 2> *s,
+//                         ap_fixed<NBITS, 1>           *s1)
+// {
+//     const int W_in = NBITS + 1;
+//     const int I_in = 2;
+//     const int F_in = W_in - I_in;
 
-    bool any_nonzero = false;
-    int  k_max       = -999;
+//     bool any_nonzero = false;
+//     int  k_max       = -999;
 
-    for (int j = 0; j < GF_SIZE; j++)
-    {
-        ap_fixed<NBITS + 1, 2> v = s[j];
+//     for (int j = 0; j < GF_SIZE; j++)
+//     {
+//         ap_fixed<NBITS + 1, 2> v = s[j];
 
-        if (v != 0)
-        {
-            any_nonzero            = true;
-            ap_uint<NBITS> bits    = v.range(NBITS - 1, 0);
-            int            lz      = bits.countLeadingZeros();
-            int            msb_pos = (NBITS - 1) - lz;
-            int            k       = msb_pos - F_in;
-            if (k > k_max)
-                k_max = k;
-        }
-    }
+//         if (v != 0)
+//         {
+//             any_nonzero            = true;
+//             ap_uint<NBITS> bits    = v.range(NBITS - 1, 0);
+//             int            lz      = bits.countLeadingZeros();
+//             int            msb_pos = (NBITS - 1) - lz;
+//             int            k       = msb_pos - F_in;
+//             if (k > k_max)
+//                 k_max = k;
+//         }
+//     }
 
-    if (!any_nonzero)
-    {
-        for (int j = 0; j < GF_SIZE; j++)
-            s1[j] = 0;
-        return;
-    }
+//     if (!any_nonzero)
+//     {
+//         for (int j = 0; j < GF_SIZE; j++)
+//             s1[j] = 0;
+//         return;
+//     }
 
-    int shift = -1 - k_max;
+//     int shift = -1 - k_max;
 
-    for (int j = 0; j < GF_SIZE; j++)
-    {
-        ap_fixed<NBITS + 1, 2> v = s[j];
-        ap_fixed<NBITS + 1, 2> v_scaled;
+//     for (int j = 0; j < GF_SIZE; j++)
+//     {
+//         ap_fixed<NBITS + 1, 2> v = s[j];
+//         ap_fixed<NBITS + 1, 2> v_scaled;
 
-        if (shift > 0)
-            v_scaled = v << shift;
-        else if (shift < 0)
-            v_scaled = v >> (-shift);
-        else
-            v_scaled = v;
+//         if (shift > 0)
+//             v_scaled = v << shift;
+//         else if (shift < 0)
+//             v_scaled = v >> (-shift);
+//         else
+//             v_scaled = v;
 
-        s1[j] = (ap_fixed<NBITS, 1>)v_scaled;
-    }
-}
+//         s1[j] = (ap_fixed<NBITS, 1>)v_scaled;
+//     }
+// }
 
 template <int GF_SIZE>
 void LZC_shift_after_fwht(const ap_fixed<NBITS + _logGF_, 1 + _logGF_> *s, ap_fixed<NBITS, 1> *s1)
