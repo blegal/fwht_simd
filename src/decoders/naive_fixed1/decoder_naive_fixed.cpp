@@ -12,16 +12,14 @@
 //
 
 template <int gf_size>
-symbols_f conversion(const symbols_t s)
+void conversion(const float *s, symbols_t *f)
 {
-    symbols_f f;
+    symbols_t f;
     for (int i = 0; i < gf_size; i++)
     {
-        f.value[i] = s.value[i];
+        f.value[i] = (int64_t)(s[i] * (float)(1u << (NBITS - 1)));
     }
     f.is_freq = s.is_freq;
-
-    return f;
 }
 //
 //
@@ -34,8 +32,8 @@ decoder_naive_fixed<gf_size>::decoder_naive_fixed(const int n, const int *frozen
     symbols = new uint16_t[N];
     frozen  = new uint32_t[N];
 
-    f_channel  = new symbols_f[N];
-    f_internal = new symbols_f[N];
+    f_channel  = new symbols_t[N];
+    f_internal = new symbols_t[N];
 
     for (int i = 0; i < N; i++)
     {
@@ -73,13 +71,13 @@ decoder_naive_fixed<gf_size>::~decoder_naive_fixed()
 }
 
 template <int gf_size>
-void decoder_naive_fixed<gf_size>::execute(symbols_t *channel, uint16_t *decoded)
+void decoder_naive_fixed<gf_size>::execute(float *channel, uint16_t *decoded)
 {
     const int n = N / 2; // Assuming size is the number of symbols
     //
     //
     //
-    // symbols_f1 *temp_f_channel = new symbols_f1[N];
+    // symbols_t1 *temp_f_channel = new symbols_t1[N];
     for (int i = 0; i < N; i++)
     {
         f_channel[i] = conversion<gf_size>(channel[i]);
@@ -136,8 +134,8 @@ void decoder_naive_fixed<gf_size>::execute(symbols_t *channel, uint16_t *decoded
 //
 template <int gf_size>
 void decoder_naive_fixed<gf_size>::middle_node(
-    symbols_f *inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_f *internal, // Internal nodes are the symbols computed during the process (to the left)
+    symbols_t *inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_t *internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t  *decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t  *symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int        size,     // Size is the number of symbols (should be a power of 2)
@@ -193,7 +191,7 @@ void decoder_naive_fixed<gf_size>::middle_node(
 }
 template <int gf_size>
 void decoder_naive_fixed<gf_size>::leaf_node(
-    symbols_f *var,
+    symbols_t *var,
     uint16_t  *decoded,
     uint16_t  *symbols,
     const int  symbol_id)
@@ -213,7 +211,7 @@ void decoder_naive_fixed<gf_size>::leaf_node(
         // fwht<gf_size>(var->value);
         // var->is_freq = false;
 
-        symbols_f2 var1;
+        symbols_t2 var1;
         for (int i = 0; i < gf_size; i++)
         {
             var1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)var->value[i];

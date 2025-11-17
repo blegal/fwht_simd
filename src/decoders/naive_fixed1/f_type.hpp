@@ -8,27 +8,27 @@
 //
 #define NBITS 22
 //
-struct symbols_f
+struct symbols_t
 {
     ap_fixed<NBITS, 1> value[_GF_];
     // ap_fixed<NBITS, 1> value[_GF_];
     bool is_freq;
 };
 
-// struct symbols_f1
+// struct symbols_t1
 // {
 //     ap_fixed<NBITS + 1, 2> value[_GF_];
 //     // ap_fixed<NBITS, 1> value[_GF_];
 //     bool is_freq;
 // };
 
-struct symbols_f2
+struct symbols_t2
 {
     ap_fixed<NBITS + _logGF_, 1 + _logGF_> value[_GF_];
     // ap_fixed<NBITS, 1> value[_GF_];
     bool is_freq;
 };
-struct symbols_f3
+struct symbols_t3
 {
     ap_fixed<2 * NBITS, 2> value[_GF_];
     // ap_fixed<NBITS, 1> value[_GF_];

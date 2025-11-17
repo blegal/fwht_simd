@@ -4,11 +4,11 @@
 #include "features/archi.hpp"
 
 template <uint32_t gf_size>
-void f_function(symbols_f *__restrict dst, symbols_f *__restrict src_a, symbols_f *__restrict src_b)
+void f_function(symbols_t *__restrict dst, symbols_t *__restrict src_a, symbols_t *__restrict src_b)
 {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
-        symbols_f2 src_a1;
+        symbols_t2 src_a1;
         for (int i = 0; i < gf_size; i++)
         {
             src_a1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)src_a->value[i];
@@ -30,7 +30,7 @@ void f_function(symbols_f *__restrict dst, symbols_f *__restrict src_a, symbols_
     }
     if (src_b->is_freq == false)
     {
-        symbols_f2 src_b1;
+        symbols_t2 src_b1;
         for (int i = 0; i < gf_size; i++)
         {
             src_b1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)src_b->value[i];
@@ -49,7 +49,7 @@ void f_function(symbols_f *__restrict dst, symbols_f *__restrict src_a, symbols_
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
-    symbols_f3 dst2;
+    symbols_t3 dst2;
 
     for (size_t i = 0; i < gf_size; i++)
     {

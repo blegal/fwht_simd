@@ -7,9 +7,9 @@
 
 // template <int gf_size>
 // void g_function(
-//     symbols_f * __restrict dst,   // the data to be computed for the left side of the graph
-//     symbols_f * __restrict src_a, // the upper value set from the right side of the graph
-//     symbols_f * __restrict src_b, // the lower value set from the right side of the graph
+//     symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
+//     symbols_t * __restrict src_a, // the upper value set from the right side of the graph
+//     symbols_t * __restrict src_b, // the lower value set from the right side of the graph
 //     uint32_t    src_c)            // the computed symbols coming from the left side of the graph
 // {
 //     if (src_a->is_freq == true)
@@ -46,9 +46,9 @@
 
 template <int gf_size>
 void g_function(
-    symbols_f *__restrict dst,   // the data to be computed for the left side of the graph
-    symbols_f *__restrict src_a, // the upper value set from the right side of the graph
-    symbols_f *__restrict src_b, // the lower value set from the right side of the graph
+    symbols_t *__restrict dst,   // the data to be computed for the left side of the graph
+    symbols_t *__restrict src_a, // the upper value set from the right side of the graph
+    symbols_t *__restrict src_b, // the lower value set from the right side of the graph
     uint32_t src_c)              // the computed symbols coming from the left side of the graph
 {
     if (src_a->is_freq == true)
@@ -59,7 +59,7 @@ void g_function(
         // fwht       <gf_size>(src_a->value);
         // src_a->is_freq = false;
 
-        symbols_f2 src_a1;
+        symbols_t2 src_a1;
         for (int i = 0; i < gf_size; i++)
         {
             src_a1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)src_a->value[i];
@@ -77,7 +77,7 @@ void g_function(
         // f_normalize<gf_size>(src_b->value, factor);
         // fwht       <gf_size>(src_b->value);
         // src_b->is_freq = false;
-        symbols_f2 src_b1;
+        symbols_t2 src_b1;
         for (int i = 0; i < gf_size; i++)
         {
             src_b1.value[i] = (ap_fixed<NBITS + _logGF_, 1 + _logGF_>)src_b->value[i];
@@ -96,7 +96,7 @@ void g_function(
     // f_normalize<gf_size>(dst->value); // temporal
     // dst->is_freq = false;
 
-    symbols_f3 dst2;
+    symbols_t3 dst2;
 
     for (size_t i = 0; i < gf_size; i++)
     {
