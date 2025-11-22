@@ -64,8 +64,8 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
 #
 #
 #
-def generate_report(log_dir, decoder, platform, GF, N):
-    report_file = os.path.join(log_dir, f"GF_{decoder}_{platform}.txt")
+def generate_report(log_dir, res_dir, decoder, platform, GF, N):
+    report_file = os.path.join(res_dir, f"GF_{platform}_{decoder}.txt")
     with open(report_file, "w") as report:
         header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
@@ -100,7 +100,8 @@ def main():
     GF = [8, 16, 32, 64, 128, 256, 512, 1024]  # fixe ou tu peux le rendre paramétrable
     N  = 64
 
-    log_dir = "log"
+    log_dir = "./log"
+    res_dir = "../log"
     os.makedirs(log_dir, exist_ok=True)
 
     for gf in GF:
@@ -111,7 +112,7 @@ def main():
 
         run_executable(N, gf, args.decoder, args.platform, args.cores, args.time, log_dir)
 
-    generate_report(log_dir, args.decoder, args.platform, GF, N)
+    generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N)
     print("✅ Tout est terminé.")
 #
 #

@@ -63,14 +63,14 @@ def run_executable(N, GF, R, decoder, platform, cores, time, log_dir):
 #
 #
 #
-def generate_report(log_dir, decoder, platform, GF, N, Rs):
-    report_file = os.path.join(log_dir, f"R_{decoder}_{platform}.txt")
+def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs):
+    report_file = os.path.join(res_dir, f"R_{decoder}_{platform}.txt")
     with open(report_file, "w") as report:
         header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
 
         for R in Rs:
-            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_R{R}_{platform}.log")
+            log_file = os.path.join(log_dir, f"{decoder}_{platform}_N{N}_GF{GF}_R{R}.log")
             if os.path.isfile(log_file):
                 with open(log_file, "r") as f:
                     lines = f.readlines()
@@ -100,7 +100,8 @@ def main():
     Ns  = [64, 256,  32]
     Rs =  [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
 
-    log_dir = "log"
+    log_dir = "./log"
+    res_dir = "../log"
     os.makedirs(log_dir, exist_ok=True)
     for x in range(0, 3):
         N =  Ns [x]
@@ -117,7 +118,7 @@ def main():
 
             run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
 
-        generate_report(log_dir, args.decoder, args.platform, GF, N, Rs)
+        generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N, Rs)
 
         print(f"✅ Sous-partie n°{x+1} terminée")
 
