@@ -64,7 +64,12 @@ def run_executable(N, GF, R, decoder, platform, cores, time, log_dir):
 #
 #
 def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs):
-    report_file = os.path.join(res_dir, f"R_{platform}_{decoder}.txt")
+    
+    # On cree le sous repertoire pour store les logs
+    nres_dir = os.path.join(res_dir, platform)
+    os.makedirs(nres_dir, exist_ok=True)
+
+    report_file = os.path.join(nres_dir, f"R_{platform}_{decoder}.txt")
     with open(report_file, "w") as report:
         header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
@@ -96,27 +101,24 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GFs = [64,  16, 256]
-    Ns  = [64, 256,  32]
+    GF = 64
+    N  = 64
     Rs =  [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
 
+    # les repertoire ou pousser les logs
     log_dir = "./log"
     res_dir = "../log"
+
+    # on cree les repertoires si nécessaoire
     os.makedirs(log_dir, exist_ok=True)
-    for x in range(0, 3):
-        N =  Ns [x]
-        GF = GFs[x]
-        for R in Rs:
-            print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
-            generate_config_header(N, GF)
+    os.makedirs(res_dir, exist_ok=True)
 
-            compile_project(R)
-
-            run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
-
+    for R in Rs:
+        print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
+        generate_config_header(N, GF)
+        compile_project(R)
+        run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
         generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N, Rs)
-
-        print(f"✅ Sous-partie n°{x+1} terminée")
 
     print("✅ Tout est terminé.")
 #
