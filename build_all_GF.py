@@ -65,7 +65,12 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
 #
 #
 def generate_report(log_dir, res_dir, decoder, platform, GF, N):
-    report_file = os.path.join(res_dir, f"GF_{platform}_{decoder}.txt")
+    
+    # On cree le sous repertoire pour store les logs
+    nres_dir = os.path.join(res_dir, platform)
+    os.makedirs(nres_dir, exist_ok=True)
+
+    report_file = os.path.join(nres_dir, f"GF_{platform}_{decoder}.txt")
     with open(report_file, "w") as report:
         header = "   N    K    R   GF   Coded    Info   Lat"
         report.write(header + "\n")
@@ -100,9 +105,13 @@ def main():
     GF = [8, 16, 32, 64, 128, 256, 512, 1024]  # fixe ou tu peux le rendre paramétrable
     N  = 64
 
+    # les repertoire ou pousser les logs
     log_dir = "./log"
     res_dir = "../log"
+
+    # on cree les repertoires si nécessaoire
     os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(res_dir, exist_ok=True)
 
     for gf in GF:
         print(f"🔧 Génération config pour N={N}, GF={gf}")
