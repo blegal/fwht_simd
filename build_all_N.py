@@ -89,7 +89,12 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
             sys.exit(1)
 
 def generate_report(Ns: List[int], GF, decoder, platform, cores, duration, log_dir, res_dir):
-    report_file: Path = Path(res_dir).joinpath(f"N_{platform}_{decoder}.txt")
+
+    # On cree le sous repertoire pour store les logs
+    nres_dir = os.path.join(res_dir, platform)
+    os.makedirs(nres_dir, exist_ok=True)
+
+    report_file: Path = Path(nres_dir).joinpath(f"N_{platform}_{decoder}.txt")
     first_time: bool = not report_file.exists()
     with open(report_file, "a") as report:
         if first_time:
@@ -146,9 +151,13 @@ def main():
     GF = 64  # fixe ou tu peux le rendre paramétrable
     Ns = args.Ns if isinstance(args.Ns, list) else [8, 16, 32, 64, 128, 256, 512, 1024]
 
+    # les repertoire ou pousser les logs
     log_dir = "./log"
     res_dir = "../log"
+
+    # on cree les repertoires si nécessaoire
     os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(res_dir, exist_ok=True)
 
     for N in Ns:
         print(f"🔧 Génération config pour N={N}, GF={GF}")
