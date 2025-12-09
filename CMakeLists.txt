@@ -17,6 +17,22 @@ if (SANITIZE_DECODERS)
 	set (SANITIZE_LDFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
 endif ()
 
+#SET (CMAKE_C_COMPILER   /opt/homebrew/opt/llvm/bin/clang)     # LLVM 21.1.7
+#SET (CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm/bin/clang++)   # LLVM 21.1.7
+
+#SET (CMAKE_C_COMPILER   /opt/homebrew/Cellar/llvm@20/20.1.8/bin/clang)     # LLVM 20.1.8
+#SET (CMAKE_CXX_COMPILER /opt/homebrew/Cellar/llvm@20/20.1.8/bin/clang++)   # LLVM 20.1.8
+
+#SET (CMAKE_C_COMPILER   /opt/homebrew/Cellar/llvm@18/18.1.8/bin/clang)     # LLVM 18.1.8
+#SET (CMAKE_CXX_COMPILER /opt/homebrew/Cellar/llvm@18/18.1.8/bin/clang++)   # LLVM 18.1.8
+
+#SET (CMAKE_C_COMPILER   /opt/homebrew/bin/gcc-13)     # GCC 13.4.0
+#SET (CMAKE_CXX_COMPILER /opt/homebrew/bin/g++-13)   # GCC 13.4.0
+
+#SET (CMAKE_C_COMPILER   /opt/homebrew/bin/gcc-15)     # GCC 15.2.0
+#SET (CMAKE_CXX_COMPILER /opt/homebrew/bin/g++-15)   # GCC 15.2.0
+
+
 add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math ${SANITIZE_CXXFLAGS})
 # add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra ${SANITIZE_CXXFLAGS})#debug2
 add_compile_options (-Wall -Wextra -Wno-unused-parameter)
