@@ -86,10 +86,10 @@ inline __attribute__((always_inline)) void g_function_freq_in(
     for (size_t i = 0; i < gf_size; i++)
         dst->value[i] = src_a->value[i] * Hadamard[src_c][i];
 
-    fwht<gf_size>(dst->value);
+    FWHT<gf_size>(dst->value);
     dst->is_freq = false;
 
-    fwht<gf_size>(src_b->value);
+    FWHT<gf_size>(src_b->value);
     // const float fact = 1/float(gf_size); if src_b will not be further used, no need to normalize
     // normalize<gf_size>(src_b->value, fact);
     src_b->is_freq = false;

@@ -187,7 +187,7 @@ template <int gf_size> void decoder_naive_fixed<gf_size>::leaf_node(
         const float factor = norm_factor_lwht<gf_size>();
         f_normalize<gf_size>(var->value, factor);
         f_normalize<gf_size>(var->value, factor);
-        fwht<gf_size>(var->value);
+        fwht_fixed <gf_size>(var->value);
         var->is_freq = false;
     }
 

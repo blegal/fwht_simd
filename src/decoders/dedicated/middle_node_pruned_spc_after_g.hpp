@@ -29,7 +29,7 @@ template <int gf_size> void middle_node_pruned_spc_after_g(
     for(int i = 0; i < size; i++)
     {
         if ( inputs[i].is_freq == true ) {
-            fwht<gf_size>( inputs[i].value );
+            FWHT<gf_size>( inputs[i].value );
             inputs[i].is_freq = false;
             normalize<gf_size>(inputs[i].value);
         }
