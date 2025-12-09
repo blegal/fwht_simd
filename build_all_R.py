@@ -71,7 +71,7 @@ def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs, cores, durat
 
     report_file = os.path.join(nres_dir, f"R_{platform}_{decoder}.txt")
     with open(report_file, "w") as report:
-        header = "   N    K    R   GF   Coded    Info   Lat"
+        header = "   N    K    R   GF   Coded    Info   Lat Threads Duration"
         report.write(header + "\n")
 
         for R in Rs:
