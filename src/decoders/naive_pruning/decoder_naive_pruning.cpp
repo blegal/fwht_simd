@@ -265,7 +265,7 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
         // la decision dure sur size/2-1 = n-1 ???
         for(int i = 0; i < size; i++) {
             if ( inputs[i].is_freq == true ) {
-                fwht_norm<gf_size>( inputs[i].value );
+                FWHT_NORM<gf_size>( inputs[i].value );
                 inputs[i].is_freq = false;
             }
         }
@@ -308,7 +308,7 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
         for(int i = 0; i < size; i++)
         {
             if ( inputs[i].is_freq == true ) {
-                fwht<gf_size>( inputs[i].value );
+                FWHT<gf_size>( inputs[i].value );
                 inputs[i].is_freq = false;
                 normalize<gf_size>(inputs[i].value);
             }

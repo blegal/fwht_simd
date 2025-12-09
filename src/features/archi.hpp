@@ -8,8 +8,8 @@
 
 #endif
 
-#include "fwht/fwht.hpp"
-#include "fwht/fwht_norm.hpp"
+//#include "fwht/fwht.hpp"
+//#include "fwht/fwht_norm.hpp"
 
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include "fwht/fwht_neon.hpp"

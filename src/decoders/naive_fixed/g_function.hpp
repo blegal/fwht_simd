@@ -2,6 +2,7 @@
 
 #include "f_argmax.hpp"
 #include "f_fwht_norm.hpp"
+#include "f_fwht.hpp"
 #include "f_normalize.hpp"
 
 //#define _TEST_
@@ -18,7 +19,7 @@ void g_function(
         const float factor = norm_factor_lwht<gf_size>();
         f_normalize<gf_size>(src_a->value, factor);
         f_normalize<gf_size>(src_a->value, factor);
-        fwht       <gf_size>(src_a->value);
+        fwht_fixed <gf_size>(src_a->value);
         src_a->is_freq = false;
     }
 
@@ -26,7 +27,7 @@ void g_function(
         const float factor = norm_factor_lwht<gf_size>();
         f_normalize<gf_size>(src_b->value, factor);
         f_normalize<gf_size>(src_b->value, factor);
-        fwht       <gf_size>(src_b->value);
+        fwht_fixed <gf_size>(src_b->value);
         src_b->is_freq = false;
     }
 

@@ -19,7 +19,9 @@ endif ()
 
 add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math ${SANITIZE_CXXFLAGS})
 # add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra ${SANITIZE_CXXFLAGS})#debug2
-add_compile_options (-Wall -Wextra -Wno-unused-parameter)
+add_compile_options (-Wall -Wextra)
+# to remove warnings from ap_int
+add_compile_options (-Wno-unused-parameter -Wno-deprecated-copy -Wno-int-in-bool-context -Wno-type-limits -Wno-strict-aliasing -Wno-extra)
 add_link_options (${SANITIZE_LDFLAGS})
 
 #######################################################################################################################################

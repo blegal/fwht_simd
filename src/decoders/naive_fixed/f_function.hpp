@@ -2,18 +2,19 @@
 
 #include "definitions/custom_types.hpp"
 #include "features/archi.hpp"
+#include "f_fwht.hpp"
 
 template <uint32_t gf_size>
 void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbols_f * __restrict src_b)
 {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
-        fwht<gf_size>(src_a->value);
+        fwht_fixed<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
     if (src_b->is_freq == false)
     {
-        fwht<gf_size>(src_b->value);
+        fwht_fixed<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
     //
