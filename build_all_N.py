@@ -96,7 +96,7 @@ def generate_report(Ns: List[int], GF, decoder, platform, cores, duration, log_d
 
     report_file: Path = Path(nres_dir).joinpath(f"N_{platform}_{decoder}.txt")
     first_time: bool = not report_file.exists()
-    with open(report_file, "a") as report:
+    with open(report_file, "w") as report:
         if first_time:
             header = "   N    K    R   GF   Coded    Info   Lat Threads Duration"
             report.write(header + "\n")
