@@ -523,6 +523,8 @@ template <> inline void lwht_norm_generic_neon<1024>(float* srcdst) {
 //
 template <uint16_t GF> inline void lwht_norm_generic(float* srcdst)
 {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     exit(srcdst != nullptr);
 }
 template <> inline void lwht_norm_generic<   8>(float* srcdst) { leaf_fwht8_norm_v2(srcdst, srcdst, 0.35355339059f); }

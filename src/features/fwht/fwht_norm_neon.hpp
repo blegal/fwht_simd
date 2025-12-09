@@ -453,6 +453,8 @@ inline void fwht_norm_neon<256>(float x[], float y[]) { fwht256_norm_flat_neon(x
 //
 template <uint16_t galois_size>
 inline void fwht_norm_neon(float x[]) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(true);
     exit(x != nullptr);

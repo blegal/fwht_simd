@@ -21,8 +21,11 @@
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
 #include <arm_neon.h>
 #include <string>
+#include <cassert>
 
 template <uint16_t galois_size> inline void fwht_neon(float x[]) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(true);
     exit(x != nullptr);
@@ -97,6 +100,10 @@ inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1) {
     //////////////////////////////////////////////////////
     //
     const float32x4_t HH = vaddq_f32(X0, X1);
+    const float32x4_t BB = vsubq_f32(X0, X1);
+    //
+    //////////////////////////////////////////////////////
+    //
     const float32x4_t N0 = vextq_f32(HH, HH, 2);
     const float32x4_t N1 = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(HH), m0));
     const float32x4_t N2 = vaddq_f32(N0, N1);
@@ -107,7 +114,6 @@ inline float32x4x2_t fwht8_neon(const float32x4_t X0, const float32x4_t X1) {
     //
     //////////////////////////////////////////////////////
     //
-    const float32x4_t BB = vsubq_f32(X0, X1);
     const float32x4_t O0 = vextq_f32(BB, BB, 2);
     const float32x4_t O1 = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(BB), m0));
     const float32x4_t O2 = vaddq_f32(O0, O1);
@@ -285,11 +291,18 @@ template <> inline void fwht_neon<8>(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-#if 0
-template <> inline void fwht_neon<8>(float x[]) {
-    fwht_neon<8>(x, x);
+template <> inline void fwht_neon<8>(float x[])
+{
+    const float32x4_t   A = vld1q_f32(x    );
+    const float32x4_t   B = vld1q_f32(x + 4);
+    const float32x4x2_t C = fwht8_neon(A, B);
+    vst1q_x2_f32(x, C);
 }
-#endif
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 template <> inline void fwht_neon<16>(float x[]) {
     fwht16_flat_neon(x, x);
 }

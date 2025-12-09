@@ -28,6 +28,8 @@
 
 template <uint16_t GF>
 inline void fwht_norm_avx512(float x[]) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(true);
     exit(x != nullptr);
@@ -36,6 +38,8 @@ inline void fwht_norm_avx512(float x[]) {
 #if 0
 template <uint16_t GF>
 inline void fwht_norm_avx512(float x[], float y[]) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(y != 0);
     assert(true);

@@ -40,6 +40,8 @@
 //
 template <uint16_t GF>
 inline void fwht_norm_avx2(float x[]) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(true);
     exit(x != nullptr);

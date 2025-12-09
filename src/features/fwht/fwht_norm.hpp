@@ -37,12 +37,16 @@
 //
 template <uint16_t galois_size>
 inline void fwht_norm(float* x) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(true);
     exit(x != NULL); // pour gerer le release mode
 }
 template <uint16_t galois_size>
 inline void fwht_norm_internal(float* x, const float fact) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x    != nullptr);
     assert(fact != 0.f);
     assert(true);
