@@ -95,16 +95,13 @@ def generate_report(Ns: List[int], GF, decoder, platform, cores, duration, log_d
     os.makedirs(nres_dir, exist_ok=True)
 
     report_file: Path = Path(nres_dir).joinpath(f"N_{platform}_{decoder}.txt")
-    first_time: bool = not report_file.exists()
+
     with open(report_file, "w") as report:
-        if first_time:
-            header = "   N    K    R   GF   Coded    Info   Lat Threads Duration"
-            report.write(header + "\n")
+        header = "   N    K    R   GF   Coded    Info   Lat Threads Duration"
+        report.write(header + "\n")
 
         for N in Ns:
-            log_file = os.path.join(
-                log_dir, f"{decoder}_N{N}_GF{GF}_{platform}_{cores}c.log"
-            )
+            log_file = os.path.join(log_dir, f"{decoder}_N{N}_GF{GF}_{platform}_{cores}c.log")
             if os.path.isfile(log_file):
                 with open(log_file, "r") as f:
                     lines = f.readlines()

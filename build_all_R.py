@@ -63,7 +63,7 @@ def run_executable(N, GF, R, decoder, platform, cores, time, log_dir):
 #
 #
 #
-def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs):
+def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs, cores, duration):
     
     # On cree le sous repertoire pour store les logs
     nres_dir = os.path.join(res_dir, platform)
@@ -80,8 +80,10 @@ def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs):
                 with open(log_file, "r") as f:
                     lines = f.readlines()
                     if lines:
-                        last_line = lines[-1]#.strip()
-                        report.write(f"{last_line}")#\n")
+                        last_line_list = lines[-1].strip().split(" ")
+                        first_value = int(last_line_list[0])
+                        remains = " ".join(last_line_list[1:])
+                        report.write(f"{N:4d} {remains} {cores:7d} {duration:8d}\n")
                     else:
                         report.write(f"{N} MISSING_DATA\n")
             else:
@@ -118,8 +120,8 @@ def main():
         generate_config_header(N, GF)
         compile_project(R)
         run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
-        generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N, Rs)
-
+    
+    generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N, Rs, int(args.cores), int(args.time))
     print("✅ Tout est terminé.")
 #
 #
