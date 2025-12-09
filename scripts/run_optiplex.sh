@@ -1,12 +1,12 @@
 # mono-core experiments
 
-#python3 ../build_all_N.py  --decoder dec1 --platform optiplex_1c --cores 1 --time 30
+python3 ../build_all_N.py  --decoder dec1 --platform optiplex_1c --cores 1 --time 30
 #python3 ../build_all_N.py  --decoder dec2 --platform optiplex_1c --cores 1 --time 30
 python3 ../build_all_N.py  --decoder dec3 --platform optiplex_1c --cores 1 --time 30
 python3 ../build_all_N.py  --decoder dec4 --platform optiplex_1c --cores 1 --time 30
 python3 ../build_all_N.py  --decoder dec5 --platform optiplex_1c --cores 1 --time 30
 
-#python3 ../build_all_GF.py --decoder dec1 --platform optiplex_1c --cores 1 --time 30
+python3 ../build_all_GF.py --decoder dec1 --platform optiplex_1c --cores 1 --time 30
 #python3 ../build_all_GF.py --decoder dec2 --platform optiplex_1c --cores 1 --time 30
 python3 ../build_all_GF.py --decoder dec3 --platform optiplex_1c --cores 1 --time 30
 python3 ../build_all_GF.py --decoder dec4 --platform optiplex_1c --cores 1 --time 30
