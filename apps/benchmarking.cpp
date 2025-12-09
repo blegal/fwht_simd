@@ -511,7 +511,7 @@ int main(int argc, char * argv[]) {
         printf("#(II)\n");
 
         const int   icode_rate = (int) (100.f * code_rate);
-        const float debit_info = (int) (debit * code_rate);
+        const float debit_info =       (debit * code_rate);
         printf("%4d %4d %4d %4d %7.2f %7.2f %5d\n", N, K, icode_rate, GF, debit,
                debit_info, (int) time_run);
 

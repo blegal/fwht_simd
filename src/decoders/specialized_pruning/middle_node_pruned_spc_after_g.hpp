@@ -20,7 +20,7 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_spc_after_g(
     {
         if (inputs[i].is_freq == true)
         {
-            fwht<gf_size>(inputs[i].value);
+            FWHT<gf_size>(inputs[i].value);
             inputs[i].is_freq = false;
             normalize<gf_size>(inputs[i].value);
         }
