@@ -7,6 +7,7 @@
 //!
 //!
 #pragma once
+#include <cstdint>
 //
 //
 //
@@ -14,7 +15,7 @@
 //
 //
 //
-#include <cstdint>
+#warning "Basic c code was included (argmax_c.hpp)
 //
 //
 //

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "definitions/code.hpp"
+#include "features/archi.hpp"
 
 //
 // For generic NB polar decoders
