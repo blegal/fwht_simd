@@ -98,7 +98,7 @@ def generate_report(log_dir, res_dir, decoder, platform, GF, N, cores, duration)
 #
 def main():
     parser = argparse.ArgumentParser(description="Compile, exécute et génère un rapport de benchmarking.")
-    parser.add_argument("--decoder",  required=True, choices=["dec1", "dec2", "dec3", "dec4", "dec5"], help="Nom du décodeur (ex: dec1)")
+    parser.add_argument("--decoder",  required=True, choices=["dec0", "dec1", "dec2", "dec3", "dec4", "dec5"], help="Nom du décodeur (ex: dec1)")
     parser.add_argument("--platform", required=True, help="Nom de la plateforme pour le nommage du log")
     parser.add_argument("--cores",    required=True, help="Nombre de coeurs actifs")
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
