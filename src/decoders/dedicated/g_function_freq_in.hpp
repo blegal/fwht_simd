@@ -36,15 +36,14 @@ void g_function_freq_in(
 {
     for (int s = 0; s < n_symbols; s++)
     {
+        const int idx = src_c[s];
         for (size_t i = 0; i < gf_size; i++)
-            dst[s].value[i] = src_a[s].value[i] * Hadamard[src_c[s]][i];
+            dst[s].value[i] = src_a[s].value[i] * Hadamard[idx][i];
 
         FWHT_NORM<gf_size>(dst[s].value);
         dst[s].is_freq = false;
 
         FWHT_NORM<gf_size>(src_b[s].value);
-        // const float fact = 1/float(gf_size); if src_b will not be further used, no need to normalize
-        // normalize<gf_size>(src_b[s].value, fact);
         src_b[s].is_freq = false;
 
         for (size_t i = 0; i < gf_size; i++)
@@ -69,15 +68,14 @@ inline __attribute__((always_inline)) void g_function_freq_in(
 {
     for (int s = 0; s < n_symbols; s++)
     {
+        const int idx = src_c[s];
         for (size_t i = 0; i < gf_size; i++)
-            dst[s].value[i] = src_a[s].value[i] * Hadamard[src_c[s]][i];
+            dst[s].value[i] = src_a[s].value[i] * Hadamard[idx][i];
 
         FWHT_NORM<gf_size>(dst[s].value);
         dst[s].is_freq = false;
 
         FWHT_NORM<gf_size>(src_b[s].value);
-        // const float fact = 1/float(gf_size); if src_b will not be further used, no need to normalize
-        // normalize<gf_size>(src_b[s].value, fact);
         src_b[s].is_freq = false;
 
         for (size_t i = 0; i < gf_size; i++)

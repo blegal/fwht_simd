@@ -25,6 +25,7 @@ using namespace std::chrono_literals;
 #define BWHT "\e[1;37m"
 
 #include "decoders/dedicated/decoder_dedicated.hpp"
+#include "decoders/basic/decoder_basic.hpp"
 #include "decoders/naive/decoder_naive.hpp"
 #include "decoders/naive_cfloat/decoder_naive_cfloat.hpp"
 #include "decoders/naive_fixed/decoder_naive_fixed.hpp"
@@ -302,6 +303,8 @@ int main(int argc, char * argv[]) {
         dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
     } else if (dec_type == "dec5") {
         dec = new decoder_dedicated<GF>(N, frozen_symbols);
+    } else if (dec_type == "dec0") {
+        dec = new decoder_basic<GF>(N, frozen_symbols);
     } else {
         printf("#(II) Error : unknown decoder type\n");
         exit(1);
@@ -473,6 +476,8 @@ int main(int argc, char * argv[]) {
                 liste[i].dec = new decoder_specialized_pruning<GF>(N, frozen_symbols);
             } else if (dec_type == "dec5") {
                 liste[i].dec = new decoder_dedicated<GF>(N, frozen_symbols);
+            } else if (dec_type == "dec0") {
+                liste[i].dec = new decoder_basic<GF>(N, frozen_symbols);
             } else {
                 printf("#(II) Error : unknown decoder type\n");
                 exit(1);

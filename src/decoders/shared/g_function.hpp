@@ -67,3 +67,26 @@ void g_function(
     normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
 }
+
+template <int gf_size>
+void g_function_proba_only(
+    symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
+    symbols_t * __restrict src_a, // the upper value set from the right side of the graph
+    symbols_t * __restrict src_b, // the lower value set from the right side of the graph
+    uint32_t src_c)               // the computed symbols coming from the left side of the graph
+{
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        const int idx   = src_c ^ i;
+        dst->value[idx] = src_a->value[i];
+    }
+    dst->is_freq = false;
+
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->value[i] = dst->value[i] * src_b->value[i];
+    }
+
+    normalize<gf_size>(dst->value); // temporal
+    dst->is_freq = false;
+}

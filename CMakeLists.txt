@@ -64,6 +64,7 @@ add_executable(benchmarking
         src/decoders/dedicated/decoder_dedicated.cpp
         src/decoders/nb_sc_decoder/nb_sc_decoder.cpp
         src/decoders/naive/decoder_naive.cpp
+        src/decoders/basic/decoder_basic.cpp
         src/decoders/naive_fixed/decoder_naive_fixed.cpp
         src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
         src/decoders/naive_pruning/decoder_naive_pruning.cpp

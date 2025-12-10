@@ -23,11 +23,23 @@ template <int gf_size>  void g_function_proba_in(
 {
     for (int s = 0; s < n_symbols; s++)
     {
+#if 1
+        for (int i = 0; i < gf_size; i += 1)
+        {
+            const int idx  = src_c[s] ^ i;
+            dst[s].value[idx] = src_a->value[i];
+        }
+        for (int i = 0; i < gf_size; i += 1)
+        {
+            dst[s].value[i] = dst[s].value[i] * src_b[s].value[i];
+        }
+#else
         for (int i = 0; i < gf_size; i += 1)
         {
             const int idx   = src_c[s] ^ i;
             dst[s].value[idx] = src_a[s].value[i] * src_b[s].value[idx];
         }
+#endif
         normalize<gf_size>(dst[s].value); // temporal
         dst[s].is_freq = false;
     }
@@ -45,11 +57,23 @@ template <int gf_size, int n_symbols> inline __attribute__((always_inline))  voi
 ) {
     for (int s = 0; s < n_symbols; s++)
     {
+#if 1
+        for (int i = 0; i < gf_size; i += 1)
+        {
+            const int idx  = src_c[s] ^ i;
+            dst[s].value[idx] = src_a->value[i];
+        }
+        for (int i = 0; i < gf_size; i += 1)
+        {
+            dst[s].value[i] = dst[s].value[i] * src_b[s].value[i];
+        }
+#else
         for (int i = 0; i < gf_size; i += 1)
         {
             const int idx   = src_c[s] ^ i;
             dst[s].value[idx] = src_a[s].value[i] * src_b[s].value[idx];
         }
+#endif
         normalize<gf_size>(dst[s].value); // temporal
         dst[s].is_freq = false;
     }
