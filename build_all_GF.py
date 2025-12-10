@@ -24,11 +24,11 @@ def compile_project():
     log_file = "/tmp/process.log"
     with open(log_file, "w") as f:
         print("🛠️  Compilation initiale (1/2)...")
-        result = subprocess.run(["make","clean"], stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(["cmake","--build",".","-j","-t","clean"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
             sys.exit(1)
-        result = subprocess.run(["make","code_generator"], stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(["cmake","--build",".","-j","-t","code_generator"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
             sys.exit(1)
@@ -38,7 +38,7 @@ def compile_project():
             print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
             sys.exit(1)
         print("🛠️  Compilation finale (2/2)...")
-        result = subprocess.run(["make","benchmarking"], stdout=f, stderr=subprocess.STDOUT)
+        result = subprocess.run(["cmake","--build",".","-j","-t","benchmarking"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
             sys.exit(1)

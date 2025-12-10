@@ -23,12 +23,12 @@ def generate_config_header(N, GF):
 def compile_project(rate):
         log_file = "/tmp/process.log"
         with open(log_file, "w") as f:
-            result = subprocess.run(["make","clean"], stdout=f, stderr=subprocess.STDOUT)
+            result = subprocess.run(["cmake","--build",".","-j","-t","clean"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
             print("🛠️  Compilation [code generator]...")
-            result = subprocess.run(["make","code_generator"], stdout=f, stderr=subprocess.STDOUT)
+            result = subprocess.run(["cmake","--build",".","-j","-t","code_generator"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
@@ -38,7 +38,7 @@ def compile_project(rate):
                 print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
                 sys.exit(1)
             print("🛠️  Compilation [benchmark]...")
-            result = subprocess.run(["make","benchmarking"], stdout=f, stderr=subprocess.STDOUT)
+            result = subprocess.run(["cmake","--build",".","-j","-t","benchmarking"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
