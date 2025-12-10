@@ -4,7 +4,6 @@
 #include "features/archi.hpp"
 #include "utilities/utility_functions.hpp"
 
-#ifdef ABD_OPTIM
 #if _GF_ == 8
 #include "hadamard/Hadamard_8.hpp"
 #elif _GF_ == 16
@@ -26,7 +25,6 @@
 #elif _GF_ == 4096
 #include "hadamard/Hadamard_4096.hpp"
 #endif
-#endif
 
 template <int gf_size>
 void g_function(
@@ -35,28 +33,6 @@ void g_function(
     symbols_t * __restrict src_b, // the lower value set from the right side of the graph
     uint32_t src_c)               // the computed symbols coming from the left side of the graph
 {
-#ifndef ABD_OPTIM
-    if (src_a->is_freq == true)
-    {
-        FWHT_NORM<gf_size>(src_a->value);
-        src_a->is_freq = false;
-    }
-
-    if (src_b->is_freq == true)
-    {
-        FWHT_NORM<gf_size>(src_b->value);
-        src_b->is_freq = false;
-    }
-
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        const int idx   = src_c ^ i;
-        dst->value[idx] = src_a->value[i] * src_b->value[idx];
-    }
-
-    normalize<gf_size>(dst->value); // temporal
-    dst->is_freq = false;
-#else
     if (src_a->is_freq == true)
     {
         for (size_t i = 0; i < gf_size; i++)
@@ -90,5 +66,4 @@ void g_function(
 
     normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
-#endif
 }

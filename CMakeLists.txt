@@ -71,10 +71,6 @@ add_executable(benchmarking
 )
 target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (benchmarking PUBLIC utilities)
-option(EN_ABD_OPTIM "Enable feature" ON)
-if(EN_ABD_OPTIM)
-  target_compile_definitions(benchmarking PRIVATE ABD_OPTIM)
-endif()
 
 #######################################################################################################################################
 
