@@ -30,6 +30,26 @@
     #include "features/fwht/fwht_norm_avx512.hpp"
 #endif
 
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
+    #include "features/fwht/fwht_neon.hpp"
+    #include "features/fwht/fwht_norm_neon.hpp"
+    #include "features/fwht/fwht_norm_neon_v2.hpp"
+#endif
+
+#include "features/fwht/fwht.hpp"
+#include "features/fwht/fwht_norm.hpp"
+
+#if defined(__AVX512F__)
+    #include "features/fwht/fwht_avx512.hpp"
+    #include "features/fwht/fwht_norm_avx512.hpp"
+#endif
+
+#if defined(__AVX2__)
+    #include "features/fwht/fwht_avx2.hpp"
+    #include "features/fwht/fwht_norm_avx2.hpp"
+#endif
+
+
 #include <chrono>
 #include <cstring>
 
@@ -40,11 +60,6 @@ bool are_equivalent(float * a, float * b, float epsilon, int size) {
         float diff = abs(a[i] - b[i]);
         if (diff > epsilon) {
             printf("   -> maximum absolute error is : %f : a[%d] = %f and b[%d] = %f\n", diff, i, a[i], i, b[i]);
-/*
-            show_symbols(a, size);
-            normalize(b, size);
-            show_symbols(b, size);
-*/
             return false;
         }
     }
@@ -72,7 +87,7 @@ int main(int argc, char *[]) {
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    const int32_t nTest = (64 * 1024 * 1024);
+    const int32_t nTest = 1;//(64 * 1024 * 1024);
 
     for (int size = 16; size <= 4096; size *= 2) {
 
