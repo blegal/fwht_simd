@@ -104,7 +104,7 @@ def main():
     args = parser.parse_args()
 
     GF = 64
-    N  = 64
+    N  = 256
     Rs =  [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
 
     # les repertoire ou pousser les logs
