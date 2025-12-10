@@ -37,6 +37,8 @@
 //
 template <uint16_t galois_size>
 inline void fwht(float x[]) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(x != 0);
     assert(true);
     exit(x != NULL); // pour gerer le release mode
@@ -44,6 +46,8 @@ inline void fwht(float x[]) {
 
 template <uint16_t galois_size>
 inline void fwht(float * dst, const float * src) {
+    printf("(EE) Error we should never be there...\n");
+    printf("(EE) %s %d\n", __FILE__, __LINE__);
     assert(src != nullptr);
     assert(dst != nullptr);
     assert(true);
