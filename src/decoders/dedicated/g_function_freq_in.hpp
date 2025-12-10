@@ -58,6 +58,7 @@ void g_function_freq_in(
 //
 //
 //
+#if 0
 template <int gf_size, int n_symbols>
 inline __attribute__((always_inline)) void g_function_freq_in(
     symbols_t * __restrict dst,       // the data to be computed for the left side of the graph
@@ -85,6 +86,7 @@ inline __attribute__((always_inline)) void g_function_freq_in(
         dst[s].is_freq = false;
     }
 }
+#endif
 //
 //
 //

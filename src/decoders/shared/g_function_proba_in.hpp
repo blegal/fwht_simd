@@ -11,11 +11,23 @@ void g_function_proba_in(
     const symbols_t * __restrict src_b, // the lower value set from the right side of the graph
     const uint32_t    src_c  // the computed symbols coming from the left side of the graph
 ) {
+#if 1
+    for (int i = 0; i < gf_size; i += 1)
+    {
+        const int idx  = src_c[s] ^ i;
+        dst[s].value[idx] = src_a->value[i];
+    }
+    for (int i = 0; i < gf_size; i += 1)
+    {
+        dst->value[idx] = dst->value[i] * src_b->value[i];
+    }
+#else
     for (int i = 0; i < gf_size; i += 1)
     {
         const int idx   = src_c ^ i;
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
     }
+#endif
     normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
 }

@@ -32,6 +32,7 @@ template <int gf_size> void f_function_freq_in(
 //
 //
 //
+#if 0
 template <int gf_size, int n_symbols> inline __attribute__((always_inline)) void f_function_freq_in(
           symbols_t* __restrict dst,
     const symbols_t* __restrict src_a,
@@ -47,6 +48,7 @@ template <int gf_size, int n_symbols> inline __attribute__((always_inline)) void
         dst[s].is_freq = true;
     }
 }
+#endif
 //
 //
 //

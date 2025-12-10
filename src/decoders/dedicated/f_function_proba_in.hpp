@@ -49,6 +49,7 @@ void f_function_proba_in(
 //
 //
 //
+#if 0
 template <int gf_size, int n_symbols>
 inline __attribute__((always_inline)) void f_function_proba_in(
     symbols_t *__restrict dst,
@@ -81,6 +82,7 @@ inline __attribute__((always_inline)) void f_function_proba_in(
         dst[s].is_freq = true; // a.a we do CN in FD
     }
 }
+#endif
 //
 //
 //
