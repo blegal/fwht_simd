@@ -45,3 +45,4 @@ compile_commands.json
 .vscode
 src/decoders/dedicated/dedicated_execute.hpp
 src/definitions/code.hpp
+log/testing/
