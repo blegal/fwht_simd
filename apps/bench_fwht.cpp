@@ -37,7 +37,8 @@
 #endif
 
 #include "features/fwht/fwht.hpp"
-#include "features/fwht/fwht_restrict.hpp"
+#include "features/fwht/fwht_template_direct.hpp"
+#include "features/fwht/fwht_template_spec8.hpp"
 #include "features/fwht/fwht_norm.hpp"
 
 #if defined(__AVX512F__)
@@ -88,7 +89,7 @@ int main(int argc, char *[]) {
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    const int32_t nTest = 2048;//(64 * 1024 * 1024);
+    const int32_t nTest = 8 * 1024 * 1024;//(64 * 1024 * 1024);
 
 	constexpr size_t max_gf = 4096;
 
@@ -217,24 +218,64 @@ int main(int argc, char *[]) {
             printf(" - [GCCV] fwht_norm      \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_n);
         }
 
-		auto start_x86_restrict = std::chrono::system_clock::now();
+		auto start_x86_template_direct = std::chrono::system_clock::now();
         for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_restrict<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_restrict<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
-            if (size ==   16) { fwht_restrict<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_restrict<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
-            if (size ==   32) { fwht_restrict<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_restrict<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
-            if (size ==   64) { fwht_restrict<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_restrict<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
-            if (size ==  128) { fwht_restrict< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_restrict< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
-            if (size ==  256) { fwht_restrict< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_restrict< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
-            if (size ==  512) { fwht_restrict< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_restrict< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
-            if (size == 1024) { fwht_restrict<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_restrict<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
+            if (size ==    8) { fwht_template_direct<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_template_direct<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_template_direct<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_template_direct<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_template_direct<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_template_direct<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_template_direct<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_template_direct<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_template_direct< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_template_direct< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_template_direct< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_template_direct< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_template_direct< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_template_direct< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_template_direct<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_template_direct<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
         }
-        auto     stop_x86_restrict = std::chrono::system_clock::now();
-        bool     ok_x86_restrict   = are_equivalent(tab_i, tab_a, 0.00001, size);
-        uint64_t time_x86_restrict = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_restrict - start_x86_restrict).count() / nTest;
-        if (ok_x86_restrict) {
-            printf(" - [GCCV] fwht_restrict  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_restrict);
+        auto     stop_x86_template_direct = std::chrono::system_clock::now();
+        bool     ok_x86_template_direct   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        uint64_t time_x86_template_direct = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_direct - start_x86_template_direct).count() / nTest;
+        if (ok_x86_template_direct) {
+            printf(" - [GCCV] fwht_template_direct  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_direct);
         } else {
-            printf(" - [GCCV] fwht_restrict  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_restrict);
+            printf(" - [GCCV] fwht_template_direct  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_template_direct);
+        }
+
+		auto start_x86_template_inout = std::chrono::system_clock::now();
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_template_direct<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht_template_direct<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_template_direct<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht_template_direct<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_template_direct<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht_template_direct<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_template_direct<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht_template_direct<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_template_direct< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht_template_direct< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_template_direct< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht_template_direct< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_template_direct< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht_template_direct< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_template_direct<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_template_direct<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
+        }
+        auto     stop_x86_template_inout = std::chrono::system_clock::now();
+        bool     ok_x86_template_inout   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        uint64_t time_x86_template_inout = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_inout - start_x86_template_inout).count() / nTest;
+        if (ok_x86_template_inout) {
+            printf(" - [GCCV] fwht_template_inout  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_inout);
+        } else {
+            printf(" - [GCCV] fwht_template_inout  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_template_inout);
+        }
+
+		auto start_x86_template_spec8 = std::chrono::system_clock::now();
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_template_spec8<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_template_spec8<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_template_spec8<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_template_spec8<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_template_spec8<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_template_spec8<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_template_spec8<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_template_spec8<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_template_spec8< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_template_spec8< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_template_spec8< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_template_spec8< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_template_spec8< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_template_spec8< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_template_spec8<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_template_spec8<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
+        }
+        auto     stop_x86_template_spec8 = std::chrono::system_clock::now();
+        bool     ok_x86_template_spec8   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        uint64_t time_x86_template_spec8 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_spec8 - start_x86_template_spec8).count() / nTest;
+        if (ok_x86_template_spec8) {
+            printf(" - [GCCV] fwht_template_spec8  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_spec8);
+        } else {
+            printf(" - [GCCV] fwht_template_spec8  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_template_spec8);
         }
 
 #if defined(__ARM_NEON__)
