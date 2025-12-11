@@ -37,6 +37,8 @@
 #endif
 
 #include "features/fwht/fwht.hpp"
+#include "features/fwht/fwht_engine_template.hpp"
+#include "features/fwht/fwht_template_spec8.hpp"
 #include "features/fwht/fwht_norm.hpp"
 
 #if defined(__AVX512F__)
@@ -55,7 +57,13 @@
 
 #include "utilities/utility_functions.hpp"
 
-bool are_equivalent(float * a, float * b, float epsilon, int size) {
+template <uint16_t galois_size>
+inline void normalize(float x[], float fact) {
+    for (int i = 0; i < galois_size; i++)
+        x[i] = x[i] * fact;
+}
+
+bool are_equivalent(const float * __restrict a, const float * __restrict b, float epsilon, int size) {
     for (int i = 0; i < size; i++) {
         float diff = abs(a[i] - b[i]);
         if (diff > epsilon) {
@@ -87,23 +95,27 @@ int main(int argc, char *[]) {
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    const int32_t nTest = 1;//(64 * 1024 * 1024);
+    const int32_t nTest = 8 * 1024 * 1024;//(64 * 1024 * 1024);
 
-    for (int size = 16; size <= 4096; size *= 2) {
+	constexpr size_t max_gf = 4096;
 
-        float * tab_i = new float[size];
-        float * tab_a = new float[size];
-        float * tab_z = new float[size];
+    float tab_i_load[max_gf];
+    const float * tab_i = tab_i_load;
+    float tab_a[max_gf];
+    float tab_o[max_gf];
+    float tab_z[max_gf];
+
+    for (int size = 16; size <= max_gf; size *= 2) {
 
         for (int i = 0; i < size; i++) {
-            tab_i[i] = ((float) rand()) / ((float) RAND_MAX);
+            tab_i_load[i] = ((float) rand()) / ((float) RAND_MAX);
         }
-        tab_i[ rand()%size ] = .5f;
+        tab_i_load[ rand()%size ] = .5f;
 
         float sum = 1e-32f;
         for (int i = 0; i < size; i += 1) { sum += tab_i[i]; }
         const float factor = 1.f / sum;
-        for (int i = 0; i < size; i++) { tab_i[i] *= factor; }
+        for (int i = 0; i < size; i++) { tab_i_load[i] *= factor; }
 
 #if 0
         fwht< 64>( tab_a );
@@ -210,6 +222,66 @@ int main(int argc, char *[]) {
             printf(" - [GCCV] fwht_norm      \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_n);
         } else {
             printf(" - [GCCV] fwht_norm      \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_n);
+        }
+
+		auto start_x86_template_direct = std::chrono::system_clock::now();
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_engine<tile_t::NONE>::apply<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_engine<tile_t::NONE>::apply<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_engine<tile_t::NONE>::apply<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_engine<tile_t::NONE>::apply<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_engine<tile_t::NONE>::apply<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_engine<tile_t::NONE>::apply<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_engine<tile_t::NONE>::apply<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_engine<tile_t::NONE>::apply<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_engine<tile_t::NONE>::apply< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_engine<tile_t::NONE>::apply< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_engine<tile_t::NONE>::apply< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_engine<tile_t::NONE>::apply< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_engine<tile_t::NONE>::apply< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_engine<tile_t::NONE>::apply< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_engine<tile_t::NONE>::apply<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_engine<tile_t::NONE>::apply<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
+        }
+        auto     stop_x86_template_direct = std::chrono::system_clock::now();
+        bool     ok_x86_template_direct   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        uint64_t time_x86_template_direct = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_direct - start_x86_template_direct).count() / nTest;
+        if (ok_x86_template_direct) {
+            printf(" - [GCCV] fwht_template_direct  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_direct);
+        } else {
+            printf(" - [GCCV] fwht_template_direct  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_template_direct);
+        }
+
+		auto start_x86_template_inout = std::chrono::system_clock::now();
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_engine<tile_t::NONE>::apply<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht_engine<tile_t::NONE>::apply<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_engine<tile_t::NONE>::apply<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht_engine<tile_t::NONE>::apply<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_engine<tile_t::NONE>::apply<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht_engine<tile_t::NONE>::apply<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_engine<tile_t::NONE>::apply<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht_engine<tile_t::NONE>::apply<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_engine<tile_t::NONE>::apply< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht_engine<tile_t::NONE>::apply< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_engine<tile_t::NONE>::apply< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht_engine<tile_t::NONE>::apply< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_engine<tile_t::NONE>::apply< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht_engine<tile_t::NONE>::apply< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_engine<tile_t::NONE>::apply<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_engine<tile_t::NONE>::apply<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
+        }
+        auto     stop_x86_template_inout = std::chrono::system_clock::now();
+        bool     ok_x86_template_inout   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        uint64_t time_x86_template_inout = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_inout - start_x86_template_inout).count() / nTest;
+        if (ok_x86_template_inout) {
+            printf(" - [GCCV] fwht_template_inout  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_inout);
+        } else {
+            printf(" - [GCCV] fwht_template_inout  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_template_inout);
+        }
+
+		auto start_x86_template_spec8 = std::chrono::system_clock::now();
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht_template_spec8<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_template_spec8<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_template_spec8<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_template_spec8<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_template_spec8<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_template_spec8<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_template_spec8<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_template_spec8<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_template_spec8< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_template_spec8< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_template_spec8< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_template_spec8< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_template_spec8< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_template_spec8< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_template_spec8<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_template_spec8<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
+        }
+        auto     stop_x86_template_spec8 = std::chrono::system_clock::now();
+        bool     ok_x86_template_spec8   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        uint64_t time_x86_template_spec8 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_spec8 - start_x86_template_spec8).count() / nTest;
+        if (ok_x86_template_spec8) {
+            printf(" - [GCCV] fwht_template_spec8  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_spec8);
+        } else {
+            printf(" - [GCCV] fwht_template_spec8  \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_template_spec8);
         }
 
 #if defined(__ARM_NEON__)
@@ -382,10 +454,6 @@ int main(int argc, char *[]) {
     }
 #endif
 
-
-        delete[] tab_i;
-        delete[] tab_a;
-        delete[] tab_z;
     }
 
     return EXIT_SUCCESS;
