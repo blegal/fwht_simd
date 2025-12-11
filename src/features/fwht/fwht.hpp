@@ -54,12 +54,6 @@ inline void fwht(float * dst, const float * src) {
     exit( (src != nullptr) && (dst != nullptr)); // pour gerer le release mode
 }
 
-template <uint16_t galois_size>
-inline void normalize(float x[], const float fact) {
-    for (int i = 0; i < galois_size; i++)
-        x[i] = x[i] * fact;
-}
-
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,19 +1,19 @@
-#include "decoder_naive_fixed.hpp"
+#include "decoder_naive_int32_t.hpp"
 #include "f_function.hpp"
 #include "g_function.hpp"
-#include "f_argmax.hpp"
-#include "f_normalize.hpp"
-#include "f_fwht.hpp"
-#include "f_fwht_norm.hpp"
+#include "i_argmax.hpp"
+#include "i_normalize.hpp"
+#include "i_fwht.hpp"
+#include "i_fwht_norm.hpp"
 //
 //
 //
 //
 //
 template <int gf_size>
-symbols_f conversion(const symbols_t s)
+symbols_i conversion(const symbols_t s)
 {
-    symbols_f f;
+    symbols_i f;
     for (int i = 0; i < gf_size; i++)
     {
         f.value[i] = s.value[i];
@@ -27,13 +27,13 @@ symbols_f conversion(const symbols_t s)
 //
 //
 template <int gf_size>
-decoder_naive_fixed<gf_size>::decoder_naive_fixed(const int n, const int* frozen_symb ) : N(n)
+decoder_naive_int32_t<gf_size>::decoder_naive_int32_t(const int n, const int* frozen_symb ) : N(n)
 {
     symbols    = new uint16_t[N];
     frozen     = new uint32_t[N];
 
-    f_channel  = new symbols_f[N];
-    f_internal = new symbols_f[N];
+    f_channel  = new symbols_i[N];
+    f_internal = new symbols_i[N];
 
     for (int i = 0; i < N; i++)
     {
@@ -45,7 +45,7 @@ decoder_naive_fixed<gf_size>::decoder_naive_fixed(const int n, const int* frozen
 //
 //
 //
-template <int gf_size> decoder_naive_fixed<gf_size>::decoder_naive_fixed() : N(0)
+template <int gf_size> decoder_naive_int32_t<gf_size>::decoder_naive_int32_t() : N(0)
 {
     f_internal = nullptr;
     symbols    = nullptr;
@@ -59,7 +59,7 @@ template <int gf_size> decoder_naive_fixed<gf_size>::decoder_naive_fixed() : N(0
 //
 //
 //
-template <int gf_size> decoder_naive_fixed<gf_size>::~decoder_naive_fixed()
+template <int gf_size> decoder_naive_int32_t<gf_size>::~decoder_naive_int32_t()
 {
     delete[] symbols;
     delete[] frozen;
@@ -68,7 +68,7 @@ template <int gf_size> decoder_naive_fixed<gf_size>::~decoder_naive_fixed()
     delete[] f_internal;
 }
 
-template <int gf_size> void decoder_naive_fixed<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+template <int gf_size> void decoder_naive_int32_t<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
 {
     const int n = N / 2; // Assuming size is the number of symbols
     //
@@ -110,9 +110,9 @@ template <int gf_size> void decoder_naive_fixed<gf_size>::execute(symbols_t * ch
 //
 //
 //
-template <int gf_size> void decoder_naive_fixed<gf_size>::middle_node(
-    symbols_f* inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_f* internal, // Internal nodes are the symbols computed during the process (to the left)
+template <int gf_size> void decoder_naive_int32_t<gf_size>::middle_node(
+    symbols_i* inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_i* internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t*  symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int size,            // Size is the number of symbols (should be a power of 2)
@@ -166,8 +166,8 @@ template <int gf_size> void decoder_naive_fixed<gf_size>::middle_node(
     //
     //
 }
-template <int gf_size> void decoder_naive_fixed<gf_size>::leaf_node(
-    symbols_f * var,
+template <int gf_size> void decoder_naive_int32_t<gf_size>::leaf_node(
+    symbols_i * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
     const int   symbol_id)
@@ -185,13 +185,13 @@ template <int gf_size> void decoder_naive_fixed<gf_size>::leaf_node(
     if (var->is_freq)
     {
         const float factor = norm_factor_lwht<gf_size>();
-        f_normalize<gf_size>(var->value, factor);
-        f_normalize<gf_size>(var->value, factor);
+        i_normalize<gf_size>(var->value, factor);
+        i_normalize<gf_size>(var->value, factor);
         fwht<gf_size>(var->value);
         var->is_freq = false;
     }
 
-    const int max_index = f_argmax<gf_size>(var->value);
+    const int max_index = i_argmax<gf_size>(var->value);
     decoded[symbol_id] = max_index;
     symbols[symbol_id] = max_index;
 }
@@ -201,25 +201,25 @@ template <int gf_size> void decoder_naive_fixed<gf_size>::leaf_node(
 //
 //
 #if _GF_ == 8
-    template class decoder_naive_fixed<8>;
+    template class decoder_naive_int32_t<8>;
 #elif _GF_ == 16
-    template class decoder_naive_fixed<16>;
+    template class decoder_naive_int32_t<16>;
 #elif _GF_ == 32
-    template class decoder_naive_fixed<32>;
+    template class decoder_naive_int32_t<32>;
 #elif _GF_ == 64
-    template class decoder_naive_fixed<64>;
+    template class decoder_naive_int32_t<64>;
 #elif _GF_ == 128
-    template class decoder_naive_fixed<128>;
+    template class decoder_naive_int32_t<128>;
 #elif _GF_ == 256
-    template class decoder_naive_fixed<256>;
+    template class decoder_naive_int32_t<256>;
 #elif _GF_ == 512
-    template class decoder_naive_fixed<512>;
+    template class decoder_naive_int32_t<512>;
 #elif _GF_ == 1024
-    template class decoder_naive_fixed<1024>;
+    template class decoder_naive_int32_t<1024>;
 #elif _GF_ == 2048
-    template class decoder_naive_fixed<2048>;
+    template class decoder_naive_int32_t<2048>;
 #elif _GF_ == 4096
-    template class decoder_naive_fixed<4096>;
+    template class decoder_naive_int32_t<4096>;
 #endif
 //
 //

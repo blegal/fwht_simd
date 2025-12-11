@@ -17,8 +17,8 @@ if (SANITIZE_DECODERS)
 	set (SANITIZE_LDFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
 endif ()
 
-#SET (CMAKE_C_COMPILER   /opt/homebrew/opt/llvm/bin/clang)     # LLVM 21.1.7
-#SET (CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm/bin/clang++)   # LLVM 21.1.7
+SET (CMAKE_C_COMPILER   /opt/homebrew/opt/llvm/bin/clang)     # LLVM 21.1.7
+SET (CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm/bin/clang++)   # LLVM 21.1.7
 
 #SET (CMAKE_C_COMPILER   /opt/homebrew/Cellar/llvm@20/20.1.8/bin/clang)     # LLVM 20.1.8
 #SET (CMAKE_CXX_COMPILER /opt/homebrew/Cellar/llvm@20/20.1.8/bin/clang++)   # LLVM 20.1.8

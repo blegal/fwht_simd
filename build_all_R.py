@@ -57,7 +57,7 @@ def run_executable(N, GF, R, decoder, platform, cores, time, log_dir):
         result = subprocess.run(cmd, stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(f"❌ Erreur: échec de l'exécution pour N={N} (code retour {result.returncode}).")
-            sys.exit(1)
+            #sys.exit(1)
 #
 #
 #

@@ -23,7 +23,7 @@ template <int gf_size>  void g_function_proba_in(
 {
     for (int s = 0; s < n_symbols; s++)
     {
-#if 1
+#if 0
         for (int i = 0; i < gf_size; i += 1)
         {
             const int idx  = src_c[s] ^ i;

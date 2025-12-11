@@ -23,13 +23,14 @@
 //
 //
 template <int gf_size>
-int f_argmax(const ap_fixed<NBITS, NINTG>* value)
+int i_argmax(const int32_t* value)
 {
-    int               max_index = 0;
-    ap_fixed<NBITS, NINTG>  max_value = value[0];
-
-    for (int i = 1; i < gf_size; i++) {
-        if (value[i] > max_value) {
+    int     max_index = 0;
+    int32_t max_value = value[0];
+    for (int i = 1; i < gf_size; i++)
+    {
+        if (value[i] > max_value)
+        {
             max_value = value[i];
             max_index = i;
         }
