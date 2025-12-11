@@ -43,3 +43,5 @@ compile_commands.json
 .cache
 .idea
 .vscode
+src/decoders/dedicated/dedicated_execute.hpp
+src/definitions/code.hpp
