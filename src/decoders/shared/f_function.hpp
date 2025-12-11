@@ -23,7 +23,7 @@ void f_function(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbol
     //
     for (size_t i = 0; i < gf_size; i++)
     {
-        dst->value[i] = 10.f * src_a->value[i] * src_b->value[i];
+        dst->value[i] = /* 10.f * */ src_a->value[i] * src_b->value[i];
     }
     dst->is_freq = true; // a.a we do CN in FD
 }
