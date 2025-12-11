@@ -24,48 +24,66 @@
 #include <cstdlib>
 #include <cstring>
 
+enum tile_t {
+	NONE,
+	C8,
+	AVX,
+	AVX2,
+	AVX512
+};
+
+template <tile_t t = NONE>
+class fwht_engine {
+public:
+    template <size_t galois_size>
+    inline static void apply(float * inout);
+
+    template <size_t galois_size>
+    inline static void apply(float * __restrict in, const float * __restrict out);
+};
+
+template <>
 template <size_t galois_size>
-inline void fwht_template_direct(float * inout) {
+inline void fwht_engine<NONE>::apply(float * inout) {
 	static_assert(galois_size > 1, "galois_size must be over 1.");
 	constexpr size_t half_gf = galois_size >> 1;
 	static_assert((half_gf << 1) == galois_size , "galois_size must be a power of 2.");
 	float intermediary[galois_size];
 	for (size_t j = 0; j < half_gf; j++) {
-		intermediary[j] = inout[j] + inout[j + half_gf];
-	}
-	for (size_t j = 0; j < half_gf; j++) {
-		intermediary[j + half_gf] = inout[j] - inout[j + half_gf];
-	}
+        intermediary[j]           = inout[j] + inout[j + half_gf];
+        intermediary[j + half_gf] = inout[j] - inout[j + half_gf];
+    }
 
-	fwht_template_direct<half_gf>(intermediary);
-	fwht_template_direct<half_gf>(intermediary + half_gf);
+	apply<half_gf>(intermediary);
+	apply<half_gf>(intermediary + half_gf);
 
 	for (size_t j = 0; j < galois_size; j++) {
 		inout[j] = intermediary[j];
 	}
 }
 
-template<>
-inline void fwht_template_direct<1>(float * inout) {}
+template <>
+template <>
+inline void fwht_engine<NONE>::apply<1>(float * inout) {}
 
+template <>
 template <size_t galois_size>
-inline void fwht_template_direct(float * __restrict dst, const float * __restrict src) {
+inline void fwht_engine<NONE>::apply(float * __restrict dst, const float * __restrict src) {
 	static_assert(galois_size > 1, "galois_size must be over 1.");
 	constexpr size_t half_gf = galois_size >> 1;
 	static_assert((half_gf << 1) == galois_size, "galois_size must be a power of 2.");
 	float intermediary[galois_size];
-	for (size_t j = 0; j < half_gf; j++) {
-		intermediary[j] = src[j] + src[j + half_gf];
-	}
-	for (size_t j = 0; j < half_gf; j++) {
-		intermediary[j + half_gf] = src[j] - src[j + half_gf];
-	}
+    for (size_t j = 0; j < half_gf; j++) {
+        intermediary[j]           = src[j] + src[j + half_gf];
+        intermediary[j + half_gf] = src[j] - src[j + half_gf];
+    }
 
-	fwht_template_direct<half_gf>(dst, intermediary);
-	fwht_template_direct<half_gf>(dst + half_gf, intermediary + half_gf);
+    apply<half_gf>(dst, intermediary);
+	apply<half_gf>(dst + half_gf, intermediary + half_gf);
 }
 
-template<>
-inline void fwht_template_direct<1>(float *__restrict dst, const float *__restrict src) {
-	dst[0] = src[0];
+template <>
+template <>
+inline void fwht_engine<NONE>::apply<1>(float *__restrict dst, const float *__restrict src) {
+	*dst = *src;
 }

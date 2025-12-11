@@ -37,7 +37,7 @@
 #endif
 
 #include "features/fwht/fwht.hpp"
-#include "features/fwht/fwht_template_direct.hpp"
+#include "features/fwht/fwht_engine_template.hpp"
 #include "features/fwht/fwht_template_spec8.hpp"
 #include "features/fwht/fwht_norm.hpp"
 
@@ -56,6 +56,12 @@
 #include <cstring>
 
 #include "utilities/utility_functions.hpp"
+
+template <uint16_t galois_size>
+inline void normalize(float x[], float fact) {
+    for (int i = 0; i < galois_size; i++)
+        x[i] = x[i] * fact;
+}
 
 bool are_equivalent(const float * __restrict a, const float * __restrict b, float epsilon, int size) {
     for (int i = 0; i < size; i++) {
@@ -220,14 +226,14 @@ int main(int argc, char *[]) {
 
 		auto start_x86_template_direct = std::chrono::system_clock::now();
         for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_template_direct<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_template_direct<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
-            if (size ==   16) { fwht_template_direct<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_template_direct<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
-            if (size ==   32) { fwht_template_direct<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_template_direct<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
-            if (size ==   64) { fwht_template_direct<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_template_direct<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
-            if (size ==  128) { fwht_template_direct< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_template_direct< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
-            if (size ==  256) { fwht_template_direct< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_template_direct< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
-            if (size ==  512) { fwht_template_direct< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_template_direct< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
-            if (size == 1024) { fwht_template_direct<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_template_direct<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
+            if (size ==    8) { fwht_engine<tile_t::NONE>::apply<   8>(tab_o, tab_a); normalize<   8>(tab_o, 0.35355339059f); fwht_engine<tile_t::NONE>::apply<   8>(tab_a, tab_o); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_engine<tile_t::NONE>::apply<  16>(tab_o, tab_a); normalize<  16>(tab_o, 0.25f         ); fwht_engine<tile_t::NONE>::apply<  16>(tab_a, tab_o); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_engine<tile_t::NONE>::apply<  32>(tab_o, tab_a); normalize<  32>(tab_o, 0.17677669529f); fwht_engine<tile_t::NONE>::apply<  32>(tab_a, tab_o); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_engine<tile_t::NONE>::apply<  64>(tab_o, tab_a); normalize<  64>(tab_o, 0.125f        ); fwht_engine<tile_t::NONE>::apply<  64>(tab_a, tab_o); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_engine<tile_t::NONE>::apply< 128>(tab_o, tab_a); normalize< 128>(tab_o, 0.08838834764f); fwht_engine<tile_t::NONE>::apply< 128>(tab_a, tab_o); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_engine<tile_t::NONE>::apply< 256>(tab_o, tab_a); normalize< 256>(tab_o, 0.0625f       ); fwht_engine<tile_t::NONE>::apply< 256>(tab_a, tab_o); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_engine<tile_t::NONE>::apply< 512>(tab_o, tab_a); normalize< 512>(tab_o, 0.04419417382f); fwht_engine<tile_t::NONE>::apply< 512>(tab_a, tab_o); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_engine<tile_t::NONE>::apply<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_engine<tile_t::NONE>::apply<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto     stop_x86_template_direct = std::chrono::system_clock::now();
         bool     ok_x86_template_direct   = are_equivalent(tab_i, tab_a, 0.00001, size);
@@ -240,14 +246,14 @@ int main(int argc, char *[]) {
 
 		auto start_x86_template_inout = std::chrono::system_clock::now();
         for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_template_direct<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht_template_direct<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
-            if (size ==   16) { fwht_template_direct<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht_template_direct<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
-            if (size ==   32) { fwht_template_direct<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht_template_direct<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
-            if (size ==   64) { fwht_template_direct<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht_template_direct<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
-            if (size ==  128) { fwht_template_direct< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht_template_direct< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
-            if (size ==  256) { fwht_template_direct< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht_template_direct< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
-            if (size ==  512) { fwht_template_direct< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht_template_direct< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
-            if (size == 1024) { fwht_template_direct<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_template_direct<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
+            if (size ==    8) { fwht_engine<tile_t::NONE>::apply<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); fwht_engine<tile_t::NONE>::apply<   8>(tab_a); normalize<   8>(tab_a, 0.35355339059f); }
+            if (size ==   16) { fwht_engine<tile_t::NONE>::apply<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); fwht_engine<tile_t::NONE>::apply<  16>(tab_a); normalize<  16>(tab_a, 0.25f         ); }
+            if (size ==   32) { fwht_engine<tile_t::NONE>::apply<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); fwht_engine<tile_t::NONE>::apply<  32>(tab_a); normalize<  32>(tab_a, 0.17677669529f); }
+            if (size ==   64) { fwht_engine<tile_t::NONE>::apply<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); fwht_engine<tile_t::NONE>::apply<  64>(tab_a); normalize<  64>(tab_a, 0.125f        ); }
+            if (size ==  128) { fwht_engine<tile_t::NONE>::apply< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); fwht_engine<tile_t::NONE>::apply< 128>(tab_a); normalize< 128>(tab_a, 0.08838834764f); }
+            if (size ==  256) { fwht_engine<tile_t::NONE>::apply< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); fwht_engine<tile_t::NONE>::apply< 256>(tab_a); normalize< 256>(tab_a, 0.0625f       ); }
+            if (size ==  512) { fwht_engine<tile_t::NONE>::apply< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); fwht_engine<tile_t::NONE>::apply< 512>(tab_a); normalize< 512>(tab_a, 0.04419417382f); }
+            if (size == 1024) { fwht_engine<tile_t::NONE>::apply<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_engine<tile_t::NONE>::apply<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto     stop_x86_template_inout = std::chrono::system_clock::now();
         bool     ok_x86_template_inout   = are_equivalent(tab_i, tab_a, 0.00001, size);

@@ -62,8 +62,6 @@ inline void fwht_template_spec8(float * dst, const float * src) {
     float intermediary[galois_size];
     for (size_t j = 0; j < half_gf; j++) {
         intermediary[j] = src[j] + src[j + half_gf];
-    }
-    for (size_t j = 0; j < half_gf; j++) {
         intermediary[j + half_gf] = src[j] - src[j + half_gf];
     }
     fwht_template_spec8<half_gf>(dst, intermediary);
