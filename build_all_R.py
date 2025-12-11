@@ -27,17 +27,17 @@ def compile_project(rate):
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
-            print("🛠️  Compilation [code generator]...")
+            #print("🛠️  Compilation [code generator]...")
             result = subprocess.run(["cmake","--build",".","-j","-t","code_generator"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
                 sys.exit(1)
-            print(f"🚀 Generation du décodeur dédié...")
+            #print(f"🚀 Generation du décodeur dédié...")
             result = subprocess.run(["./code_generator", "--code-rate", f"0.{rate}", "--no-verbose"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la generation (code retour {result.returncode}).")
                 sys.exit(1)
-            print("🛠️  Compilation [benchmark]...")
+            #print("🛠️  Compilation [benchmark]...")
             result = subprocess.run(["cmake","--build",".","-j","-t","benchmarking"], stdout=f, stderr=subprocess.STDOUT)
             if result.returncode != 0:
                 print(f"❌ Erreur: échec de la compilation (code retour {result.returncode}).")
@@ -69,7 +69,7 @@ def generate_report(log_dir, res_dir, decoder, platform, GF, N, Rs, cores, durat
     nres_dir = os.path.join(res_dir, platform)
     os.makedirs(nres_dir, exist_ok=True)
 
-    report_file = os.path.join(nres_dir, f"R_{platform}_{decoder}.txt")
+    report_file = os.path.join(nres_dir, f"R_N{N}_GF{GF}_{platform}_{decoder}.txt")
     with open(report_file, "w") as report:
         header = "   N    K    R   GF   Coded    Info   Lat Threads Duration"
         report.write(header + "\n")
@@ -103,9 +103,9 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GF = 64
-    N  = 256
-    Rs =  [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
+    GFs = [16,  64,  256]
+    Ns  = [256, 256,  64]
+    Rs  = [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
 
     # les repertoire ou pousser les logs
     log_dir = "./log"
@@ -115,13 +115,16 @@ def main():
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(res_dir, exist_ok=True)
 
-    for R in Rs:
-        print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
-        generate_config_header(N, GF)
-        compile_project(R)
-        run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
-    
-    generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N, Rs, int(args.cores), int(args.time))
+    for i in range(0, 3):
+        GF = GFs[i]
+        N  = Ns[i]
+        for R in Rs:
+            #print(f"🔧 Génération config pour N={N}, GF={GF}, R=0.{R}")
+            generate_config_header(N, GF)
+            compile_project(R)
+            run_executable(N, GF, R, args.decoder, args.platform, args.cores, args.time, log_dir)
+        generate_report(log_dir, res_dir, args.decoder, args.platform, GF, N, Rs, int(args.cores), int(args.time))
+
     print("✅ Tout est terminé.")
 #
 #
