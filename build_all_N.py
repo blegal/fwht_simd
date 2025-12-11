@@ -86,7 +86,7 @@ def run_executable(N, GF, decoder, platform, cores, time, log_dir):
             print(
                 f"❌ Erreur: échec de l'exécution pour N={N} (code retour {result.returncode})."
             )
-            sys.exit(1)
+            #sys.exit(1)
 
 def generate_report(Ns: List[int], GF, decoder, platform, cores, duration, log_dir, res_dir):
 
