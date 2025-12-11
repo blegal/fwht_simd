@@ -2,9 +2,10 @@
 
 #include "definitions/custom_types.hpp"
 #include "features/archi.hpp"
+#include "i_type.hpp"
 
 template <uint32_t gf_size>
-void f_function(symbols_f * __restrict dst, symbols_f * __restrict src_a, symbols_f * __restrict src_b)
+void f_function(symbols_i * __restrict dst, symbols_i * __restrict src_a, symbols_i * __restrict src_b)
 {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {

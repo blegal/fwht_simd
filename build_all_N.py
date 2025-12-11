@@ -24,7 +24,7 @@ def compile_project():
         rdid = random.randint(0, 65536)
         log_file = Path(f"/tmp/process_{rdid}.log")
     with open(log_file, "w") as f:
-        print("🛠️  Compilation initiale (1/2)...")
+        #print("🛠️  Compilation initiale (1/2)...")
         result = subprocess.run(["cmake","--build",".","-j","-t", "clean"], stdout=f, stderr=subprocess.STDOUT)
         if result.returncode != 0:
             print(
@@ -39,7 +39,7 @@ def compile_project():
                 f"❌ Erreur: échec de la compilation (code retour {result.returncode})."
             )
             sys.exit(1)
-        print("🚀 Generation du décodeur dédié...")
+        #print("🚀 Generation du décodeur dédié...")
         result = subprocess.run(
             ["./code_generator", "--code-rate", "0.50", "--no-verbose"],
             stdout=f,
@@ -50,7 +50,7 @@ def compile_project():
                 f"❌ Erreur: échec de la generation (code retour {result.returncode})."
             )
             sys.exit(1)
-        print("🛠️  Compilation finale (2/2)...")
+        #print("🛠️  Compilation finale (2/2)...")
         result = subprocess.run(
             ["cmake","--build",".","-j","-t", "benchmarking"], stdout=f, stderr=subprocess.STDOUT
         )
@@ -157,14 +157,10 @@ def main():
     os.makedirs(res_dir, exist_ok=True)
 
     for N in Ns:
-        print(f"🔧 Génération config pour N={N}, GF={GF}")
+        #print(f"🔧 Génération config pour N={N}, GF={GF}")
         generate_config_header(N, GF)
-
         compile_project()
-
-        run_executable(
-            N, GF, args.decoder, args.platform, int(args.cores), int(args.time), log_dir
-        )
+        run_executable(N, GF, args.decoder, args.platform, int(args.cores), int(args.time), log_dir)
 
     generate_report(Ns, GF, args.decoder, args.platform, args.cores, args.time, log_dir, res_dir)
     print("✅ Tout est terminé.")
