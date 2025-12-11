@@ -103,9 +103,9 @@ def main():
     parser.add_argument("--time",     required=True, help="Temps de run pour la mesure")
     args = parser.parse_args()
 
-    GFs = [16,  64,  256]
-    Ns  = [256, 256,  64]
-    Rs  = [20, 25, 30, 35, 40, 50, 60, 66, 70, 75, 82, 90]
+    GFs = [16,  64,  128, 128, 256, 256]
+    Ns  = [256, 256, 256, 128, 128,  64]
+    Rs  = [20, 25, 30, 35, 40, 45, 50, 55, 60, 66, 70, 75, 80, 85, 90]
 
     # les repertoire ou pousser les logs
     log_dir = "./log"
@@ -115,7 +115,7 @@ def main():
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(res_dir, exist_ok=True)
 
-    for i in range(0, 3):
+    for i in range(0, 6):
         GF = GFs[i]
         N  = Ns[i]
         for R in Rs:
