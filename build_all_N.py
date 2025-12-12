@@ -124,7 +124,7 @@ def main():
     parser.add_argument(
         "--decoder",
         required=True,
-        choices=["dec0", "dec1", "dec2", "dec3", "dec4", "dec5"],
+        choices=["dec0", "dec1", "dec1_fixed", "dec1_cfloat", "dec2", "dec3", "dec4", "dec5"],
         help="Nom du décodeur (ex: dec1)",
     )
     parser.add_argument(

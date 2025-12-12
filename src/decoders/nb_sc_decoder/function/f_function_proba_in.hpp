@@ -24,7 +24,11 @@ template <uint32_t gf_size> inline __attribute__((always_inline)) void f_functio
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
     for (size_t i = 0; i < gf_size; i++) {
-        dst->value[i] = /* 10.f * */ tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
+#if 1
+        dst->value[i] = 10.f * tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
+#else
+        dst->value[i] = tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
+#endif
     }
 }
 //
