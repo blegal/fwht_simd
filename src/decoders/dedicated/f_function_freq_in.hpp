@@ -22,7 +22,7 @@ template <int gf_size> void f_function_freq_in(
         for (int i = 0; i < gf_size; i++)
         {
             // TODO : attention au facteur 10x qui est magique !!!
-#if 1
+#if 0
             dst[s].value[i] = 10.f * src_a[s].value[i] * src_b[s].value[i];
 #else
             dst[s].value[i] = src_a[s].value[i] * src_b[s].value[i];
