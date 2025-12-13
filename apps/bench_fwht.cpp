@@ -24,6 +24,7 @@
  */
 
 #include "features/archi.hpp"
+#include <string>
 
 #if defined(__AVX512F__)
     #include "features/fwht/fwht_avx512.hpp"
@@ -418,9 +419,9 @@ int main(int argc, char *argv[]) {
         const bool     ok_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
         const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
         if (ok_avx2) {
-            printf(" - [AVX2] fwht_avx2      \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            printf(" - [AVX2] fwht_avx2             \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
         } else {
-            printf(" - [AVX2] fwht_avx2      \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            printf(" - [AVX2] fwht_avx2             \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
         }
     }
 #endif
@@ -443,9 +444,9 @@ int main(int argc, char *argv[]) {
         const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
         const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
         if (ok_norm_avx2) {
-            printf(" - [AVX2] fwht_norm_avx2 \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
+            printf(" - [AVX2] fwht_norm_avx2        \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
         } else {
-            printf(" - [AVX2] fwht_norm_avx2 \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
+            printf(" - [AVX2] fwht_norm_avx2        \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
         }
     }
 #endif
