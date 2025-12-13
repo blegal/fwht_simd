@@ -11,10 +11,10 @@ void g_function_proba_in(
     const symbols_t * __restrict src_b, // the lower value set from the right side of the graph
     const uint32_t    src_c  // the computed symbols coming from the left side of the graph
 ) {
-#if 1
+#if 0
     for (int i = 0; i < gf_size; i += 1)
     {
-        const int idx  = src_c ^ i;
+        const int idx   = src_c ^ i;
         dst->value[idx] = src_a->value[i];
     }
     for (int i = 0; i < gf_size; i += 1)

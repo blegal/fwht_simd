@@ -25,7 +25,11 @@
 #elif _GF_ == 4096
 #include "hadamard/Hadamard_4096.hpp"
 #endif
-
+//
+//
+//
+//
+//
 template <int gf_size>
 void g_function(
     symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
@@ -67,7 +71,11 @@ void g_function(
     normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
 }
-
+//
+//
+//
+//
+//
 template <int gf_size>
 void g_function_proba_only(
     symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
@@ -90,3 +98,8 @@ void g_function_proba_only(
     normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
 }
+//
+//
+//
+//
+//
