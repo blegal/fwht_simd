@@ -97,9 +97,8 @@ inline void fwht_tuile(const float* inp, float* outp) {
 template <>
 inline void fwht<8>(float* inp) {
     float part_1[8];
-    for (int i = 0; i < 4; i++) {
-        part_1[i]     = inp[i] + inp[i + 4];
-        part_1[4 + i] = inp[i] - inp[i + 4];
+    for (int i = 0; i < 8; i++) {
+        part_1[i] = inp[i];
     }
     fwht_tuile(part_1, inp);
 }
