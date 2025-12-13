@@ -24,6 +24,38 @@
 #include <cstdlib>
 #include <cstring>
 
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
+#include <arm_neon.h>
+inline void fwht_size_8(float * __restrict outp, const float * __restrict inp) {
+    const float32x4_t inp1 = vld1q_f32(inp    );
+    const float32x4_t inp2 = vld1q_f32(inp + 4);
+
+    const uint32x4_t m0 = {0x00000000, 0x00000000, 0x80000000, 0x80000000};
+    const uint32x4_t m1 = {0x00000000, 0x80000000, 0x00000000, 0x80000000};
+    //
+    //////////////////////////////////////////////////////
+    //
+    const float32x4_t HH = vaddq_f32(inp1, inp2);
+    const float32x4_t N0 = vextq_f32(HH, HH, 2);
+    const float32x4_t N1 = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(HH), m0));
+    const float32x4_t N2 = vaddq_f32(N0, N1);
+    const float32x4_t V0 = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(N2), m1));
+    const float32x4_t V1 = vrev64q_f32(N2);
+    const float32x4_t V2 = vaddq_f32(V0, V1);
+    vst1q_f32( outp, V2 );
+    //
+    //////////////////////////////////////////////////////
+    //
+    const float32x4_t BB = vsubq_f32(inp1, inp2);
+    const float32x4_t O0 = vextq_f32(BB, BB, 2);
+    const float32x4_t O1 = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(BB), m0));
+    const float32x4_t O2 = vaddq_f32(O0, O1);
+    const float32x4_t Q0 = vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(O2), m1));
+    const float32x4_t Q1 = vrev64q_f32(O2);
+    const float32x4_t Q2 = vaddq_f32(Q0, Q1);
+    vst1q_f32( outp + 4, Q2 );
+}
+#else
 inline void fwht_size_8(float * __restrict outp, const float * __restrict inp) {
     float L1[8], L2[8];
     L1[0] = inp[0] + inp[4];
@@ -53,6 +85,7 @@ inline void fwht_size_8(float * __restrict outp, const float * __restrict inp) {
     outp[6] = L2[6] + L2[7];
     outp[7] = L2[6] - L2[7];
 }
+#endif
 
 template <size_t galois_size>
 inline void fwht_template_spec8(float * dst, const float * src) {
