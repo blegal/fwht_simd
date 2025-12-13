@@ -55,6 +55,26 @@ inline void fwht_size_8(float * __restrict outp, const float * __restrict inp) {
     const float32x4_t Q2 = vaddq_f32(Q0, Q1);
     vst1q_f32( outp + 4, Q2 );
 }
+#elif defined(__AVX2__)
+#include <immintrin.h>
+
+const __m256 M0 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000));
+const __m256 M1 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000));
+const __m256 M2 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000));
+
+inline void fwht_size_8(float * __restrict outp, const float * __restrict inp){
+    const __m256 HAUT = _mm256_loadu_ps(inp);
+    const __m256 N0   = _mm256_xor_ps(HAUT, M0);
+    const __m256 N1   = _mm256_permute2f128_ps(HAUT, HAUT, 0x01);
+    const __m256 N2   = _mm256_add_ps(N0, N1);
+    const __m256 O0   = _mm256_xor_ps(N2, M1);
+    const __m256 O1   = _mm256_shuffle_ps(N2, N2, 0x4E);
+    const __m256 O2   = _mm256_add_ps(O0, O1);
+    const __m256 P0   = _mm256_xor_ps(O2, M2);
+    const __m256 P1   = _mm256_shuffle_ps(O2, O2, 0xB1);
+    const __m256 P2   = _mm256_add_ps(P0, P1);
+    _mm256_storeu_ps(outp + 0, P2);
+}
 #else
 inline void fwht_size_8(float * __restrict outp, const float * __restrict inp) {
     float L1[8], L2[8];
@@ -103,10 +123,5 @@ inline void fwht_template_spec8(float * dst, const float * src) {
 
 template <>
 inline void fwht_template_spec8<8>(float * dst, const float * src) {
-    float part_1[8];
-    for (int i = 0; i < 4; i++) {
-        part_1[i]     = src[i] + src[i + 4];
-        part_1[4 + i] = src[i] - src[i + 4];
-    }
-    fwht_size_8(dst, part_1);
+    fwht_size_8(dst, src);
 }

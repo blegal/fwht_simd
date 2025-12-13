@@ -79,9 +79,9 @@ bool are_equivalent(
 
 void print_dataset(const float x[], int size) {
     for (int i = 0; i < size; i++) {
-        if ( i%16 == 0 )
+        if ( i%8 == 0 )
             printf("\n%3d : ", i);
-        printf("%1.6f ", x[i]);
+        printf("%+1.23f ", x[i]);
     }
     printf("\n");
 }
@@ -104,7 +104,9 @@ int main(int argc, char *argv[]) {
     printf("(II) Code compiled with UNKWON compiler\n");
 #endif
 
-    int32_t nTest = 16 * 1024 * 1024;//(64 * 1024 * 1024);
+    float epsilon = 0.00001;
+    int32_t nTest = 512 * 1024 * 1024;//(64 * 1024 * 1024);
+
     bool debug = false;
 
     for (int i = 1; i < argc; i++)
@@ -112,6 +114,7 @@ int main(int argc, char *argv[]) {
         if (std::string(argv[i]) == "--test")
         {
             nTest = 1;
+            epsilon = 0.000001f;
         }
         else if (std::string(argv[i]) == "--no-debug")
         {
@@ -145,11 +148,13 @@ int main(int argc, char *argv[]) {
 
     for (int size = 8; size <= max_gf; size *= 2){
 
+        nTest = (nTest == 1) ? 1 : (nTest/2);
+
         //
         // On genere un set de données aléatoires
         //
         for (int i = 0; i < size; i++) {
-            tab_i_load[i] = ((float) rand()) / ((float) RAND_MAX);
+            tab_i_load[i] = 2.f * i * ((i%2) ? 1.f : -1.f);//((float) rand()) / ((float) RAND_MAX);
         }
 //        tab_i_load[ rand()%size ] = .5f;
 
@@ -160,29 +165,19 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < size; i += 1) { sum += tab_i[i]; }
         const float factor = 1.f / sum;
         for (int i = 0; i < size; i++) { tab_i_load[i] *= factor; }
-
 #if 0
-        fwht< 64>( tab_a );
-        normalize< 64>( tab_a, 0.125f );
-        show_symbols( tab_a );
-        fwht< 64>( tab_a );
-        normalize< 64>( tab_a, 0.125f );
-        show_symbols( tab_a );
-
-
-        fwht_avx2< 64>( tab_d );
-        normalize< 64>( tab_d, 0.125f );
-        show_symbols( tab_d );
-        fwht_avx2< 64>( tab_d );
-        normalize< 64>( tab_d, 0.125f );
-        show_symbols( tab_d );
-
-        fwht_norm_avx2< 64>( tab_e );
-        show_symbols( tab_e );
-        fwht_norm_avx2< 64>( tab_e );
-        show_symbols( tab_e );
-
-        exit( 0 );
+        float tab_simd[size];
+        memcpy(tab_simd, tab_i_load, size * sizeof(float));
+        printf("Reference");
+        print_dataset(tab_simd, size);
+        fwht_avx2<8>( tab_simd );
+        normalize<8>(tab_simd, 0.35355339059f);
+        printf("Transformed");
+        print_dataset(tab_simd, size);
+        fwht_avx2<8>( tab_simd );
+        normalize<8>(tab_simd, 0.35355339059f);
+        printf("Restored");
+        print_dataset(tab_simd, size);
 #endif
 
         //
@@ -208,7 +203,7 @@ int main(int argc, char *argv[]) {
         auto     stop_x86 = std::chrono::system_clock::now();
         uint64_t time_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86 - start_x86).count() / nTest;
 
-        bool ok_x86   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        bool ok_x86   = are_equivalent(tab_i, tab_a, epsilon, size);
         if (ok_x86) {
             printf(" - [GCCV] fwht                  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86);
         } else {
@@ -238,7 +233,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_norm<1024>(tab_a); fwht_norm<1024>(tab_a); }
         }
         auto           stop_x86_n = std::chrono::system_clock::now();
-        const bool     ok_x86_n   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        const bool     ok_x86_n   = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_x86_n = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_n - start_x86_n).count() / nTest;
         if (ok_x86_n) {
             printf(" - [GCCV] fwht_norm             \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_n);
@@ -262,7 +257,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_engine<tile_t::NONE>::apply<1024>(tab_o, tab_a); normalize<1024>(tab_o, 0.03125f      ); fwht_engine<tile_t::NONE>::apply<1024>(tab_a, tab_o); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto     stop_x86_template_direct = std::chrono::system_clock::now();
-        bool     ok_x86_template_direct   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        bool     ok_x86_template_direct   = are_equivalent(tab_i, tab_a, epsilon, size);
         uint64_t time_x86_template_direct = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_direct - start_x86_template_direct).count() / nTest;
         if (ok_x86_template_direct) {
             printf(" - [GCCV] fwht_template_direct  \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_direct);
@@ -286,7 +281,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_engine<tile_t::NONE>::apply<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_engine<tile_t::NONE>::apply<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto     stop_x86_template_inout = std::chrono::system_clock::now();
-        bool     ok_x86_template_inout   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        bool     ok_x86_template_inout   = are_equivalent(tab_i, tab_a, epsilon, size);
         uint64_t time_x86_template_inout = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_inout - start_x86_template_inout).count() / nTest;
         if (ok_x86_template_inout) {
             printf(" - [GCCV] fwht_template_inout   \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_inout);
@@ -312,7 +307,7 @@ int main(int argc, char *argv[]) {
         auto     stop_x86_template_spec8 = std::chrono::system_clock::now();
         uint64_t time_x86_template_spec8 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_template_spec8 - start_x86_template_spec8).count() / nTest;
 
-        const bool ok_x86_template_spec8   = are_equivalent(tab_i, tab_a, 0.00001, size);
+        const bool ok_x86_template_spec8   = are_equivalent(tab_i, tab_a, epsilon, size);
         if (ok_x86_template_spec8) {
             printf(" - [GCCV] fwht_template_spec8   \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_template_spec8);
         } else {
@@ -337,7 +332,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_neon<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_neon<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto           stop_i_neon = std::chrono::system_clock::now();
-        const bool     ok_neon     = are_equivalent(tab_i, tab_a, 0.00001, size);
+        const bool     ok_neon     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_neon   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon - start_i_neon).count() / nTest;
         if (ok_neon) {
             printf(" - [NEON] fwht_neon             \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon);
@@ -364,7 +359,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_norm_neon<1024>(tab_a); fwht_norm_neon<1024>(tab_a); }
         }
         auto           stop_i_neon_norm = std::chrono::system_clock::now();
-        const bool     ok_neon_norm     = are_equivalent(tab_i, tab_a, 0.00001, size);
+        const bool     ok_neon_norm     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_neon_norm   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon_norm - start_i_neon_norm).count() / nTest;
         if (ok_neon_norm) {
             printf(" - [NEON] fwht_norm_neon        \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon_norm);
@@ -416,12 +411,16 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_avx2<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_avx2<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto           stop_i_avx2 = std::chrono::system_clock::now();
-        const bool     ok_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
         if (ok_avx2) {
             printf(" - [AVX2] fwht_avx2             \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
         } else {
             printf(" - [AVX2] fwht_avx2             \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            if ( debug ) {
+                print_dataset(tab_i, size);
+                print_dataset(tab_a, size);
+            }
         }
     }
 #endif
@@ -441,12 +440,16 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_norm_avx2<1024>(tab_a); fwht_norm_avx2<1024>(tab_a); }
         }
         auto           stop_i_norm_avx2 = std::chrono::system_clock::now();
-        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
         if (ok_norm_avx2) {
             printf(" - [AVX2] fwht_norm_avx2        \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
         } else {
             printf(" - [AVX2] fwht_norm_avx2        \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
+            if ( debug ) {
+                print_dataset(tab_i, size);
+                print_dataset(tab_a, size);
+            }
         }
     }
 #endif
@@ -466,7 +469,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_avx512<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); fwht_avx512<1024>(tab_a); normalize<1024>(tab_a, 0.03125f      ); }
         }
         auto           stop_i_avx2 = std::chrono::system_clock::now();
-        const bool     ok_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
         if (ok_avx2) {
             printf(" - [AVX2] fwht_avx512    \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
@@ -491,7 +494,7 @@ int main(int argc, char *argv[]) {
             if (size == 1024) { fwht_norm_avx512<1024>(tab_a); fwht_norm_avx512<1024>(tab_a); }
         }
         auto           stop_i_norm_avx2 = std::chrono::system_clock::now();
-        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, 0.002, size);
+        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
         if (ok_norm_avx2) {
             printf(" - [AVX2] fwht_norm_avx5x\033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);

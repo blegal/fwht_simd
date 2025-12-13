@@ -33,7 +33,7 @@ endif ()
 #SET (CMAKE_CXX_COMPILER /opt/homebrew/bin/g++-15)   # GCC 15.2.0
 
 
-add_compile_options (-march=native -mtune=native -O3 -g0 -ffast-math ${SANITIZE_CXXFLAGS})
+add_compile_options (-march=native -mtune=native -O3 -g0 ${SANITIZE_CXXFLAGS})
 # add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra ${SANITIZE_CXXFLAGS})#debug2
 add_compile_options (-Wall -Wextra)
 # to remove warnings from ap_int
