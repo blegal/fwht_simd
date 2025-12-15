@@ -42,6 +42,8 @@
 #include "features/fwht/fwht_template_spec8.hpp"
 #include "features/fwht/fwht_norm.hpp"
 
+#include "features/fwht/fwht_int32_t.hpp"
+
 #if defined(__AVX512F__)
     #include "features/fwht/fwht_avx512.hpp"
     #include "features/fwht/fwht_norm_avx512.hpp"
@@ -64,12 +66,31 @@ inline void normalize(float x[], float fact) {
         x[i] = x[i] * fact;
 }
 
+template <uint16_t galois_size>
+inline void scale(int32_t x[], const int divider) {
+    for (int i = 0; i < galois_size; i++)
+        x[i] = x[i] / divider;
+}
+
 bool are_equivalent(
     const float * __restrict a,
     const float * __restrict b,
-    float epsilon, int size) {
+    const float epsilon, const int size) {
     for (int i = 0; i < size; i++) {
-        float diff = abs(a[i] - b[i]);
+        const float diff = abs(a[i] - b[i]);
+        if (diff > epsilon) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool are_equivalent(
+    const int32_t* __restrict a,
+    const int32_t * __restrict b,
+    const int32_t epsilon, const int size) {
+    for (int i = 0; i < size; i++) {
+        const int32_t diff = abs(a[i] - b[i]);
         if (diff > epsilon) {
             return false;
         }
@@ -82,6 +103,15 @@ void print_dataset(const float x[], int size) {
         if ( i%8 == 0 )
             printf("\n%3d : ", i);
         printf("%+1.23f ", x[i]);
+    }
+    printf("\n");
+}
+
+void print_dataset(const int32_t x[], const int size) {
+    for (int i = 0; i < size; i++) {
+        if ( i%8 == 0 )
+            printf("\n%3d : ", i);
+        printf("%+10d ", x[i]);
     }
     printf("\n");
 }
@@ -146,7 +176,10 @@ int main(int argc, char *argv[]) {
     float tab_a[max_gf];
     float tab_o[max_gf];
 
-    for (int size = 8; size <= max_gf; size *= 2){
+    int32_t tab_i_fx[max_gf];
+    int32_t tab_o_fx[max_gf];
+
+    for (int size = 8; size <= 4096; size *= 2){
 
         nTest = (nTest == 1) ? 1 : (nTest/2);
 
@@ -164,7 +197,11 @@ int main(int argc, char *argv[]) {
         float sum = 0.f;
         for (int i = 0; i < size; i += 1) { sum += tab_i[i]; }
         const float factor = 1.f / sum;
-        for (int i = 0; i < size; i++) { tab_i_load[i] *= factor; }
+        for (int i = 0; i < size; i++) {
+            tab_i_load[i] *= factor;
+            tab_i_fx[i]    = (int32_t)std::roundf(tab_i_load[i] * 65536.f);
+        }
+
 #if 0
         float tab_simd[size];
         memcpy(tab_simd, tab_i_load, size * sizeof(float));
@@ -503,6 +540,39 @@ int main(int argc, char *argv[]) {
         }
     }
 #endif
+
+        memcpy(tab_o_fx, tab_i_fx, size * sizeof(int32_t));
+        //printf("Input values :");
+        //print_dataset(tab_i_fx, size);
+        //printf("Processed values :");
+        auto start_fx_x86 = std::chrono::system_clock::now();
+        for (int32_t loop = 0; loop < nTest; loop += 1) {
+            if (size ==    8) { fwht<   8>(tab_o_fx); fwht<   8>(tab_o_fx); scale<   8>(tab_o_fx,    8); }
+            if (size ==   16) { fwht<  16>(tab_o_fx); fwht<  16>(tab_o_fx); scale<  16>(tab_o_fx,   16); }
+            if (size ==   32) { fwht<  32>(tab_o_fx); fwht<  32>(tab_o_fx); scale<  32>(tab_o_fx,   32); }
+            if (size ==   64) { fwht<  64>(tab_o_fx); fwht<  64>(tab_o_fx); scale<  64>(tab_o_fx,   64); }
+            if (size ==  128) { fwht< 128>(tab_o_fx); fwht< 128>(tab_o_fx); scale< 128>(tab_o_fx,  128); }
+            if (size ==  256) { fwht< 256>(tab_o_fx); fwht< 256>(tab_o_fx); scale< 256>(tab_o_fx,  256); }
+            if (size ==  512) { fwht< 512>(tab_o_fx); fwht< 512>(tab_o_fx); scale< 512>(tab_o_fx,  512); }
+            if (size == 1024) { fwht<1024>(tab_o_fx); fwht<1024>(tab_o_fx); scale<1024>(tab_o_fx, 1024); }
+        }
+        auto     stop_fx_x86 = std::chrono::system_clock::now();
+        uint64_t time_fx_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_fx_x86 - start_fx_x86).count() / nTest;
+        //printf("Ouput values :");
+        //print_dataset(tab_o_fx, size);
+
+        bool ok_fx_x86   = are_equivalent(tab_i_fx, tab_o_fx, epsilon, size);
+        if (ok_fx_x86) {
+            printf(" - [GCCV] fwht_int32_t          \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_fx_x86);
+        } else {
+            printf(" - [GCCV] fwht_int32_t          \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_fx_x86);
+            if ( debug ) {
+                printf("Reference");
+                print_dataset(tab_i_fx, size);
+                printf("Result");
+                print_dataset(tab_o_fx, size);
+            }
+        }
 
     }
 
