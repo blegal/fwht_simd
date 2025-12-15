@@ -8,9 +8,6 @@
 
 #endif
 
-//#include "fwht/fwht.hpp"
-//#include "fwht/fwht_norm.hpp"
-
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include "fwht/fwht_neon.hpp"
     #include "fwht/fwht_norm_neon.hpp"
@@ -28,19 +25,26 @@
 #endif
 
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
-    #define FWHT      fwht_neon
-    #define FWHT_NORM fwht_norm_neon
+	#define FUNCTION_SUFFIX _neon
 #elif defined(__AVX512F__)
-    #define FWHT      fwht_avx2
-    #define FWHT_NORM fwht_norm_avx2
+	#define FUNCTION_SUFFIX _avx2
 #elif defined(__AVX2__)
-    #define FWHT      fwht_avx2
-    #define FWHT_NORM fwht_norm_avx2
+	#define FUNCTION_SUFFIX _avx2
 #else
-    #define FWHT      fwht
-    #define FWHT_NORM fwht_norm
+	#define FUNCTION_SUFFIX
+#endif
+
+#define PASTER(x,y) x ## y
+#define EVALUATOR(x,y)  PASTER(x,y)
+
+#define FWHT      EVALUATOR(fwht, FUNCTION_SUFFIX)
+#if !defined(DISABLE_FWHT_NORM) || DISABLE_FWHT_NORM == 0
+	#define FWHT_NORM EVALUATOR(fwht_norm, FUNCTION_SUFFIX)
+#else
+	#define FWHT_NORM FWHT
 #endif
 
 #include "argmax/argmax.hpp"
 
 #include "normalize/normalize.hpp"
+
