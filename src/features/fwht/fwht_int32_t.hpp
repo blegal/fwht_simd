@@ -29,7 +29,129 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-#if defined(__ARM_NEON__) || defined(__ARM_NEON)
+#ifdef __AVX2__
+#include <immintrin.h>
+
+const __m128i m0 = _mm_set_epi32(0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0x00000000);
+const __m128i m1 = _mm_set_epi32(0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000);
+inline void fwht_int32_t_tuile_8_sse(const __m128i X0, const __m128i X1, int32_t* outp)
+{
+    const __m128i zero = _mm_setzero_si128();
+
+    //////////////////////////////////////////////////////
+    // HH / BB
+    //////////////////////////////////////////////////////
+    const __m128i HH = _mm_add_epi32(X0, X1);
+    const __m128i BB = _mm_sub_epi32(X0, X1);
+
+    //////////////////////////////////////////////////////
+    // Partie HH
+    //////////////////////////////////////////////////////
+    const __m128i N0 = _mm_shuffle_epi32(HH, _MM_SHUFFLE(1,0,3,2));
+    const __m128i n0 = _mm_sub_epi32(zero, HH);
+    const __m128i N1 = _mm_blendv_epi8(HH, n0, m0);
+    const __m128i N2 = _mm_add_epi32(N0, N1);
+
+    const __m128i v0 = _mm_sub_epi32(zero, N2);
+    const __m128i V0 = _mm_blendv_epi8(N2, v0, m1);
+    const __m128i V1 = _mm_shuffle_epi32(N2, _MM_SHUFFLE(2,3,0,1));
+    const __m128i V2 = _mm_add_epi32(V0, V1);
+
+    _mm_storeu_si128((__m128i*)outp, V2);
+
+    //////////////////////////////////////////////////////
+    // Partie BB
+    //////////////////////////////////////////////////////
+    const __m128i O0 = _mm_shuffle_epi32(BB, _MM_SHUFFLE(1,0,3,2));
+    const __m128i o0 = _mm_sub_epi32(zero, BB);
+    const __m128i O1 = _mm_blendv_epi8(BB, o0, m0);
+    const __m128i O2 = _mm_add_epi32(O0, O1);
+
+    const __m128i q0 = _mm_sub_epi32(zero, O2);
+    const __m128i Q0 = _mm_blendv_epi8(O2, q0, m1);
+    const __m128i Q1 = _mm_shuffle_epi32(O2, _MM_SHUFFLE(2,3,0,1));
+    const __m128i Q2 = _mm_add_epi32(Q0, Q1);
+
+    _mm_storeu_si128((__m128i*)(outp + 4), Q2);
+}
+
+inline void fwht_int32_t_tuile_8(const int32_t* inp, int32_t* outp)
+{
+    const __m128i X0 = _mm_loadu_si128((__m128i*)(inp    ));
+    const __m128i X1 = _mm_loadu_si128((__m128i*)(inp + 4));
+    fwht_int32_t_tuile_8_sse(X0, X1, outp);
+}
+
+static inline __m256i negate_epi32(__m256i x) {
+    return _mm256_sub_epi32(_mm256_setzero_si256(), x);
+}
+
+inline void fwht_int32_t_tuile_16_avx2(const __m256i X0, const __m256i X1, int32_t *y)
+{
+    // Masques de sélection (0 ou -1)
+    const __m256i M0 = _mm256_setr_epi32(0, 0, 0, 0, -1,-1,-1,-1);
+    const __m256i M1 = _mm256_setr_epi32(0, 0,-1,-1, 0, 0,-1,-1);
+    const __m256i M2 = _mm256_setr_epi32(0,-1, 0,-1, 0,-1, 0,-1);
+
+    //////////////////////////////////////////////////////
+    // HAUT = X0 + X1
+    const __m256i HAUT  = _mm256_add_epi32(X0, X1);
+    const __m256i nHAUT = negate_epi32(HAUT);
+    const __m256i N0    = _mm256_blendv_epi8(HAUT, nHAUT, M0);
+    const __m256i N1    = _mm256_permute2x128_si256(HAUT, HAUT, 0x01);
+    const __m256i N2    = _mm256_add_epi32(N0, N1);
+    const __m256i nN2   = negate_epi32(N2);
+    const __m256i O0    = _mm256_blendv_epi8(N2, nN2, M1);
+    const __m256i O1    = _mm256_shuffle_epi32(N2, 0x4E);
+    const __m256i O2    = _mm256_add_epi32(O0, O1);
+    const __m256i nO2   = negate_epi32(O2);
+    const __m256i P0    = _mm256_blendv_epi8(O2, nO2, M2);
+    const __m256i P1    = _mm256_shuffle_epi32(O2, 0xB1);
+    const __m256i P2    = _mm256_add_epi32(P0, P1);
+    _mm256_storeu_si256((__m256i *)(y + 0), P2);
+    //////////////////////////////////////////////////////
+    // BAS = X0 - X1
+    const __m256i BAS   = _mm256_sub_epi32(X0, X1);
+    const __m256i nBAS  = negate_epi32(BAS);
+    const __m256i B0    = _mm256_blendv_epi8(BAS, nBAS, M0);
+    const __m256i B1    = _mm256_permute2x128_si256(BAS, BAS, 0x01);
+    const __m256i B2    = _mm256_add_epi32(B0, B1);
+    const __m256i nB2   = negate_epi32(B2);
+    const __m256i BO0   = _mm256_blendv_epi8(B2, nB2, M1);
+    const __m256i BO1   = _mm256_shuffle_epi32(B2, 0x4E);
+    const __m256i BO2   = _mm256_add_epi32(BO0, BO1);
+    const __m256i nBO2  = negate_epi32(BO2);
+    const __m256i BP0   = _mm256_blendv_epi8(BO2, nBO2, M2);
+    const __m256i BP1   = _mm256_shuffle_epi32(BO2, 0xB1);
+    const __m256i BP2   = _mm256_add_epi32(BP0, BP1);
+    _mm256_storeu_si256((__m256i *)(y + 8), BP2);
+}
+
+inline void fwht_int32_t_tuile_16(const int32_t* inp, int32_t* outp)
+{
+    const __m256i X0 = _mm256_loadu_si256((__m256i*)(inp    ));
+    const __m256i X1 = _mm256_loadu_si256((__m256i*)(inp + 8));
+    fwht_int32_t_tuile_16_avx2(X0, X1, outp);
+}
+
+inline void fwht_int32_t_tuile_32(const int32_t* inp, int32_t* outp)
+{
+    const __m256i X0 = _mm256_loadu_si256((__m256i*)(inp     ));
+    const __m256i X1 = _mm256_loadu_si256((__m256i*)(inp +  8));
+    const __m256i X2 = _mm256_loadu_si256((__m256i*)(inp + 16));
+    const __m256i X3 = _mm256_loadu_si256((__m256i*)(inp + 24));
+
+    const __m256i Y0 = _mm256_add_epi32(X0, X2);
+    const __m256i Y1 = _mm256_add_epi32(X1, X3);
+    const __m256i Y2 = _mm256_sub_epi32(X0, X2);
+    const __m256i Y3 = _mm256_sub_epi32(X1, X3);
+
+    fwht_int32_t_tuile_16_avx2(Y0, Y1, outp     );
+    fwht_int32_t_tuile_16_avx2(Y2, Y3, outp + 16);
+}
+
+
+#elif defined(__ARM_NEON__) || defined(__ARM_NEON)
 #include <arm_neon.h>
 
 const uint32x4_t m0 = {0x00000000, 0x00000000, 0xFFFFFFFF, 0xFFFFFFFF};
