@@ -20,11 +20,6 @@ void middle_node_pruned_rep_after_g(
             temp[j] *= inputs[i].value[j] ;
     }
 
-    if ( is_sum_equal_zero(temp, gf_size) ) {
-        printf("(EE) %s %d\n", __FILE__, __LINE__);
-        exit( EXIT_FAILURE );
-    }
-
     const int value = argmax<gf_size>( temp );
 
     for(int i = 0; i < size; i++)
