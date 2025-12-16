@@ -70,6 +70,7 @@ int main(int argc, char * argv[]) {
     int       K         = (int) (((float) N) * code_rate);
     int       nThreads  = 1;
     auto      run_time  = 30000ms;
+    bool testing_only = false;
 
     std::string dec_type   = "dec4";
     bool        is_colored = true;
@@ -85,6 +86,8 @@ int main(int argc, char * argv[]) {
             is_colored = false;
         } else if (std::string(argv[i]) == "--nocolor") {
             is_colored = false;
+        } else if (std::string(argv[i]) == "--test") {
+            testing_only = true;
         } else if (std::string(argv[i]) == "--rate") {
             code_rate = std::atof(argv[i + 1]);
             K         = round(code_rate * N);
@@ -379,6 +382,12 @@ int main(int argc, char * argv[]) {
         printf("#(II) Decoder behavior : OK\n");
     } else {
         printf("#(II) Decoder behavior : ERROR\n");
+    }
+
+    if ( testing_only == true ) {
+        if (nErrors != 0)
+            return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
 #if 0
