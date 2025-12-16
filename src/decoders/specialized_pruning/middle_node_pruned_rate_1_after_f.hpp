@@ -13,7 +13,7 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_rate_1_after_f(
     const int  symbol_id) // Symbol ID is the index of the FIRST symbol in the symbols array
 {
     for (int i = 0; i < size; i++) {
-        FWHT_NORM<gf_size>(inputs[i].value);
+        FWHT<gf_size>(inputs[i].value);
         const int value  = argmax<gf_size>(inputs[i].value);
         symbols[symbol_id + i] = value;
         decoded[symbol_id + i] = value;
