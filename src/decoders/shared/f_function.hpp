@@ -32,26 +32,3 @@ void f_function(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbol
 //
 //
 //
-template <uint32_t gf_size>
-void f_function_proba_only(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbols_t * __restrict src_b)
-{
-    symbols_t tmp_a = *src_a;
-    symbols_t tmp_b = *src_b;
-
-    FWHT_NORM<gf_size>(tmp_a.value);
-    FWHT_NORM<gf_size>(tmp_b.value);
-
-    for (size_t i = 0; i < gf_size; i++)
-    {
-        dst->value[i] = tmp_a.value[i] * tmp_b.value[i];
-    }
-
-    FWHT_NORM<gf_size>(dst->value);
-    normalize<gf_size>(dst->value);
-    dst->is_freq = false;
-}
-//
-//
-//
-//
-//
