@@ -30,6 +30,17 @@ private:
         uint16_t *  symbols,
         const int   symbol_id);
 
+    void f_function_proba_only(
+        symbols_t * __restrict dst,
+        symbols_t * __restrict src_a,
+        symbols_t * __restrict src_b);
+
+    void g_function_proba_only(
+        symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
+        symbols_t * __restrict src_a, // the upper value set from the right side of the graph
+        symbols_t * __restrict src_b, // the lower value set from the right side of the graph
+        uint32_t src_c);              // the computed symbols coming from the left side of the graph
+
     symbols_t* internal;
     uint16_t*  symbols;
     uint32_t*  frozen;

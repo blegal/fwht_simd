@@ -38,40 +38,33 @@ template <int gf_size> decoder_basic<gf_size>::decoder_basic() : N(0)
 //
 template <int gf_size> decoder_basic<gf_size>::~decoder_basic()
 {
-    delete[]internal;
-    delete[]symbols;
-    delete[]frozen;
+    delete[] internal;
+    delete[] symbols;
+    delete[] frozen;
 }
-
-template <int gf_size> void decoder_basic<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+//
+//
+//
+//
+//
+template <int gf_size>
+void decoder_basic<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
 {
     const int n = N / 2; // Assuming size is the number of symbols
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
-        f_function_proba_only<gf_size>( internal + i, channel + i, channel + n + i);
+        f_function_proba_only( internal + i, channel + i, channel + n + i);
     }
-    //
-    //
     //
     middle_node( internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
-        g_function_proba_only<gf_size>( internal + i, channel + i, channel + n + i, symbols[i]);
+        g_function_proba_only( internal + i, channel + i, channel + n + i, symbols[i]);
     }
-    //
-    //
     //
     middle_node( internal, internal + n, decoded, symbols, n, n); // On descend à droite
     //
-    //
-    //
     // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    //
     //
 }
 //
@@ -89,13 +82,9 @@ template <int gf_size> void decoder_basic<gf_size>::middle_node(
 {
     const int n = size / 2; // Assuming size is the number of symbols
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
-        f_function_proba_only<gf_size>(internal + i, inputs + i, inputs + n + i);
+        f_function_proba_only(internal + i, inputs + i, inputs + n + i);
     }
-    //
-    //
     //
     if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id);
@@ -103,13 +92,9 @@ template <int gf_size> void decoder_basic<gf_size>::middle_node(
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
-        g_function_proba_only<gf_size>(internal + i, inputs + i, inputs + n + i, symbols[symbol_id + i]);
+        g_function_proba_only(internal + i, inputs + i, inputs + n + i, symbols[symbol_id + i]);
     }
-    //
-    //
     //
     if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id + n);
@@ -117,16 +102,18 @@ template <int gf_size> void decoder_basic<gf_size>::middle_node(
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id + n);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
     }
     //
-    //
-    //
 }
-template <int gf_size> void decoder_basic<gf_size>::leaf_node(
+//
+//
+//
+//
+//
+template <int gf_size>
+void decoder_basic<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
@@ -139,10 +126,60 @@ template <int gf_size> void decoder_basic<gf_size>::leaf_node(
         symbols[symbol_id] = 0;
         return;
     }
-
+    //
     const int max_index = argmax<gf_size>(var->value);
     decoded[symbol_id] = max_index;
     symbols[symbol_id] = max_index;
+}
+//
+//
+//
+//
+//
+template <int gf_size>
+void decoder_basic<gf_size>::f_function_proba_only(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbols_t * __restrict src_b)
+{
+    symbols_t tmp_a = *src_a;
+    symbols_t tmp_b = *src_b;
+
+    FWHT_NORM<gf_size>(tmp_a.value);
+    FWHT_NORM<gf_size>(tmp_b.value);
+
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->value[i] = tmp_a.value[i] * tmp_b.value[i];
+    }
+
+    FWHT_NORM<gf_size>(dst->value);
+    normalize<gf_size>(dst->value);
+    dst->is_freq = false;
+}
+//
+//
+//
+//
+//
+template <int gf_size>
+void decoder_basic<gf_size>::g_function_proba_only(
+    symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
+    symbols_t * __restrict src_a, // the upper value set from the right side of the graph
+    symbols_t * __restrict src_b, // the lower value set from the right side of the graph
+    uint32_t src_c)               // the computed symbols coming from the left side of the graph
+{
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        const int idx   = src_c ^ i;
+        dst->value[idx] = src_a->value[i];
+    }
+    dst->is_freq = false;
+
+    for (size_t i = 0; i < gf_size; i++)
+    {
+        dst->value[i] = dst->value[i] * src_b->value[i];
+    }
+
+    normalize<gf_size>(dst->value); // temporal
+    dst->is_freq = false;
 }
 //
 //
