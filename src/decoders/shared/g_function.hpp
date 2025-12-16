@@ -44,7 +44,7 @@ void g_function(
             dst->value[i] = src_a->value[i] * Hadamard[src_c][i];
         }
 
-        FWHT_NORM<gf_size>(dst->value);
+        FWHT<gf_size>(dst->value);
         dst->is_freq = false;
     }
     else
@@ -59,7 +59,7 @@ void g_function(
 
     if (src_b->is_freq == true)
     {
-        FWHT_NORM<gf_size>(src_b->value);
+        FWHT<gf_size>(src_b->value);
         src_b->is_freq = false;
     }
 

@@ -13,8 +13,8 @@ template <uint32_t gf_size> inline __attribute__((always_inline)) void f_functio
     for (size_t i = 0; i < int(gf_size); i++) {
         dst->value[i] =  src_a->value[i] * src_b->value[i]; // TODO : attention au facteur 10x qui est magique !!!
     }
+
     dst->is_freq = true;
-//  normalize<gf_size>(dst->value);
 }
 //
 //

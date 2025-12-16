@@ -68,11 +68,6 @@ inline void vst1q_x2_f32(float * ptr, const float32x4x2_t A) {
     vst1q_f32(ptr + 4, A.val[1]);
 }
 
-//inline void vst1q_x2_f32(float * ptr, const float32x4x2_t A) {
-//    vst1q_f32(ptr + 0, A.val[0]);
-//    vst1q_f32(ptr + 4, A.val[1]);
-//}
-
 inline float32x4x2_t vaddq_x2_f32(const float32x4x2_t A, const float32x4x2_t B) {
     float32x4x2_t C;
     C.val[0] = vaddq_f32(A.val[0], B.val[0]);

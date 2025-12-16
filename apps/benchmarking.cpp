@@ -50,8 +50,6 @@ static void thread_run_decoder(env_simu * env) {
         env->n_decoded += 1;
     }
 }
-
-#include "features/fwht/fwht_norm_neon_v2.hpp"
 //
 //
 //

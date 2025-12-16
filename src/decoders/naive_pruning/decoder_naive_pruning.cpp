@@ -265,7 +265,7 @@ void decoder_naive_pruning<gf_size>::middle_node_with_pruning(
         // la decision dure sur size/2-1 = n-1 ???
         for(int i = 0; i < size; i++) {
             if ( inputs[i].is_freq == true ) {
-                FWHT_NORM<gf_size>( inputs[i].value );
+                FWHT<gf_size>( inputs[i].value );
                 inputs[i].is_freq = false;
             }
         }
@@ -453,7 +453,7 @@ void decoder_naive_pruning<gf_size>::leaf_node(
     }
 
     if (var->is_freq) {
-        FWHT_NORM<gf_size>(var->value);
+        FWHT<gf_size>(var->value);
         var->is_freq = false;
     }
     const int max_index = argmax<gf_size>(var->value);

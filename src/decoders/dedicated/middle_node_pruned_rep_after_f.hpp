@@ -20,7 +20,8 @@ template <int gf_size> void middle_node_pruned_rep_after_f(
     int                   size     // Size is the number of symbols (should be a power of 2)
 ) {
         for(int i = 0; i < size; i++) {
-            FWHT_NORM<gf_size>(inputs[i].value);
+            FWHT<gf_size>(inputs[i].value);
+            normalize<gf_size>(inputs[i].value);
             inputs[i].is_freq = false;
         }
 
@@ -29,8 +30,8 @@ template <int gf_size> void middle_node_pruned_rep_after_f(
             temp[j] = inputs[0].value[j] * inputs[1].value[j];
 
         for(int i = 2; i < size; i++){
-            if( (i & 0x1) == 1)
-            normalize<gf_size>( temp );
+            //if( (i & 0x1) == 1)
+            //normalize<gf_size>( temp );
             for (int j = 0; j < gf_size; j++)
                 temp[j] *= inputs[i].value[j] ;
         }

@@ -12,13 +12,13 @@ template <uint32_t gf_size> inline __attribute__((always_inline)) void f_functio
     for (int i = 0; i < int(gf_size); i++)
         tmp_a.value[i] = src_a->value[i];
 
-    FWHT_NORM<gf_size>(tmp_a.value);
+    FWHT<gf_size>(tmp_a.value);
 
     symbols_s<gf_size> tmp_b;
     for (int i = 0; i < int(gf_size); i++)
         tmp_b.value[i] = src_b->value[i];
 
-    FWHT_NORM<gf_size>(tmp_b.value);
+    FWHT<gf_size>(tmp_b.value);
 
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !

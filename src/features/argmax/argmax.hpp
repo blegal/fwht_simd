@@ -28,7 +28,7 @@
 template <int gf_size>
 inline int argmax2(float *arr, const int argmax1)
 {
-    const float keep  = arr[ argmax1];
+    const float keep  = arr[ argmax1 ];
     arr[ argmax1] = 0.f;
     const int arg2 = argmax<gf_size>(arr);
     arr[ argmax1] = keep;

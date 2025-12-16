@@ -10,18 +10,14 @@
 
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include "fwht/fwht_neon.hpp"
-    #include "fwht/fwht_norm_neon.hpp"
-    #include "fwht/fwht_norm_neon_v2.hpp"
 #endif
 
 #if defined(__AVX512F__)
     #include "fwht/fwht_avx512.hpp"
-    #include "fwht/fwht_norm_avx512.hpp"
 #endif
 
 #if defined(__AVX2__)
     #include "fwht/fwht_avx2.hpp"
-    #include "fwht/fwht_norm_avx2.hpp"
 #endif
 
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
@@ -37,12 +33,7 @@
 #define PASTER(x,y) x ## y
 #define EVALUATOR(x,y)  PASTER(x,y)
 
-#define FWHT      EVALUATOR(fwht, FUNCTION_SUFFIX)
-#if !defined(DISABLE_FWHT_NORM) || DISABLE_FWHT_NORM == 0
-	#define FWHT_NORM EVALUATOR(fwht_norm, FUNCTION_SUFFIX)
-#else
-	#define FWHT_NORM FWHT
-#endif
+#define FWHT EVALUATOR(fwht, FUNCTION_SUFFIX)
 
 #include "argmax/argmax.hpp"
 

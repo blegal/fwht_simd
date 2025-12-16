@@ -18,8 +18,8 @@ void g_function_freq_in(
     symbols_s<gf_size> * __restrict src_b, // the lower value set from the right side of the graph
     const uint32_t    src_c)    // the computed symbols coming from the left side of the graph
 {
-    FWHT_NORM<gf_size>(src_a->value);
-    FWHT_NORM<gf_size>(src_b->value);
+    FWHT<gf_size>(src_a->value);
+    FWHT<gf_size>(src_b->value);
 
     for (size_t i = 0; i < gf_size; i++) {
         const int   idx = src_c ^ i;

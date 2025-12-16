@@ -27,7 +27,7 @@ void leaf_node_after_f(
     //
     // Switch from frequency to time domain
     //
-    FWHT_NORM<gf_size>(var->value);
+    FWHT<gf_size>(var->value);
 
     const int max_index = argmax<gf_size>(var->value);
 

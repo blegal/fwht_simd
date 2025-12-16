@@ -33,14 +33,11 @@
 
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
     #include "features/fwht/fwht_neon.hpp"
-    #include "features/fwht/fwht_norm_neon.hpp"
-    #include "features/fwht/fwht_norm_neon_v2.hpp"
 #endif
 
 #include "features/fwht/fwht.hpp"
 #include "features/fwht/fwht_engine_template.hpp"
 #include "features/fwht/fwht_template_spec8.hpp"
-#include "features/fwht/fwht_norm.hpp"
 
 #include "features/fwht/fwht_int32_t.hpp"
 
@@ -135,7 +132,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     float epsilon = 0.00001;
-    int32_t nTest = 512 * 1024 * 1024;//(64 * 1024 * 1024);
+    int32_t nTest = 256 * 1024 * 1024;//(64 * 1024 * 1024);
 
     bool debug = false;
 
@@ -179,9 +176,12 @@ int main(int argc, char *argv[]) {
     int32_t tab_i_fx[max_gf];
     int32_t tab_o_fx[max_gf];
 
+    int cnt = 0;
     for (int size = 8; size <= 4096; size *= 2){
 
-        nTest = (nTest == 1) ? 1 : (nTest/2);
+        if ( (cnt%2) == 1 )
+            nTest = (nTest == 1) ? 1 : (nTest/2);
+        cnt += 1;
 
         //
         // On genere un set de données aléatoires
@@ -251,36 +251,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        //
-        //
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //
-        //
-
-        auto start_x86_n = std::chrono::system_clock::now();
-        memcpy(tab_a, tab_i, size * sizeof(float));
-        for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_norm<   8>(tab_a); fwht_norm<   8>(tab_a); }
-            if (size ==   16) { fwht_norm<  16>(tab_a); fwht_norm<  16>(tab_a); }
-            if (size ==   32) { fwht_norm<  32>(tab_a); fwht_norm<  32>(tab_a); }
-            if (size ==   64) { fwht_norm<  64>(tab_a); fwht_norm<  64>(tab_a); }
-            if (size ==  128) { fwht_norm< 128>(tab_a); fwht_norm< 128>(tab_a); }
-            if (size ==  256) { fwht_norm< 256>(tab_a); fwht_norm< 256>(tab_a); }
-            if (size ==  512) { fwht_norm< 512>(tab_a); fwht_norm< 512>(tab_a); }
-            if (size == 1024) { fwht_norm<1024>(tab_a); fwht_norm<1024>(tab_a); }
-        }
-        auto           stop_x86_n = std::chrono::system_clock::now();
-        const bool     ok_x86_n   = are_equivalent(tab_i, tab_a, epsilon, size);
-        const uint64_t time_x86_n = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_x86_n - start_x86_n).count() / nTest;
-        if (ok_x86_n) {
-            printf(" - [GCCV] fwht_norm             \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_x86_n);
-        } else {
-            printf(" - [GCCV] fwht_norm             \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_x86_n);
-            if ( debug ) {
-                print_dataset(tab_i, size);
-                print_dataset(tab_a, size);
-            }
-        }
 
 		auto start_x86_template_direct = std::chrono::system_clock::now();
         for (int32_t loop = 0; loop < nTest; loop += 1) {
@@ -382,57 +352,6 @@ int main(int argc, char *argv[]) {
         }
 #endif
 
-#if defined(__ARM_NEON__)
-        auto start_i_neon_norm = std::chrono::system_clock::now();
-        memcpy(tab_a, tab_i, size * sizeof(float));
-        for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_norm_neon<   8>(tab_a); fwht_norm_neon<   8>(tab_a); }
-            if (size ==   16) { fwht_norm_neon<  16>(tab_a); fwht_norm_neon<  16>(tab_a); }
-            if (size ==   32) { fwht_norm_neon<  32>(tab_a); fwht_norm_neon<  32>(tab_a); }
-            if (size ==   64) { fwht_norm_neon<  64>(tab_a); fwht_norm_neon<  64>(tab_a); }
-            if (size ==  128) { fwht_norm_neon< 128>(tab_a); fwht_norm_neon< 128>(tab_a); }
-            if (size ==  256) { fwht_norm_neon< 256>(tab_a); fwht_norm_neon< 256>(tab_a); }
-            if (size ==  512) { fwht_norm_neon< 512>(tab_a); fwht_norm_neon< 512>(tab_a); }
-            if (size == 1024) { fwht_norm_neon<1024>(tab_a); fwht_norm_neon<1024>(tab_a); }
-        }
-        auto           stop_i_neon_norm = std::chrono::system_clock::now();
-        const bool     ok_neon_norm     = are_equivalent(tab_i, tab_a, epsilon, size);
-        const uint64_t time_neon_norm   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon_norm - start_i_neon_norm).count() / nTest;
-        if (ok_neon_norm) {
-            printf(" - [NEON] fwht_norm_neon        \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon_norm);
-        } else {
-            printf(" - [NEON] fwht_norm_neon        \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_neon_norm);
-            if ( debug ) {
-                print_dataset(tab_i, size);
-                print_dataset(tab_a, size);
-            }
-        }
-#endif
-
-
-#if 0 // THERE IS A BUG INSIDE ! defined(__ARM_NEON__)
-        auto start_i_neon_norm_v2 = std::chrono::system_clock::now();
-        memcpy(tab_a, tab_i, size * sizeof(float));
-        for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { lwht_norm_generic<   8>(tab_a); lwht_norm_generic<   8>(tab_a); }
-            if (size ==   16) { lwht_norm_generic<  16>(tab_a); lwht_norm_generic<  16>(tab_a); }
-            if (size ==   32) { lwht_norm_generic<  32>(tab_a); lwht_norm_generic<  32>(tab_a); }
-            if (size ==   64) { lwht_norm_generic<  64>(tab_a); lwht_norm_generic<  64>(tab_a); }
-            if (size ==  128) { lwht_norm_generic< 128>(tab_a); lwht_norm_generic< 128>(tab_a); }
-            if (size ==  256) { lwht_norm_generic< 256>(tab_a); lwht_norm_generic< 256>(tab_a); }
-            if (size ==  512) { lwht_norm_generic< 512>(tab_a); lwht_norm_generic< 512>(tab_a); }
-            if (size == 1024) { lwht_norm_generic<1024>(tab_a); lwht_norm_generic<1024>(tab_a); }
-        }
-        auto           stop_i_neon_norm_v2 = std::chrono::system_clock::now();
-        const bool     ok_neon_norm_v2     = are_equivalent(tab_i, tab_a, 0.002, size);
-        const uint64_t time_neon_norm_v2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_neon_norm_v2 - start_i_neon_norm_v2).count() / nTest;
-        if (ok_neon_norm_v2) {
-            printf(" - [NEON] fwht_norm_neo2 \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_neon_norm_v2);
-        } else {
-            printf(" - [NEON] fwht_norm_neo2 \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_neon_norm_v2);
-        }
-#endif
-
 #if defined(__AVX2__)
     {
         auto start_i_avx2 = std::chrono::system_clock::now();
@@ -454,35 +373,6 @@ int main(int argc, char *argv[]) {
             printf(" - [AVX2] fwht_avx2             \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
         } else {
             printf(" - [AVX2] fwht_avx2             \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
-            if ( debug ) {
-                print_dataset(tab_i, size);
-                print_dataset(tab_a, size);
-            }
-        }
-    }
-#endif
-
-#if defined(__AVX2__)
-    {
-        auto start_i_norm_avx2 = std::chrono::system_clock::now();
-        memcpy(tab_a, tab_i, size * sizeof(float));
-        for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_norm_avx2<   8>(tab_a); fwht_norm_avx2<   8>(tab_a); }
-            if (size ==   16) { fwht_norm_avx2<  16>(tab_a); fwht_norm_avx2<  16>(tab_a); }
-            if (size ==   32) { fwht_norm_avx2<  32>(tab_a); fwht_norm_avx2<  32>(tab_a); }
-            if (size ==   64) { fwht_norm_avx2<  64>(tab_a); fwht_norm_avx2<  64>(tab_a); }
-            if (size ==  128) { fwht_norm_avx2< 128>(tab_a); fwht_norm_avx2< 128>(tab_a); }
-            if (size ==  256) { fwht_norm_avx2< 256>(tab_a); fwht_norm_avx2< 256>(tab_a); }
-            if (size ==  512) { fwht_norm_avx2< 512>(tab_a); fwht_norm_avx2< 512>(tab_a); }
-            if (size == 1024) { fwht_norm_avx2<1024>(tab_a); fwht_norm_avx2<1024>(tab_a); }
-        }
-        auto           stop_i_norm_avx2 = std::chrono::system_clock::now();
-        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
-        const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
-        if (ok_norm_avx2) {
-            printf(" - [AVX2] fwht_norm_avx2        \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
-        } else {
-            printf(" - [AVX2] fwht_norm_avx2        \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
             if ( debug ) {
                 print_dataset(tab_i, size);
                 print_dataset(tab_a, size);
@@ -516,35 +406,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-#if defined(__AVX512F__)
-    {
-        auto start_i_norm_avx2 = std::chrono::system_clock::now();
-        memcpy(tab_a, tab_i, size * sizeof(float));
-        for (int32_t loop = 0; loop < nTest; loop += 1) {
-            if (size ==    8) { fwht_norm_avx512<   8>(tab_a); fwht_norm_avx512<   8>(tab_a); }
-            if (size ==   16) { fwht_norm_avx512<  16>(tab_a); fwht_norm_avx512<  16>(tab_a); }
-            if (size ==   32) { fwht_norm_avx512<  32>(tab_a); fwht_norm_avx512<  32>(tab_a); }
-            if (size ==   64) { fwht_norm_avx512<  64>(tab_a); fwht_norm_avx512<  64>(tab_a); }
-            if (size ==  128) { fwht_norm_avx512< 128>(tab_a); fwht_norm_avx512< 128>(tab_a); }
-            if (size ==  256) { fwht_norm_avx512< 256>(tab_a); fwht_norm_avx512< 256>(tab_a); }
-            if (size ==  512) { fwht_norm_avx512< 512>(tab_a); fwht_norm_avx512< 512>(tab_a); }
-            if (size == 1024) { fwht_norm_avx512<1024>(tab_a); fwht_norm_avx512<1024>(tab_a); }
-        }
-        auto           stop_i_norm_avx2 = std::chrono::system_clock::now();
-        const bool     ok_norm_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
-        const uint64_t time_norm_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_norm_avx2 - start_i_norm_avx2).count() / nTest;
-        if (ok_norm_avx2) {
-            printf(" - [AVX2] fwht_norm_avx5x\033[32mOK\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
-        } else {
-            printf(" - [AVX2] fwht_norm_avx5x\033[31mKO\033[0m [%5d ns]\n", (int32_t) time_norm_avx2);
-        }
-    }
-#endif
-
         memcpy(tab_o_fx, tab_i_fx, size * sizeof(int32_t));
-        //printf("Input values :");
-        //print_dataset(tab_i_fx, size);
-        //printf("Processed values :");
         auto start_fx_x86 = std::chrono::system_clock::now();
         for (int32_t loop = 0; loop < nTest; loop += 1) {
             if (size ==    8) { fwht<   8>(tab_o_fx); fwht<   8>(tab_o_fx); scale<   8>(tab_o_fx,    8); }
@@ -558,8 +420,6 @@ int main(int argc, char *argv[]) {
         }
         auto     stop_fx_x86 = std::chrono::system_clock::now();
         uint64_t time_fx_x86 = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_fx_x86 - start_fx_x86).count() / nTest;
-        //printf("Ouput values :");
-        //print_dataset(tab_o_fx, size);
 
         bool ok_fx_x86   = are_equivalent(tab_i_fx, tab_o_fx, epsilon, size);
         if (ok_fx_x86) {

@@ -40,10 +40,10 @@ void g_function_freq_in(
         for (size_t i = 0; i < gf_size; i++)
             dst[s].value[i] = src_a[s].value[i] * Hadamard[idx][i];
 
-        FWHT_NORM<gf_size>(dst[s].value);
+        FWHT<gf_size>(dst[s].value);
         dst[s].is_freq = false;
 
-        FWHT_NORM<gf_size>(src_b[s].value);
+        FWHT<gf_size>(src_b[s].value);
         src_b[s].is_freq = false;
 
         for (size_t i = 0; i < gf_size; i++)
@@ -73,10 +73,10 @@ inline __attribute__((always_inline)) void g_function_freq_in(
         for (size_t i = 0; i < gf_size; i++)
             dst[s].value[i] = src_a[s].value[i] * Hadamard[idx][i];
 
-        FWHT_NORM<gf_size>(dst[s].value);
+        FWHT<gf_size>(dst[s].value);
         dst[s].is_freq = false;
 
-        FWHT_NORM<gf_size>(src_b[s].value);
+        FWHT<gf_size>(src_b[s].value);
         src_b[s].is_freq = false;
 
         for (size_t i = 0; i < gf_size; i++)
@@ -101,10 +101,10 @@ inline __attribute__((always_inline)) void g_function_freq_in_after_rate_0(
 {
     for (int s = 0; s < n_symbols; s++)
     {
-        FWHT_NORM<gf_size>(src_a[s].value);
+        FWHT<gf_size>(src_a[s].value);
         src_a[s].is_freq = false;
 
-        FWHT_NORM<gf_size>(src_b[s].value);
+        FWHT<gf_size>(src_b[s].value);
         src_b[s].is_freq = false;
 
         for (int i = 0; i < gf_size; i++)

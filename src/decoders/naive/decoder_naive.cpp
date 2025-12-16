@@ -141,7 +141,7 @@ template <int gf_size> void decoder_naive<gf_size>::leaf_node(
     }
 
     if (var->is_freq) {
-        FWHT_NORM<gf_size>(var->value);
+        FWHT<gf_size>(var->value);
         var->is_freq = false;
     }
 

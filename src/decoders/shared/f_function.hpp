@@ -8,13 +8,13 @@ void f_function(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbol
 {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
-        FWHT_NORM<gf_size>(src_a->value);
+        FWHT<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
 
     if (src_b->is_freq == false) // Switch from time to frequency domain
     {
-        FWHT_NORM<gf_size>(src_b->value);
+        FWHT<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
 

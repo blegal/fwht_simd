@@ -24,14 +24,14 @@ void f_function_proba_in(
         for (int i = 0; i < gf_size; i++)
             tmp_a.value[i] = src_a[s].value[i];
 
-        FWHT_NORM<gf_size>(tmp_a.value);
+        FWHT<gf_size>(tmp_a.value);
         tmp_a.is_freq = true;
 
         symbols_t tmp_b;
         for (int i = 0; i < gf_size; i++)
             tmp_b.value[i] = src_b[s].value[i];
 
-        FWHT_NORM<gf_size>(tmp_b.value);
+        FWHT<gf_size>(tmp_b.value);
         tmp_b.is_freq = true;
 
         //
@@ -62,14 +62,14 @@ inline __attribute__((always_inline)) void f_function_proba_in(
         for (int i = 0; i < gf_size; i++)
             tmp_a.value[i] = src_a[s].value[i];
 
-        FWHT_NORM<gf_size>(tmp_a.value);
+        FWHT<gf_size>(tmp_a.value);
         tmp_a.is_freq = true;
 
         symbols_t tmp_b;
         for (int i = 0; i < gf_size; i++)
             tmp_b.value[i] = src_b[s].value[i];
 
-        FWHT_NORM<gf_size>(tmp_b.value);
+        FWHT<gf_size>(tmp_b.value);
         tmp_b.is_freq = true;
 
         //
