@@ -110,6 +110,9 @@ int main(int argc, char * argv[]) {
         } else if (std::string(argv[i]) == "--time") {
             const int sec = std::atoi(argv[i + 1]);
             run_time      = sec * 1000ms;
+            if ( run_time <= 0ms ) {
+                testing_only = true;
+            }
             i += 1;
         }
     }
@@ -156,6 +159,8 @@ int main(int argc, char * argv[]) {
               << std::put_time(std::localtime(&t), "%c %Z") << '\n';
     printf("#(II)\n");
 #endif
+
+    const int   icode_rate = (int) (100.f * code_rate);
 
     std::cout << "#(II) Polar code parameters" << std::endl;
     std::cout << "#(II) ---------------------" << std::endl;
@@ -385,6 +390,7 @@ int main(int argc, char * argv[]) {
     }
 
     if ( testing_only == true ) {
+        printf("%4d %4d %4d %4d %7.2f %7.2f %5d\n", N, K, icode_rate, GF, 0.f, 0.f, 0);
         if (nErrors != 0)
             return EXIT_FAILURE;
         return EXIT_SUCCESS;
@@ -524,7 +530,6 @@ int main(int argc, char * argv[]) {
         printf("#(II) Coded through .: %1.3f Mbps\n", debit);
         printf("#(II)\n");
 
-        const int   icode_rate = (int) (100.f * code_rate);
         const float debit_info =       (debit * code_rate);
         printf("%4d %4d %4d %4d %7.2f %7.2f %5d\n", N, K, icode_rate, GF, debit,
                debit_info, (int) time_run);
