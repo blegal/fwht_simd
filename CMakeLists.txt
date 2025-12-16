@@ -11,10 +11,15 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
 option (SANITIZE_DECODERS "Add sanitization values" OFF)
+option (DISABLE_FWHT_NORM OFF)
 
 if (SANITIZE_DECODERS)
 	set (SANITIZE_CXXFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
 	set (SANITIZE_LDFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
+endif ()
+
+if (DISABLE_FWHT_NORM)
+	add_compile_definitions (DISABLE_FWHT_NORM=1)
 endif ()
 
 #SET (CMAKE_C_COMPILER   /opt/homebrew/opt/llvm/bin/clang)     # LLVM 21.1.7
