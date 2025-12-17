@@ -5,15 +5,13 @@
 #include "i_type.hpp"
 
 template <uint32_t gf_size>
-void f_function(symbols_i * __restrict dst, symbols_i * __restrict src_a, symbols_i * __restrict src_b)
-{
+void f_function(symbols_i * __restrict dst, symbols_i * __restrict src_a, symbols_i * __restrict src_b) {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
         fwht<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
-    if (src_b->is_freq == false)
-    {
+    if (src_b->is_freq == false) {
         fwht<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
@@ -21,7 +19,7 @@ void f_function(symbols_i * __restrict dst, symbols_i * __restrict src_a, symbol
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
     for (size_t i = 0; i < gf_size; i++) {
-        dst->value[i] =  src_a->value[i] * src_b->value[i];
+        dst->value[i] = src_a->value[i] * src_b->value[i];
     }
     dst->is_freq = true;
 }
