@@ -142,15 +142,15 @@ void decoder_basic<gf_size>::f_function_proba_only(symbols_t * __restrict dst, s
     symbols_t tmp_a = *src_a;
     symbols_t tmp_b = *src_b;
 
-    FWHT_NORM<gf_size>(tmp_a.value);
-    FWHT_NORM<gf_size>(tmp_b.value);
+    FWHT<gf_size>(tmp_a.value);
+    FWHT<gf_size>(tmp_b.value);
 
     for (size_t i = 0; i < gf_size; i++)
     {
         dst->value[i] = tmp_a.value[i] * tmp_b.value[i];
     }
 
-    FWHT_NORM<gf_size>(dst->value);
+    FWHT<gf_size>(dst->value);
     normalize<gf_size>(dst->value);
     dst->is_freq = false;
 }
