@@ -11,14 +11,14 @@
 //
 //
 template <int gf_size>
-symbols_cf conversion(const symbols_t s)
+symbols_cf conversion(const symbols_s<gf_size> s)
 {
     symbols_cf f;
     for (int i = 0; i < gf_size; i++)
     {
         f.value[i] = s.value[i];
     }
-    f.is_freq = s.is_freq;
+    f.is_freq = false;
     return f;
 }
 //
@@ -68,8 +68,9 @@ template <int gf_size> decoder_naive_cfloat<gf_size>::~decoder_naive_cfloat()
     delete[] f_internal;
 }
 
-template <int gf_size> void decoder_naive_cfloat<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+template <int gf_size> void decoder_naive_cfloat<gf_size>::execute(void* s_channel, uint16_t *  decoded)
 {
+    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
     const int n = N / 2; // Assuming size is the number of symbols
     //
     //
@@ -77,6 +78,7 @@ template <int gf_size> void decoder_naive_cfloat<gf_size>::execute(symbols_t * c
     for (int i = 0; i < N; i++) {
         f_channel[i] = conversion<gf_size>(channel[i]);
     }
+
     //
     //
     //

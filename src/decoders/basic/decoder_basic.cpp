@@ -1,6 +1,4 @@
 #include "decoder_basic.hpp"
-#include "decoders/shared/f_function.hpp"
-#include "decoders/shared/g_function.hpp"
 //
 //
 //
@@ -9,7 +7,7 @@
 template <int gf_size>
 decoder_basic<gf_size>::decoder_basic(const int n, const int* frozen_symb ) : N(n)
 {
-    internal = new symbols_t[N];
+    internal = new symbols_s<gf_size>[N];
     symbols  = new uint16_t [N];
     frozen   = new uint32_t [N];
 
@@ -48,8 +46,9 @@ template <int gf_size> decoder_basic<gf_size>::~decoder_basic()
 //
 //
 template <int gf_size>
-void decoder_basic<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+void decoder_basic<gf_size>::execute(void* s_channel, uint16_t *  decoded)
 {
+    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
     const int n = N / 2; // Assuming size is the number of symbols
     //
     for (int i = 0; i < n; i++) {
@@ -73,8 +72,8 @@ void decoder_basic<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
 //
 //
 template <int gf_size> void decoder_basic<gf_size>::middle_node(
-    symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_t * internal, // Internal nodes are the symbols computed during the process (to the left)
+    symbols_s<gf_size> * inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_s<gf_size> * internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int         size,     // Size is the number of symbols (should be a power of 2)
@@ -114,7 +113,7 @@ template <int gf_size> void decoder_basic<gf_size>::middle_node(
 //
 template <int gf_size>
 void decoder_basic<gf_size>::leaf_node(
-    symbols_t * var,
+    symbols_s<gf_size> * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
     const int   symbol_id) {
@@ -137,10 +136,10 @@ void decoder_basic<gf_size>::leaf_node(
 //
 //
 template <int gf_size>
-void decoder_basic<gf_size>::f_function_proba_only(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbols_t * __restrict src_b)
+void decoder_basic<gf_size>::f_function_proba_only(symbols_s<gf_size> * __restrict dst, symbols_s<gf_size> * __restrict src_a, symbols_s<gf_size> * __restrict src_b)
 {
-    symbols_t tmp_a = *src_a;
-    symbols_t tmp_b = *src_b;
+    symbols_s<gf_size> tmp_a = *src_a;
+    symbols_s<gf_size> tmp_b = *src_b;
 
     FWHT<gf_size>(tmp_a.value);
     FWHT<gf_size>(tmp_b.value);
@@ -152,7 +151,6 @@ void decoder_basic<gf_size>::f_function_proba_only(symbols_t * __restrict dst, s
 
     FWHT<gf_size>(dst->value);
     normalize<gf_size>(dst->value);
-    dst->is_freq = false;
 }
 //
 //
@@ -161,9 +159,9 @@ void decoder_basic<gf_size>::f_function_proba_only(symbols_t * __restrict dst, s
 //
 template <int gf_size>
 void decoder_basic<gf_size>::g_function_proba_only(
-    symbols_t * __restrict dst,   // the data to be computed for the left side of the graph
-    symbols_t * __restrict src_a, // the upper value set from the right side of the graph
-    symbols_t * __restrict src_b, // the lower value set from the right side of the graph
+    symbols_s<gf_size> * __restrict dst,   // the data to be computed for the left side of the graph
+    symbols_s<gf_size> * __restrict src_a, // the upper value set from the right side of the graph
+    symbols_s<gf_size> * __restrict src_b, // the lower value set from the right side of the graph
     uint32_t src_c)               // the computed symbols coming from the left side of the graph
 {
     for (size_t i = 0; i < gf_size; i++)
@@ -171,7 +169,6 @@ void decoder_basic<gf_size>::g_function_proba_only(
         const int idx   = src_c ^ i;
         dst->value[idx] = src_a->value[i];
     }
-    dst->is_freq = false;
 
     for (size_t i = 0; i < gf_size; i++)
     {
@@ -179,7 +176,6 @@ void decoder_basic<gf_size>::g_function_proba_only(
     }
 
     normalize<gf_size>(dst->value); // temporal
-    dst->is_freq = false;
 }
 //
 //

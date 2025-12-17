@@ -9,7 +9,7 @@ extern void       remove_xors(uint16_t * values, int size);
 
 template <int gf_size>
 void decoder_specialized_pruning<gf_size>::middle_node_pruned_spc_after_f(
-    symbols_t * __restrict inputs,  // Inputs are the symbols from the channel (from the right)
+    symbols_s<gf_size> * __restrict inputs,  // Inputs are the symbols from the channel (from the right)
     uint16_t * __restrict decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t * __restrict symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int        size,     // Size is the number of symbols (should be a power of 2)
@@ -18,16 +18,6 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_spc_after_f(
     //
     for(int i = 0; i < size; i++) {
         FWHT<gf_size>(inputs[i].value);
-        inputs[i].is_freq = false;
-    }
-    //
-    for(int i = 0; i < size; i++)
-    {
-        if ( inputs[i].is_freq == true ) {
-            FWHT<gf_size>( inputs[i].value );
-            inputs[i].is_freq = false;
-            normalize<gf_size>(inputs[i].value);
-        }
     }
     //
     int check_node = 0;

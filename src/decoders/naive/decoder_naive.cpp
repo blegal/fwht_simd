@@ -1,6 +1,6 @@
 #include "decoder_naive.hpp"
-#include "decoders/shared/f_function.hpp"
-#include "decoders/shared/g_function.hpp"
+#include "f_function.hpp"
+#include "g_function.hpp"
 //
 //
 //
@@ -9,6 +9,7 @@
 template <int gf_size>
 decoder_naive<gf_size>::decoder_naive(const int n, const int* frozen_symb ) : N(n)
 {
+    channel  = new symbols_t[N];
     internal = new symbols_t[N];
     symbols  = new uint16_t [N];
     frozen   = new uint32_t [N];
@@ -38,13 +39,18 @@ template <int gf_size> decoder_naive<gf_size>::decoder_naive() : N(0)
 //
 template <int gf_size> decoder_naive<gf_size>::~decoder_naive()
 {
+    delete[]channel;
     delete[]internal;
     delete[]symbols;
     delete[]frozen;
 }
 
-template <int gf_size> void decoder_naive<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+template <int gf_size> void decoder_naive<gf_size>::execute(void* s_channel, uint16_t *  decoded)
 {
+    symbols_s<gf_size>* i_channel = static_cast< symbols_s<gf_size>* >(s_channel);
+    for (int i = 0; i < N; i++) {
+        channel[i] = convert_to_symbols_t(i_channel[i].value, gf_size, false);
+    }
     const int n = N / 2; // Assuming size is the number of symbols
     //
     //

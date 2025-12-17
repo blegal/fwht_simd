@@ -4,17 +4,17 @@
 
 template <int gf_size>
 void middle_node_pruned_rep_after_f(
-    symbols_t * __restrict inputs, // Inputs are the symbols from the channel (from the right)
-    symbols_t *,                   // Internal nodes are the symbols computed during the process (to the left)
-    uint16_t * __restrict decoded, // Decoded symbols are the final output of the decoder (done on the left)
-    uint16_t * __restrict symbols, // Symbols are the ones going from leafs to root (done on the left)
-    int       size,                // Size is the number of symbols (should be a power of 2)
-    const int symbol_id            // Symbol ID is the index of the FIRST symbol in the symbols array
+
+    symbols_s<gf_size> * __restrict inputs, // Inputs are the symbols from the channel (from the right)
+    symbols_s<gf_size> *,                   // Internal nodes are the symbols computed during the process (to the left)
+    uint16_t * __restrict decoded,          // Decoded symbols are the final output of the decoder (done on the left)
+    uint16_t * __restrict symbols,          // Symbols are the ones going from leafs to root (done on the left)
+    int       size,                         // Size is the number of symbols (should be a power of 2)
+    const int symbol_id                     // Symbol ID is the index of the FIRST symbol in the symbols array
 ) {
     for (int i = 0; i < size; i++) {
         FWHT<gf_size>(inputs[i].value);
         normalize<gf_size>(inputs[i].value);
-        inputs[i].is_freq = false;
     }
 
     float temp[gf_size];

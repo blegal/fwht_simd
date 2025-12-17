@@ -9,7 +9,7 @@ template <int gf_size>
 decoder_specialized_pruning<gf_size>::decoder_specialized_pruning(const int n, const int* frozen_symb)
     : N(n), f_tree_cnt(0), f_tree(nullptr), pruned_tree(_N_)
 {
-    internal = new symbols_t[N];
+    internal = new symbols_s<gf_size>[N];
     symbols  = new uint16_t [N];
     frozen   = new int      [N];
 
@@ -59,8 +59,9 @@ decoder_specialized_pruning<gf_size>::~decoder_specialized_pruning()
 #include "decoders/specialized_pruning/middle_node_pruned_spc_after_g.hpp" // IWYU pragma: keep
 
 template <int gf_size>
-void decoder_specialized_pruning<gf_size>::execute(symbols_t * channel, uint16_t * decoded)
+void decoder_specialized_pruning<gf_size>::execute(void* s_channel, uint16_t * decoded)
 {
+    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
     f_tree_cnt = 0;
 
     const int n = N / 2; // Assuming size is the number of symbols

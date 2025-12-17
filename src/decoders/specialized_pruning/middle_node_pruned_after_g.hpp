@@ -9,8 +9,8 @@
 
 template <int gf_size>
 void decoder_specialized_pruning<gf_size>::middle_node_pruned_after_g(
-    symbols_t * __restrict inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_t * __restrict internal, // Internal nodes are the symbols computed during the process (to the left)
+    symbols_s<gf_size> * __restrict inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_s<gf_size> * __restrict internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *  __restrict decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t *  __restrict symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int         size,     // Size is the number of symbols (should be a power of 2)

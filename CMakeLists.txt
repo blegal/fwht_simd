@@ -11,15 +11,10 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
 option (SANITIZE_DECODERS "Add sanitization values" OFF)
-option (DISABLE_FWHT_NORM OFF)
 
 if (SANITIZE_DECODERS)
 	set (SANITIZE_CXXFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
 	set (SANITIZE_LDFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
-endif ()
-
-if (DISABLE_FWHT_NORM)
-	add_compile_definitions (DISABLE_FWHT_NORM=1)
 endif ()
 
 #SET (CMAKE_C_COMPILER   /opt/homebrew/opt/llvm/bin/clang)     # LLVM 21.1.7
@@ -67,13 +62,11 @@ add_executable(benchmarking
         src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
         src/decoders/specialized/decoder_specialized.cpp
         src/decoders/dedicated/decoder_dedicated.cpp
-        src/decoders/nb_sc_decoder/nb_sc_decoder.cpp
         src/decoders/naive/decoder_naive.cpp
         src/decoders/basic/decoder_basic.cpp
         src/decoders/naive_fixed/decoder_naive_fixed.cpp
 #	
         src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
-        src/decoders/naive_pruning/decoder_naive_pruning.cpp
         src/encoder/polar_encoder.cpp
 )
 target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
@@ -106,11 +99,11 @@ add_subdirectory (src)
 
 #######################################################################################################################################
 
-add_library(NbScFFTdec SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/apps/LibNbScFFTdec.cpp
-    src/encoder/polar_encoder.cpp
-)
-target_include_directories (NbScFFTdec PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries      (NbScFFTdec PUBLIC utilities)
+#add_library(NbScFFTdec SHARED
+#    ${CMAKE_CURRENT_SOURCE_DIR}/apps/LibNbScFFTdec.cpp
+#    src/encoder/polar_encoder.cpp
+#)
+#target_include_directories (NbScFFTdec PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+#target_link_libraries      (NbScFFTdec PUBLIC utilities)
 
 #######################################################################################################################################

@@ -12,7 +12,7 @@
 //
 template <int gf_size> inline __attribute__((always_inline))
 void leaf_node_after_f(
-    symbols_t * __restrict var,
+    symbols_s<gf_size> * __restrict var,
     uint16_t *  __restrict decoded,
     uint16_t *  __restrict symbols,
     const int symbol_id,

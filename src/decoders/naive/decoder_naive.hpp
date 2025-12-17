@@ -7,13 +7,13 @@
 //
 //
 template <int gf_size>
-class decoder_naive : public decoder {
+class decoder_naive : public decoder<gf_size> {
 public:
     decoder_naive();
     decoder_naive(const int n, const int* frozen_symb);
     ~decoder_naive();
 
-    void execute(symbols_t * channel, uint16_t *  decoded);
+    void execute(void* channel, uint16_t *  decoded);
 private:
 
     void middle_node(
@@ -30,6 +30,7 @@ private:
         uint16_t *  symbols,
         const int   symbol_id);
 
+    symbols_t* channel;
     symbols_t* internal;
     uint16_t*  symbols;
     uint32_t*  frozen;

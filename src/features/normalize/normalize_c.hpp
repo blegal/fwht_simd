@@ -59,9 +59,7 @@ void normalize(int32_t* tab)
     uint32_t sum = 0;
     for (int i = 0; i < gf_size; i += 1)
     {
-        const int32_t value = tab[i];
-        const int32_t absol = (value > 0) ? value : -value;
-        sum |= absol;
+        sum |= tab[i];
     }
 
     const int nZeros = countLeadingZeros(sum);

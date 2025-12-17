@@ -12,7 +12,7 @@
 struct symbols_cf
 {
     flx::floatx<N_EXPO, N_MANT> value[_GF_];
-    bool                        is_freq;
+    bool is_freq;
 };
 //
 //
