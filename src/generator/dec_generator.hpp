@@ -68,7 +68,7 @@ public:
             K_value += (frozen[i] == false);
         }
 
-        ofile.open("BLG/src/decoders/dedicated/dedicated_execute.hpp");
+        ofile.open("../src/decoders/dedicated/dedicated_execute.hpp");
 
         ofile << "#pragma once" << std::endl;
         ofile << std::endl;
