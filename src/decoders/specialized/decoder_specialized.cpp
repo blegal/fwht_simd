@@ -15,7 +15,7 @@ decoder_specialized<gf_size>::decoder_specialized(
     const int n,
     const int* frozen_symb ) : N(n)
 {
-    internal = new symbols_t[N];
+    internal = new symbols_s<gf_size>[N];
     symbols  = new uint16_t [N];
     frozen   = new uint32_t [N];
 
@@ -47,8 +47,9 @@ decoder_specialized<gf_size>::~decoder_specialized()
 }
 
 template <int gf_size>
-void decoder_specialized<gf_size>::execute(symbols_t* channel, uint16_t*  decoded)
+void decoder_specialized<gf_size>::execute(void* s_channel, uint16_t*  decoded)
 {
+    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
     const int n = N / 2;
     //
     //

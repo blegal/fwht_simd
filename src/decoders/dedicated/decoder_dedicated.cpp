@@ -8,7 +8,7 @@
 template <int gf_size>
 decoder_dedicated<gf_size>::decoder_dedicated(const int n, const int* frozen_symb)
 {
-    internal = new symbols_t[n];
+    internal = new symbols_s<gf_size>[n];
     symbols  = new uint16_t [n];
 
     int sum = 0;

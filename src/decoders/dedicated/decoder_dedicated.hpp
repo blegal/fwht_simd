@@ -5,16 +5,16 @@
 #include <vector>
 
 template <int gf_size>
-class decoder_dedicated : public decoder {
+class decoder_dedicated : public decoder<gf_size> {
 public:
     decoder_dedicated();
     decoder_dedicated(const int n, const int* frozen_symb);
     virtual ~decoder_dedicated();
 
-    void execute(symbols_t * channel, uint16_t* decoded);
+    void execute(void* channel, uint16_t* decoded);
 
 private:
-    symbols_t* internal;
+    symbols_s<gf_size>* internal;
     uint16_t*  symbols;
 //    int*       frozen;
 

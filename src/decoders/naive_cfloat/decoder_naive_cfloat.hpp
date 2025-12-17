@@ -9,13 +9,13 @@
 #include "cf_type.hpp"
 //
 template <int gf_size>
-class decoder_naive_cfloat : public decoder {
+class decoder_naive_cfloat : public decoder<gf_size> {
 public:
     decoder_naive_cfloat();
     decoder_naive_cfloat(const int n, const int* frozen_symb);
     ~decoder_naive_cfloat();
 
-    void execute(symbols_t * channel, uint16_t *  decoded);
+    void execute(void* channel, uint16_t *  decoded);
 private:
 
     void middle_node(

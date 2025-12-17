@@ -73,22 +73,18 @@ public:
 
         ofile << "#pragma once" << std::endl;
         ofile << std::endl;
-        ofile << "#include \"f_function_freq_in.hpp\"" << std::endl;
-        ofile << "#include \"f_function_proba_in.hpp\"" << std::endl;
-        ofile << "#include \"g_function_freq_in.hpp\"" << std::endl;
-        ofile << "#include \"g_function_proba_in.hpp\"" << std::endl;
         ofile << "#include \"decoder_dedicated.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_rep_after_f.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_rep_after_g.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_rate_0.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_rate_1_after_f.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_rate_1_after_g.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_spc_after_f.hpp\"" << std::endl;
-        ofile << "#include \"middle_node_pruned_spc_after_g.hpp\"" << std::endl;
+        ofile << "#include \"impl/f_function.hpp\"" << std::endl;
+        ofile << "#include \"impl/g_function.hpp\"" << std::endl;
+        ofile << "#include \"impl/node_rate_0.hpp\"" << std::endl;
+        ofile << "#include \"impl/node_rate_1.hpp\"" << std::endl;
+        ofile << "#include \"impl/node_rep.hpp\"" << std::endl;
+        ofile << "#include \"impl/node_spc.hpp\"" << std::endl;
         ofile << std::endl;
         ofile << "template <int gf_size>" << std::endl;
-        ofile << "void decoder_dedicated<gf_size>::execute(symbols_t * channel, uint16_t * decoded)" << std::endl;
+        ofile << "void decoder_dedicated<gf_size>::execute(void* s_channel, uint16_t * decoded)" << std::endl;
         ofile << "{" << std::endl;
+        ofile << "        symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);" << std::endl;
 
         const int n_elmnt = execute(frozen, 0, next_node_status.data(), 0, size);
         next_node_status.resize(n_elmnt);

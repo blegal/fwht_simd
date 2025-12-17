@@ -11,14 +11,14 @@
 //
 //
 template <int gf_size>
-symbols_f conversion(const symbols_t s)
+symbols_f conversion(const symbols_s<gf_size> s)
 {
     symbols_f f;
     for (int i = 0; i < gf_size; i++)
     {
         f.value[i] = s.value[i];
     }
-    f.is_freq = s.is_freq;
+    f.is_freq = false;
     return f;
 }
 //
@@ -31,10 +31,8 @@ decoder_naive_fixed<gf_size>::decoder_naive_fixed(const int n, const int* frozen
 {
     symbols    = new uint16_t[N];
     frozen     = new uint32_t[N];
-
     f_channel  = new symbols_f[N];
     f_internal = new symbols_f[N];
-
     for (int i = 0; i < N; i++)
     {
         frozen[i] = frozen_symb[i];
@@ -63,46 +61,33 @@ template <int gf_size> decoder_naive_fixed<gf_size>::~decoder_naive_fixed()
 {
     delete[] symbols;
     delete[] frozen;
-
     delete[] f_channel;
     delete[] f_internal;
 }
 
-template <int gf_size> void decoder_naive_fixed<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+template <int gf_size> void decoder_naive_fixed<gf_size>::execute(void* s_channel, uint16_t *  decoded)
 {
+    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
+
     const int n = N / 2; // Assuming size is the number of symbols
-    //
-    //
     //
     for (int i = 0; i < N; i++) {
         f_channel[i] = conversion<gf_size>(channel[i]);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         f_function<gf_size>(f_internal + i, f_channel + i, f_channel + n + i);
     }
     //
-    //
-    //
     middle_node(f_internal, f_internal + n, decoded, symbols, n, 0); // On descend à gauche
-    //
-    //
     //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(f_internal + i, f_channel + i, f_channel + n + i, symbols[i]);
     }
     //
-    //
-    //
     middle_node(f_internal, f_internal + n, decoded, symbols, n, n); // On descend à droite
     //
-    //
-    //
     // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    //
     //
 }
 //
