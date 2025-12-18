@@ -28,7 +28,6 @@
 
 #if defined(__AVX512F__)
     #include "features/fwht/fwht_avx512.hpp"
-    #include "features/fwht/fwht_norm_avx512.hpp"
 #endif
 
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
