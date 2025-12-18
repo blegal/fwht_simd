@@ -1,31 +1,32 @@
 #pragma once
 
-#include "cf_argmax.hpp"
-#include "cf_fwht_norm.hpp"
-#include "cf_normalize.hpp"
+#include "../i_type.hpp"
+#include "../arch/i_argmax.hpp"
+#include "../arch/i_fwht_norm.hpp"
+#include "../i_normalize.hpp"
 
 //#define _TEST_
 
 template <int gf_size>
 void g_function(
-    symbols_cf * __restrict dst,   // the data to be computed for the left side of the graph
-    symbols_cf * __restrict src_a, // the upper value set from the right side of the graph
-    symbols_cf * __restrict src_b, // the lower value set from the right side of the graph
+    symbols_i * __restrict dst,   // the data to be computed for the left side of the graph
+    symbols_i * __restrict src_a, // the upper value set from the right side of the graph
+    symbols_i * __restrict src_b, // the lower value set from the right side of the graph
     uint32_t    src_c)            // the computed symbols coming from the left side of the graph
 {
     if (src_a->is_freq == true)
     {
         const float factor = norm_factor_lwht<gf_size>();
-        f_normalize<gf_size>(src_a->value, factor);
-        f_normalize<gf_size>(src_a->value, factor);
+        i_normalize<gf_size>(src_a->value, factor);
+        i_normalize<gf_size>(src_a->value, factor);
         fwht       <gf_size>(src_a->value);
         src_a->is_freq = false;
     }
 
     if (src_b->is_freq == true) {
         const float factor = norm_factor_lwht<gf_size>();
-        f_normalize<gf_size>(src_b->value, factor);
-        f_normalize<gf_size>(src_b->value, factor);
+        i_normalize<gf_size>(src_b->value, factor);
+        i_normalize<gf_size>(src_b->value, factor);
         fwht       <gf_size>(src_b->value);
         src_b->is_freq = false;
     }
@@ -36,7 +37,7 @@ void g_function(
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
 //      tt.value[i] = float(src_a->value[i]);
     }
-    f_normalize<gf_size>(dst->value); // temporal
+    i_normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
 }
 //

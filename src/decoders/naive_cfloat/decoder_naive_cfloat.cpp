@@ -1,10 +1,8 @@
 #include "decoder_naive_cfloat.hpp"
-#include "f_function.hpp"
-#include "g_function.hpp"
-#include "cf_argmax.hpp"
-#include "cf_normalize.hpp"
-#include "cf_fwht.hpp"
-#include "cf_fwht_norm.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
+#include "arch/cf_argmax.hpp"
+#include "arch/cf_normalize.hpp"
 //
 //
 //
