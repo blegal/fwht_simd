@@ -3,8 +3,7 @@
 #include "decoder_specialized.hpp"
 #include "decoders/shared/f_function_freq_in.hpp"
 #include "decoders/shared/g_function_freq_in.hpp"
-#include "decoders/shared/leaf_node_after_f.hpp"
-#include "decoders/shared/leaf_node_after_g.hpp"
+#include "../specialized_pruning/impl/node_leaf.hpp"
 
 template <int gf_size>
 void decoder_specialized<gf_size>::middle_node_after_f(

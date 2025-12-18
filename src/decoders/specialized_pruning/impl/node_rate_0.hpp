@@ -1,7 +1,15 @@
 #pragma once
-
-#include "decoder_specialized_pruning.hpp"
-
+//
+//
+//
+//
+//
+#include "../decoder_specialized_pruning.hpp"
+//
+//
+//
+//
+//
 template <int gf_size>
 inline __attribute__((always_inline)) void decoder_specialized_pruning<gf_size>::middle_node_pruned_rate_0(
     symbols_s<gf_size> *,         // Inputs are the symbols from the channel (from the right)
@@ -16,3 +24,8 @@ inline __attribute__((always_inline)) void decoder_specialized_pruning<gf_size>:
         decoded[symbol_id + i] = 0;
     }
 }
+//
+//
+//
+//
+//
