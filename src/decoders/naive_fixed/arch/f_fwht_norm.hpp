@@ -19,12 +19,8 @@
 */
 #pragma once
 #include <cassert>
-#include <cmath>
 #include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include "f_type.hpp"
+#include "../f_type.hpp"
 
 //
 //

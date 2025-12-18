@@ -1,10 +1,10 @@
 #include "decoder_naive_int32_t.hpp"
-#include "f_function.hpp"
-#include "g_function.hpp"
-#include "i_argmax.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
+#include "arch/i_argmax.hpp"
 #include "i_normalize.hpp"
 #include "i_fwht.hpp"
-#include "i_fwht_norm.hpp"
+#include "arch/i_fwht_norm.hpp"
 //
 //
 //

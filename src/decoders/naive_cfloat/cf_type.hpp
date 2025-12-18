@@ -34,7 +34,3 @@ inline float is_issue(const flx::floatx<N_EXPO, N_MANT> * value)
 //
 //
 //
-#include "cf_argmax.hpp"
-#include "cf_fwht.hpp"
-#include "cf_fwht_norm.hpp"
-#include "cf_normalize.hpp"
