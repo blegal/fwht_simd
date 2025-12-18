@@ -191,7 +191,7 @@ private:
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (f) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "f_function_proba_in<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "f_function_proba_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
             }
         }
 
@@ -213,7 +213,7 @@ private:
                     printf("\e[1;31m LEAF_RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen,
                            n);
                 }
-                ofile << "\t" << "leaf_node_rate_0<" << GF << ">(decoded + " << curr_frozen << ", symbols + " << curr_frozen << ");" << std::endl;
+                ofile << "\t" << "leaf_node_rate_0<gf_size>(decoded + " << curr_frozen << ", symbols + " << curr_frozen << ");" << std::endl;
                 array[curr_elmnt] = LEAF_RATE_0;
             } else {
                 if (verbose) {
@@ -222,7 +222,7 @@ private:
                     indentation(level);
                     printf("\e[1;31m RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
-                ofile << "\t" << "middle_node_pruned_rate_0<" << GF << ">(decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rate_0<gf_size>(decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
                 array[curr_elmnt] = RATE_0;
             }
             next_elmnt = curr_elmnt + 1;
@@ -237,7 +237,7 @@ private:
                     indentation(level);
                     printf("\e[1;31m LEAF_RATE_1_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
-                ofile << "\t" << "leaf_node_after_f<" << GF << ">(internal + " << p_llrs << ", p_llrs + size + " << curr_frozen << ", symbols + " << curr_frozen << ");" << std::endl;
+                ofile << "\t" << "leaf_node_after_f<gf_size>(internal + " << p_llrs << ", p_llrs + size + " << curr_frozen << ", symbols + " << curr_frozen << ");" << std::endl;
                 array[curr_elmnt] = LEAF_RATE_1_FROM_F;
             } else {
                 if (verbose) {
@@ -246,7 +246,7 @@ private:
                     indentation(level);
                     printf("\e[1;31m RATE_1_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
-                ofile << "\t" << "middle_node_pruned_rate_1_after_f<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rate_1_after_f<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
                 array[curr_elmnt] = RATE_1_FROM_F;
             }
             next_elmnt = curr_elmnt + 1;
@@ -261,9 +261,9 @@ private:
                 printf("\e[1;31m REP_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
             }
             if (level == 1)
-                ofile << "\t" << "middle_node_pruned_rep_after_f<" << GF << ">(internal + " << p_llrs << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rep_after_f<gf_size>(internal + " << p_llrs << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             else
-                ofile << "\t" << "middle_node_pruned_rep_after_f<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rep_after_f<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             array[curr_elmnt] = REP_FROM_F;
             next_elmnt        = curr_elmnt + 1;
             //
@@ -277,9 +277,9 @@ private:
                 printf("\e[1;31m SPC_FROM_F (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
             }
             if (level == 1)
-                ofile << "\t" << "middle_node_pruned_spc_after_f<" << GF << ">(internal + " << p_llrs << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_spc_after_f<gf_size>(internal + " << p_llrs << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             else
-                ofile << "\t" << "middle_node_pruned_spc_after_f<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_spc_after_f<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             array[curr_elmnt] = SPC_FROM_F;
             next_elmnt        = curr_elmnt + 1;
             //
@@ -329,16 +329,16 @@ private:
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= SPECIAL Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "g_function_freq_in_after_rate_0<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "g_function_freq_in_after_rate_0<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
             } else {
                 if (verbose) {
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= SPECIAL Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
                 if (level == 1)
-                    ofile << "\t" << "g_function_proba_in_after_rate_0<" << GF << ">(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
+                    ofile << "\t" << "g_function_proba_in_after_rate_0<gf_size>(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
                 else
-                    ofile << "\t" << "g_function_proba_in_after_rate_0<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                    ofile << "\t" << "g_function_proba_in_after_rate_0<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
             }
             //
             // NORMAL node
@@ -348,7 +348,7 @@ private:
                 indentation(level);
                 printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (g) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
             }
-            ofile << "\t" << "g_function_proba_in<" << GF << ">(internal, channel, channel + " << n << ", symbols, " << n << ");" << std::endl;
+            ofile << "\t" << "g_function_proba_in<gf_size>(internal, channel, channel + " << n << ", symbols, " << n << ");" << std::endl;
             //
             // NORMAL node
             //
@@ -362,13 +362,13 @@ private:
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "g_function_freq_in<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "g_function_freq_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             } else {
                 if (verbose) {
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "g_function_proba_in<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                ofile << "\t" << "g_function_proba_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
             }
         }
 
@@ -382,14 +382,14 @@ private:
                 printf("> Leaf rate-0 node found (size = %d)\n", n);
                 indentation(level);
                 printf("\e[1;31m LEAF_RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen + n, n);
-                ofile << "\t" << "leaf_node_rate_0<" << GF << ">(decoded + " << curr_frozen << ", symbols + " << curr_frozen + n << ");" << std::endl;
+                ofile << "\t" << "leaf_node_rate_0<gf_size>(decoded + " << curr_frozen << ", symbols + " << curr_frozen + n << ");" << std::endl;
                 array[next_elmnt] = LEAF_RATE_0;
             } else {
                 indentation(level);
                 printf("> Rate-0 node found (size = %d)\n", n);
                 indentation(level);
                 printf("\e[1;31m RATE_0 (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen + n, n);
-                ofile << "\t" << "middle_node_pruned_rate_0<" << GF << ">(decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rate_0<gf_size>(decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
                 array[next_elmnt] = RATE_0;
             }
             final_offset = next_elmnt + 1;
@@ -402,7 +402,7 @@ private:
                 printf("> Leaf rate-1 node found (size = %d)\n", n);
                 indentation(level);
                 printf("\e[1;31m LEAF_RATE_1_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
-                ofile << "\t" << "leaf_node_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ");" << std::endl;
+                ofile << "\t" << "leaf_node_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ");" << std::endl;
                 array[next_elmnt] = LEAF_RATE_1_FROM_G;
             } else if (level != 1) {
                 if (verbose) {
@@ -411,10 +411,10 @@ private:
                     indentation(level);
                     printf("\e[1;31m RATE_1_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
-                ofile << "\t" << "middle_node_pruned_rate_1_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rate_1_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
                 array[next_elmnt] = RATE_1_FROM_G;
             } else {
-                ofile << "\t" << "middle_node_pruned_rate_1_after_g<" << GF << ">(internal + " << 0 << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_rate_1_after_g<gf_size>(internal + " << 0 << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
             }
             final_offset = next_elmnt + 1;
             //
@@ -428,7 +428,7 @@ private:
                     indentation(level);
                     printf("\e[1;31m SPC_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
-                ofile << "\t" << "middle_node_pruned_spc_after_g<" << GF << ">(internal + " << p_llrs << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_spc_after_g<gf_size>(internal + " << p_llrs << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
             } else {
                 if (verbose) {
                     indentation(level);
@@ -436,7 +436,7 @@ private:
                     indentation(level);
                     printf("\e[1;31m SPC_FROM_G (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
                 }
-                ofile << "\t" << "middle_node_pruned_spc_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+                ofile << "\t" << "middle_node_pruned_spc_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
             }
             array[next_elmnt] = SPC_FROM_G;
             final_offset      = next_elmnt + 1;
@@ -449,7 +449,7 @@ private:
             printf("> Node REP_G node found (%d)\n", n);
             indentation(level);
             printf("\e[1;31m REP_NodeSymbols (Internal(%d) Symbols(%d) Size(%d )) \e[0m\n", p_llrs + n, curr_frozen, n);
-            ofile << "\t" << "middle_node_pruned_rep_after_g<" << GF << ">(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
+            ofile << "\t" << "middle_node_pruned_rep_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
             array[curr_elmnt] = REP_FROM_G;
             final_offset      = next_elmnt + 1;
         } else {
