@@ -1,11 +1,9 @@
 #pragma once
 
 #include "f_argmax.hpp"
-#include "f_fwht_norm.hpp"
-#include "f_fwht.hpp"
-#include "f_normalize.hpp"
-
-//#define _TEST_
+#include "../arch/f_fwht_norm.hpp"
+#include "../arch/f_fwht.hpp"
+#include "../arch/f_normalize.hpp"
 
 template <int gf_size>
 void g_function(
@@ -35,7 +33,6 @@ void g_function(
     for (size_t i = 0; i < gf_size; i++) {
         const int idx = src_c ^ i;
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
-//      tt.value[i] = float(src_a->value[i]);
     }
     f_normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;

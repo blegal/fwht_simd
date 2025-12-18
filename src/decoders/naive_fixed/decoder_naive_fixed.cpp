@@ -1,10 +1,10 @@
 #include "decoder_naive_fixed.hpp"
-#include "f_function.hpp"
-#include "g_function.hpp"
-#include "f_argmax.hpp"
-#include "f_normalize.hpp"
-#include "f_fwht.hpp"
-#include "f_fwht_norm.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
+#include "impl/f_argmax.hpp"
+#include "arch/f_normalize.hpp"
+#include "arch/f_fwht.hpp"
+#include "arch/f_fwht_norm.hpp"
 //
 //
 //
