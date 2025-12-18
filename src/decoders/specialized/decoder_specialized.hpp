@@ -1,8 +1,6 @@
 #pragma once
 #include "definitions/custom_types.hpp"
 #include "decoders/decoder.hpp"
-#include "decoders/shared/f_function_proba_in.hpp"
-#include "decoders/shared/g_function_proba_in.hpp"
 #include <vector>
 
 template <int gf_size>

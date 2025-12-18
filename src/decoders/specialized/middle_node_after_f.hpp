@@ -1,8 +1,8 @@
 #pragma once
 
 #include "decoder_specialized.hpp"
-#include "decoders/shared/f_function_freq_in.hpp"
-#include "decoders/shared/g_function_freq_in.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
 #include "../specialized_pruning/impl/node_leaf.hpp"
 
 template <int gf_size>

@@ -1,6 +1,6 @@
 #include "decoders/specialized/decoder_specialized.hpp"
-#include "decoders/shared/f_function_proba_in.hpp"
-#include "decoders/shared/g_function_proba_in.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
 // These headers are not used directly but defines template functions and MUST be included here
 #include "middle_node_after_f.hpp"
 #include "decoders/specialized/middle_node_after_g.hpp" // IWYU pragma: keep

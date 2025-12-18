@@ -1,8 +1,8 @@
 #pragma once
 
 #include "decoder_specialized.hpp"
-#include "decoders/shared/f_function_proba_in.hpp"
-#include "decoders/shared/g_function_proba_in.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
 
 template <int gf_size>
 void decoder_specialized<gf_size>::middle_node_after_g(
