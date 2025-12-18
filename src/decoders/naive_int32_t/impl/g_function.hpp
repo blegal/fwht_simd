@@ -1,9 +1,9 @@
 #pragma once
 
-#include "i_type.hpp"
-#include "i_argmax.hpp"
-#include "i_fwht_norm.hpp"
-#include "i_normalize.hpp"
+#include "../i_type.hpp"
+#include "../arch/i_argmax.hpp"
+#include "../arch/i_fwht_norm.hpp"
+#include "../i_normalize.hpp"
 
 //#define _TEST_
 

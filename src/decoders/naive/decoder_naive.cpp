@@ -53,31 +53,19 @@ template <int gf_size> void decoder_naive<gf_size>::execute(void* s_channel, uin
     }
     const int n = N / 2; // Assuming size is the number of symbols
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         f_function<gf_size>( internal + i, channel + i, channel + n + i);
     }
     //
-    //
-    //
     middle_node( internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
-    //
-    //
     //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>( internal + i, channel + i, channel + n + i, symbols[i]);
     }
     //
-    //
-    //
     middle_node( internal, internal + n, decoded, symbols, n, n); // On descend à droite
     //
-    //
-    //
     // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    //
     //
 }
 //
@@ -95,13 +83,9 @@ template <int gf_size> void decoder_naive<gf_size>::middle_node(
 {
     const int n = size / 2; // Assuming size is the number of symbols
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         f_function<gf_size>(internal + i, inputs + i, inputs + n + i);
     }
-    //
-    //
     //
     if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id);
@@ -109,13 +93,9 @@ template <int gf_size> void decoder_naive<gf_size>::middle_node(
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(internal + i, inputs + i, inputs + n + i, symbols[symbol_id + i]);
     }
-    //
-    //
     //
     if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id + n);
@@ -123,13 +103,9 @@ template <int gf_size> void decoder_naive<gf_size>::middle_node(
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id + n);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
     }
-    //
-    //
     //
 }
 template <int gf_size> void decoder_naive<gf_size>::leaf_node(
