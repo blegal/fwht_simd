@@ -2,6 +2,7 @@
 //
 //
 #include <cstdint>
+#include <cmath>
 #include "definitions/code.hpp"
 #include "features/archi.hpp"
 //
