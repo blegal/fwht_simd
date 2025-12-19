@@ -139,7 +139,7 @@ inline void fwht16_flat_avx512(float x[], float y[]) {
         arr_o[i] = x[i];
     }
     print("INP", x);
-    const __m512 X0 = _mm512_loadu_ps(x);
+    const __m512 X = _mm512_loadu_ps(x);
     fwht16_terminale(X, arr_o);
 
     print("BAD", arr_o);
@@ -150,7 +150,7 @@ inline void fwht16_flat_avx512(float x[], float y[]) {
 
     exit( EXIT_FAILURE );
 #if 1
-    const __m512 X0 = _mm512_loadu_ps(x);
+    const __m512 X = _mm512_loadu_ps(x);
     fwht16_terminale(X, arr_o);
 #else
     const __m256 X0 = _mm256_loadu_ps(x + 0);
