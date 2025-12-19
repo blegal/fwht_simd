@@ -129,7 +129,7 @@ void print(std::string msg, float* tab) {
     printf("[%s] ", msg.c_str());
     for (int i = 0; i < 16; i++) {
         if ( i == 8 ) printf("\n");
-        print("%1.5f ", tab[i]);
+        printf("%1.5f ", tab[i]);
     }
 }
 
