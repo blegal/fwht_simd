@@ -94,7 +94,9 @@ inline void fwht16_terminale(const __m512 X, float y[]) {
     // Stage 3
 
     const __m512 l3_A = _mm512_mask_xor_ps(l2_C, mask_l3, l2_C, minus_one);
+    print("l3_A", l3_A);
     const __m512 l3_B = _mm512_shuffle_ps(l2_C, l2_C, _MM_SHUFFLE(1, 0, 3, 2));
+    print("l3_B", l3_B);
     const __m512 l3_C = _mm512_add_ps(l3_A, l3_B);
 
     print("STG:3", l3_C);
