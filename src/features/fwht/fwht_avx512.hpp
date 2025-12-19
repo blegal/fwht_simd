@@ -49,11 +49,13 @@ inline void fwht_avx512(float x[], float y[]) {
 //
 
 inline void print(std::string msg, float* tab) {
-    printf("[%s] ", msg.c_str());
+    printf("\n[%s] ", msg.c_str());
     for (int i = 0; i < 16; i++) {
-        if ( i == 8 ) printf("\n");
+        if ( i == 8 ) printf("\n[%s] ", msg.c_str());
+        if ( ((i%4) ==0) && (i != 0) ) printf(" ");
         printf("%1.5f ", tab[i]);
     }
+    printf("\n");
     printf("\n");
 }
 
