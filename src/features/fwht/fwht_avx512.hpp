@@ -57,7 +57,7 @@ inline void fwht16_terminale(const __m512 X, float y[]) {
 
     // Stage 1
 
-    const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, B, minus_one);
+    const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, X, minus_one);
     const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0x1032); // [7...0] [15...8]
     const __m512 l1_C = _mm512_add_ps(l1_A, l1_B);
 
