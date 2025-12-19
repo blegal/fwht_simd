@@ -134,7 +134,6 @@ void print(char* msg, float* array) {
 inline void fwht16_flat_avx512(float x[], float y[]) {
     float arr_o[16];
     for (int i = 0; i < 16; i++) {
-        arr_i[i] = x[i];
         arr_o[i] = x[i];
     }
     print("INP", x);
