@@ -18,12 +18,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifdef __AVX512F__
+//#ifdef __AVX512F__
+#if 1
 
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <immintrin.h>
 
 template <uint16_t GF>
