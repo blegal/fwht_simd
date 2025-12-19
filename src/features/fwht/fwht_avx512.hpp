@@ -123,11 +123,11 @@ inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //////////////////////////////////////////////////////
 }
 
-void print(char* msg, float* array) {
-    printf("[%s] ", msg);
+void print(std::string msg, float* tab) {
+    printf("[%s] ", msg.c_str());
     for (int i = 0; i < 16; i++) {
         if ( i == 8 ) printf("\n");
-        print("%1.5f ", array[i]);
+        print("%1.5f ", tab[i]);
     }
 }
 
