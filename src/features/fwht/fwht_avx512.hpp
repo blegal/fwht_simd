@@ -177,7 +177,7 @@ inline void fwht16_flat_avx512(float x[], float y[]) {
 */
 #if 1
     const __m512 v = _mm512_loadu_ps(x);
-    fwht16_terminale(v, arr_o);
+    fwht16_terminale(v, y);
 #else
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
