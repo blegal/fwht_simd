@@ -75,50 +75,28 @@ inline void fwht16_terminale(const __m512 X, float y[]) {
     constexpr __mmask16 mask_l3 = 0xCCCC;
     constexpr __mmask16 mask_l4 = 0xAAAA;
 
-    // Stage 1
-
-//    print("STG:0", X);
-
     const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, X, minus_one);
-//    print("l1_A", l1_A);
     const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0b01001110 /*0x1032*/); // [7...0] [15...8]
-//    print("l1_B", l1_B);
     const __m512 l1_C = _mm512_add_ps(l1_A, l1_B);
-
-//    print("STG:1", l1_C);
-
-    // Stage 2
 
     const __m512 l2_A = _mm512_mask_xor_ps(l1_C, mask_l2, l1_C, minus_one);
     const __m512 l2_B = _mm512_shuffle_f32x4(l1_C, l1_C, 0b10110001 /*0x2301*/); // [11.8][15.12] [3.0][7.4]
     const __m512 l2_C = _mm512_add_ps(l2_A, l2_B);
 
-//    print("STG:2", l2_C);
-
-    // Stage 3
-
     const __m512 l3_A = _mm512_mask_xor_ps(l2_C, mask_l3, l2_C, minus_one);
-//    print("l3_A", l3_A);
     const __m512 l3_B = _mm512_shuffle_ps(l2_C, l2_C, _MM_SHUFFLE(1, 0, 3, 2));
-//    print("l3_B", l3_B);
     const __m512 l3_C = _mm512_add_ps(l3_A, l3_B);
-
-//    print("STG:3", l3_C);
-
-    // Stage 4
 
     const __m512 l4_A = _mm512_mask_xor_ps(l3_C, mask_l4, l3_C, minus_one);
     const __m512 l4_B = _mm512_shuffle_ps(l3_C, l3_C, _MM_SHUFFLE(2, 3, 0, 1));
     const __m512 l4_C = _mm512_add_ps(l4_A, l4_B);
-
-//    print("STG:4", l4_C);
 
     _mm512_storeu_ps(y, l4_C);
 
     //////////////////////////////////////////////////////
 }
 
-
+/*
 inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
@@ -155,34 +133,11 @@ inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     const __m256 BP2 = _mm256_add_ps(BP0, BP1);
     _mm256_storeu_ps(y + 8, BP2);
     //////////////////////////////////////////////////////
-}
+}*/
 
 inline void fwht16_flat_avx512(float x[], float y[]) {
-/*
-    float arr_o[16];
-    for (int i = 0; i < 16; i++) {
-        arr_o[i] = x[i];
-    }
-    print("INP", x);
-    const __m512 X = _mm512_loadu_ps(x);
-    fwht16_terminale(X, arr_o);
-
-    print("BAD", arr_o);
-    const __m256 X0 = _mm256_loadu_ps(x + 0);
-    const __m256 X1 = _mm256_loadu_ps(x + 8);
-    fwht16_terminale(X0, X1, y);
-    print("REF", y);
-
-    exit( EXIT_FAILURE );
-*/
-#if 1
     const __m512 v = _mm512_loadu_ps(x);
     fwht16_terminale(v, y);
-#else
-    const __m256 X0 = _mm256_loadu_ps(x + 0);
-    const __m256 X1 = _mm256_loadu_ps(x + 8);
-    fwht16_terminale(X0, X1, y);
-#endif
 }
 
 inline void fwht16_flat_avx512(const __m512 X, float y[]) {
