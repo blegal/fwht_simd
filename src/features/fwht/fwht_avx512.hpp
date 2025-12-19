@@ -57,6 +57,12 @@ inline void print(std::string msg, float* tab) {
     printf("\n");
 }
 
+inline void print(std::string msg, const __m512 v) {
+    float y[16];
+    _mm512_storeu_ps(y, v);
+    print(msg, y);
+}
+
 inline void fwht16_terminale(const __m512 X, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
