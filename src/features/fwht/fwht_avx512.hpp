@@ -18,8 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#if 1
-//#ifdef __AVX512F__
+#ifdef __AVX512F__
 
 #include <cassert>
 #include <cstdint>
@@ -59,13 +58,13 @@ inline void fwht16_terminale(const __m512 X, float y[]) {
     // Stage 1
 
     const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, X, minus_one);
-    const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0x1032); // [7...0] [15...8]
+    const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0b01001110 /*0x1032*/); // [7...0] [15...8]
     const __m512 l1_C = _mm512_add_ps(l1_A, l1_B);
 
     // Stage 2
 
     const __m512 l2_A = _mm512_mask_xor_ps(l1_C, mask_l2, l1_C, minus_one);
-    const __m512 l2_B = _mm512_shuffle_f32x4(l1_C, l1_C, 0x2301); // [11.8][15.12] [3.0][7.4]
+    const __m512 l2_B = _mm512_shuffle_f32x4(l1_C, l1_C, 0b10110001 /*0x2301*/); // [11.8][15.12] [3.0][7.4]
     const __m512 l2_C = _mm512_add_ps(l2_A, l2_B);
 
     // Stage 3
