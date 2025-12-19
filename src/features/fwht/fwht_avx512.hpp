@@ -123,10 +123,34 @@ inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //////////////////////////////////////////////////////
 }
 
+void print(char* msg, float* array) {
+    printf("[%s] ", msg);
+    for (int i = 0; i < 16; i++) {
+        if ( i == 8 ) printf("\n");
+        print("%1.5f ", array[i]);
+    }
+}
+
 inline void fwht16_flat_avx512(float x[], float y[]) {
-#if 0
+    float arr_o[16];
+    for (int i = 0; i < 16; i++) {
+        arr_i[i] = x[i];
+        arr_o[i] = x[i];
+    }
+    print("INP", x);
     const __m512 X0 = _mm512_loadu_ps(x);
-    fwht16_terminale(X, y);
+    fwht16_terminale(X, arr_o);
+
+    print("BAD", arr_o);
+    const __m256 X0 = _mm256_loadu_ps(x + 0);
+    const __m256 X1 = _mm256_loadu_ps(x + 8);
+    fwht16_terminale(X0, X1, y);
+    print("REF", y);
+
+    exit( EXIT_FAILURE );
+#if 1
+    const __m512 X0 = _mm512_loadu_ps(x);
+    fwht16_terminale(X, arr_o);
 #else
     const __m256 X0 = _mm256_loadu_ps(x + 0);
     const __m256 X1 = _mm256_loadu_ps(x + 8);
