@@ -396,9 +396,9 @@ int main(int argc, char *argv[]) {
         const bool     ok_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
         if (ok_avx2) {
-            printf(" - [AVX2] fwht_avx512    \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            printf(" - [AVX2] fwht_avx512           \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
         } else {
-            printf(" - [AVX2] fwht_avx512    \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            printf(" - [AVX2] fwht_avx512           \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
         }
     }
 #endif
