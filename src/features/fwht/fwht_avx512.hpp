@@ -45,10 +45,52 @@ inline void fwht_avx512(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
+inline void fwht16_terminale(const __m512 X float y[]) {
+    //
+    // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
+    //
+    const __m512 minus_one = _mm512_set1_ps(-1.0f);
+    constexpr __mmask16 mask_l1 = 0x00FF;
+    constexpr __mmask16 mask_l2 = 0x0F0F;
+    constexpr __mmask16 mask_l2 = 0x3333;
+    constexpr __mmask16 mask_l2 = 0x5555;
+
+    // Stage 1
+
+    const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, B, minus_one);
+    const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0x1032); // [7...0] [15...8]
+    const __m512 l1_C = _mm512_add_ps(l1_A, l1_B);
+
+    // Stage 2
+
+    const __m512 l2_A = _mm512_mask_xor_ps(l1_C, mask_l2, l1_C, minus_one);
+    const __m512 l2_B = _mm512_shuffle_f32x4(l1_C, l1_C, 0x2301); // [11.8][15.12] [3.0][7.4]
+    const __m512 l2_C = _mm512_add_ps(l2_A, l2_B);
+
+    // Stage 3
+
+    const __m512 l3_A = _mm512_mask_xor_ps(l2_C, mask_l3, l2_C, minus_one);
+    const __m512 l3_B = _mm512_shuffle_ps(l2_C, l2_C, _MM_SHUFFLE(1, 0, 3, 2));
+    const __m512 l3_C = _mm512_add_ps(l3_A, l3_B);
+
+    // Stage 4
+
+    const __m512 l4_A = _mm512_mask_xor_ps(l3_C, mask_l4, l3_C, minus_one);
+    const __m512 l4_B = _mm512_shuffle_ps(l3_C, l3_C, _MM_SHUFFLE(2, 3, 0, 1));
+    const __m512 l4_C = _mm512_add_ps(l4_A, l4_B);
+
+    _mm512_storeu_ps(y, l4_C);
+
+    //////////////////////////////////////////////////////
+}
+
+
 inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
+    _mm512_shuffle_f32x4
+
     const __m256 M0 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000));
     const __m256 M1 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000));
     const __m256 M2 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000));
@@ -89,9 +131,7 @@ inline void fwht16_flat_avx512(float x[], float y[]) {
 }
 
 inline void fwht16_flat_avx512(const __m512 X, float y[]) {
-    const __m256 X0 = _mm512_extractf32x8_ps(X, 0);
-    const __m256 X1 = _mm512_extractf32x8_ps(X, 1);
-    fwht16_terminale(X0, X1, y);
+    fwht16_terminale(X, y);
 }
 
 inline void fwht32_terminale(const __m512 X0, const __m512 X1, float y[]) {
