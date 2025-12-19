@@ -52,8 +52,8 @@ inline void print(std::string msg, float* tab) {
     printf("\n[%s] ", msg.c_str());
     for (int i = 0; i < 16; i++) {
         if ( i == 8 ) printf("\n[%s] ", msg.c_str());
-        if ( ((i%4) ==0) && (i != 0) ) printf("   ");
-        printf("%1.5f ", tab[i]);
+        else if ( ((i%4) ==0) && (i != 0) ) printf("   ");
+        printf("%7.3f ", tab[i]);
     }
     printf("\n");
     printf("\n");
