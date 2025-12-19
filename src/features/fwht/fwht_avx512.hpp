@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifdef __AVX512F__
+#if 1 //def __AVX512F__
 
 #include <cassert>
 #include <cstdint>
@@ -45,15 +45,15 @@ inline void fwht_avx512(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-inline void fwht16_terminale(const __m512 X float y[]) {
+inline void fwht16_terminale(const __m512 X, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
     const __m512 minus_one = _mm512_set1_ps(-1.0f);
     constexpr __mmask16 mask_l1 = 0x00FF;
     constexpr __mmask16 mask_l2 = 0x0F0F;
-    constexpr __mmask16 mask_l2 = 0x3333;
-    constexpr __mmask16 mask_l2 = 0x5555;
+    constexpr __mmask16 mask_l3 = 0x3333;
+    constexpr __mmask16 mask_l4 = 0x5555;
 
     // Stage 1
 
@@ -89,7 +89,6 @@ inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
-    _mm512_shuffle_f32x4
 
     const __m256 M0 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000));
     const __m256 M1 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000));
@@ -148,12 +147,12 @@ inline void fwht32_terminale(const __m512 X0, const __m512 X1, float y[]) {
 
 inline void fwht32_flat_avx512(float x[], float y[])
 {
-    const __m512 X = _mm512_loadu_ps(x +  0);
-    const __m512 Y = _mm512_loadu_ps(x + 16);
-    const __m512 x = X + Y;
-    const __m512 y = X - Y;
-    fwht16_flat_avx512(m0, y +  0);
-    fwht16_flat_avx512(M0, y + 16);
+    const __m512 X  = _mm512_loadu_ps(x +  0);
+    const __m512 Y  = _mm512_loadu_ps(x + 16);
+    const __m512 XX = X + Y;
+    const __m512 YY = X - Y;
+    fwht16_flat_avx512(XX, y +  0);
+    fwht16_flat_avx512(YY, y + 16);
 }
 
 inline void fwht64_terminale(const __m512 X0, const __m512 X1, const __m512 X2, const __m512 X3, float y[])
