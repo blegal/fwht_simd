@@ -69,7 +69,7 @@ inline void fwht16_terminale(const __m512 X, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
-    const __m512 minus_one = _mm512_set1_ps(-1.0f);
+    const __m512 minus_one = _mm512_castsi512_ps(_mm512_set1_epi32(0x80000000));
     constexpr __mmask16 mask_l1 = 0x00FF;
     constexpr __mmask16 mask_l2 = 0x0F0F;
     constexpr __mmask16 mask_l3 = 0x3333;
