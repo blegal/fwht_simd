@@ -18,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#if 1 //def __AVX512F__
+#ifdef __AVX512F__
 
 #include <cassert>
 #include <cstdint>
