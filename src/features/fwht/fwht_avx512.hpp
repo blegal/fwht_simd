@@ -80,7 +80,9 @@ inline void fwht16_terminale(const __m512 X, float y[]) {
     print("STG:0", X);
 
     const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, X, minus_one);
+    print("l1_A", l1_A);
     const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0b01001110 /*0x1032*/); // [7...0] [15...8]
+    print("l1_B", l1_B);
     const __m512 l1_C = _mm512_add_ps(l1_A, l1_B);
 
     print("STG:1", l1_C);
