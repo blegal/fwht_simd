@@ -1,24 +1,20 @@
 #include "decoder_naive_int32_t.hpp"
-#include "impl/f_function.hpp"
-#include "impl/g_function.hpp"
-#include "arch/i_argmax.hpp"
-#include "i_normalize.hpp"
-#include "i_fwht.hpp"
-#include "arch/i_fwht_norm.hpp"
+#include "./impl/f_function.hpp"
+#include "./impl/g_function.hpp"
 //
 //
 //
 //
 //
 template <int gf_size>
-symbols_i conversion(const symbols_t s)
+symbols_i<gf_size> conversion(const symbols_s<gf_size> s)
 {
-    symbols_i f;
+    symbols_i<gf_size> f;
     for (int i = 0; i < gf_size; i++)
     {
         f.value[i] = s.value[i];
     }
-    f.is_freq = s.is_freq;
+    f.is_freq = false; // les données sont des probabilités
     return f;
 }
 //
@@ -32,8 +28,8 @@ decoder_naive_int32_t<gf_size>::decoder_naive_int32_t(const int n, const int* fr
     symbols    = new uint16_t[N];
     frozen     = new uint32_t[N];
 
-    f_channel  = new symbols_i[N];
-    f_internal = new symbols_i[N];
+    f_channel  = new symbols_i<gf_size>[N];
+    f_internal = new symbols_i<gf_size>[N];
 
     for (int i = 0; i < N; i++)
     {
@@ -68,14 +64,15 @@ template <int gf_size> decoder_naive_int32_t<gf_size>::~decoder_naive_int32_t()
     delete[] f_internal;
 }
 
-template <int gf_size> void decoder_naive_int32_t<gf_size>::execute(symbols_t * channel, uint16_t *  decoded)
+template <int gf_size> void decoder_naive_int32_t<gf_size>::execute(void* s_channel, uint16_t *  decoded)
 {
+    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
     const int n = N / 2; // Assuming size is the number of symbols
     //
     //
     //
     for (int i = 0; i < N; i++) {
-        f_channel[i] = conversion<gf_size>(channel[i]);
+        f_channel[i] = convert_to_symbols_i<gf_size>(channel[i]);
     }
     //
     //
@@ -111,8 +108,8 @@ template <int gf_size> void decoder_naive_int32_t<gf_size>::execute(symbols_t * 
 //
 //
 template <int gf_size> void decoder_naive_int32_t<gf_size>::middle_node(
-    symbols_i* inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_i* internal, // Internal nodes are the symbols computed during the process (to the left)
+    symbols_i<gf_size>* inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_i<gf_size>* internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t*  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t*  symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int size,            // Size is the number of symbols (should be a power of 2)
@@ -167,7 +164,7 @@ template <int gf_size> void decoder_naive_int32_t<gf_size>::middle_node(
     //
 }
 template <int gf_size> void decoder_naive_int32_t<gf_size>::leaf_node(
-    symbols_i * var,
+    symbols_i<gf_size> * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
     const int   symbol_id)
@@ -184,9 +181,11 @@ template <int gf_size> void decoder_naive_int32_t<gf_size>::leaf_node(
 
     if (var->is_freq)
     {
+/*
         const float factor = norm_factor_lwht<gf_size>();
         i_normalize<gf_size>(var->value, factor);
         i_normalize<gf_size>(var->value, factor);
+*/
         fwht<gf_size>(var->value);
         var->is_freq = false;
     }

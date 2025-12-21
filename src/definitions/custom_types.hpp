@@ -70,17 +70,19 @@ inline void convert_from_symbols_s(float* dst, const symbols_s<gf_size>& src) {
 template<int gf_size>
 struct symbols_i {
     int32_t value[gf_size];
+    bool is_freq;
 };
 //
 //
 template<int gf_size>
-inline symbols_s<gf_size> convert_to_symbols_i(const float* values) {
+inline symbols_i<gf_size> convert_to_symbols_i(const symbols_s<gf_size> symb) {
     symbols_i<gf_size> result;
     for (int i = 0; i < gf_size; i++) {
-        const double  v = values[i];
+        const double  v = symb.value[i];
         const int32_t w = (int32_t)round(v * 268435456.0);
         result.value[i] = w;
     }
+    result.is_freq = false;
     return result;
 }
 //

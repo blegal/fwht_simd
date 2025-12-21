@@ -62,10 +62,10 @@ add_executable(benchmarking
         src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
         src/decoders/specialized/decoder_specialized.cpp
         src/decoders/dedicated/decoder_dedicated.cpp
-        src/decoders/naive/decoder_naive.cpp
+		src/decoders/naive/decoder_naive.cpp
         src/decoders/basic/decoder_basic.cpp
         src/decoders/naive_fixed/decoder_naive_fixed.cpp
-#	
+		src/decoders/naive_int32_t/decoder_naive_int32_t.cpp
         src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
         src/encoder/polar_encoder.cpp
 )
