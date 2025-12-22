@@ -1,4 +1,4 @@
-constexpr float Hadamard[4][4] = {
+static const float Hadamard[4][4] = {
     {+1, +1, +1, +1},
     {+1, -1, +1, -1},
     {+1, +1, -1, -1},

@@ -5,13 +5,14 @@
 #include <vector>
 
 template <int gf_size>
-class decoder_specialized_pruning : public decoder<gf_size> {
+class decoder_specialized_pruning : public decoder {
 public:
     decoder_specialized_pruning();
     decoder_specialized_pruning(const int n, const int* frozen_symb);
     ~decoder_specialized_pruning();
 
-    void execute(void* channel, uint16_t* decoded);
+    virtual void execute(void* channel, uint16_t* decoded);
+    virtual int GF() {return gf_size;}
 
 private:
     void middle_node_pruned_after_f(

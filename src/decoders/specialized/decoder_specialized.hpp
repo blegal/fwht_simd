@@ -4,16 +4,16 @@
 #include <vector>
 
 template <int gf_size>
-class decoder_specialized : public decoder<gf_size>{
+class decoder_specialized : public decoder {
 public:
     decoder_specialized();
     decoder_specialized(int n, const int* frozen_symb);
     ~decoder_specialized();
 
-
-    void execute(
+    virtual void execute(
         void* channel,         // Channel symbols are the input symbols (from the right)
         uint16_t *  decoded);  // Symbols are the ones going from leafs to root (done on the left)
+    virtual int GF() {return gf_size;}
 
 private:
     void middle_node_after_f(

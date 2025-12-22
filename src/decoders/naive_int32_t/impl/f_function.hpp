@@ -15,7 +15,8 @@ void f_function(
         fwht<gf_size>(src_a->value);
         src_a->is_freq = true;
     }
-    if (src_b->is_freq == false) {
+    if (src_b->is_freq == false)
+    {
         fwht<gf_size>(src_b->value);
         src_b->is_freq = true;
     }
@@ -23,7 +24,10 @@ void f_function(
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
     for (size_t i = 0; i < gf_size; i++) {
-        dst->value[i] = src_a->value[i] * src_b->value[i];
+        const int64_t a = src_a->value[i];
+        const int64_t b = src_b->value[i];
+        const int64_t c = a * b;
+        dst->value[i] = (int32_t)(c >> 32);
     }
     dst->is_freq = true;
 }

@@ -4,27 +4,7 @@
 #include "features/archi.hpp"
 #include "utilities/utility_functions.hpp"
 
-#if _GF_ == 8
-#include "hadamard/Hadamard_8.hpp"
-#elif _GF_ == 16
-#include "hadamard/Hadamard_16.hpp"
-#elif _GF_ == 32
-#include "hadamard/Hadamard_32.hpp"
-#elif _GF_ == 64
-#include "hadamard/Hadamard_64.hpp"
-#elif _GF_ == 128
-#include "hadamard/Hadamard_128.hpp"
-#elif _GF_ == 256
-#include "hadamard/Hadamard_256.hpp"
-#elif _GF_ == 512
-#include "hadamard/Hadamard_512.hpp"
-#elif _GF_ == 1024
-#include "hadamard/Hadamard_1024.hpp"
-#elif _GF_ == 2048
-#include "hadamard/Hadamard_2048.hpp"
-#elif _GF_ == 4096
-#include "hadamard/Hadamard_4096.hpp"
-#endif
+#include "hadamard/Hadamard.hpp"
 //
 //
 //
@@ -39,9 +19,10 @@ void g_function(
 {
     if (src_a->is_freq == true)
     {
+        const float* H = get_Hadamard_line<gf_size>(src_c);
         for (size_t i = 0; i < gf_size; i++)
         {
-            dst->value[i] = src_a->value[i] * Hadamard[src_c][i];
+            dst->value[i] = src_a->value[i] * H[i];
         }
 
         FWHT<gf_size>(dst->value);

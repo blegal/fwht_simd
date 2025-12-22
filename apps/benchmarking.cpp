@@ -28,6 +28,7 @@ using namespace std::chrono_literals;
 #include "decoders/naive/decoder_naive.hpp"
 #include "decoders/naive_cfloat/decoder_naive_cfloat.hpp"
 #include "decoders/naive_fixed/decoder_naive_fixed.hpp"
+#include "decoders/naive_int32_t/decoder_naive_int32_t.hpp"
 
 #include "decoders/specialized/decoder_specialized.hpp"
 #include "decoders/specialized_pruning/decoder_specialized_pruning.hpp"
@@ -40,7 +41,7 @@ struct env_simu {
     int                    n_decoded;
     std::vector<symbols_s<_GF_>> llrs_n;
     std::vector<uint16_t>  decoded_n;
-    decoder<_GF_>*         dec;
+    decoder*               dec;
 };
 
 static void thread_run_decoder(env_simu * env) {
@@ -293,9 +294,11 @@ int main(int argc, char * argv[]) {
     //  decoding
     //
 
-    decoder<_GF_>* dec;
+    decoder* dec;
     if (dec_type == "dec1") {
         dec = new decoder_naive<_GF_>(N, frozen_symbols);
+    } else if (dec_type == "dec1_int32") {
+        dec = new decoder_naive_int32_t<_GF_>(N, frozen_symbols);
     } else if (dec_type == "dec1_fixed") {
         dec = new decoder_naive_fixed<_GF_>(N, frozen_symbols);
     } else if (dec_type == "dec1_cfloat") {
@@ -474,6 +477,8 @@ int main(int argc, char * argv[]) {
             liste[i].decoded_n = decoded_n;
             if (dec_type == "dec1") {
                 liste[i].dec = new decoder_naive<_GF_>(N, frozen_symbols);
+            } else if (dec_type == "dec1_int32") {
+                liste[i].dec = new decoder_naive_int32_t<_GF_>(N, frozen_symbols);
             } else if (dec_type == "dec1_fixed") {
                 liste[i].dec = new decoder_naive_fixed<_GF_>(N, frozen_symbols);
             } else if (dec_type == "dec1_cfloat") {

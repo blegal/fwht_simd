@@ -232,24 +232,42 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_after_g(
 //
 //
 //
-#if _GF_ == 8
+#if (_GF_ == 8) || defined(ALL_GFs)
     template class decoder_specialized_pruning< 8>;
-#elif _GF_ == 16
+#endif
+
+#if (_GF_ == 16) || defined(ALL_GFs)
     template class decoder_specialized_pruning< 16>;
-#elif _GF_ == 32
+#endif
+
+#if (_GF_ == 32) || defined(ALL_GFs)
     template class decoder_specialized_pruning< 32>;
-#elif _GF_ == 64
+#endif
+
+#if (_GF_ == 64) || defined(ALL_GFs)
     template class decoder_specialized_pruning< 64>;
-#elif _GF_ == 128
+#endif
+
+#if (_GF_ == 128) || defined(ALL_GFs)
     template class decoder_specialized_pruning<128>;
-#elif _GF_ == 256
+#endif
+
+#if (_GF_ == 256) || defined(ALL_GFs)
     template class decoder_specialized_pruning<256>;
-#elif _GF_ == 512
+#endif
+
+#if (_GF_ == 512) || defined(ALL_GFs)
     template class decoder_specialized_pruning<512>;
-#elif _GF_ == 1024
+#endif
+
+#if (_GF_ == 1024) || defined(ALL_GFs)
     template class decoder_specialized_pruning<1024>;
-#elif _GF_ == 2048
+#endif
+
+#if (_GF_ == 2048) || defined(ALL_GFs)
     template class decoder_specialized_pruning<2048>;
-#elif _GF_ == 4096
+#endif
+
+#if (_GF_ == 4096) || defined(ALL_GFs)
     template class decoder_specialized_pruning<4096>;
 #endif

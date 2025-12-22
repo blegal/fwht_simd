@@ -7,13 +7,15 @@
 //
 //
 template <int gf_size>
-class decoder_basic : public decoder<gf_size> {
+class decoder_basic : public decoder {
 public:
     decoder_basic();
     decoder_basic(const int n, const int* frozen_symb);
     ~decoder_basic();
 
-    void execute(void* channel, uint16_t *  decoded);
+    virtual void execute(void* channel, uint16_t *  decoded);
+    virtual int GF() {return gf_size;}
+
 private:
 
     void middle_node(

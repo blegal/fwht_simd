@@ -9,13 +9,15 @@
 #include "f_type.hpp"
 //
 template <int gf_size>
-class decoder_naive_fixed : public decoder<gf_size> {
+class decoder_naive_fixed : public decoder {
 public:
     decoder_naive_fixed();
     decoder_naive_fixed(const int n, const int* frozen_symb);
     ~decoder_naive_fixed();
 
-    void execute(void* channel, uint16_t *  decoded);
+    virtual void execute(void* channel, uint16_t *  decoded);
+    virtual int GF() {return gf_size;}
+
 private:
 
     void middle_node(

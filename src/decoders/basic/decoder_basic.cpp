@@ -182,6 +182,47 @@ void decoder_basic<gf_size>::g_function_proba_only(
 //
 //
 //
+#if (_GF_ == 8) || defined(ALL_GFs)
+    template class decoder_basic<  8>;
+#endif
+
+#if (_GF_ == 16) || defined(ALL_GFs)
+    template class decoder_basic< 16>;
+#endif
+
+#if (_GF_ == 32) || defined(ALL_GFs)
+    template class decoder_basic< 32>;
+#endif
+
+#if (_GF_ == 64) || defined(ALL_GFs)
+    template class decoder_basic< 64>;
+#endif
+
+#if (_GF_ == 128) || defined(ALL_GFs)
+    template class decoder_basic<128>;
+#endif
+
+#if (_GF_ == 256) || defined(ALL_GFs)
+    template class decoder_basic<256>;
+#endif
+
+#if (_GF_ == 512) || defined(ALL_GFs)
+    template class decoder_basic<512>;
+#endif
+
+#if (_GF_ == 1024) || defined(ALL_GFs)
+    template class decoder_basic<1024>;
+#endif
+
+#if (_GF_ == 2048) || defined(ALL_GFs)
+    template class decoder_basic<2048>;
+#endif
+
+#if (_GF_ == 4096) || defined(ALL_GFs)
+    template class decoder_basic<4096>;
+#endif
+
+/*
 #if _GF_ == 8
     template class decoder_basic<  8>;
 #elif _GF_ == 16
@@ -203,6 +244,7 @@ void decoder_basic<gf_size>::g_function_proba_only(
 #elif _GF_ == 4096
     template class decoder_basic<4096>;
 #endif
+*/
 //
 //
 //

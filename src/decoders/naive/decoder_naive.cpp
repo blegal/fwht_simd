@@ -136,25 +136,34 @@ template <int gf_size> void decoder_naive<gf_size>::leaf_node(
 //
 //
 //
-#if _GF_ == 8
+#if (_GF_ == 8) || defined(ALL_GFs)
     template class decoder_naive<  8>;
-#elif _GF_ == 16
+#endif
+#if (_GF_ == 16) || defined(ALL_GFs)
     template class decoder_naive< 16>;
-#elif _GF_ == 32
+#endif
+#if (_GF_ == 32) || defined(ALL_GFs)
     template class decoder_naive< 32>;
-#elif _GF_ == 64
+#endif
+#if (_GF_ == 64) || defined(ALL_GFs)
     template class decoder_naive< 64>;
-#elif _GF_ == 128
+#endif
+#if (_GF_ == 128) || defined(ALL_GFs)
     template class decoder_naive<128>;
-#elif _GF_ == 256
+#endif
+#if (_GF_ == 256) || defined(ALL_GFs)
     template class decoder_naive<256>;
-#elif _GF_ == 512
+#endif
+#if (_GF_ == 512) || defined(ALL_GFs)
     template class decoder_naive<512>;
-#elif _GF_ == 1024
+#endif
+#if (_GF_ == 1024) || defined(ALL_GFs)
     template class decoder_naive<1024>;
-#elif _GF_ == 2048
+#endif
+#if (_GF_ == 2048) || defined(ALL_GFs)
     template class decoder_naive<2048>;
-#elif _GF_ == 4096
+#endif
+#if (_GF_ == 4096) || defined(ALL_GFs)
     template class decoder_naive<4096>;
 #endif
 //

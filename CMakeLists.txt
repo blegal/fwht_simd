@@ -6,7 +6,7 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_BUILD_TYPE Release)
 
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
@@ -66,7 +66,8 @@ add_executable(benchmarking
         src/decoders/basic/decoder_basic.cpp
         src/decoders/naive_fixed/decoder_naive_fixed.cpp
 		src/decoders/naive_int32_t/decoder_naive_int32_t.cpp
-        src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
+		src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
+		src/hadamard/Hadamard.cpp
         src/encoder/polar_encoder.cpp
 )
 target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
@@ -99,11 +100,23 @@ add_subdirectory (src)
 
 #######################################################################################################################################
 
-#add_library(NbScFFTdec SHARED
-#    ${CMAKE_CURRENT_SOURCE_DIR}/apps/LibNbScFFTdec.cpp
-#    src/encoder/polar_encoder.cpp
-#)
-#target_include_directories (NbScFFTdec PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-#target_link_libraries      (NbScFFTdec PUBLIC utilities)
+add_library(NbScFFTdec SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/apps/LibNbScFFTdec.cpp
+	src/decoders/specialized_pruning/decoder_specialized_pruning.cpp
+	src/decoders/specialized/decoder_specialized.cpp
+	src/decoders/dedicated/decoder_dedicated.cpp
+	src/decoders/naive/decoder_naive.cpp
+	src/decoders/basic/decoder_basic.cpp
+	src/decoders/naive_fixed/decoder_naive_fixed.cpp
+	src/decoders/naive_int32_t/decoder_naive_int32_t.cpp
+	src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
+	src/hadamard/Hadamard.cpp
+    src/encoder/polar_encoder.cpp
+)
+target_compile_options(NbScFFTdec PUBLIC "$<$<CONFIG:Debug>:${GCC_COMPILE_DEBUG_OPTIONS}>" -DALL_GFs)
+target_compile_options(NbScFFTdec PUBLIC "$<$<CONFIG:Release>:${GCC_COMPILE_RELEASE_OPTIONS}>" -DALL_GFs)
+#add_compile_options (-DALL_GFs)
+target_include_directories (NbScFFTdec PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (NbScFFTdec PUBLIC utilities)
 
 #######################################################################################################################################

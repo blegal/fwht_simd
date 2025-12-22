@@ -199,27 +199,16 @@ template <int gf_size> void decoder_naive_int32_t<gf_size>::leaf_node(
 //
 //
 //
-#if _GF_ == 8
-    template class decoder_naive_int32_t<8>;
-#elif _GF_ == 16
-    template class decoder_naive_int32_t<16>;
-#elif _GF_ == 32
-    template class decoder_naive_int32_t<32>;
-#elif _GF_ == 64
-    template class decoder_naive_int32_t<64>;
-#elif _GF_ == 128
-    template class decoder_naive_int32_t<128>;
-#elif _GF_ == 256
-    template class decoder_naive_int32_t<256>;
-#elif _GF_ == 512
-    template class decoder_naive_int32_t<512>;
-#elif _GF_ == 1024
-    template class decoder_naive_int32_t<1024>;
-#elif _GF_ == 2048
-    template class decoder_naive_int32_t<2048>;
-#elif _GF_ == 4096
-    template class decoder_naive_int32_t<4096>;
-#endif
+template class decoder_naive_int32_t<8>;
+template class decoder_naive_int32_t<16>;
+template class decoder_naive_int32_t<32>;
+template class decoder_naive_int32_t<64>;
+template class decoder_naive_int32_t<128>;
+template class decoder_naive_int32_t<256>;
+template class decoder_naive_int32_t<512>;
+template class decoder_naive_int32_t<1024>;
+template class decoder_naive_int32_t<2048>;
+template class decoder_naive_int32_t<4096>;
 //
 //
 //
