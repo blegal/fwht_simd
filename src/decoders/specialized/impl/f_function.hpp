@@ -10,16 +10,16 @@
 //
 //
 //
-template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_freq_in(
+template <uint32_t gf_size>
+inline __attribute__((always_inline)) void f_function_freq_in(
     symbols_s<gf_size> * __restrict dst,
     const symbols_s<gf_size> * __restrict src_a,
-    const symbols_s<gf_size> * __restrict src_b)
-{
+    const symbols_s<gf_size> * __restrict src_b) {
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
     for (size_t i = 0; i < int(gf_size); i++) {
-        dst->value[i] =  src_a->value[i] * src_b->value[i]; // TODO : attention au facteur 10x qui est magique !!!
+        dst->value[i] = src_a->value[i] * src_b->value[i]; // TODO : attention au facteur 10x qui est magique !!!
     }
 }
 //
@@ -27,19 +27,25 @@ template <uint32_t gf_size> inline __attribute__((always_inline)) void f_functio
 //
 //
 //
-template <uint32_t gf_size> inline __attribute__((always_inline)) void f_function_proba_in(
+template <uint32_t gf_size>
+inline __attribute__((always_inline)) void f_function_proba_in(
     symbols_s<gf_size> * __restrict dst,
     const symbols_s<gf_size> * __restrict src_a,
-    const symbols_s<gf_size> * __restrict src_b)
-{
+    const symbols_s<gf_size> * __restrict src_b) {
     symbols_t tmp_a;
     for (int i = 0; i < int(gf_size); i++)
         tmp_a.value[i] = src_a->value[i];
     FWHT<gf_size>(tmp_a.value);
+#if FWHT_COUNTER_ENABLE
+    fwht_call_counter += 1;
+#endif
     symbols_t tmp_b;
     for (int i = 0; i < int(gf_size); i++)
         tmp_b.value[i] = src_b->value[i];
     FWHT<gf_size>(tmp_b.value);
+#if FWHT_COUNTER_ENABLE
+    fwht_call_counter += 1;
+#endif
 
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !

@@ -17,35 +17,34 @@ void g_function(
     symbols_t * __restrict src_b, // the lower value set from the right side of the graph
     uint32_t src_c)               // the computed symbols coming from the left side of the graph
 {
-    if (src_a->is_freq == true)
-    {
-        const float* H = get_Hadamard_line<gf_size>(src_c);
-        for (size_t i = 0; i < gf_size; i++)
-        {
+    if (src_a->is_freq == true) {
+        const float * H = get_Hadamard_line<gf_size>(src_c);
+        for (size_t i = 0; i < gf_size; i++) {
             dst->value[i] = src_a->value[i] * H[i];
         }
 
         FWHT<gf_size>(dst->value);
+#if FWHT_COUNTER_ENABLE
+        fwht_call_counter += 1;
+#endif
         dst->is_freq = false;
-    }
-    else
-    {
-        for (size_t i = 0; i < gf_size; i++)
-        {
+    } else {
+        for (size_t i = 0; i < gf_size; i++) {
             const int idx   = src_c ^ i;
             dst->value[idx] = src_a->value[i];
         }
         dst->is_freq = false;
     }
 
-    if (src_b->is_freq == true)
-    {
+    if (src_b->is_freq == true) {
         FWHT<gf_size>(src_b->value);
+#if FWHT_COUNTER_ENABLE
+        fwht_call_counter += 1;
+#endif
         src_b->is_freq = false;
     }
 
-    for (size_t i = 0; i < gf_size; i++)
-    {
+    for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] = dst->value[i] * src_b->value[i];
     }
 

@@ -1,19 +1,17 @@
 #include "decoder_naive_cfloat.hpp"
-#include "impl/f_function.hpp"
-#include "impl/g_function.hpp"
 #include "arch/cf_argmax.hpp"
 #include "arch/cf_normalize.hpp"
+#include "impl/f_function.hpp"
+#include "impl/g_function.hpp"
 //
 //
 //
 //
 //
 template <int gf_size>
-symbols_cf conversion(const symbols_s<gf_size> s)
-{
+symbols_cf conversion(const symbols_s<gf_size> s) {
     symbols_cf f;
-    for (int i = 0; i < gf_size; i++)
-    {
+    for (int i = 0; i < gf_size; i++) {
         f.value[i] = s.value[i];
     }
     f.is_freq = false;
@@ -25,16 +23,14 @@ symbols_cf conversion(const symbols_s<gf_size> s)
 //
 //
 template <int gf_size>
-decoder_naive_cfloat<gf_size>::decoder_naive_cfloat(const int n, const int* frozen_symb ) : N(n)
-{
-    symbols    = new uint16_t[N];
-    frozen     = new uint32_t[N];
+decoder_naive_cfloat<gf_size>::decoder_naive_cfloat(const int n, const int * frozen_symb) : N(n) {
+    symbols = new uint16_t[N];
+    frozen  = new uint32_t[N];
 
     f_channel  = new symbols_cf[N];
     f_internal = new symbols_cf[N];
 
-    for (int i = 0; i < N; i++)
-    {
+    for (int i = 0; i < N; i++) {
         frozen[i] = frozen_symb[i];
     }
 }
@@ -43,8 +39,8 @@ decoder_naive_cfloat<gf_size>::decoder_naive_cfloat(const int n, const int* froz
 //
 //
 //
-template <int gf_size> decoder_naive_cfloat<gf_size>::decoder_naive_cfloat() : N(0)
-{
+template <int gf_size>
+decoder_naive_cfloat<gf_size>::decoder_naive_cfloat() : N(0) {
     f_internal = nullptr;
     symbols    = nullptr;
     frozen     = nullptr;
@@ -57,8 +53,8 @@ template <int gf_size> decoder_naive_cfloat<gf_size>::decoder_naive_cfloat() : N
 //
 //@
 //
-template <int gf_size> decoder_naive_cfloat<gf_size>::~decoder_naive_cfloat()
-{
+template <int gf_size>
+decoder_naive_cfloat<gf_size>::~decoder_naive_cfloat() {
     delete[] symbols;
     delete[] frozen;
 
@@ -66,10 +62,10 @@ template <int gf_size> decoder_naive_cfloat<gf_size>::~decoder_naive_cfloat()
     delete[] f_internal;
 }
 
-template <int gf_size> void decoder_naive_cfloat<gf_size>::execute(void* s_channel, uint16_t *  decoded)
-{
-    symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);
-    const int n = N / 2; // Assuming size is the number of symbols
+template <int gf_size>
+void decoder_naive_cfloat<gf_size>::execute(void * s_channel, uint16_t * decoded) {
+    symbols_s<gf_size> * channel = static_cast<symbols_s<gf_size> *>(s_channel);
+    const int            n       = N / 2; // Assuming size is the number of symbols
     //
     //
     //
@@ -110,90 +106,83 @@ template <int gf_size> void decoder_naive_cfloat<gf_size>::execute(void* s_chann
 //
 //
 //
-template <int gf_size> void decoder_naive_cfloat<gf_size>::middle_node(
-    symbols_cf* inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_cf* internal, // Internal nodes are the symbols computed during the process (to the left)
-    uint16_t*  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
-    uint16_t*  symbols,  // Symbols are the ones going from leafs to root (done on the left)
-    int size,            // Size is the number of symbols (should be a power of 2)
-    const int   symbol_id)  // Symbol ID is the index of the FIRST symbol in the symbols array
+template <int gf_size>
+void decoder_naive_cfloat<gf_size>::middle_node(
+    symbols_cf * inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_cf * internal, // Internal nodes are the symbols computed during the process (to the left)
+    uint16_t *   decoded,  // Decoded symbols are the final output of the decoder (done on the left)
+    uint16_t *   symbols,  // Symbols are the ones going from leafs to root (done on the left)
+    int          size,     // Size is the number of symbols (should be a power of 2)
+    const int    symbol_id)   // Symbol ID is the index of the FIRST symbol in the symbols array
 {
     const int n = size / 2; // Assuming size is the number of symbols
     //
     //
     //
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
         f_function<gf_size>(internal + i, inputs + i, inputs + n + i);
     }
     //
     //
     //
-    if (n == 1)
-    {
+    if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id);
-    }
-    else
-    {
+    } else {
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id);
     }
     //
     //
     //
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
         g_function<gf_size>(internal + i, inputs + i, inputs + n + i, symbols[symbol_id + i]);
     }
     //
     //
     //
-    if (n == 1)
-    {
+    if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id + n);
-    }
-    else
-    {
+    } else {
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id + n);
     }
     //
     //
     //
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
     }
     //
     //
     //
 }
-template <int gf_size> void decoder_naive_cfloat<gf_size>::leaf_node(
+template <int gf_size>
+void decoder_naive_cfloat<gf_size>::leaf_node(
     symbols_cf * var,
-    uint16_t *  decoded,
-    uint16_t *  symbols,
-    const int   symbol_id)
-{
+    uint16_t *   decoded,
+    uint16_t *   symbols,
+    const int    symbol_id) {
     //
     // Switch from frequency to time domain if needed
     //
-    if (frozen[symbol_id] == true)
-    {
+    if (frozen[symbol_id] == true) {
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;
         return;
     }
 
-    if (var->is_freq)
-    {
+    if (var->is_freq) {
         const float factor = norm_factor_lwht<gf_size>();
         f_normalize<gf_size>(var->value, factor);
         f_normalize<gf_size>(var->value, factor);
         fwht<gf_size>(var->value);
+#if FWHT_COUNTER_ENABLE
+        fwht_call_counter += 1;
+#endif
         var->is_freq = false;
     }
 
     const int max_index = f_argmax<gf_size>(var->value);
-    decoded[symbol_id] = max_index;
-    symbols[symbol_id] = max_index;
+    decoded[symbol_id]  = max_index;
+    symbols[symbol_id]  = max_index;
 }
 //
 //
