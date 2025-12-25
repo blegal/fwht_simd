@@ -10,6 +10,7 @@
 //
 //
 //
+#define abd_normalize 1
 template <int gf_size>
 void middle_node_pruned_rep_after_f(
     symbols_s<gf_size> * __restrict inputs, // Inputs are the symbols from the channel (from the right)
@@ -24,19 +25,34 @@ void middle_node_pruned_rep_after_f(
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 1;
 #endif
+
+#ifndef abd_normalize
         normalize<gf_size>(inputs[i].value);
+#endif
     }
 
     float temp[gf_size];
     for (int j = 0; j < gf_size; j++)
         temp[j] = inputs[0].value[j] * inputs[1].value[j];
 
+#ifndef abd_normalize
     for (int i = 2; i < size; i++) {
         if ((i & 0x1) == 1)
             normalize<gf_size>(temp);
         for (int j = 0; j < gf_size; j++)
             temp[j] *= inputs[i].value[j];
     }
+#else
+    for (int i = 2; i < size; i++) {
+        if ((i & 0x1) == 1) {
+            const int   max_index = argmax<gf_size>(temp);
+            const float max_val   = temp[max_index];
+            scale_by_inverse<gf_size>(temp, max_val);
+        }
+        for (int j = 0; j < gf_size; j++)
+            temp[j] *= inputs[i].value[j];
+    }
+#endif
 
     const int value = argmax<gf_size>(temp);
     for (int i = 0; i < size; i++) {
