@@ -71,7 +71,7 @@ bool are_equivalent(
     const float * __restrict b,
     const float epsilon, const int size) {
     for (int i = 0; i < size; i++) {
-        const float diff = abs(a[i] - b[i]);
+        const float diff = std::abs(a[i] - b[i]);
         if (diff > epsilon) {
             return false;
         }
@@ -84,7 +84,7 @@ bool are_equivalent(
     const int32_t * __restrict b,
     const int32_t epsilon, const int size) {
     for (int i = 0; i < size; i++) {
-        const int32_t diff = abs(a[i] - b[i]);
+        const int32_t diff = std::abs(a[i] - b[i]);
         if (diff > epsilon) {
             return false;
         }
@@ -322,7 +322,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-#if defined(__ARM_NEON__)
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
         auto start_i_neon = std::chrono::system_clock::now();
         memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
