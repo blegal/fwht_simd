@@ -2,7 +2,9 @@
 // Created by legal on 03/07/2025.
 //
 #pragma once
-#include <immintrin.h>
+#if defined(__AVX2__)
+    #include <immintrin.h>
+#endif
 //
 //
 //
@@ -12,8 +14,9 @@
 //
 template <int gf_size>
 inline void scale_by_inverse(float * data, float factor) {
+    const float inv_sum = 1.0f / factor;
     for (int i = 0; i < gf_size; i++) {
-        data[i] *= factor;
+        data[i] *= inv_sum;
     }
 }
 //
@@ -23,6 +26,7 @@ inline void scale_by_inverse(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<8>(float * data, float factor) {
     // Charger les 8 floats
@@ -35,6 +39,7 @@ void inline scale_by_inverse<8>(float * data, float factor) {
     // Écrire le résultat normalisé en place
     _mm256_storeu_ps(data, v_norm);
 }
+#endif
 //
 //
 //
@@ -42,6 +47,7 @@ void inline scale_by_inverse<8>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<16>(float * data, float factor) {
     // Charger les 16 floats en 2 vecteurs
@@ -57,6 +63,7 @@ void inline scale_by_inverse<16>(float * data, float factor) {
     _mm256_storeu_ps(data, v0);
     _mm256_storeu_ps(data + 8, v1);
 }
+#endif
 //
 //
 //
@@ -64,6 +71,7 @@ void inline scale_by_inverse<16>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<32>(float * data, float factor) {
     __m256 v[4]; // 4 x 8 = 32
@@ -79,6 +87,7 @@ void inline scale_by_inverse<32>(float * data, float factor) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+#endif
 //
 //
 //
@@ -86,6 +95,7 @@ void inline scale_by_inverse<32>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<64>(float * data, float factor) {
     __m256 v[8]; // 8 x 8 = 64
@@ -100,6 +110,7 @@ void inline scale_by_inverse<64>(float * data, float factor) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+#endif
 //
 //
 //
@@ -107,6 +118,7 @@ void inline scale_by_inverse<64>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<128>(float * data, float factor) {
     __m256 v[16]; // 16 x 8 = 128
@@ -121,6 +133,7 @@ void inline scale_by_inverse<128>(float * data, float factor) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+#endif
 //
 //
 //
@@ -128,6 +141,7 @@ void inline scale_by_inverse<128>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<256>(float * data, float factor) {
     __m256 v[32]; // 32 x 8 = 256
@@ -144,6 +158,7 @@ void inline scale_by_inverse<256>(float * data, float factor) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+#endif
 //
 //
 //
@@ -151,6 +166,7 @@ void inline scale_by_inverse<256>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<512>(float * data, float factor) {
     __m256 v[64]; // 64 x 8 = 512
@@ -167,6 +183,7 @@ void inline scale_by_inverse<512>(float * data, float factor) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+#endif
 //
 //
 //
@@ -174,6 +191,7 @@ void inline scale_by_inverse<512>(float * data, float factor) {
 //
 //
 //
+#if defined(__AVX2__)
 template <>
 void inline scale_by_inverse<1024>(float * data, float factor) {
     __m256 v[128]; // 128 x 8 = 1024
@@ -187,6 +205,7 @@ void inline scale_by_inverse<1024>(float * data, float factor) {
         _mm256_storeu_ps(data + i * 8, v[i]);
     }
 }
+#endif
 //
 //
 //
