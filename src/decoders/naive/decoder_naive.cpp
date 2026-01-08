@@ -1,6 +1,7 @@
 #include "decoder_naive.hpp"
 #include "f_function.hpp"
 #include "g_function.hpp"
+#include "utilities/utility_functions.hpp"
 //
 //
 //
@@ -45,7 +46,7 @@ decoder_naive<gf_size>::~decoder_naive() {
 }
 
 template <int gf_size>
-void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded) {
+void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded, uint16_t * ksymb, float * entrop, float * one_err_prob) {
     symbols_s<gf_size> * i_channel = static_cast<symbols_s<gf_size> *>(s_channel);
     for (int i = 0; i < N; i++) {
         channel[i] = convert_to_symbols_t(i_channel[i].value, gf_size, false);
@@ -56,13 +57,13 @@ void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded) {
         f_function<gf_size>(internal + i, channel + i, channel + n + i);
     }
     //
-    middle_node(internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
+    middle_node(internal, internal + n, decoded, symbols, n, 0, ksymb, entrop, one_err_prob); // On descend à gauche
     //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(internal + i, channel + i, channel + n + i, symbols[i]);
     }
     //
-    middle_node(internal, internal + n, decoded, symbols, n, n); // On descend à droite
+    middle_node(internal, internal + n, decoded, symbols, n, n, ksymb, entrop, one_err_prob); // On descend à droite
     //
     // No H computations as we are at the top node and we have a non systematic code !!!
     //
@@ -79,7 +80,9 @@ void decoder_naive<gf_size>::middle_node(
     uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t *  symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int         size,     // Size is the number of symbols (should be a power of 2)
-    const int   symbol_id)  // Symbol ID is the index of the FIRST symbol in the symbols array
+    const int   symbol_id,
+    uint16_t *  ksymb,
+    float * entrop, float * one_err_prob) // Symbol ID is the index of the FIRST symbol in the symbols array
 {
     const int n = size / 2; // Assuming size is the number of symbols
     //
@@ -88,9 +91,9 @@ void decoder_naive<gf_size>::middle_node(
     }
     //
     if (n == 1) {
-        leaf_node(internal, decoded, symbols, symbol_id);
+        leaf_node(internal, decoded, symbols, symbol_id, ksymb, entrop, one_err_prob);
     } else {
-        middle_node(internal, internal + n, decoded, symbols, n, symbol_id);
+        middle_node(internal, internal + n, decoded, symbols, n, symbol_id, ksymb, entrop, one_err_prob);
     }
     //
     for (int i = 0; i < n; i++) {
@@ -98,9 +101,9 @@ void decoder_naive<gf_size>::middle_node(
     }
     //
     if (n == 1) {
-        leaf_node(internal, decoded, symbols, symbol_id + n);
+        leaf_node(internal, decoded, symbols, symbol_id + n, ksymb, entrop, one_err_prob);
     } else {
-        middle_node(internal, internal + n, decoded, symbols, n, symbol_id + n);
+        middle_node(internal, internal + n, decoded, symbols, n, symbol_id + n, ksymb, entrop, one_err_prob);
     }
     //
     for (int i = 0; i < n; i++) {
@@ -113,15 +116,12 @@ void decoder_naive<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
-    const int   symbol_id) {
+    const int   symbol_id,
+    uint16_t *  ksymb,
+    float * entrop, float * one_err_prob) {
     //
     // Switch from frequency to time domain if needed
     //
-    if (frozen[symbol_id] == true) {
-        decoded[symbol_id] = 0;
-        symbols[symbol_id] = 0;
-        return;
-    }
 
     if (var->is_freq) {
         FWHT<gf_size>(var->value);
@@ -130,10 +130,13 @@ void decoder_naive<gf_size>::leaf_node(
         fwht_call_counter += 1;
 #endif
     }
-
-    const int max_index = argmax<gf_size>(var->value);
-    decoded[symbol_id]  = max_index;
-    symbols[symbol_id]  = max_index;
+    normalize<gf_size>(var->value);
+    entrop[symbol_id]       = compute_entropy<gf_size>(var->value);
+    one_err_prob[symbol_id] = (1 - var->value[ksymb[symbol_id]]);
+    const int max_index
+        = argmax<gf_size>(var->value);
+    decoded[symbol_id] = max_index;
+    symbols[symbol_id] = ksymb[symbol_id];
 }
 //
 //

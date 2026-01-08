@@ -38,4 +38,3 @@
 #include "argmax/argmax.hpp"
 
 #include "normalize/normalize.hpp"
-#include "normalize/scale_by_inverse_avx2.hpp"
