@@ -36,3 +36,25 @@ int argmax(const float * value) {
 //
 //
 //
+template <int gf_size>
+int argmax(const int32_t * value) {
+    int     max_index = 0;
+    int32_t max_value = value[0];
+#if defined (__clang__)
+#pragma unroll
+#endif
+    for (int i = 1; i < gf_size; i++) {
+        if (value[i] > max_value) {
+            max_value = value[i];
+            max_index = i;
+        }
+    }
+    return max_index;
+}
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//

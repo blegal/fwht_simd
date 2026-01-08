@@ -18,12 +18,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#ifdef __AVX512F__
+//#ifdef __AVX512F__
+#if 1
 
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <immintrin.h>
 
 template <uint16_t GF>
@@ -45,10 +47,61 @@ inline void fwht_avx512(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
+
+inline void print(std::string msg, float* tab) {
+    printf("\n[%s] ", msg.c_str());
+    for (int i = 0; i < 16; i++) {
+        if ( i == 8 ) printf("\n[%s] ", msg.c_str());
+        else if ( ((i%4) ==0) && (i != 0) ) printf("   ");
+        printf("%7.3f ", tab[i]);
+    }
+    printf("\n");
+    printf("\n");
+}
+
+inline void print(std::string msg, const __m512 v) {
+    float y[16];
+    _mm512_storeu_ps(y, v);
+    print(msg, y);
+}
+
+inline void fwht16_terminale(const __m512 X, float y[]) {
+    //
+    // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
+    //
+    const __m512 minus_one = _mm512_castsi512_ps(_mm512_set1_epi32(0x80000000));
+    constexpr __mmask16 mask_l1 = 0xFF00;
+    constexpr __mmask16 mask_l2 = 0xF0F0;
+    constexpr __mmask16 mask_l3 = 0xCCCC;
+    constexpr __mmask16 mask_l4 = 0xAAAA;
+
+    const __m512 l1_A = _mm512_mask_xor_ps(X, mask_l1, X, minus_one);
+    const __m512 l1_B = _mm512_shuffle_f32x4(X, X, 0b01001110 /*0x1032*/); // [7...0] [15...8]
+    const __m512 l1_C = _mm512_add_ps(l1_A, l1_B);
+
+    const __m512 l2_A = _mm512_mask_xor_ps(l1_C, mask_l2, l1_C, minus_one);
+    const __m512 l2_B = _mm512_shuffle_f32x4(l1_C, l1_C, 0b10110001 /*0x2301*/); // [11.8][15.12] [3.0][7.4]
+    const __m512 l2_C = _mm512_add_ps(l2_A, l2_B);
+
+    const __m512 l3_A = _mm512_mask_xor_ps(l2_C, mask_l3, l2_C, minus_one);
+    const __m512 l3_B = _mm512_shuffle_ps(l2_C, l2_C, _MM_SHUFFLE(1, 0, 3, 2));
+    const __m512 l3_C = _mm512_add_ps(l3_A, l3_B);
+
+    const __m512 l4_A = _mm512_mask_xor_ps(l3_C, mask_l4, l3_C, minus_one);
+    const __m512 l4_B = _mm512_shuffle_ps(l3_C, l3_C, _MM_SHUFFLE(2, 3, 0, 1));
+    const __m512 l4_C = _mm512_add_ps(l4_A, l4_B);
+
+    _mm512_storeu_ps(y, l4_C);
+
+    //////////////////////////////////////////////////////
+}
+
+/*
 inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     //
     // ON LOAD LES COEFFICIENTS NECESSAIRE A LA TRANFORMATION DES TUILES BASSES
     //
+
     const __m256 M0 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x80000000, 0x80000000));
     const __m256 M1 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x00000000, 0x80000000, 0x80000000, 0x00000000, 0x00000000, 0x80000000, 0x80000000));
     const __m256 M2 = _mm256_castsi256_ps(_mm256_setr_epi32(0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000, 0x00000000, 0x80000000));
@@ -80,18 +133,15 @@ inline void fwht16_terminale(const __m256 X0, const __m256 X1, float y[]) {
     const __m256 BP2 = _mm256_add_ps(BP0, BP1);
     _mm256_storeu_ps(y + 8, BP2);
     //////////////////////////////////////////////////////
-}
+}*/
 
 inline void fwht16_flat_avx512(float x[], float y[]) {
-    const __m256 X0 = _mm256_loadu_ps(x + 0);
-    const __m256 X1 = _mm256_loadu_ps(x + 8);
-    fwht16_terminale(X0, X1, y);
+    const __m512 v = _mm512_loadu_ps(x);
+    fwht16_terminale(v, y);
 }
 
 inline void fwht16_flat_avx512(const __m512 X, float y[]) {
-    const __m256 X0 = _mm512_extractf32x8_ps(X, 0);
-    const __m256 X1 = _mm512_extractf32x8_ps(X, 1);
-    fwht16_terminale(X0, X1, y);
+    fwht16_terminale(X, y);
 }
 
 inline void fwht32_terminale(const __m512 X0, const __m512 X1, float y[]) {
@@ -103,12 +153,12 @@ inline void fwht32_terminale(const __m512 X0, const __m512 X1, float y[]) {
 
 inline void fwht32_flat_avx512(float x[], float y[])
 {
-    const __m512 X0 = _mm512_loadu_ps(x +  0);
-    const __m512 X2 = _mm512_loadu_ps(x + 16);
-    const __m512 m0 = _mm512_add_ps(X0, X2);
-    fwht16_flat_avx512(m0, y +  0);
-    const __m512 M0 = _mm512_sub_ps(X0, X2);
-    fwht16_flat_avx512(M0, y + 16);
+    const __m512 X  = _mm512_loadu_ps(x +  0);
+    const __m512 Y  = _mm512_loadu_ps(x + 16);
+    const __m512 XX = X + Y;
+    const __m512 YY = X - Y;
+    fwht16_flat_avx512(XX, y +  0);
+    fwht16_flat_avx512(YY, y + 16);
 }
 
 inline void fwht64_terminale(const __m512 X0, const __m512 X1, const __m512 X2, const __m512 X3, float y[])
@@ -128,19 +178,29 @@ inline void fwht64_flat_avx512(float x[], float y[]) {
     const __m512 X2 = _mm512_loadu_ps(x + 32);
     const __m512 X3 = _mm512_loadu_ps(x + 48);
 
-    const __m512 A0 = X0 + X2, A1 = X1 + X3;
-    const __m512 B0 = X0 - X2, B1 = X1 - X3;
+    const __m512 A0 = X0 + X2;
+    const __m512 A1 = X1 + X3;
+    const __m512 B0 = X0 - X2;
+    const __m512 B1 = X1 - X3;
 
     fwht32_terminale(A0, A1, y +  0);
-    fwht32_terminale(B0, B1, y +  0);
+    fwht32_terminale(B0, B1, y + 32);
 }
 
 inline void fwht128_terminale(
     __m512 X0, __m512 X1, __m512 X2, __m512 X3,
     __m512 X4, __m512 X5, __m512 X6, __m512 X7, float y[])
 {
-    const __m512 A0 = X0 + X4, A1 = X1 + X5, A2 = X2 + X6, A3 = X3 + X7;
-    const __m512 B0 = X0 - X4, B1 = X1 - X5, B2 = X2 - X6, B3 = X3 - X7;
+    const __m512 A0 = X0 + X4;
+    const __m512 A1 = X1 + X5;
+    const __m512 A2 = X2 + X6;
+    const __m512 A3 = X3 + X7;
+
+    const __m512 B0 = X0 - X4;
+    const __m512 B1 = X1 - X5;
+    const __m512 B2 = X2 - X6;
+    const __m512 B3 = X3 - X7;
+
     fwht64_terminale(A0, A1, A2, A3, y +  0);
     fwht64_terminale(B0, B1, B2, B3, y + 64);
 }
@@ -237,54 +297,15 @@ inline void fwht_avx512<16>(float x[], float y[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-template <>
-inline void fwht_avx512<32>(float x[]) {
-    fwht32_flat_avx512(x, x);
-}
-template <>
-inline void fwht_avx512<32>(float x[], float y[]) {
-    fwht32_flat_avx512(x, y);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_avx512<64>(float x[]) {
-    fwht64_flat_avx512(x, x);
-}
-template <>
-inline void fwht_avx512<64>(float x[], float y[]) {
-    fwht64_flat_avx512(x, y);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_avx512<128>(float x[]) {
-    fwht128_flat_avx512(x, x);
-}
-template <>
-inline void fwht_avx512<128>(float x[], float y[]) {
-    fwht128_flat_avx512(x, y);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_avx512<256>(float x[]) {
-    fwht256_flat_avx512(x, x);
-}
+template <> inline void fwht_avx512< 32>(float x[]) { fwht32_flat_avx512(x, x); }
+template <> inline void fwht_avx512< 64>(float x[]) { fwht64_flat_avx512(x, x); }
+template <> inline void fwht_avx512<128>(float x[]) { fwht128_flat_avx512(x, x); }
+template <> inline void fwht_avx512<256>(float x[]) { fwht256_flat_avx512(x, x); }
 
-template <>
-inline void fwht_avx512<256>(float x[], float y[]) {
-    fwht256_flat_avx512(x, y);
-}
+template <> inline void fwht_avx512< 32>(float x[], float y[]) { fwht32_flat_avx512(x, y);}
+template <> inline void fwht_avx512< 64>(float x[], float y[]) { fwht64_flat_avx512(x, y); }
+template <> inline void fwht_avx512<128>(float x[], float y[]) { fwht128_flat_avx512(x, y); }
+template <> inline void fwht_avx512<256>(float x[], float y[]) { fwht256_flat_avx512(x, y); }
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

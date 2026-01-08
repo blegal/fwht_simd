@@ -7,12 +7,11 @@
 //
 //
 template <int gf_size>
-decoder_naive<gf_size>::decoder_naive(const int n, const int* frozen_symb ) : N(n)
-{
+decoder_naive<gf_size>::decoder_naive(const int n, const int * frozen_symb) : N(n) {
     channel  = new symbols_t[N];
     internal = new symbols_t[N];
-    symbols  = new uint16_t [N];
-    frozen   = new uint32_t [N];
+    symbols  = new uint16_t[N];
+    frozen   = new uint32_t[N];
 
     for (int i = 0; i < N; i++) {
         frozen[i] = frozen_symb[i];
@@ -23,8 +22,8 @@ decoder_naive<gf_size>::decoder_naive(const int n, const int* frozen_symb ) : N(
 //
 //
 //
-template <int gf_size> decoder_naive<gf_size>::decoder_naive() : N(0)
-{
+template <int gf_size>
+decoder_naive<gf_size>::decoder_naive() : N(0) {
     internal = nullptr;
     symbols  = nullptr;
     frozen   = nullptr;
@@ -37,33 +36,33 @@ template <int gf_size> decoder_naive<gf_size>::decoder_naive() : N(0)
 //
 //
 //
-template <int gf_size> decoder_naive<gf_size>::~decoder_naive()
-{
-    delete[]channel;
-    delete[]internal;
-    delete[]symbols;
-    delete[]frozen;
+template <int gf_size>
+decoder_naive<gf_size>::~decoder_naive() {
+    delete[] channel;
+    delete[] internal;
+    delete[] symbols;
+    delete[] frozen;
 }
 
-template <int gf_size> void decoder_naive<gf_size>::execute(void* s_channel, uint16_t *  decoded)
-{
-    symbols_s<gf_size>* i_channel = static_cast< symbols_s<gf_size>* >(s_channel);
+template <int gf_size>
+void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded) {
+    symbols_s<gf_size> * i_channel = static_cast<symbols_s<gf_size> *>(s_channel);
     for (int i = 0; i < N; i++) {
         channel[i] = convert_to_symbols_t(i_channel[i].value, gf_size, false);
     }
     const int n = N / 2; // Assuming size is the number of symbols
     //
     for (int i = 0; i < n; i++) {
-        f_function<gf_size>( internal + i, channel + i, channel + n + i);
+        f_function<gf_size>(internal + i, channel + i, channel + n + i);
     }
     //
-    middle_node( internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
+    middle_node(internal, internal + n, decoded, symbols, n, 0); // On descend à gauche
     //
     for (int i = 0; i < n; i++) {
-        g_function<gf_size>( internal + i, channel + i, channel + n + i, symbols[i]);
+        g_function<gf_size>(internal + i, channel + i, channel + n + i, symbols[i]);
     }
     //
-    middle_node( internal, internal + n, decoded, symbols, n, n); // On descend à droite
+    middle_node(internal, internal + n, decoded, symbols, n, n); // On descend à droite
     //
     // No H computations as we are at the top node and we have a non systematic code !!!
     //
@@ -73,7 +72,8 @@ template <int gf_size> void decoder_naive<gf_size>::execute(void* s_channel, uin
 //
 //
 //
-template <int gf_size> void decoder_naive<gf_size>::middle_node(
+template <int gf_size>
+void decoder_naive<gf_size>::middle_node(
     symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
     symbols_t * internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
@@ -108,7 +108,8 @@ template <int gf_size> void decoder_naive<gf_size>::middle_node(
     }
     //
 }
-template <int gf_size> void decoder_naive<gf_size>::leaf_node(
+template <int gf_size>
+void decoder_naive<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
@@ -125,37 +126,49 @@ template <int gf_size> void decoder_naive<gf_size>::leaf_node(
     if (var->is_freq) {
         FWHT<gf_size>(var->value);
         var->is_freq = false;
+#if FWHT_COUNTER_ENABLE
+        fwht_call_counter += 1;
+#endif
     }
 
     const int max_index = argmax<gf_size>(var->value);
-    decoded[symbol_id] = max_index;
-    symbols[symbol_id] = max_index;
+    decoded[symbol_id]  = max_index;
+    symbols[symbol_id]  = max_index;
 }
 //
 //
 //
 //
 //
-#if _GF_ == 8
-    template class decoder_naive<  8>;
-#elif _GF_ == 16
-    template class decoder_naive< 16>;
-#elif _GF_ == 32
-    template class decoder_naive< 32>;
-#elif _GF_ == 64
-    template class decoder_naive< 64>;
-#elif _GF_ == 128
-    template class decoder_naive<128>;
-#elif _GF_ == 256
-    template class decoder_naive<256>;
-#elif _GF_ == 512
-    template class decoder_naive<512>;
-#elif _GF_ == 1024
-    template class decoder_naive<1024>;
-#elif _GF_ == 2048
-    template class decoder_naive<2048>;
-#elif _GF_ == 4096
-    template class decoder_naive<4096>;
+#if (_GF_ == 8) || defined(ALL_GFs)
+template class decoder_naive<8>;
+#endif
+#if (_GF_ == 16) || defined(ALL_GFs)
+template class decoder_naive<16>;
+#endif
+#if (_GF_ == 32) || defined(ALL_GFs)
+template class decoder_naive<32>;
+#endif
+#if (_GF_ == 64) || defined(ALL_GFs)
+template class decoder_naive<64>;
+#endif
+#if (_GF_ == 128) || defined(ALL_GFs)
+template class decoder_naive<128>;
+#endif
+#if (_GF_ == 256) || defined(ALL_GFs)
+template class decoder_naive<256>;
+#endif
+#if (_GF_ == 512) || defined(ALL_GFs)
+template class decoder_naive<512>;
+#endif
+#if (_GF_ == 1024) || defined(ALL_GFs)
+template class decoder_naive<1024>;
+#endif
+#if (_GF_ == 2048) || defined(ALL_GFs)
+template class decoder_naive<2048>;
+#endif
+#if (_GF_ == 4096) || defined(ALL_GFs)
+template class decoder_naive<4096>;
 #endif
 //
 //

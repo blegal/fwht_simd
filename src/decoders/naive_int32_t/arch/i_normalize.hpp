@@ -12,7 +12,7 @@
 template <int gf_size>
 void i_normalize(int32_t *tab)
 {
-    int32_t sum = 1e-24f;
+    int32_t sum = 1; // la valeur la plus basse !
     for (int i = 0; i < gf_size; i += 1)
     {
         sum += tab[i];

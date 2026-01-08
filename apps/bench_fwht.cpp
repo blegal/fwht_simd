@@ -71,7 +71,7 @@ bool are_equivalent(
     const float * __restrict b,
     const float epsilon, const int size) {
     for (int i = 0; i < size; i++) {
-        const float diff = abs(a[i] - b[i]);
+        const float diff = std::abs(a[i] - b[i]);
         if (diff > epsilon) {
             return false;
         }
@@ -84,7 +84,7 @@ bool are_equivalent(
     const int32_t * __restrict b,
     const int32_t epsilon, const int size) {
     for (int i = 0; i < size; i++) {
-        const int32_t diff = abs(a[i] - b[i]);
+        const int32_t diff = std::abs(a[i] - b[i]);
         if (diff > epsilon) {
             return false;
         }
@@ -322,7 +322,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-#if defined(__ARM_NEON__)
+#if defined(__ARM_NEON__) || defined(__ARM_NEON)
         auto start_i_neon = std::chrono::system_clock::now();
         memcpy(tab_a, tab_i, size * sizeof(float));
         for (int32_t loop = 0; loop < nTest; loop += 1) {
@@ -396,9 +396,9 @@ int main(int argc, char *argv[]) {
         const bool     ok_avx2     = are_equivalent(tab_i, tab_a, epsilon, size);
         const uint64_t time_avx2   = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_i_avx2 - start_i_avx2).count() / nTest;
         if (ok_avx2) {
-            printf(" - [AVX2] fwht_avx512    \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            printf(" - [AVX2] fwht_avx512           \033[32mOK\033[0m [%5d ns]\n", (int32_t) time_avx2);
         } else {
-            printf(" - [AVX2] fwht_avx512    \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
+            printf(" - [AVX2] fwht_avx512           \033[31mKO\033[0m [%5d ns]\n", (int32_t) time_avx2);
         }
     }
 #endif

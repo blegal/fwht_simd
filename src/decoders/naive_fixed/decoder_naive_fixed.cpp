@@ -185,27 +185,16 @@ template <int gf_size> void decoder_naive_fixed<gf_size>::leaf_node(
 //
 //
 //
-#if _GF_ == 8
-    template class decoder_naive_fixed<8>;
-#elif _GF_ == 16
-    template class decoder_naive_fixed<16>;
-#elif _GF_ == 32
-    template class decoder_naive_fixed<32>;
-#elif _GF_ == 64
-    template class decoder_naive_fixed<64>;
-#elif _GF_ == 128
-    template class decoder_naive_fixed<128>;
-#elif _GF_ == 256
-    template class decoder_naive_fixed<256>;
-#elif _GF_ == 512
-    template class decoder_naive_fixed<512>;
-#elif _GF_ == 1024
-    template class decoder_naive_fixed<1024>;
-#elif _GF_ == 2048
-    template class decoder_naive_fixed<2048>;
-#elif _GF_ == 4096
-    template class decoder_naive_fixed<4096>;
-#endif
+template class decoder_naive_fixed<8>;
+template class decoder_naive_fixed<16>;
+template class decoder_naive_fixed<32>;
+template class decoder_naive_fixed<64>;
+template class decoder_naive_fixed<128>;
+template class decoder_naive_fixed<256>;
+template class decoder_naive_fixed<512>;
+template class decoder_naive_fixed<1024>;
+template class decoder_naive_fixed<2048>;
+template class decoder_naive_fixed<4096>;
 //
 //
 //

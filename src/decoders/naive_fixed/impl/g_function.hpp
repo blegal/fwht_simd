@@ -17,6 +17,10 @@ void g_function(
         const float factor = norm_factor_lwht<gf_size>();
         f_normalize<gf_size>(src_a->value, factor);
         f_normalize<gf_size>(src_a->value, factor);
+        //
+        // two consecutives NORM or SCALING seems to be
+        // equals to DIVISION by GF
+        //
         fwht_fixed <gf_size>(src_a->value);
         src_a->is_freq = false;
     }
@@ -25,11 +29,14 @@ void g_function(
         const float factor = norm_factor_lwht<gf_size>();
         f_normalize<gf_size>(src_b->value, factor);
         f_normalize<gf_size>(src_b->value, factor);
+        //
+        // two consecutives NORM or SCALING seems to be
+        // equals to DIVISION by GF
+        //
         fwht_fixed <gf_size>(src_b->value);
         src_b->is_freq = false;
     }
 
-//  symbols_t tt;
     for (size_t i = 0; i < gf_size; i++) {
         const int idx = src_c ^ i;
         dst->value[idx] = src_a->value[i] * src_b->value[idx];
