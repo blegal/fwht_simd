@@ -1,0 +1,4 @@
+#ifndef CONFIG_CODE_H
+#define CONFIG_CODE_H
+#include "definitions/codes/N@N@_GF@GF@.hpp"
+#endif
