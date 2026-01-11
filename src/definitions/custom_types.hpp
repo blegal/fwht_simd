@@ -5,7 +5,7 @@
 #include "features/archi.hpp"
 #include <cmath>
 #include <cstdint>
-#define NBITS 31
+#define NBITS 26
 //
 //
 // For generic NB polar decoders
@@ -73,13 +73,8 @@ struct symbols_i {
     int32_t value[gf_size];
     bool    is_freq;
 };
-
-template <int gf_size>
-struct symbols_i64 {
-    int32_t value[gf_size];
-    bool    is_freq;
-};
-
+//
+//
 template <int gf_size>
 inline void show(int32_t * symb) {
     for (int i = 0; i < gf_size; i++) {
@@ -106,12 +101,31 @@ inline symbols_i<gf_size> convert_to_symbols_i(const symbols_s<gf_size> symb) {
     symbols_i<gf_size> result;
     for (int i = 0; i < gf_size; i++) {
         const double  v = symb.value[i];
-        const int32_t w = static_cast<int32_t>(v * (float) (1u << (NBITS - 1)));
+        const int32_t w = (int32_t) round(v * 268435456.0);
         result.value[i] = w;
+#if 0
+        printf("%3d : %8.6f = %d\n", i, symb.value[i], result.value[i]);
+#endif
     }
     result.is_freq = false;
     return result;
 }
+//
+//
+template <int gf_size>
+inline void convert_from_symbols_i(float * dst, const symbols_i<gf_size> & src) {
+    for (int i = 0; i < gf_size; i++) {
+        const double v = src.value[i];
+        const float  w = (float) (v / 268435456.0);
+        dst[i]         = w;
+    }
+}
+
+template <int gf_size>
+struct symbols_i64 {
+    int32_t value[gf_size];
+    bool    is_freq;
+};
 
 template <int gf_size>
 inline symbols_i64<gf_size> convert_to_symbols_i64(const symbols_s<gf_size> symb) {
@@ -127,4 +141,5 @@ inline symbols_i64<gf_size> convert_to_symbols_i64(const symbols_s<gf_size> symb
     result.is_freq = false;
     return result;
 }
+//
 //
