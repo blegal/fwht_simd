@@ -12,19 +12,19 @@
 template <int gf_size>
 void i_normalize(int32_t *tab)
 {
-    int32_t sum = 1; // la valeur la plus basse !
+    int64_t sum = 0; // la valeur la plus basse !
     for (int i = 0; i < gf_size; i += 1)
     {
         sum += tab[i];
     }
-    const int32_t zero = 0.f;
-    if (zero == sum)
-    {
-        sum = 1.f;
-    }
-    for (int i = 0; i < gf_size; i++)
-    {
-        tab[i] /= sum;
+    if ( sum >= 268435456 ) {
+        const int32_t factor = sum / 268435456;
+        for (int i = 0; i < gf_size; i++)
+            tab[i] /= factor;
+    }else {
+        const int32_t factor = 268435456 / sum;
+        for (int i = 0; i < gf_size; i++)
+            tab[i] *= factor;
     }
 }
 //

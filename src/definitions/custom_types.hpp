@@ -75,12 +75,36 @@ struct symbols_i {
 //
 //
 template<int gf_size>
+inline void show(int32_t* symb) {
+    for (int i = 0; i < gf_size; i++) {
+        if ( i == 0 )
+            printf("%3d :", i);
+        else if ( i%8 == 0 )
+            printf("\n%3d :", i);
+        printf("%10d ", symb[i]);
+    }
+    printf("\n");
+}
+template<int gf_size>
+inline bool is_null(int32_t* symb) {
+    int64_t sum = 0;
+    for (int i = 0; i < gf_size; i++) {
+        sum += symb[i];
+    }
+    return (sum == 0);
+}
+//
+//
+template<int gf_size>
 inline symbols_i<gf_size> convert_to_symbols_i(const symbols_s<gf_size> symb) {
     symbols_i<gf_size> result;
     for (int i = 0; i < gf_size; i++) {
         const double  v = symb.value[i];
         const int32_t w = (int32_t)round(v * 268435456.0);
         result.value[i] = w;
+#if 0
+        printf("%3d : %8.6f = %d\n", i, symb.value[i], result.value[i]);
+#endif
     }
     result.is_freq = false;
     return result;

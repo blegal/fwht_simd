@@ -63,39 +63,25 @@ decoder_naive_int32_t<gf_size>::~decoder_naive_int32_t() {
 template <int gf_size>
 void decoder_naive_int32_t<gf_size>::execute(void * s_channel, uint16_t * decoded) {
     symbols_s<gf_size> * channel = static_cast<symbols_s<gf_size> *>(s_channel);
-    const int            n       = N / 2; // Assuming size is the number of symbols
-    //
-    //
+    const int n = N / 2; // Assuming size is the number of symbols
     //
     for (int i = 0; i < N; i++) {
         f_channel[i] = convert_to_symbols_i<gf_size>(channel[i]);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         f_function<gf_size>(f_internal + i, f_channel + i, f_channel + n + i);
     }
     //
-    //
-    //
     middle_node(f_internal, f_internal + n, decoded, symbols, n, 0); // On descend à gauche
-    //
-    //
     //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(f_internal + i, f_channel + i, f_channel + n + i, symbols[i]);
     }
     //
-    //
-    //
     middle_node(f_internal, f_internal + n, decoded, symbols, n, n); // On descend à droite
     //
-    //
-    //
     // No H computations as we are at the top node and we have a non systematic code !!!
-    //
-    //
     //
 }
 //
@@ -114,13 +100,9 @@ void decoder_naive_int32_t<gf_size>::middle_node(
 {
     const int n = size / 2; // Assuming size is the number of symbols
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         f_function<gf_size>(internal + i, inputs + i, inputs + n + i);
     }
-    //
-    //
     //
     if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id);
@@ -128,13 +110,9 @@ void decoder_naive_int32_t<gf_size>::middle_node(
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         g_function<gf_size>(internal + i, inputs + i, inputs + n + i, symbols[symbol_id + i]);
     }
-    //
-    //
     //
     if (n == 1) {
         leaf_node(internal, decoded, symbols, symbol_id + n);
@@ -142,15 +120,16 @@ void decoder_naive_int32_t<gf_size>::middle_node(
         middle_node(internal, internal + n, decoded, symbols, n, symbol_id + n);
     }
     //
-    //
-    //
     for (int i = 0; i < n; i++) {
         symbols[symbol_id + i] ^= symbols[symbol_id + n + i];
     }
     //
-    //
-    //
 }
+//
+//
+//
+//
+//
 template <int gf_size>
 void decoder_naive_int32_t<gf_size>::leaf_node(
     symbols_i<gf_size> * var,
@@ -160,6 +139,7 @@ void decoder_naive_int32_t<gf_size>::leaf_node(
     //
     // Switch from frequency to time domain if needed
     //
+
     if (frozen[symbol_id] == true) {
         decoded[symbol_id] = 0;
         symbols[symbol_id] = 0;
@@ -167,17 +147,21 @@ void decoder_naive_int32_t<gf_size>::leaf_node(
     }
 
     if (var->is_freq) {
-        /*
-                const float factor = norm_factor_lwht<gf_size>();
-                i_normalize<gf_size>(var->value, factor);
-                i_normalize<gf_size>(var->value, factor);
-        */
+        for (int i = 0; i < gf_size; i++)
+            var->value[i] /= gf_size;
         fwht<gf_size>(var->value);
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 1;
 #endif
         var->is_freq = false;
     }
+
+#if 0
+    printf("(EE) Leaf node %d\n", symbol_id);
+    show<gf_size>(var->value);
+    if ( is_null<gf_size>(var->value) )
+        exit( EXIT_FAILURE );
+#endif
 
     const int max_index = i_argmax<gf_size>(var->value);
     decoded[symbol_id]  = max_index;
