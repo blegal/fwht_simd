@@ -27,13 +27,34 @@ void f_function(
     //
     // Element-wise multiplication of the two input symbols because we are in frequency domain !
     //
+#if NEW_QUANTIF == 0
     for (size_t i = 0; i < gf_size; i++) {
         const int64_t a = src_a->value[i];
         const int64_t b = src_b->value[i];
         const int64_t c = a * b;
-        dst->value[i]   = (int32_t) (c >> 28);
-//        printf("F %3zu : %lld * %lld = %d\n", i, a, b, dst->value[i]);
+        dst->value[i]   = (int32_t) (c >> symbols_i_shift);
     }
+#else
+    int64_t tmp[gf_size];
+    for (size_t i = 0; i < gf_size; i++) {
+        const int64_t a = src_a->value[i];
+        const int64_t b = src_b->value[i];
+        tmp[i]          = a * b;
+    }
+    int64_t maxv = 0;
+    for (size_t i = 0; i < gf_size; i++) {
+        const int64_t a = tmp[i];
+        const int64_t b = (a < 0) ? -a : a;
+        maxv = (maxv > b) ? maxv : b;
+    }
+    if ( maxv > symbols_i_iscale ) {
+        for (size_t i = 0; i < gf_size; i++)
+            dst->value[i]   = (int32_t) (tmp[i] * symbols_i_iscale / maxv );
+    }else {
+        for (size_t i = 0; i < gf_size; i++)
+            dst->value[i]   = (int32_t) (tmp[i] * maxv / symbols_i_iscale);
+    }
+#endif
 #if 0
     printf("F function (result)"); show<gf_size>(dst->value);
 #endif

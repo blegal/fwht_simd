@@ -75,6 +75,34 @@ struct symbols_i {
 };
 //
 //
+#if 0
+    #define NEW_QUANTIF 0
+    #define symbols_i_iscale 268435456
+    #define symbols_i_fscale 268435456.f
+    #define symbols_i_shift  28
+#elif 0
+    #define NEW_QUANTIF 1
+    #define symbols_i_iscale (int64_t)65535
+    #define symbols_i_fscale 65535.f
+    #define symbols_i_shift  16
+#elif 1
+    #define NEW_QUANTIF 1
+    #define symbols_i_iscale (int64_t)131071
+    #define symbols_i_fscale 131071.f
+    #define symbols_i_shift  17
+#elif 1
+    #define NEW_QUANTIF 1
+    #define symbols_i_iscale (int64_t)262144
+    #define symbols_i_fscale 262144.f
+    #define symbols_i_shift  18
+#else
+    #define NEW_QUANTIF 0
+    #define symbols_i_iscale (int64_t)1048576
+    #define symbols_i_fscale 1048576.f
+    #define symbols_i_shift  20
+#endif
+//
+//
 template <int gf_size>
 inline void show(int32_t * symb) {
     for (int i = 0; i < gf_size; i++) {
@@ -103,7 +131,7 @@ inline symbols_i<gf_size> convert_to_symbols_i(const symbols_s<gf_size> symb) {
     symbols_i<gf_size> result;
     for (int i = 0; i < gf_size; i++) {
         const double  v = symb.value[i];
-        const int32_t w = (int32_t) round(v * 268435456.0);
+        const int32_t w = (int32_t) round(v * symbols_i_fscale);
         result.value[i] = w;
 #if 0
         printf("%3d : %8.6f = %d\n", i, symb.value[i], result.value[i]);
@@ -118,11 +146,12 @@ template <int gf_size>
 inline void convert_from_symbols_i(float * dst, const symbols_i<gf_size> & src) {
     for (int i = 0; i < gf_size; i++) {
         const double v = src.value[i];
-        const float  w = (float) (v / 268435456.0);
+        const float  w = (float) (v / (double)symbols_i_fscale);
         dst[i]         = w;
     }
 }
-
+//
+//
 template <int gf_size>
 struct symbols_i64 {
     int32_t value[gf_size];

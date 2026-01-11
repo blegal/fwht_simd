@@ -13,37 +13,52 @@ void g_function(
     uint32_t src_c)                        // the computed symbols coming from the left side of the graph
 {
     if (src_a->is_freq == true) {
-//        show<gf_size>( src_a->value );
+#if NEW_QUANTIF == 0
         for (int i = 0; i < gf_size; i++)
             src_a->value[i] /= gf_size;
-//        show<gf_size>( src_a->value );
+#endif
         fwht<gf_size>(src_a->value);
-//        show<gf_size>( src_a->value );
         src_a->is_freq = false;
     }
 
     if (src_b->is_freq == true) {
-        //for (int i = 0; i < gf_size; i++)
-        //    printf("G- %3d : %d\n", i, src_b->value[i]);
+#if NEW_QUANTIF == 0
         for (int i = 0; i < gf_size; i++)
             src_b->value[i] /= gf_size;
-        //for (int i = 0; i < gf_size; i++)
-        //    printf("GB %3d : %d\n", i, src_b->value[i]);
+#endif
         fwht<gf_size>(src_b->value);
-        //for (int i = 0; i < gf_size; i++)
-        //    printf("GC %3d : %d\n", i, src_b->value[i]);
         src_b->is_freq = false;
     }
-
+#if NEW_QUANTIF == 0
     for (size_t i = 0; i < gf_size; i++) {
         const int     idx = src_c ^ i;
         const int64_t a   = src_a->value[i];
         const int64_t b   = src_b->value[idx];
         const int64_t c   = a * b;
-        dst->value[idx]   = (int32_t) (c >> 28);
-        //printf("G %3zu : %lld * %lld = %d\n", i, a, b, dst->value[i]);
+        dst->value[idx]   = (int32_t) (c >> symbols_i_shift);
     }
-
+#else
+    int64_t tmp[gf_size];
+    for (size_t i = 0; i < gf_size; i++) {
+        const int     idx = src_c ^ i;
+        const int64_t a   = src_a->value[i];
+        const int64_t b   = src_b->value[idx];
+        tmp[idx]          = a * b;
+    }
+    int64_t maxv = 0;
+    for (size_t i = 0; i < gf_size; i++) {
+        const int64_t a = tmp[i];
+        const int64_t b = (a < 0) ? -a : a;
+        maxv += b;
+    }
+    if ( maxv > symbols_i_iscale ) {
+        for (size_t i = 0; i < gf_size; i++)
+            dst->value[i]   = (int32_t) (tmp[i] * symbols_i_iscale / maxv );
+    }else {
+        for (size_t i = 0; i < gf_size; i++)
+            dst->value[i]   = (int32_t) (tmp[i] * maxv / symbols_i_iscale);
+    }
+#endif
 //    show<gf_size>(dst->value);
     i_normalize<gf_size>(dst->value); // temporal
 //    show<gf_size>(dst->value);

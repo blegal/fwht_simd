@@ -17,14 +17,13 @@ void i_normalize(int32_t *tab)
     {
         sum += tab[i];
     }
-    if ( sum >= 268435456 ) {
-        const int32_t factor = sum / 268435456;
-        for (int i = 0; i < gf_size; i++)
-            tab[i] /= factor;
+    if ( sum >= symbols_i_iscale ) {
+        for (int i = 0; i < gf_size; i++) {
+            tab[i] = (int64_t)tab[i] * sum / symbols_i_iscale;
+        };
     }else {
-        const int32_t factor = 268435456 / sum;
         for (int i = 0; i < gf_size; i++)
-            tab[i] *= factor;
+            tab[i] = (int64_t)tab[i] * symbols_i_iscale / sum;
     }
 }
 //
