@@ -86,8 +86,10 @@ inline void show(int32_t * symb) {
     }
     printf("\n");
 }
-template <int gf_size>
-inline bool is_null(int32_t * symb) {
+//
+//
+template<int gf_size>
+inline bool is_null(int32_t* symb) {
     int64_t sum = 0;
     for (int i = 0; i < gf_size; i++) {
         sum += symb[i];
