@@ -31,8 +31,12 @@ void f_function(
         const int64_t a = src_a->value[i];
         const int64_t b = src_b->value[i];
         const int64_t c = a * b;
-        dst->value[i]   = (int32_t) (c >> 32);
+        dst->value[i]   = (int32_t) (c >> 28);
+//        printf("F %3zu : %lld * %lld = %d\n", i, a, b, dst->value[i]);
     }
+#if 0
+    printf("F function (result)"); show<gf_size>(dst->value);
+#endif
     dst->is_freq = true;
 }
 //

@@ -80,6 +80,25 @@ struct symbols_i64 {
     bool    is_freq;
 };
 
+template <int gf_size>
+inline void show(int32_t * symb) {
+    for (int i = 0; i < gf_size; i++) {
+        if (i == 0)
+            printf("%3d :", i);
+        else if (i % 8 == 0)
+            printf("\n%3d :", i);
+        printf("%10d ", symb[i]);
+    }
+    printf("\n");
+}
+template <int gf_size>
+inline bool is_null(int32_t * symb) {
+    int64_t sum = 0;
+    for (int i = 0; i < gf_size; i++) {
+        sum += symb[i];
+    }
+    return (sum == 0);
+}
 //
 //
 template <int gf_size>
@@ -101,6 +120,9 @@ inline symbols_i64<gf_size> convert_to_symbols_i64(const symbols_s<gf_size> symb
         const double  v = symb.value[i];
         const int32_t w = static_cast<int32_t>(v * (float) (1u << (NBITS - 1)));
         result.value[i] = w;
+#if 0
+        printf("%3d : %8.6f = %d\n", i, symb.value[i], result.value[i]);
+#endif
     }
     result.is_freq = false;
     return result;
