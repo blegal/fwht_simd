@@ -183,7 +183,7 @@ void decoder_naive_integer<gf_size>::leaf_node(
     // {
     //     printf("%d : %.20f\n", i, (float)var->value[i]);
     // }
-    const int64_t max_index = f_argmax<gf_size>(var->value);
+    const int64_t max_index = argmax<gf_size>(var->value);
     decoded[symbol_id]  = max_index;
     symbols[symbol_id]  = max_index;
 }

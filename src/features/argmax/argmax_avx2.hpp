@@ -80,7 +80,6 @@ template<int length>
 int argmax(const int32_t* values)
 {
     constexpr int simd = sizeof(__m256i) / sizeof(int32_t);
-
     const __m256i increment  = _mm256_set1_epi32(simd);
     __m256i indices    = _mm256_setr_epi32(0,1,2,3,4,5,6,7);
     __m256i maxindices = _mm256_setzero_si256();
