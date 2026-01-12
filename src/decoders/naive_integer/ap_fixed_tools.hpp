@@ -21,12 +21,12 @@
 #include <cmath>
 #include <cstdint>
 
-template <int GF_SIZE>
+template <int GF_SIZE, int NBITS1>
 void LZC_normalize(int64_t * s1) {
     const int64_t *   s       = s1;
-    constexpr int64_t max_val = (1LL << (NBITS - 1)) - 1;
-    constexpr int64_t min_val = -(1LL << (NBITS - 1));
-    constexpr int     F_in    = NBITS - 1;
+    constexpr int64_t max_val = (1LL << (NBITS1 - 1)) - 1;
+    constexpr int64_t min_val = -(1LL << (NBITS1 - 1));
+    constexpr int     F_in    = NBITS1 - 1;
     auto              abs64   = [](int64_t x) -> uint64_t {
         if (x == INT64_MIN)
             return (1ULL << 63);
@@ -75,12 +75,12 @@ void LZC_normalize(int64_t * s1) {
     }
 }
 
-template <int GF_SIZE>
+template <int GF_SIZE, int NBITS1>
 void LZC_normalize(int32_t * s1) {
     const int32_t *   s       = s1;
-    constexpr int32_t max_val = (1LL << (NBITS - 1)) - 1;
-    constexpr int32_t min_val = -(1LL << (NBITS - 1));
-    constexpr int     F_in    = NBITS - 1;
+    constexpr int32_t max_val = (1LL << (NBITS1 - 1)) - 1;
+    constexpr int32_t min_val = -(1LL << (NBITS1 - 1));
+    constexpr int     F_in    = NBITS1 - 1;
     auto              abs64   = [](int32_t x) -> uint32_t {
         if (x == INT64_MIN)
             return (1ULL << 31);

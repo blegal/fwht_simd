@@ -1,6 +1,7 @@
 #pragma once
 
 #include "f_argmax.hpp"
+#include "features/archi.hpp"
 
 template <int gf_size>
 void g_function(
@@ -13,13 +14,13 @@ void g_function(
 
         int64_t temp[gf_size];
         for (int i = 0; i < gf_size; i++) {
-            temp[i] = static_cast<int64_t>(src_a->value[i]);
+            temp[i] = src_a->value[i];
         }
 
-        fwht<gf_size>(temp);
-        LZC_normalize<gf_size>(temp);
+        I64_FWHT<gf_size>(temp);
+        LZC_normalize<gf_size, NBITS>(temp);
         for (int i = 0; i < gf_size; i++) {
-            src_a->value[i] = static_cast<int32_t>(temp[i]);
+            src_a->value[i] = temp[i];
         }
         src_a->is_freq = false;
     }
@@ -28,13 +29,13 @@ void g_function(
 
         int64_t temp[gf_size];
         for (int i = 0; i < gf_size; i++) {
-            temp[i] = static_cast<int64_t>(src_b->value[i]);
+            temp[i] = src_b->value[i];
         }
 
-        fwht<gf_size>(temp);
-        LZC_normalize<gf_size>(temp);
+        I64_FWHT<gf_size>(temp);
+        LZC_normalize<gf_size, NBITS>(temp);
         for (int i = 0; i < gf_size; i++) {
-            src_b->value[i] = static_cast<int32_t>(temp[i]);
+            src_b->value[i] = temp[i];
         }
         src_b->is_freq = false;
     }
@@ -48,8 +49,8 @@ void g_function(
         temp_dst[idx] = static_cast<int64_t>(src_a->value[i]) * static_cast<int64_t>(src_b->value[idx]);
     }
     dst->is_freq = false;
-    LZC_normalize<gf_size>(temp_dst);
+    LZC_normalize<gf_size, NBITS>(temp_dst);
     for (int i = 0; i < gf_size; i++) {
-        dst->value[i] = static_cast<int32_t>(temp_dst[i]);
+        dst->value[i] = temp_dst[i];
     }
 }

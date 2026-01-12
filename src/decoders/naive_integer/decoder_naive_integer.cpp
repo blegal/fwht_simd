@@ -3,8 +3,9 @@
 #include "definitions/custom_types.hpp"
 #include "f_argmax.hpp"
 #include "f_function.hpp"
-#include "f_fwht.hpp"
+// #include "f_fwht.hpp"
 #include "g_function.hpp"
+#include"features/archi.hpp"
 
 //
 //
@@ -158,26 +159,31 @@ void decoder_naive_integer<gf_size>::leaf_node(
     }
 
     if (var->is_freq) {
-        // fwht<gf_size>(var->value);
+        // I64_FWHT<gf_size>(var->value);
         // var->is_freq = false;
 
         int64_t temp[gf_size];
         for (int i = 0; i < gf_size; i++) {
-            temp[i] = static_cast<int64_t>(var->value[i]);
+            temp[i] = var->value[i];
         }
-        fwht<gf_size>(temp);
-        LZC_normalize<gf_size>(temp);
-        for (int i = 0; i < gf_size; i++) {
-            var->value[i] = static_cast<int32_t>(temp[i]);
-        }
-        var->is_freq = false;
+        I64_FWHT<gf_size>(temp);
+        LZC_normalize<gf_size, NBITS>(temp);
+        const int64_t max_index = f_argmax<gf_size>(temp);
+            decoded[symbol_id]  = max_index;
+    symbols[symbol_id]  = max_index;
+    return;
+            // LZC_normalize<gf_size, NBITS>(temp);
+        // for (int i = 0; i < gf_size; i++) {
+        //     var->value[i] = static_cast<int32_t>(temp[i]);
+        // }
+        // var->is_freq = false;
     }
 
     // for (int i = 0; i < gf_size; i++)
     // {
     //     printf("%d : %.20f\n", i, (float)var->value[i]);
     // }
-    const int max_index = f_argmax<gf_size>(var->value);
+    const int64_t max_index = f_argmax<gf_size>(var->value);
     decoded[symbol_id]  = max_index;
     symbols[symbol_id]  = max_index;
 }

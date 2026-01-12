@@ -137,4 +137,69 @@ int argmax(const int32_t* values)
 //
 //
 //
+
+
+template<int length>
+int argmax(const int64_t* values)
+{
+    constexpr int simd = sizeof(__m256i) / sizeof(int64_t);
+
+    const __m256i increment  = _mm256_set1_epi32(simd);
+    __m256i indices    = _mm256_setr_epi64x(0,1,2,3);
+    __m256i maxindices = _mm256_setzero_si256();
+    __m256i maxvalues  = _mm256_set1_epi32(INT64_MIN);
+
+#if defined (__clang__)
+#pragma unroll
+#endif
+    for (int i = 0; i < length; i += simd)
+    {
+        const __m256i value = _mm256_loadu_si256(
+                                reinterpret_cast<const __m256i*>(values + i));
+
+        const __m256i gt = _mm256_cmpgt_epi64(value, maxvalues);
+
+        maxvalues  = _mm256_blendv_epi8(maxvalues,  value,   gt);
+        maxindices = _mm256_blendv_epi8(maxindices, indices, gt);
+
+        indices = _mm256_add_epi32(indices, increment);
+    }
+
+    int64_t values_array [simd];
+    int64_t indices_array[simd];
+
+    _mm256_storeu_si256((__m256i*)values_array,  maxvalues);
+    _mm256_storeu_si256((__m256i*)indices_array, maxindices);
+
+    int64_t maxindex = indices_array[0];
+    int64_t maxvalue = values_array[0];
+
+#if defined (__clang__)
+#pragma unroll
+#endif
+    for (int i = 1; i < simd; i++)
+    {
+        if (values_array[i] > maxvalue)
+        {
+            maxvalue = values_array[i];
+            maxindex = indices_array[i];
+        }
+        else if (values_array[i] == maxvalue &&
+                 indices_array[i] < maxindex)
+        {
+            maxindex = indices_array[i];
+        }
+    }
+
+    return maxindex;
+}
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+
+
 #endif
