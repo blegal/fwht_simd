@@ -42,18 +42,23 @@ void f_function(
         tmp[i]          = a * b;
     }
     int64_t maxv = 0;
-    for (size_t i = 0; i < gf_size; i++) {
+    for (int i = 0; i < gf_size; i++) {
         const int64_t a = tmp[i];
         const int64_t b = (a < 0) ? -a : a;
         maxv = (maxv > b) ? maxv : b;
     }
+    printf("F function (result) with maxv = %lld\n", maxv);
+    show<gf_size>(tmp);
     if ( maxv > symbols_i_iscale ) {
+        const int64_t factor = (maxv / symbols_i_iscale) + 1;
         for (size_t i = 0; i < gf_size; i++)
-            dst->value[i]   = (int32_t) (tmp[i] * symbols_i_iscale / maxv );
+            dst->value[i]   = (int32_t) (tmp[i] / factor );
     }else {
+        const int64_t factor = (symbols_i_iscale / maxv) + 1;
         for (size_t i = 0; i < gf_size; i++)
-            dst->value[i]   = (int32_t) (tmp[i] * maxv / symbols_i_iscale);
+            dst->value[i]   = (int32_t) (tmp[i] * factor );
     }
+    show<gf_size>(dst->value);
 #endif
 #if 0
     printf("F function (result)"); show<gf_size>(dst->value);

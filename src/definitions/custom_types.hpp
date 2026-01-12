@@ -85,18 +85,18 @@ struct symbols_i {
     #define symbols_i_iscale (int64_t)65535
     #define symbols_i_fscale 65535.f
     #define symbols_i_shift  16
-#elif 1
+#elif 0
     #define NEW_QUANTIF 1
     #define symbols_i_iscale (int64_t)131071
     #define symbols_i_fscale 131071.f
     #define symbols_i_shift  17
-#elif 1
+#elif 0
     #define NEW_QUANTIF 1
     #define symbols_i_iscale (int64_t)262144
     #define symbols_i_fscale 262144.f
     #define symbols_i_shift  18
 #else
-    #define NEW_QUANTIF 0
+    #define NEW_QUANTIF 1
     #define symbols_i_iscale (int64_t)1048576
     #define symbols_i_fscale 1048576.f
     #define symbols_i_shift  20
@@ -110,7 +110,18 @@ inline void show(int32_t * symb) {
             printf("%3d :", i);
         else if (i % 8 == 0)
             printf("\n%3d :", i);
-        printf("%10d ", symb[i]);
+        printf("%+12d ", symb[i]);
+    }
+    printf("\n");
+}
+template <int gf_size>
+inline void show(int64_t * symb) {
+    for (int i = 0; i < gf_size; i++) {
+        if (i == 0)
+            printf("%3d :", i);
+        else if (i % 8 == 0)
+            printf("\n%3d :", i);
+        printf("%+12lld ", symb[i]);
     }
     printf("\n");
 }
@@ -123,6 +134,16 @@ inline bool is_null(int32_t* symb) {
         sum += symb[i];
     }
     return (sum == 0);
+}
+//
+//
+template<int gf_size>
+inline bool is_in_range(int32_t* symb) {
+    for (int i = 0; i < gf_size; i++) {
+        if ( symb[i] >  symbols_i_iscale) return false;
+        if ( symb[i] < -symbols_i_iscale) return false;
+    }
+    return true;
 }
 //
 //

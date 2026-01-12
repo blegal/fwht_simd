@@ -51,13 +51,18 @@ void g_function(
         const int64_t b = (a < 0) ? -a : a;
         maxv += b;
     }
+    printf("G function (result) with maxv = %lld\n", maxv);
+    show<gf_size>(tmp);
     if ( maxv > symbols_i_iscale ) {
+        const int64_t factor = maxv / symbols_i_iscale;
         for (size_t i = 0; i < gf_size; i++)
-            dst->value[i]   = (int32_t) (tmp[i] * symbols_i_iscale / maxv );
+            dst->value[i]   = (int32_t) (tmp[i] / factor  );
     }else {
+        const int64_t factor = symbols_i_iscale / maxv;
         for (size_t i = 0; i < gf_size; i++)
-            dst->value[i]   = (int32_t) (tmp[i] * maxv / symbols_i_iscale);
+            dst->value[i]   = (int32_t) (tmp[i] * factor);
     }
+    show<gf_size>(dst->value);
 #endif
 //    show<gf_size>(dst->value);
     i_normalize<gf_size>(dst->value); // temporal

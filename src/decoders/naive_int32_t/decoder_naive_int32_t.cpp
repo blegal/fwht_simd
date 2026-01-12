@@ -156,11 +156,12 @@ void decoder_naive_int32_t<gf_size>::leaf_node(
         var->is_freq = false;
     }
 
-#if 0
-    printf("(EE) Leaf node %d\n", symbol_id);
-    show<gf_size>(var->value);
-    if ( is_null<gf_size>(var->value) )
+#if 1
+    if ( is_null<gf_size>(var->value) ) {
+        printf("(EE) Leaf node %d\n", symbol_id);
+        show<gf_size>(var->value);
         exit( EXIT_FAILURE );
+    }
 #endif
 
     const int max_index = i_argmax<gf_size>(var->value);
