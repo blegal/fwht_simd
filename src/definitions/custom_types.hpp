@@ -90,7 +90,7 @@ struct symbols_i {
     #define symbols_i_iscale (int64_t)131071
     #define symbols_i_fscale 131071.f
     #define symbols_i_shift  17
-#elif 0
+#elif 1
     #define NEW_QUANTIF 1
     #define symbols_i_iscale (int64_t)262144
     #define symbols_i_fscale 262144.f
