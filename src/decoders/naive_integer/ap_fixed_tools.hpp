@@ -27,14 +27,14 @@ void LZC_normalize(int64_t * s1) {
     constexpr int64_t max_val = (1LL << (NBITS1 - 1)) - 1;
     constexpr int64_t min_val = -(1LL << (NBITS1 - 1));
     constexpr int     F_in    = NBITS1 - 1;
-    auto              abs64   = [](int64_t x) -> uint64_t {
-        if (x == INT64_MIN)
-            return (1ULL << 63);
-        return (x < 0) ? (uint64_t) (-x) : (uint64_t) x;
-    };
+    // auto              abs64   = [](int64_t x) -> uint64_t {
+    //     if (x == INT64_MIN)
+    //         return (1ULL << 63);
+    //     return (x < 0) ? (uint64_t) (-x) : (uint64_t) x;
+    // };
     uint64_t or_all = 0;
     for (int j = 0; j < GF_SIZE; j++)
-        or_all |= abs64(s[j]);
+        or_all |= (uint64_t) std::abs(s[j]);
 
     if (or_all == 0) {
         for (int j = 0; j < GF_SIZE; j++)
@@ -57,7 +57,7 @@ void LZC_normalize(int64_t * s1) {
     int shift = -1 - k_max;
     for (int j = 0; j < GF_SIZE; j++) {
         int64_t  v     = s[j];
-        uint64_t v_abs = abs64(v);
+        uint64_t v_abs = (uint64_t)  std::abs(v);
         int64_t  out;
         if (shift < 0) {
             int r = -shift;

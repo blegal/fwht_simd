@@ -167,12 +167,12 @@ void decoder_naive_integer<gf_size>::leaf_node(
             temp[i] = var->value[i];
         }
         I64_FWHT<gf_size>(temp);
-        LZC_normalize<gf_size, NBITS>(temp);
+        LZC_normalize<gf_size, INTEGER_BITS>(temp);
         const int64_t max_index = f_argmax<gf_size>(temp);
             decoded[symbol_id]  = max_index;
     symbols[symbol_id]  = max_index;
     return;
-            // LZC_normalize<gf_size, NBITS>(temp);
+            // LZC_normalize<gf_size, INTEGER_BITS>(temp);
         // for (int i = 0; i < gf_size; i++) {
         //     var->value[i] = static_cast<int32_t>(temp[i]);
         // }

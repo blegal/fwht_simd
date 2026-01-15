@@ -5,7 +5,8 @@
 #include "features/archi.hpp"
 #include <cmath>
 #include <cstdint>
-#define NBITS 20
+#define INTEGER_BITS 10
+
 //
 //
 // For generic NB polar decoders
@@ -184,7 +185,7 @@ inline symbols_i64<gf_size> convert_to_symbols_i64(const symbols_s<gf_size> symb
     symbols_i64<gf_size> result;
     for (int i = 0; i < gf_size; i++) {
         const double  v = symb.value[i];
-        const int32_t w = static_cast<int32_t>(v * (float) (1u << (NBITS - 1)));
+        const int32_t w = static_cast<int32_t>(v * (float) (1u << (INTEGER_BITS - 1)));
         result.value[i] = w;
 #if 0
         printf("%3d : %8.6f = %d\n", i, symb.value[i], result.value[i]);

@@ -18,7 +18,7 @@ void g_function(
         }
 
         I64_FWHT<gf_size>(temp);
-        LZC_normalize<gf_size, NBITS>(temp);
+        LZC_normalize<gf_size, INTEGER_BITS>(temp);
         for (int i = 0; i < gf_size; i++) {
             src_a->value[i] = temp[i];
         }
@@ -33,7 +33,7 @@ void g_function(
         }
 
         I64_FWHT<gf_size>(temp);
-        LZC_normalize<gf_size, NBITS>(temp);
+        LZC_normalize<gf_size, INTEGER_BITS>(temp);
         for (int i = 0; i < gf_size; i++) {
             src_b->value[i] = temp[i];
         }
@@ -58,7 +58,7 @@ void g_function(
         temp_dst[idx] = static_cast<int64_t>(src_a->value[i]) * static_cast<int64_t>(src_b->value[idx]);
     }
     dst->is_freq = false;
-    LZC_normalize<gf_size, NBITS>(temp_dst);
+    LZC_normalize<gf_size, INTEGER_BITS>(temp_dst);
     for (int i = 0; i < gf_size; i++) {
         dst->value[i] = temp_dst[i];
     }

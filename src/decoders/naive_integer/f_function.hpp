@@ -14,7 +14,7 @@ void f_function(symbols_i64<gf_size> * __restrict dst, symbols_i64<gf_size> * __
             temp[i] = src_a->value[i];
         }
         I64_FWHT<gf_size>(temp);
-        LZC_normalize<gf_size, NBITS>(temp);
+        LZC_normalize<gf_size, INTEGER_BITS>(temp);
         for (size_t i = 0; i < gf_size; i++) {
             src_a->value[i] = temp[i];
         }
@@ -26,7 +26,7 @@ void f_function(symbols_i64<gf_size> * __restrict dst, symbols_i64<gf_size> * __
             temp[i] = src_b->value[i];
         }
         I64_FWHT<gf_size>(temp);
-        LZC_normalize<gf_size, NBITS>(temp);
+        LZC_normalize<gf_size, INTEGER_BITS>(temp);
         for (size_t i = 0; i < gf_size; i++) {
             src_b->value[i] = temp[i];
         }
@@ -40,7 +40,7 @@ void f_function(symbols_i64<gf_size> * __restrict dst, symbols_i64<gf_size> * __
         temp_dst[i] = static_cast<int64_t>(src_a->value[i]) * static_cast<int64_t>(src_b->value[i]);
     }
     dst->is_freq = true;
-    LZC_normalize<gf_size, NBITS>(temp_dst);
+    LZC_normalize<gf_size, INTEGER_BITS>(temp_dst);
     for (size_t i = 0; i < gf_size; i++) {
         dst->value[i] = temp_dst[i];
     }

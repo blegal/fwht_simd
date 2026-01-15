@@ -48,6 +48,12 @@ void g_function(
         dst->value[i] = dst->value[i] * src_b->value[i];
     }
 
+    for(int i = 0; i < gf_size; i++) {
+            if (dst->value[i] < 1e-10) {
+                dst->value[i] = 1e-10;
+            }
+        }
+
     normalize<gf_size>(dst->value); // temporal
     dst->is_freq = false;
 }
