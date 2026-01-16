@@ -5,7 +5,7 @@
 #include "features/archi.hpp"
 #include <cmath>
 #include <cstdint>
-#define NBITS 26
+#define NBITS 20
 //
 //
 // For generic NB polar decoders
