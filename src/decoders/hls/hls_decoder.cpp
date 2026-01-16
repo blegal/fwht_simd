@@ -141,7 +141,7 @@ uint8_t vec_i_unroll_argmax(const t_int18b inp)
 //
 t_int18b vec_i_norm(const t_int48b src)
 {
-#pragma HLS INLINE off
+#pragma HLS INLINE
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
 
@@ -245,7 +245,7 @@ t_int18b vec_i_norm(const t_int48b src)
 //
 t_int24b extend(const t_int18b& src)
 {
-#pragma HLS INLINE off
+#pragma HLS INLINE
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
 	t_int24b dst;
@@ -264,7 +264,7 @@ t_int24b extend(const t_int18b& src)
 //
 t_int24b fwht(const t_int18b src)
 {
-#pragma HLS INLINE off
+#pragma HLS INLINE
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
     /*
@@ -331,7 +331,7 @@ t_int24b fwht(const t_int18b src)
 //
 t_int48b vec_i_mul_f(const t_int24b src_1, const t_int24b src_2)
 {
-#pragma HLS INLINE off
+#pragma HLS INLINE
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
@@ -352,7 +352,7 @@ t_int48b vec_i_mul_f(const t_int24b src_1, const t_int24b src_2)
 //
 t_int48b vec_i_mul_g(const t_int24b src_1, const t_int24b src_2, const uint8_t symbol)
 {
-#pragma HLS INLINE off
+#pragma HLS INLINE
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
@@ -370,6 +370,43 @@ t_int48b vec_i_mul_g(const t_int24b src_1, const t_int24b src_2, const uint8_t s
 		dst.value[i] = src_1.value[ tab.value[i] ] * src_2.value[i];
 	}
 	return dst;
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+t_int18b datapath(const t_int18b lwht_in_a, const t_int18b lwht_in_b, const uint8_t symbol, const bool en_lwth)
+{
+#pragma HLS INLINE off
+#pragma HLS PIPELINE
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value
+
+	t_uint6b tab;
+	const auto mult_in_a   = fwht( lwht_in_a );
+	const auto mult_in_b   = fwht( lwht_in_b );
+
+	const auto mult_in_c   = extend( lwht_in_a );
+	const auto mult_in_d   = extend( lwht_in_b );
+
+	const auto mult_in_e   = en_lwth ? mult_in_a : mult_in_c;
+	const auto mult_in_f   = en_lwth ? mult_in_b : mult_in_d;
+
+	const auto norm_in_a   = vec_i_mul_g(mult_in_e, mult_in_f, 0); // f_mode
+	const auto memo_in_a   = vec_i_norm( norm_in_a );
+
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_a.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_b.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_c.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_d.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_e.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=norm_in_a.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=memo_in_a.value
+
+	return memo_in_a;
 }
 //
 //
@@ -438,10 +475,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	const auto lwht_in_a   = internal[s + 0];
     	const auto lwht_in_b   = internal[s + 4];
-    	const auto mult_in_a   = fwht( lwht_in_a );
-    	const auto mult_in_b   = fwht( lwht_in_b );
-    	const auto norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
-    	const auto memo_in_a   = vec_i_norm( norm_in_a );
+    	//const auto mult_in_a   = fwht( lwht_in_a );
+    	//const auto mult_in_b   = fwht( lwht_in_b );
+    	//const auto norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
+    	//const auto memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
         internal[s + 8] = memo_in_a;
     }
 
@@ -463,10 +501,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s +  8];
     	lwht_in_b   = internal[s + 10];
-    	mult_in_a   = fwht( lwht_in_a );
-    	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = fwht( lwht_in_a );
+    	//mult_in_b   = fwht( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
     	internal[s + 12] = memo_in_a;
     }
 
@@ -482,10 +521,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s + 12];
     	lwht_in_b   = internal[s + 13];
-    	mult_in_a   = extend( lwht_in_a );
-    	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = extend( lwht_in_a );
+    	//mult_in_b   = extend( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
     	internal[s + 14] = memo_in_a;
     }
 
@@ -518,10 +558,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = channel[s    ];
     	lwht_in_b   = channel[s + 8];
-    	mult_in_a   = fwht( lwht_in_a );
-    	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s]); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = fwht( lwht_in_a );
+    	//mult_in_b   = fwht( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s]); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
     	internal[s] = memo_in_a;
     }
 
@@ -532,10 +573,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s    ];
     	lwht_in_b   = internal[s + 4];
-    	mult_in_a   = fwht( lwht_in_a );
-    	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = fwht( lwht_in_a );
+    	//mult_in_b   = fwht( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
     	internal[s + 8] = memo_in_a;
     }
 
@@ -546,10 +588,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s +  8];
     	lwht_in_b   = internal[s + 10];
-    	mult_in_a   = extend( lwht_in_a );
-    	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = extend( lwht_in_a );
+    	//mult_in_b   = extend( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
     	internal[s + 12] = memo_in_a;
     }
 
@@ -565,10 +608,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s + 12];
     	lwht_in_b   = internal[s + 13];
-    	mult_in_a   = fwht( lwht_in_a );
-    	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = fwht( lwht_in_a );
+    	//mult_in_b   = fwht( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
     	internal[s + 14] = memo_in_a;
     }
 
@@ -604,10 +648,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s +  8];
     	lwht_in_b   = internal[s + 10];
-    	mult_in_a   = extend( lwht_in_a );
-    	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = extend( lwht_in_a );
+    	//mult_in_b   = extend( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, symbols[s + 8]);
     	internal[s + 12] = memo_in_a;
     }
 
@@ -633,10 +678,11 @@ void the_decoder(
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s + 0];
     	lwht_in_b   = internal[s + 4];
-    	mult_in_a   = extend( lwht_in_a );
-    	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	//mult_in_a   = extend( lwht_in_a );
+    	//mult_in_b   = extend( lwht_in_b );
+    	//norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
+    	//memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, symbols[s + 8]);
     	internal[s + 8] = memo_in_a;
     }
 
