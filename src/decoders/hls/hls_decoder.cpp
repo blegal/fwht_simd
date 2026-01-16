@@ -72,6 +72,7 @@ typedef struct { int48b value[gf_size]; } t_int48b;
 //
 uint8_t vec_i_unroll_argmax(const t_int18b inp)
 {
+#pragma HLS INLINE off
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=inp.value
     //
@@ -140,6 +141,7 @@ uint8_t vec_i_unroll_argmax(const t_int18b inp)
 //
 t_int18b vec_i_norm(const t_int48b src)
 {
+#pragma HLS INLINE off
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
 
@@ -243,6 +245,7 @@ t_int18b vec_i_norm(const t_int48b src)
 //
 t_int24b extend(const t_int18b& src)
 {
+#pragma HLS INLINE off
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
 	t_int24b dst;
@@ -261,6 +264,7 @@ t_int24b extend(const t_int18b& src)
 //
 t_int24b fwht(const t_int18b src)
 {
+#pragma HLS INLINE off
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
     /*
@@ -327,6 +331,7 @@ t_int24b fwht(const t_int18b src)
 //
 t_int48b vec_i_mul_f(const t_int24b src_1, const t_int24b src_2)
 {
+#pragma HLS INLINE off
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
@@ -347,6 +352,7 @@ t_int48b vec_i_mul_f(const t_int24b src_1, const t_int24b src_2)
 //
 t_int48b vec_i_mul_g(const t_int24b src_1, const t_int24b src_2, const uint8_t symbol)
 {
+#pragma HLS INLINE off
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
@@ -377,13 +383,21 @@ void the_decoder(
 			uint16_t decoded[16])
 {
 	t_int18b internal[16];
+#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal
 	uint8_t  symbols [16];
 
 	t_int18b lwht_in_a, lwht_in_b;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value
 	t_int24b mult_in_a, mult_in_b;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_a.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=mult_in_b.value
 	t_int48b norm_in_a;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=norm_in_a.value
 	t_int18b memo_in_a;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=memo_in_a.value
 	t_int18b argmax_in;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=argmax_in.value
 
 	// operation (Fn, Gn, Fn+LWHT, Gn+Fn+LWHT, F0, G1, G1+Fn+LWHT, XOR)
 	// counter
@@ -395,7 +409,8 @@ void the_decoder(
 
 	//
 	// f_function_proba_in<64>(internal, channel, channel + 8, 8);
-    for (int s = 0; s < 8; s++) {
+	loop1 : for (int s = 0; s < 8; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = channel[s    ];
     	lwht_in_b   = channel[s + 8];
@@ -409,7 +424,8 @@ void the_decoder(
 	//
 	// middle_node_pruned_rate_0<gf_size>(decoded + 0, symbols + 0, 4);
     // TO DO !
-    for (int s = 0; s < 4; s++) {
+	loop2 : for (uint8_t s = 0; s < 4; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
 		symbols[s + 0] = 0;
 		decoded[s + 0] = 0;
@@ -417,21 +433,24 @@ void the_decoder(
 
 	//
 	// g_function_freq_in_after_rate_0<gf_size>(internal + 8, internal + 0, internal + 4, 4);
-    for (int s = 0; s < 4; s++) {
+	loop3 : for (uint8_t s = 0; s < 4; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
-    	lwht_in_a   = internal[s    ];
-    	lwht_in_b   = internal[s + 4];
-    	mult_in_a   = fwht( lwht_in_a );
-    	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
-    	memo_in_a   = vec_i_norm( norm_in_a );
+    	const auto lwht_in_a   = internal[s + 0];
+    	const auto lwht_in_b   = internal[s + 4];
+    	const auto mult_in_a   = fwht( lwht_in_a );
+    	const auto mult_in_b   = fwht( lwht_in_b );
+    	const auto norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
+    	const auto memo_in_a   = vec_i_norm( norm_in_a );
         internal[s + 8] = memo_in_a;
     }
+
 
 	//
 	// middle_node_pruned_rate_0<gf_size>(decoded + 4, symbols + 4, 2);
     // TO DO !
-    for (int s = 0; s < 2; s++) {
+	loop4 : for (int s = 0; s < 2; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
 		symbols[s + 4] = 0;
 		decoded[s + 4] = 0;
@@ -439,7 +458,8 @@ void the_decoder(
 
 	//
 	// g_function_proba_in_after_rate_0<gf_size>(internal + 12, internal + 8, internal + 10, 2);
-    for (int s = 0; s < 2; s++) {
+	loop5 : for (int s = 0; s < 2; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s +  8];
     	lwht_in_b   = internal[s + 10];
@@ -457,7 +477,8 @@ void the_decoder(
 
     //
 	// g_function_proba_in_after_rate_0<gf_size>(internal + 14, internal + 12, internal + 13, 1);
-    for (int s = 0; s < 1; s++) {
+    loop6 : for (int s = 0; s < 1; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s + 12];
     	lwht_in_b   = internal[s + 13];
@@ -474,22 +495,26 @@ void the_decoder(
     symbols[7] = e;
     decoded[7] = e;
 
-	for(int i = 0; i < 1; i += 1){
+    loop7 : for(int i = 0; i < 1; i += 1){
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
 	  symbols[6 + i] ^= symbols[7 + i];
 	}
-	for(int i = 0; i < 2; i += 1){
+    loop8 : for(int i = 0; i < 2; i += 1){
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
 	  symbols[4 + i] ^= symbols[6 + i];
 	}
-	for(int i = 0; i < 4; i += 1){
+    loop9 : for(int i = 0; i < 4; i += 1){
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
 	  symbols[0 + i] ^= symbols[4 + i];
 	}
 
 	//
 	// g_function_proba_in<gf_size>(internal, channel, channel + 8, symbols, 8);
-    for (int s = 0; s < 8; s++) {
+    loop10 : for (int s = 0; s < 8; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = channel[s    ];
     	lwht_in_b   = channel[s + 8];
@@ -502,7 +527,8 @@ void the_decoder(
 
 	//
 	// f_function_proba_in<gf_size>(internal + 8, internal + 0, internal + 4, 4); // dst, src_1, src_2
-    for (int s = 0; s < 4; s++) {
+    loop11 : for (int s = 0; s < 4; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s    ];
     	lwht_in_b   = internal[s + 4];
@@ -515,7 +541,8 @@ void the_decoder(
 
 	//
 	// f_function_freq_in<64>(internal + 12, internal + 8, internal + 10, 2);
-    for (int s = 0; s < 2; s++) {
+    loop12 : for (int s = 0; s < 2; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s +  8];
     	lwht_in_b   = internal[s + 10];
@@ -533,7 +560,8 @@ void the_decoder(
 
 	//
 	// g_function_freq_in_after_rate_0<gf_size>(internal + 14, internal + 12, internal + 13, 1);
-    for (int s = 0; s < 1; s++) {
+	loop13 : for (int s = 0; s < 1; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s + 12];
     	lwht_in_b   = internal[s + 13];
@@ -551,13 +579,28 @@ void the_decoder(
     symbols[9] = e;
     decoded[9] = e;
 
-	for(int i = 0; i < 1; i += 1){
+    loop14 : for(int i = 0; i < 1; i += 1){
+#pragma HLS UNROLL off
+#pragma HLS PIPELINE
 	  symbols[8 + i] ^= symbols[9 + i];
 	}
 
+	////////
+	////////
+	////////	Thread_1 => FIFO => ///////
+	////////		î				///////
+	////////		|				/////// 100
+	////////		|				///////
+	////////	Thread_2 <= FIFO <= ///////
+	////////
+	////////
+
+
+
 	//
 	// g_function_freq_in<gf_size>(internal + 12, internal + 8, internal + 10, symbols + 8, 2);
-    for (int s = 0; s < 2; s++) {
+    loop15 : for (int s = 0; s < 2; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s +  8];
     	lwht_in_b   = internal[s + 10];
@@ -570,7 +613,8 @@ void the_decoder(
 
 	//
 	// middle_node_pruned_rate_1_after_g<gf_size>(internal + 12, decoded + 10, symbols + 10, 2);
-    for (int s = 0; s < 2; s++) {
+    loop16 : for (int s = 0; s < 2; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	argmax_in = internal[s + 12];
     	e = vec_i_unroll_argmax( argmax_in );
@@ -578,13 +622,14 @@ void the_decoder(
     	decoded[s + 10] = e;
     }
 
-	for(int i = 0; i < 2; i += 1){
+    loop17 : for(int i = 0; i < 2; i += 1){
 	  symbols[8 + i] ^= symbols[10 + i];
 	}
 
 	//
 	// g_function_proba_in<gf_size>(internal + 8, internal + 0, internal + 4, symbols + 8, 4);
-    for (int s = 0; s < 4; s++) {
+    loop18 : for (int s = 0; s < 4; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	lwht_in_a   = internal[s + 0];
     	lwht_in_b   = internal[s + 4];
@@ -597,7 +642,8 @@ void the_decoder(
 
 	//
 	// middle_node_pruned_rate_1_after_g<gf_size>(internal + 8, decoded + 12, symbols + 12, 4);
-    for (int s = 0; s < 4; s++) {
+    loop19 : for (int s = 0; s < 4; s++) {
+#pragma HLS UNROLL off
 #pragma HLS PIPELINE
     	argmax_in = internal[s + 8];
     	e = vec_i_unroll_argmax( argmax_in );
@@ -605,3 +651,4 @@ void the_decoder(
     	decoded[s + 12] = e;
     }
 }
+
