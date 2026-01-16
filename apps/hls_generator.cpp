@@ -114,7 +114,8 @@ int main(int argc, char * argv[])
     }
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    const std::string filen = "../src/decoders/dedicated/dedicated_execute.hpp";
+
+    const std::string filen = "../src/decoders/hls_decoder/gen_decoder.hpp";
     dec_generator pruned_tree(N, _GF_);
     pruned_tree.verbose = verbose;
     pruned_tree.analyze(filen, frozen_symbols, N);
