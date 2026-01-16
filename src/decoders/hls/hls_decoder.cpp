@@ -7,7 +7,7 @@
 //
 //
 #include <cstdint>
-#include "include/ap_fixed.h"
+#include "ap_fixed.h"
 
 #define _GF_ 64
 #define gf_size 64
@@ -15,6 +15,7 @@
 #define _N_ 64
 #define FWHT_NORM fwht_norm_64
 
+#define uint6b ap_uint<6>
 #define int18b ap_int<18>
 #define int19b ap_int<19>
 #define int20b ap_int<20>
@@ -53,6 +54,7 @@ tuple f_max(const tuple a, const tuple b)
 //
 //
 //
+typedef struct { uint6b value[gf_size]; } t_uint6b;
 typedef struct { int18b value[gf_size]; } t_int18b;
 typedef struct { int19b value[gf_size]; } t_int19b;
 typedef struct { int20b value[gf_size]; } t_int20b;
@@ -260,17 +262,19 @@ t_int24b extend(const t_int18b& src)
 t_int24b fwht(const t_int18b src)
 {
 #pragma HLS PIPELINE
-#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
     /*
      * ========= ÉTAGE 1 (distance 32) =========
      */
 	ap_int<W+1> s1[64];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s1
     for (int i = 0; i < 32; i++) {
         s1[i]      = (ap_int<W+1>)src.value[i] + (ap_int<W+1>)src.value[i + 32];
         s1[i + 32] = (ap_int<W+1>)src.value[i] - (ap_int<W+1>)src.value[i + 32];
     }
     /* ========= ÉTAGE 2 : distance 16 ========= */
     ap_int<W+2> s2[64];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s2
     for (int i = 0; i < 64; i++) {
         int g = (i & 16);
         int j = i ^ 16;
@@ -279,6 +283,7 @@ t_int24b fwht(const t_int18b src)
 
     /* ========= ÉTAGE 3 : distance 8 ========= */
     ap_int<W+3> s3[64];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s3
     for (int i = 0; i < 64; i++) {
         int g = (i & 8);
         int j = i ^ 8;
@@ -287,6 +292,7 @@ t_int24b fwht(const t_int18b src)
 
     /* ========= ÉTAGE 4 : distance 4 ========= */
     ap_int<W+4> s4[64];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s4
     for (int i = 0; i < 64; i++) {
         int g = (i & 4);
         int j = i ^ 4;
@@ -295,6 +301,7 @@ t_int24b fwht(const t_int18b src)
 
     /* ========= ÉTAGE 5 : distance 2 ========= */
     ap_int<W+5> s5[64];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s5
     for (int i = 0; i < 64; i++) {
         int g = (i & 2);
         int j = i ^ 2;
@@ -303,6 +310,7 @@ t_int24b fwht(const t_int18b src)
 
     /* ========= ÉTAGE 6 : distance 1 ========= */
     t_int24b dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
     for (int i = 0; i < 64; i++) {
         int g = (i & 1);
         int j = i ^ 1;
@@ -317,7 +325,7 @@ t_int24b fwht(const t_int18b src)
 //
 //
 //
-t_int48b vec_i_mul(const t_int24b src_1, const t_int24b src_2)
+t_int48b vec_i_mul_f(const t_int24b src_1, const t_int24b src_2)
 {
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
@@ -337,23 +345,23 @@ t_int48b vec_i_mul(const t_int24b src_1, const t_int24b src_2)
 //
 //
 //
-t_int48b vec_i_mul(const t_int24b src_1, const t_int24b src_2, const uint8_t symbol)
+t_int48b vec_i_mul_g(const t_int24b src_1, const t_int24b src_2, const uint8_t symbol)
 {
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
-	t_int24b tab;
+
+	t_uint6b tab;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=tab.value
 	for (int i = 0; i < gf_size; i += 1)
 	{
-		const int idx   = symbol ^ i;
-		tab.value[idx] = src_1.value[i];
+		tab.value[i] = (symbol ^ i);
 	}
 	t_int48b dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
 	for (int i = 0; i < gf_size; i += 1)
 	{
-		dst.value[i] = tab.value[i] * src_2.value[i];
+		dst.value[i] = src_1.value[ tab.value[i] ] * src_2.value[i];
 	}
 	return dst;
 }
@@ -393,7 +401,7 @@ void the_decoder(
     	lwht_in_b   = channel[s + 8];
         mult_in_a   = fwht( lwht_in_a );
         mult_in_b   = fwht( lwht_in_b );
-        norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+        norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
         memo_in_a   = vec_i_norm( norm_in_a );
         internal[s] = memo_in_a;
     }
@@ -415,7 +423,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 4];
     	mult_in_a   = fwht( lwht_in_a );
     	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
         internal[s + 8] = memo_in_a;
     }
@@ -437,7 +445,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 10];
     	mult_in_a   = fwht( lwht_in_a );
     	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 12] = memo_in_a;
     }
@@ -455,7 +463,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 13];
     	mult_in_a   = extend( lwht_in_a );
     	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 14] = memo_in_a;
     }
@@ -487,7 +495,7 @@ void the_decoder(
     	lwht_in_b   = channel[s + 8];
     	mult_in_a   = fwht( lwht_in_a );
     	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s]); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s] = memo_in_a;
     }
@@ -500,7 +508,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 4];
     	mult_in_a   = fwht( lwht_in_a );
     	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 8] = memo_in_a;
     }
@@ -513,7 +521,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 10];
     	mult_in_a   = extend( lwht_in_a );
     	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_f(mult_in_a, mult_in_b); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 12] = memo_in_a;
     }
@@ -531,7 +539,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 13];
     	mult_in_a   = fwht( lwht_in_a );
     	mult_in_b   = fwht( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, 0); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 14] = memo_in_a;
     }
@@ -555,7 +563,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 10];
     	mult_in_a   = extend( lwht_in_a );
     	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 12] = memo_in_a;
     }
@@ -582,7 +590,7 @@ void the_decoder(
     	lwht_in_b   = internal[s + 4];
     	mult_in_a   = extend( lwht_in_a );
     	mult_in_b   = extend( lwht_in_b );
-    	norm_in_a   = vec_i_mul(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
+    	norm_in_a   = vec_i_mul_g(mult_in_a, mult_in_b, symbols[s + 8]); // f_mode
     	memo_in_a   = vec_i_norm( norm_in_a );
     	internal[s + 8] = memo_in_a;
     }
