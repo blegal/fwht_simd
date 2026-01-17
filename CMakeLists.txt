@@ -10,7 +10,7 @@ set (CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
-option (SANITIZE_DECODERS "Add sanitization values" OFF)
+option (SANITIZE_DECODERS "Add sanitization values" ON)
 
 if (SANITIZE_DECODERS)
 	set (SANITIZE_CXXFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
@@ -69,6 +69,7 @@ add_executable(benchmarking
 		src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
 		src/hadamard/Hadamard.cpp
         src/encoder/polar_encoder.cpp
+		src/decoders/hls/hls_decoder.cpp
 )
 target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (benchmarking PUBLIC utilities)
@@ -85,14 +86,21 @@ target_link_libraries      (fwht_validator PUBLIC utilities)
 
 #######################################################################################################################################
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-gnu-inline-cpp-without-extern -march=native -mtune=native -O3 -ffast-math -g3")
-
 add_executable(code_generator
-        ${CMAKE_CURRENT_SOURCE_DIR}/apps/code_generator.cpp
-        src/encoder/polar_encoder.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/apps/code_generator.cpp
+		src/encoder/polar_encoder.cpp
 )
 target_include_directories (code_generator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (code_generator PUBLIC utilities)
+
+#######################################################################################################################################
+
+add_executable(hls_generator
+		${CMAKE_CURRENT_SOURCE_DIR}/apps/hls_generator.cpp
+		src/encoder/polar_encoder.cpp
+)
+target_include_directories (hls_generator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (hls_generator PUBLIC utilities)
 
 #######################################################################################################################################
 

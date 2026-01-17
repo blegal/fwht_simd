@@ -26,7 +26,7 @@ enum next_node {
     USELESS
 };
 
-class dec_generator {
+class hls_generator {
 private:
     std::ofstream ofile;
     const int     GF;
@@ -36,104 +36,85 @@ public:
 
     bool en_rate_0   = true;
     bool en_rate_1   = true;
-    bool en_rate_spc = true;
-    bool en_rate_rep = true;
+    bool en_rate_spc = false;
+    bool en_rate_rep = false;
 
 public:
-    dec_generator(const int n, const int gf) : GF(gf) {
+    hls_generator(const int n, const int gf) : GF(gf) {
         next_node_status.resize(2 * n);
     }
 
-    ~dec_generator() {
+    ~hls_generator() {
         // nothing
     }
 
     std::vector<next_node> next_node_status;
 
-    void analyze_hls(const std::string filen, const int * frozen, const int size) {
-        if (verbose == true) {
-            printf("\nFrozen matrix:\n");
-            for (int i = 0; i < size; i += 1) {
-                if ((i % 8) == 0)
-                    printf(" | ");
-                if ((i % 32) == 0)
-                    printf("\n | ");
-                printf("%2d ", frozen[i]);
-            }
-            printf(" |\n");
-        }
-
-        int K_value = 0;
-        for (int i = 0; i < size; i += 1) {
-            K_value += (frozen[i] == false);
-        }
-
-        ofile.open(filen.c_str());
-
-        ofile << "#pragma once" << std::endl;
-        ofile << std::endl;
-        ofile << "#include \"impl/vec_mult.hpp\""   << std::endl;
-        ofile << "#include \"impl/vec_argmax.hpp\"" << std::endl;
-        ofile << "#include \"impl/vec_norm.hpp\""   << std::endl;
-        ofile << "#include \"impl/fwht.hpp\""       << std::endl;
-        ofile << std::endl;
-        ofile << "template <int gf_size>" << std::endl;
-        ofile << "void decoder_dedicated<gf_size>::execute(void* s_channel, uint16_t * decoded)" << std::endl;
-        ofile << "{" << std::endl;
-        ofile << "        symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);" << std::endl;
-
-        const int n_elmnt = execute(frozen, 0, next_node_status.data(), 0, size);
-        next_node_status.resize(n_elmnt);
-
-        ofile << "}" << std::endl;
-        ofile << std::endl;
-        ofile << "template <int gf_size>" << std::endl;
-        ofile << "const int decoder_dedicated<gf_size>::N_gen = " << size << ";" << std::endl;
-        ofile << std::endl;
-        ofile << "template <int gf_size>" << std::endl;
-        ofile << "const int decoder_dedicated<gf_size>::K_gen = " << K_value << ";" << std::endl;
-        ofile << std::endl;
-        ofile.close();
-        if (verbose == true) {
-            printf("-> #elements : %d\n", n_elmnt);
-            printf("-> #elements : %zu\n", next_node_status.size());
-        }
-    }
-
     void analyze(const std::string filen, const int * frozen, const int size) {
+
+        //
+        //
+        //
+
         if (verbose == true) {
             printf("\nFrozen matrix:\n");
             for (int i = 0; i < size; i += 1) {
-                if ((i % 8) == 0)
-                    printf(" | ");
-                if ((i % 32) == 0)
-                    printf("\n | ");
+                if ((i %  8) == 0) printf(" | ");
+                if ((i % 32) == 0) printf("\n | ");
                 printf("%2d ", frozen[i]);
             }
             printf(" |\n");
         }
+
+        //
+        //
+        //
 
         int K_value = 0;
         for (int i = 0; i < size; i += 1) {
             K_value += (frozen[i] == false);
         }
 
+        //
+        //
+        //
+
         ofile.open(filen.c_str());
 
-        ofile << "#pragma once" << std::endl;
+        ofile << "#include <cstdio>"  << std::endl;
+        ofile << "#include <cstdlib>" << std::endl;
+        ofile << "#include <cmath>"   << std::endl;
+        ofile << "#include <cstdint>" << std::endl;
         ofile << std::endl;
-        ofile << "#include \"decoder_dedicated.hpp\"" << std::endl;
-        ofile << "#include \"impl/f_function.hpp\"" << std::endl;
-        ofile << "#include \"impl/g_function.hpp\"" << std::endl;
-        ofile << "#include \"impl/node_rate_0.hpp\"" << std::endl;
-        ofile << "#include \"impl/node_rate_1.hpp\"" << std::endl;
-        ofile << "#include \"impl/node_rep.hpp\"" << std::endl;
-        ofile << "#include \"impl/node_spc.hpp\"" << std::endl;
+        ofile << "#include \"include/ap_fixed.hpp\"" << std::endl;
+        ofile << std::endl;
+        ofile << "#define N            64" << std::endl;
+        ofile << std::endl;
+        ofile << "#define gf_size      64" << std::endl;
+        ofile << "#define log2_gf_size  6" << std::endl;
+        ofile << "#define data_width   18" << std::endl;
+        ofile << std::endl;
+        ofile << std::endl;
+        ofile << "#define i_lwht_width   data_width" << std::endl;
+        ofile << "#define o_lwht_width   (i_lwht_width+log2_gf_size)" << std::endl;
+        ofile << "#define i_mult_width   (o_lwht_width)" << std::endl;
+        ofile << "#define o_mult_width   (i_lwht_width*i_lwht_width)" << std::endl;
+        ofile << "#define i_norm_width   (o_mult_width)" << std::endl;
+        ofile << "#define o_norm_width   (i_lwht_width)" << std::endl;
+        ofile << std::endl;
+        ofile << "typedef  { ap_int<data_width  > value[gf_size]; } t_memory;" << std::endl;
+        ofile << "typedef  { ap_int<i_lwht_width> value[gf_size]; } t_i_lwht;" << std::endl;
+        ofile << "typedef  { ap_int<o_lwht_width> value[gf_size]; } t_o_lwht;" << std::endl;
+        ofile << "typedef  { ap_int<i_mult_width> value[gf_size]; } t_i_mult;" << std::endl;
+        ofile << "typedef  { ap_int<o_mult_width> value[gf_size]; } t_o_mult;" << std::endl;
+        ofile << "typedef  { ap_int<i_norm_width> value[gf_size]; } t_i_norm;" << std::endl;
+        ofile << "typedef  { ap_int<o_norm_width> value[gf_size]; } t_o_norm;" << std::endl;
         ofile << std::endl;
         ofile << "template <int gf_size>" << std::endl;
-        ofile << "void decoder_dedicated<gf_size>::execute(void* s_channel, uint16_t * decoded)" << std::endl;
+        ofile << "void decoder_dedicated<gf_size>::execute(" <<  std::endl <<
+                 "			t_memory channel[N],"            << std::endl <<
+                 "			uint16_t decoded[N])"            << std::endl;
         ofile << "{" << std::endl;
-        ofile << "        symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);" << std::endl;
 
         const int n_elmnt = execute(frozen, 0, next_node_status.data(), 0, size);
         next_node_status.resize(n_elmnt);
@@ -228,20 +209,59 @@ private:
                 indentation(level);
                 printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (f) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
             }
-            ofile << "\t" << "f_function_proba_in<" << GF << ">(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
+            //
+          //ofile << "\t" << "f_function_proba_in<" << GF << ">(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
+            //
+            ofile << "//f_function_proba_in" << std::endl;
+            ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {" << std::endl;
+            ofile << "#pragma HLS UNROLL off" << std::endl;
+            ofile << "#pragma HLS PIPELINE"   << std::endl;
+            ofile << "    	lwht_in_a   = channel[s    ];"   << std::endl;
+            ofile << "    	lwht_in_b   = channel[s + " << n << "];"   << std::endl;
+            ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);"   << std::endl;
+            ofile << "    	internal[s] = memo_in_a;"   << std::endl;
+            ofile << "  }"   << std::endl;
+            //
+            //
         } else {
             if (pred_is_f) {
                 if (verbose) {
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (f) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "f_function_freq_in<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                //
+              //ofile << "\t" << "f_function_freq_in<" << GF << ">(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                //
+                ofile << "//f_function_freq_in" << std::endl;
+                ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {" << std::endl;
+                ofile << "#pragma HLS UNROLL off" << std::endl;
+                ofile << "#pragma HLS PIPELINE"   << std::endl;
+                ofile << "    	lwht_in_a   = internal[s + " <<  p_llrs    << "];"   << std::endl;
+                ofile << "    	lwht_in_b   = internal[s + " << (p_llrs+n) << "];"   << std::endl;
+                ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"   << std::endl;
+                ofile << "    	internal[s + " << (p_llrs + size) << "] = memo_in_a;"   << std::endl;
+                ofile << "  }"   << std::endl;
+                //
+                //
             } else {
                 if (verbose) {
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (f) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "f_function_proba_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                //
+              //ofile << "\t" << "f_function_proba_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                //
+                ofile << "//f_function_proba_in" << std::endl;
+                ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {" << std::endl;
+                ofile << "#pragma HLS UNROLL off" << std::endl;
+                ofile << "#pragma HLS PIPELINE"   << std::endl;
+                ofile << "    	lwht_in_a   = internal[s + " <<  p_llrs    << "];"   << std::endl;
+                ofile << "    	lwht_in_b   = internal[s + " << (p_llrs+n) << "];"   << std::endl;
+                ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);"   << std::endl;
+                ofile << "    	internal[s + " << (p_llrs + size) << "] = memo_in_a;"   << std::endl;
+                ofile << "  }"   << std::endl;
+                //
+                //
             }
         }
 
@@ -379,16 +399,57 @@ private:
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= SPECIAL Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "g_function_freq_in_after_rate_0<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                //
+              //ofile << "\t" << "g_function_freq_in_after_rate_0<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                //
+                ofile << "//g_function_freq_in_after_rate_0"                                        << std::endl;
+                ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
+                ofile << "#pragma HLS UNROLL off"                                                    << std::endl;
+                ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                ofile << "    	lwht_in_a   = internal[s + " <<  p_llrs    << "];"                   << std::endl;
+                ofile << "    	lwht_in_b   = internal[s + " << (p_llrs+n) << "];"                   << std::endl;
+                ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);"   << std::endl;
+                ofile << "    	internal[s + " << (p_llrs + size) << "] = memo_in_a;"                << std::endl;
+                ofile << "  }"                                                                       << std::endl;
+                //
+                //
             } else {
                 if (verbose) {
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= SPECIAL Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                if (level == 1)
-                    ofile << "\t" << "g_function_proba_in_after_rate_0<gf_size>(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
-                else
-                    ofile << "\t" << "g_function_proba_in_after_rate_0<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                if (level == 1) {
+                    //
+                  //ofile << "\t" << "g_function_proba_in_after_rate_0<gf_size>(internal, channel, channel + " << n << ", " << n << ");" << std::endl;
+                    //
+                    ofile << "//g_function_proba_in_after_rate_0" << std::endl;
+                    ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {" << std::endl;
+                    ofile << "#pragma HLS UNROLL off" << std::endl;
+                    ofile << "#pragma HLS PIPELINE"   << std::endl;
+                    ofile << "    	lwht_in_a   = channel[s    ];"   << std::endl;
+                    ofile << "    	lwht_in_b   = channel[s + " << n << "];"   << std::endl;
+                    ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"   << std::endl;
+                    ofile << "    	internal[s] = memo_in_a;"   << std::endl;
+                    ofile << "  }"   << std::endl;
+                    //
+                    //
+                }
+                else {
+                    //
+                  //ofile << "\t" << "g_function_proba_in_after_rate_0<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", " << n << ");" << std::endl;
+                    //
+                    ofile << "//g_function_proba_in_after_rate_0"                                        << std::endl;
+                    ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
+                    ofile << "#pragma HLS UNROLL off"                                                    << std::endl;
+                    ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                    ofile << "    	lwht_in_a   = internal[s + " <<  p_llrs    << "];"                   << std::endl;
+                    ofile << "    	lwht_in_b   = internal[s + " << (p_llrs+n) << "];"                   << std::endl;
+                    ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"  << std::endl;
+                    ofile << "    	internal[s + " << (p_llrs + size) << "] = memo_in_a;"                << std::endl;
+                    ofile << "  }"                                                                       << std::endl;
+                    //
+                    //
+                }
             }
             //
             // NORMAL node
@@ -398,9 +459,19 @@ private:
                 indentation(level);
                 printf("\e[1;31m Internal[%d...%d] <= Channel(%d...%d) (g) Channel(%d...%d) \e[0m\n", 0, n, 0, n, n, n + n);
             }
-            ofile << "\t" << "g_function_proba_in<gf_size>(internal, channel, channel + " << n << ", symbols, " << n << ");" << std::endl;
             //
-            // NORMAL node
+          //ofile << "\t" << "g_function_proba_in<gf_size>(internal, channel, channel + " << n << ", symbols, " << n << ");" << std::endl;
+            //
+            ofile << "//g_function_proba_in" << std::endl;
+            ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {" << std::endl;
+            ofile << "#pragma HLS UNROLL off" << std::endl;
+            ofile << "#pragma HLS PIPELINE"   << std::endl;
+            ofile << "    	lwht_in_a   = channel[s    ];"   << std::endl;
+            ofile << "    	lwht_in_b   = channel[s + " << n << "];"   << std::endl;
+            ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"   << std::endl;
+            ofile << "    	internal[s] = memo_in_a;"   << std::endl;
+            ofile << "  }"   << std::endl;
+            //
             //
         } else {
             if (is_rate0_after_g) {
@@ -412,13 +483,39 @@ private:
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "g_function_freq_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                //
+              //ofile << "\t" << "g_function_freq_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                //
+                ofile << "//g_function_freq_in"                                        << std::endl;
+                ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
+                ofile << "#pragma HLS UNROLL off"                                                    << std::endl;
+                ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                ofile << "    	lwht_in_a   = internal[s + " <<  p_llrs    << "];"                   << std::endl;
+                ofile << "    	lwht_in_b   = internal[s + " << (p_llrs+n) << "];"                   << std::endl;
+                ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);"   << std::endl;
+                ofile << "    	internal[s + " << (p_llrs + size) << "] = memo_in_a;"                << std::endl;
+                ofile << "  }"                                                                       << std::endl;
+                //
+                //
             } else {
                 if (verbose) {
                     indentation(level);
                     printf("\e[1;31m Internal[%d...%d] <= Internal(%d...%d) (g) Internal(%d...%d) \e[0m\n", p_llrs + size, p_llrs + size + n, p_llrs, p_llrs + n, p_llrs + n, p_llrs + n + n);
                 }
-                ofile << "\t" << "g_function_proba_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                //
+              //ofile << "\t" << "g_function_proba_in<gf_size>(internal + " << p_llrs + size << ", internal + " << p_llrs << ", internal + " << p_llrs + n << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
+                //
+                ofile << "//g_function_proba_in"                                        << std::endl;
+                ofile << "	loop1 : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
+                ofile << "#pragma HLS UNROLL off"                                                    << std::endl;
+                ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                ofile << "    	lwht_in_a   = internal[s + " <<  p_llrs    << "];"                   << std::endl;
+                ofile << "    	lwht_in_b   = internal[s + " << (p_llrs+n) << "];"                   << std::endl;
+                ofile << "    	const auto memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"  << std::endl;
+                ofile << "    	internal[s + " << (p_llrs + size) << "] = memo_in_a;"                << std::endl;
+                ofile << "  }"                                                                       << std::endl;
+                //
+                //
             }
         }
 
