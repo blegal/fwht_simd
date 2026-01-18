@@ -37,7 +37,7 @@ add_compile_options (-march=native -mtune=native -O3 -g0 ${SANITIZE_CXXFLAGS})
 # add_compile_options(-g -O0 -march=native -mtune=native -Wall -Wextra ${SANITIZE_CXXFLAGS})#debug2
 add_compile_options (-Wall -Wextra)
 # to remove warnings from ap_int
-add_compile_options (-Wno-unused-parameter -Wno-deprecated-copy -Wno-int-in-bool-context -Wno-type-limits -Wno-strict-aliasing -Wno-extra)
+add_compile_options (-Wno-unused-parameter -Wno-deprecated-copy -Wno-int-in-bool-context -Wno-type-limits -Wno-strict-aliasing -Wno-extra -Wno-unused-label -Wno-unknown-pragmas)
 add_link_options (${SANITIZE_LDFLAGS})
 
 #######################################################################################################################################
@@ -69,7 +69,6 @@ add_executable(benchmarking
 		src/decoders/naive_cfloat/decoder_naive_cfloat.cpp
 		src/hadamard/Hadamard.cpp
         src/encoder/polar_encoder.cpp
-		src/decoders/hls/hls_decoder.cpp
 )
 target_include_directories (benchmarking PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (benchmarking PUBLIC utilities)
@@ -101,6 +100,16 @@ add_executable(hls_generator
 )
 target_include_directories (hls_generator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
 target_link_libraries      (hls_generator PUBLIC utilities)
+
+#######################################################################################################################################
+
+add_executable(hls_test
+		./src/decoders/hls/catch2v3/catch_amalgamated.cpp
+		./src/decoders/hls/hls_decoder.cpp
+		./src/decoders/hls/test.cpp
+	)
+target_include_directories (hls_test PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
+target_link_libraries      (hls_test PUBLIC utilities)
 
 #######################################################################################################################################
 

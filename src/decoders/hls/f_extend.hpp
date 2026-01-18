@@ -1,0 +1,34 @@
+#pragma once
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+#include "types.hpp"
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+static t_int24b extend(const t_int18b& src)
+{
+#pragma HLS INLINE
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
+	t_int24b dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+	for (int i = 0; i < 64; i++) {
+		dst.value[i] = src.value[i];
+	}
+	return dst;
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//

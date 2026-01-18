@@ -17,7 +17,7 @@
 #define BCYN "\e[1;36m"
 #define BWHT "\e[1;37m"
 
-#include "../src/generator/dec_generator.hpp"
+#include "../src/generator/hls_generator.hpp"
 
 //
 //
@@ -116,7 +116,8 @@ int main(int argc, char * argv[])
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const std::string filen = "../src/decoders/hls_decoder/gen_decoder.hpp";
-    dec_generator pruned_tree(N, _GF_);
+
+    hls_generator pruned_tree(N, _GF_);
     pruned_tree.verbose = verbose;
     pruned_tree.analyze(filen, frozen_symbols, N);
 
