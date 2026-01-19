@@ -178,37 +178,40 @@ TEST_CASE( "fwht", "[fwht]" )
 ////////////////////////////////////////////////////////////////////
 //
 //
-#if 0
 TEST_CASE( "scaling", "[scaling]" )
 {
+    printf("i_lwht_width = %d bits\n", i_lwht_width);
+    printf("o_lwht_width = %d bits\n", o_lwht_width);
+    printf("i_mult_width = %d bits\n", i_mult_width);
+    printf("o_mult_width = %d bits\n", o_mult_width);
+    printf("i_norm_width = %d bits\n", i_norm_width);
+    printf("o_norm_width = %d bits\n", o_norm_width);
+
     //
     // On teste toutes les combinaisons
     //
-    for (int i = 0; i < gf_size; i++) {
+    for (int i = 0; i < i_norm_width - 1; i++) {
         //
         // On génere tous les vecteurs de test
         //
         t_int48b v_in_a;
-        t_int18b v_in_b;
         for (int j = 0; j < gf_size; j++) {
-            v_in_a.value[j] = 0x00001;
-            v_in_b.value[j] = 0x20000;
+            v_in_a.value[j] = (0x00001 << i);
         }
         //
         // On lance le test...
         //
-        t_int48b resu = vec_i_mul_g( v_in_a, v_in_b, 0 );
+        t_int18b resu = vec_i_norm( v_in_a );
         //
         // On verifie la validité du résultat
         //
-        for (int i = 0; i < gf_size; i++) {
-            const int64_t c = (a[i] * b[i]);
-            REQUIRE( resu.value[i] == c );
+        printf("%2d : %12.12llX => %5.5llX\n", i, v_in_a.value[0].to_int64(), resu.value[0].to_uint64());
+        for (int j = 0; j < gf_size; j++) {
+            REQUIRE( resu.value[j] == 0x10000 );
         }
         //
     }
 }
-#endif
 //
 //
 ////////////////////////////////////////////////////////////////////

@@ -41,7 +41,7 @@
 #define i_lwht_width   data_width
 #define o_lwht_width   (i_lwht_width+log2_gf_size)
 #define i_mult_width   (o_lwht_width)
-#define o_mult_width   (i_lwht_width*i_lwht_width)
+#define o_mult_width   (o_lwht_width+o_lwht_width)
 #define i_norm_width   (o_mult_width)
 #define o_norm_width   (i_lwht_width)
 //
