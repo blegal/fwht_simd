@@ -196,7 +196,8 @@ TEST_CASE( "scaling", "[scaling]" )
         //
         t_int48b v_in_a;
         for (int j = 0; j < gf_size; j++) {
-            v_in_a.value[j] = (0x00001 << i);
+            int48b v_test = 0x00001;
+            v_in_a.value[j] = (v_test << i);
         }
         //
         // On lance le test...
@@ -205,7 +206,6 @@ TEST_CASE( "scaling", "[scaling]" )
         //
         // On verifie la validité du résultat
         //
-        printf("%2d : %12.12llX => %5.5llX\n", i, v_in_a.value[0].to_int64(), resu.value[0].to_uint64());
         for (int j = 0; j < gf_size; j++) {
             REQUIRE( resu.value[j] == 0x10000 );
         }

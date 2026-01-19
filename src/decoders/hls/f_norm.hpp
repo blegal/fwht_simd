@@ -45,7 +45,6 @@ inline t_int18b vec_i_norm(const t_int48b src)
     loc[3] = ((absv[48] | absv[49]) | (absv[50] | absv[51])) | ((absv[52] | absv[53]) | (absv[54] | absv[55])) |
              ((absv[56] | absv[57]) | (absv[58] | absv[59])) | ((absv[60] | absv[61]) | (absv[62] | absv[63]));
     const int48b sum = loc[0] | loc[1] | loc[2] | loc[3];
-	printf("sum = %llu (0x%16.16llX)\n", sum.to_uint64(), sum.to_uint64());
 
     //
     // On calcule le premier facteur de scaling basé sur la position du MSB
@@ -101,14 +100,6 @@ inline t_int18b vec_i_norm(const t_int48b src)
     else if (sum.get_bit(i_norm_width-47) == 1) factor = -15;
     else //if (sum.get_bit(i_norm_width-46) == 1)
     	factor = -16;
-    //else if (sum.get_bit(i_norm_width-47) == 1) factor = -18;
-    //else factor = 47;
-
-	for (int i = 0; i < i_norm_width; i++) {
-		printf("%d", sum.get_bit(i_norm_width-1-i));
-	}printf("\n");
-
-	printf("factor = %d\n", factor.to_uint());
 
     t_int18b dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
