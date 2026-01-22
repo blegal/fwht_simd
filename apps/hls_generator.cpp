@@ -115,7 +115,7 @@ int main(int argc, char * argv[])
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    const std::string filen = "../src/decoders/hls/gen_decoder.hpp";
+    const std::string filen = "../src/decoders/hls/gen_decoder.cpp";
 
     hls_generator pruned_tree(N, _GF_);
     pruned_tree.verbose = verbose;
