@@ -14,16 +14,16 @@
 //
 //
 //
-inline t_int18b vec_i_norm(const t_int48b src)
+inline t_o_norm vec_i_norm(const t_i_norm src)
 {
 #pragma HLS INLINE
 //#pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
 
-	int48b absv[64];
+	ap_int<i_norm_width> absv[64];
     for (int i = 0; i < gf_size; i++)
     {
-    	const int48b value = src.value[i];
+    	const ap_int<i_norm_width> value = src.value[i];
     	if(value < 0)	absv[i] = -value;
     	else			absv[i] =  value;
     }
@@ -31,7 +31,7 @@ inline t_int18b vec_i_norm(const t_int48b src)
     //
     // On calcule le premier facteur de scaling basé sur le maximum
     //
-    int48b loc[4];
+    ap_int<i_norm_width> loc[4];
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=loc
     loc[0] = ((absv[ 0] | absv[ 1]) | (absv[ 2] | absv[ 3])) | ((absv[ 4] | absv[ 5]) | (absv[ 6] | absv[ 7])) |
              ((absv[ 8] | absv[ 9]) | (absv[10] | absv[11])) | ((absv[12] | absv[13]) | (absv[14] | absv[15]));
@@ -44,7 +44,7 @@ inline t_int18b vec_i_norm(const t_int48b src)
 
     loc[3] = ((absv[48] | absv[49]) | (absv[50] | absv[51])) | ((absv[52] | absv[53]) | (absv[54] | absv[55])) |
              ((absv[56] | absv[57]) | (absv[58] | absv[59])) | ((absv[60] | absv[61]) | (absv[62] | absv[63]));
-    const int48b sum = loc[0] | loc[1] | loc[2] | loc[3];
+    const ap_int<i_norm_width> sum = loc[0] | loc[1] | loc[2] | loc[3];
 
     //
     // On calcule le premier facteur de scaling basé sur la position du MSB
@@ -101,10 +101,10 @@ inline t_int18b vec_i_norm(const t_int48b src)
     else //if (sum.get_bit(i_norm_width-46) == 1)
     	factor = -16;
 
-    t_int18b dst;
+    t_o_norm dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
     for (int i = 0; i < gf_size; i++) {
-    	int48b value = src.value[i] >> factor;
+    	const ap_int <o_norm_width> value = src.value[i] >> factor;
         dst.value[i] = value.range(17, 0);
     }
     return dst;

@@ -50,7 +50,7 @@ TEST_CASE( "argmax", "[argmax]" )
         //
         // On génere tous les vecteurs de test
         //
-        t_int18b v_in;
+        t_i_memo v_in;
         for (int j = 0; j < gf_size; j++) {
             v_in.value[j] = 1;
         }
@@ -80,14 +80,14 @@ TEST_CASE( "extend", "[extend]" )
         //
         // On génere tous les vecteurs de test
         //
-        t_int18b v_in;
+        t_i_memo v_in;
         for (int j = 0; j < gf_size; j++) {
             v_in.value[j] = (rand()%256) - 128;
         }
         //
         // On lance le test...
         //
-        t_int24b resu = extend(v_in);
+        t_o_lwht resu = extend(v_in);
         //
         // On verifie la validité du résultat
         //
@@ -112,8 +112,8 @@ TEST_CASE( "multiply", "[multiply]" )
         //
         int64_t a[gf_size];
         int64_t b[gf_size];
-        t_int24b v_in_a;
-        t_int24b v_in_b;
+        t_i_mult v_in_a;
+        t_i_mult v_in_b;
         for (int j = 0; j < gf_size; j++) {
             a[j] = (rand()%256) - 128;
             b[j] = (rand()%256) - 128;
@@ -123,7 +123,7 @@ TEST_CASE( "multiply", "[multiply]" )
         //
         // On lance le test...
         //
-        t_int48b resu = vec_i_mul_g( v_in_a, v_in_b, 0 );
+        t_o_mult resu = vec_i_mul_g( v_in_a, v_in_b, 0 );
         //
         // On verifie la validité du résultat
         //
@@ -149,7 +149,7 @@ TEST_CASE( "fwht", "[fwht]" )
         // On génere tous les vecteurs de test
         //
         int32_t f_in[gf_size];
-        t_int18b v_in;
+        t_i_lwht v_in;
         for (int j = 0; j < gf_size; j++) {
             f_in[j]          = (rand()%256) - 128;
             v_in.value[j] = f_in[j];
@@ -157,7 +157,7 @@ TEST_CASE( "fwht", "[fwht]" )
         //
         // On lance le test...
         //
-        t_int24b v_ou = fwht( v_in );
+        t_o_lwht v_ou = fwht( v_in );
         fwht<64>( f_in );
         //
         // On verifie la validité du résultat
@@ -194,15 +194,15 @@ TEST_CASE( "scaling", "[scaling]" )
         //
         // On génere tous les vecteurs de test
         //
-        t_int48b v_in_a;
+        t_i_norm v_in_a;
         for (int j = 0; j < gf_size; j++) {
-            int48b v_test = 0x00001;
+            ap_int <i_norm_width> v_test = 0x00001;
             v_in_a.value[j] = (v_test << i);
         }
         //
         // On lance le test...
         //
-        t_int18b resu = vec_i_norm( v_in_a );
+        t_o_norm resu = vec_i_norm( v_in_a );
         //
         // On verifie la validité du résultat
         //
