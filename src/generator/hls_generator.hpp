@@ -141,12 +141,12 @@ public:
 
         ofile << "}" << std::endl;
         ofile << std::endl;
-        ofile << "template <int gf_size>" << std::endl;
-        ofile << "const int decoder_dedicated<gf_size>::N_gen = " << size << ";" << std::endl;
-        ofile << std::endl;
-        ofile << "template <int gf_size>" << std::endl;
-        ofile << "const int decoder_dedicated<gf_size>::K_gen = " << K_value << ";" << std::endl;
-        ofile << std::endl;
+        //ofile << "template <int gf_size>" << std::endl;
+        //ofile << "const int decoder_dedicated<gf_size>::N_gen = " << size << ";" << std::endl;
+        //ofile << std::endl;
+        //ofile << "template <int gf_size>" << std::endl;
+        //ofile << "const int decoder_dedicated<gf_size>::K_gen = " << K_value << ";" << std::endl;
+        //ofile << std::endl;
         ofile.close();
         if (verbose == true) {
             printf("-> #elements : %d\n", n_elmnt);
