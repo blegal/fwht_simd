@@ -26,6 +26,7 @@ void the_decoder(
 {
 	t_i_memo internal[16];
 #pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal
+
 	uint8_t  symbols [16];
 
 	t_i_memo lwht_in_a, lwht_in_b;
