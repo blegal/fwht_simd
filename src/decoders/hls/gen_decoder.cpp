@@ -28,165 +28,141 @@ void the_decoder_v2(
 			t_i_memo channel[N],
 			uint16_t decoded[N])
 {
+#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=channel
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=decoded
 
-  t_i_memo internal[N];
+  static t_i_memo internal[N];
 #pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal
 
   uint8_t  symbols [N];
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=symbols
 
-  t_i_memo lwht_in_a, lwht_in_b;
+  static t_i_memo lwht_in_a, lwht_in_b;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value
 
-  t_i_memo memo_in_a;
+  static t_i_memo memo_in_a;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=memo_in_a.value
 
-  uint8_t symbol_v;
-  uint8_t symbol_x;
+  static uint8_t symbol_v;
+  static uint8_t symbol_x;
 
   // f_function_proba_in
   loop_1 : for (int s = 0; s < 128; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = channel[s    ];
-    lwht_in_b   = channel[s + 128];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
-    internal[s] = memo_in_a;
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    internal[s] = datapath(channel[s], channel[s + 128], true, 0);
   }
 
   // f_function_freq_in
   loop_2 : for (int s = 0; s < 64; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = internal[s + 0];
-    lwht_in_b   = internal[s + 64];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
-    internal[s + 128] = memo_in_a;
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    internal[s + 128] = datapath(internal[s], internal[s + 64], false, 0);;
   }
 
   // f_function_freq_in
   loop_3 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = internal[s + 128];
-    lwht_in_b   = internal[s + 160];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
-    internal[s + 192] = memo_in_a;
-  }
-
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  loop_4 : for (int s = 0; s < 16; s++) {
-#pragma HLS PIPELINE
-    symbols[s + 0] = 0;
-    decoded[s + 0] = 0;
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    internal[s + 192] = datapath(internal[s + 128], internal[s + 160], false, 0);
   }
 
   // g_function_freq_in_after_rate_0
   loop_5 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = internal[s + 192];
-    lwht_in_b   = internal[s + 208];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    memo_in_a   = datapath(internal[s + 192], internal[s + 208], true, 0);
     internal[s + 224] = memo_in_a;
-  }
-
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  loop_6 : for (int s = 0; s < 8; s++) {
-#pragma HLS PIPELINE
-    symbols[s + 16] = 0;
-    decoded[s + 16] = 0;
+    symbols[s + 0] = 0;
+    decoded[s + 0] = 0;
   }
 
   // g_function_proba_in_after_rate_0
   loop_7 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = internal[s + 224];
-    lwht_in_b   = internal[s + 232];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    memo_in_a   = datapath(internal[s + 224], internal[s + 232], false, 0);
     internal[s + 240] = memo_in_a;
-  }
-
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  loop_8 : for (int s = 0; s < 4; s++) {
-#pragma HLS PIPELINE
-    symbols[s + 24] = 0;
-    decoded[s + 24] = 0;
+    symbols[s + 16] = 0;
+    decoded[s + 16] = 0;
   }
 
   // g_function_proba_in_after_rate_0
   loop_9 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = internal[s + 240];
-    lwht_in_b   = internal[s + 244];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    memo_in_a   = datapath(internal[s + 240], internal[s + 244], false, 0);
     internal[s + 248] = memo_in_a;
+    symbols[s + 24] = 0;
+    decoded[s + 24] = 0;
   }
 
   // middle_node_pruned_spc_after_g
   loop_10 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
-    	uint8_t e = vec_decision( internal[s + 248], false );
-    	symbols[s + 28] = e;
-    	decoded[s + 28] = e;
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    	symbol_v = vec_decision( internal[s + 248], false );
+    	symbols[s + 28] = symbol_v;
+    	decoded[s + 28] = symbol_v;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
   }
   // SPC processing !!!
 
   loop_xor_11 : for(int i = 0; i < 4; i += 1){
+#pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=symbols
     symbols[24 + i] ^= symbols[28 + i];
   }
 
   loop_xor_12 : for(int i = 0; i < 8; i += 1){
+#pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=symbols
     symbols[16 + i] ^= symbols[24 + i];
   }
 
   loop_xor_13 : for(int i = 0; i < 16; i += 1){
+#pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=symbols
     symbols[0 + i] ^= symbols[16 + i];
   }
 
   // g_function_freq_in
   loop_14 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
-    	lwht_in_a   = internal[s + 128];
-    	lwht_in_b   = internal[s + 160];
-    	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    	memo_in_a   = datapath(internal[s + 128], internal[s + 160], true, 0);
     	internal[s + 192] = memo_in_a;
   }
 
   // f_function_proba_in
   loop_15 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
-    lwht_in_a   = internal[s + 192];
-    lwht_in_b   = internal[s + 208];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
+    memo_in_a   = datapath(internal[s + 192], internal[s + 208], true, 0);
     internal[s + 224] = memo_in_a;
   }
 
   // f_function_freq_in
   loop_16 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 224];
     lwht_in_b   = internal[s + 232];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
     internal[s + 240] = memo_in_a;
   }
 
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  loop_17 : for (int s = 0; s < 4; s++) {
-#pragma HLS PIPELINE
-    symbols[s + 32] = 0;
-    decoded[s + 32] = 0;
-  }
-
   // g_function_freq_in_after_rate_0
   loop_18 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 240];
     lwht_in_b   = internal[s + 244];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
     internal[s + 248] = memo_in_a;
+    symbols[s + 32] = 0;
+    decoded[s + 32] = 0;
   }
 
   // middle_node_pruned_spc_after_g
@@ -200,12 +176,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_20 : for(int i = 0; i < 4; i += 1){
+#pragma HLS PIPELINE
     symbols[32 + i] ^= symbols[36 + i];
   }
 
   // g_function_freq_in
   loop_21 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 224];
     	lwht_in_b   = internal[s + 232];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -223,12 +201,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_23 : for(int i = 0; i < 8; i += 1){
+#pragma HLS PIPELINE
     symbols[32 + i] ^= symbols[40 + i];
   }
 
   // g_function_proba_in
 	loop_24 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 192];
     	lwht_in_b   = internal[s + 208];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -246,16 +226,19 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_26 : for(int i = 0; i < 16; i += 1){
+#pragma HLS PIPELINE
     symbols[32 + i] ^= symbols[48 + i];
   }
 
   loop_xor_27 : for(int i = 0; i < 32; i += 1){
+#pragma HLS PIPELINE
     symbols[0 + i] ^= symbols[32 + i];
   }
 
   // g_function_freq_in
   loop_28 : for (int s = 0; s < 64; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 0];
     	lwht_in_b   = internal[s + 64];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -265,6 +248,7 @@ void the_decoder_v2(
   // f_function_proba_in
   loop_29 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 128];
     lwht_in_b   = internal[s + 160];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -274,6 +258,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_30 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 192];
     lwht_in_b   = internal[s + 208];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -283,6 +268,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_31 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 224];
     lwht_in_b   = internal[s + 232];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -292,6 +278,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_32 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 240];
     lwht_in_b   = internal[s + 244];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -302,6 +289,7 @@ void the_decoder_v2(
   // middle_node_pruned_rep_after_f
   loop_33 : for (int s = 0; s < 2; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 248];
     lwht_in_b   = internal[s + 250];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -320,6 +308,7 @@ void the_decoder_v2(
   // g_function_freq_in
   loop_35 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 240];
     	lwht_in_b   = internal[s + 244];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -337,12 +326,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_37 : for(int i = 0; i < 4; i += 1){
+#pragma HLS PIPELINE
     symbols[64 + i] ^= symbols[68 + i];
   }
 
   // g_function_freq_in
   loop_38 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 224];
     	lwht_in_b   = internal[s + 232];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -360,12 +351,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_40 : for(int i = 0; i < 8; i += 1){
+#pragma HLS PIPELINE
     symbols[64 + i] ^= symbols[72 + i];
   }
 
   // g_function_freq_in
   loop_41 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 192];
     	lwht_in_b   = internal[s + 208];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -383,12 +376,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_43 : for(int i = 0; i < 16; i += 1){
+#pragma HLS PIPELINE
     symbols[64 + i] ^= symbols[80 + i];
   }
 
   // g_function_proba_in
 	loop_44 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 128];
     	lwht_in_b   = internal[s + 160];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -406,16 +401,19 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_46 : for(int i = 0; i < 32; i += 1){
+#pragma HLS PIPELINE
     symbols[64 + i] ^= symbols[96 + i];
   }
 
   loop_xor_47 : for(int i = 0; i < 64; i += 1){
+#pragma HLS PIPELINE
     symbols[0 + i] ^= symbols[64 + i];
   }
 
   // g_function_proba_in
   loop_48 : for (int s = 0; s < 128; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = channel[s    ];
     lwht_in_b   = channel[s + 128];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -425,6 +423,7 @@ void the_decoder_v2(
   // f_function_proba_in
   loop_49 : for (int s = 0; s < 64; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 0];
     lwht_in_b   = internal[s + 64];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -434,6 +433,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_50 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 128];
     lwht_in_b   = internal[s + 160];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -443,6 +443,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_51 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 192];
     lwht_in_b   = internal[s + 208];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -452,6 +453,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_52 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 224];
     lwht_in_b   = internal[s + 232];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -461,6 +463,7 @@ void the_decoder_v2(
   // f_function_freq_in
   loop_53 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 240];
     lwht_in_b   = internal[s + 244];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -471,6 +474,7 @@ void the_decoder_v2(
   // middle_node_pruned_rep_after_f
   loop_54 : for (int s = 0; s < 2; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     lwht_in_a   = internal[s + 248];
     lwht_in_b   = internal[s + 250];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -489,6 +493,7 @@ void the_decoder_v2(
   // g_function_freq_in
   loop_56 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 240];
     	lwht_in_b   = internal[s + 244];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -506,12 +511,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_58 : for(int i = 0; i < 4; i += 1){
+#pragma HLS PIPELINE
     symbols[128 + i] ^= symbols[132 + i];
   }
 
   // g_function_freq_in
   loop_59 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 224];
     	lwht_in_b   = internal[s + 232];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -529,12 +536,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_61 : for(int i = 0; i < 8; i += 1){
+#pragma HLS PIPELINE
     symbols[128 + i] ^= symbols[136 + i];
   }
 
   // g_function_freq_in
   loop_62 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 192];
     	lwht_in_b   = internal[s + 208];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -552,12 +561,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_64 : for(int i = 0; i < 16; i += 1){
+#pragma HLS PIPELINE
     symbols[128 + i] ^= symbols[144 + i];
   }
 
   // g_function_freq_in
   loop_65 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 128];
     	lwht_in_b   = internal[s + 160];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);
@@ -575,12 +586,14 @@ void the_decoder_v2(
   // SPC processing !!!
 
   loop_xor_67 : for(int i = 0; i < 32; i += 1){
+#pragma HLS PIPELINE
     symbols[128 + i] ^= symbols[160 + i];
   }
 
   // g_function_proba_in
 	loop_68 : for (int s = 0; s < 64; s++) {
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE class=array dependent=false direction=raw distance=1 type=inter variable=internal
     	lwht_in_a   = internal[s + 0];
     	lwht_in_b   = internal[s + 64];
     	memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
@@ -596,10 +609,6 @@ void the_decoder_v2(
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
   }
   // SPC processing !!!
-
-  loop_xor_70 : for(int i = 0; i < 64; i += 1){
-    symbols[128 + i] ^= symbols[192 + i];
-  }
 
 }
 

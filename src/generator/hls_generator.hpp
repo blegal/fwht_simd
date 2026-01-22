@@ -717,14 +717,14 @@ private:
                 }
                 //ofile << "  middle_node_pruned_spc_after_g<gf_size>(internal + " << p_llrs << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
                 //
-                ofile << "  // middle_node_pruned_spc_after_g"                                        << std::endl;
-                ofile << "  loop_" << (loop_id++) << " : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
-                ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    	uint8_t e = vec_decision( internal[s + " << (p_llrs) << "], false );" << std::endl;
-                ofile << "    	symbols[s + " << (curr_frozen + n) << "] = e;"                               << std::endl;
-                ofile << "    	decoded[s + " << (curr_frozen + n) << "] = e;"                               << std::endl;
-                ofile << "    	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                    << std::endl;
-                ofile << "  }"                                                                               << std::endl;
+                ofile << "  // middle_node_pruned_spc_after_g"                                       << std::endl;
+                ofile << "  loop_" << (loop_id++) << " : for (int s = 0; s < " << n << "; s++) {"    << std::endl;
+                ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                ofile << "    	symbol_v = vec_decision( internal[s + " << (p_llrs) << "], false );" << std::endl;
+                ofile << "    	symbols[s + " << (curr_frozen + n) << "] = symbol_v ;"               << std::endl;
+                ofile << "    	decoded[s + " << (curr_frozen + n) << "] = symbol_v ;"               << std::endl;
+                ofile << "    	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"             << std::endl;
+                ofile << "  }"                                                                       << std::endl;
                 ofile << "  // SPC processing !!!" << std::endl;
                 ofile << std::endl;
             } else {
@@ -741,10 +741,10 @@ private:
                 ofile << "  // middle_node_pruned_spc_after_g"                                        << std::endl;
                 ofile << "  loop_" << (loop_id++) << " : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    	uint8_t e = vec_decision( internal[s + " << (p_llrs + size) << "], false );" << std::endl;
-                ofile << "    	symbols[s + " << (curr_frozen + n) << "] = e;"                               << std::endl;
-                ofile << "    	decoded[s + " << (curr_frozen + n) << "] = e;"                               << std::endl;
-                ofile << "    	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                    << std::endl;
+                ofile << "    	symbol_v  = vec_decision( internal[s + " << (p_llrs + size) << "], false );" << std::endl;
+                ofile << "    	symbols[s + " << (curr_frozen + n) << "] = symbol_v ;"                       << std::endl;
+                ofile << "    	decoded[s + " << (curr_frozen + n) << "] = symbol_v ;"                       << std::endl;
+                ofile << "    	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                     << std::endl;
                 ofile << "  }"                                                                               << std::endl;
                 ofile << "  // SPC processing !!!" << std::endl;
                 ofile << std::endl;
@@ -765,9 +765,9 @@ private:
             ofile << "  // middle_node_pruned_rep_after_g"                                        << std::endl;
             ofile << "	loop_" << (loop_id++) << " : for (int s = 0; s < " << n << "; s++) {"                         << std::endl;
             ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-            ofile << "    	uint8_t e = vec_decision( internal[s + " << (p_llrs + size) << "], false );" << std::endl;
-            ofile << "    	symbols[s + " << (curr_frozen + n) << "] = e;"                               << std::endl;
-            ofile << "    	decoded[s + " << (curr_frozen + n) << "] = e;"                               << std::endl;
+            ofile << "    	symbol_v  = vec_decision( internal[s + " << (p_llrs + size) << "], false );" << std::endl;
+            ofile << "    	symbols[s + " << (curr_frozen + n) << "] = symbol_v ;"                       << std::endl;
+            ofile << "    	decoded[s + " << (curr_frozen + n) << "] = symbol_v ;"                       << std::endl;
             ofile << "  }"                                                                               << std::endl;
             ofile << std::endl;
         } else {
