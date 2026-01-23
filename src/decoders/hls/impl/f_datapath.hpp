@@ -14,17 +14,11 @@
 //
 //
 //
-static t_o_lwht extend(const t_i_memo& src)
-{
-#pragma HLS INLINE
-#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
-	t_o_lwht dst;
-#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-	for (int i = 0; i < gf_size; i++) {
-		dst.value[i] = src.value[i];
-	}
-	return dst;
-}
+extern t_i_memo datapath(
+	const t_i_memo lwht_in_a,
+	const t_i_memo lwht_in_b,
+	const uint8_t symbol,
+	const bool en_lwth);
 //
 //
 //

@@ -1,4 +1,3 @@
-#pragma once
 //
 //
 //
@@ -7,17 +6,6 @@
 //
 //
 #include "types.hpp"
-//
-//
-//
-//////////////////////////////////////////////////////////////////////
-//
-//
-//
-typedef struct tuple{
-	ap_int <data_width>   value;
-	ap_uint<log2_gf_size> index;
-} tuple;
 //
 //
 //
@@ -38,7 +26,7 @@ inline tuple f_max(const tuple a, const tuple b)
 //
 //
 //
-static uint8_t vec_i_unroll_argmax(const t_i_memo inp)
+uint8_t vec_i_unroll_argmax(const t_i_memo inp)
 {
 #pragma HLS INLINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=inp.value

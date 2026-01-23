@@ -1,4 +1,3 @@
-#pragma once
 //
 //
 //
@@ -6,7 +5,7 @@
 //
 //
 //
-#include "types.hpp"
+#include "f_mult.hpp"
 //
 //
 //
@@ -14,7 +13,7 @@
 //
 //
 //
-inline t_o_mult vec_i_mul_f(const t_i_mult src_1, const t_i_mult src_2)
+t_o_mult vec_i_mul_f(const t_i_mult src_1, const t_i_mult src_2)
 {
 #pragma HLS INLINE
 //#pragma HLS PIPELINE
@@ -35,7 +34,7 @@ inline t_o_mult vec_i_mul_f(const t_i_mult src_1, const t_i_mult src_2)
 //
 //
 //
-inline t_o_mult vec_i_mul_g(const t_i_mult src_1, const t_i_mult src_2, const uint8_t symbol)
+t_o_mult vec_i_mul_g(const t_i_mult src_1, const t_i_mult src_2, const uint8_t symbol)
 {
 #pragma HLS INLINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value

@@ -6,6 +6,9 @@
 //
 //
 #include "f_decision.hpp"
+#include "f_argmax.hpp"
+#include "f_fwht.hpp"
+#include "f_truncate.hpp"
 //
 //
 //
@@ -13,7 +16,7 @@
 //
 //
 //
-uint8_t vec_decision_2(const t_i_memo inp, const bool en_lwth)
+uint8_t vec_decision(const t_i_memo inp, const bool en_lwth)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE

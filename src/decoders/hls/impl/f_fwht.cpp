@@ -1,4 +1,3 @@
-#pragma once
 //
 //
 //
@@ -6,7 +5,7 @@
 //
 //
 //
-#include "types.hpp"
+#include "f_fwht.hpp"
 //
 //
 //
@@ -14,7 +13,7 @@
 //
 //
 //
-inline t_o_lwht fwht(const t_i_lwht src)
+t_o_lwht fwht(const t_i_lwht src)
 {
 #pragma HLS INLINE
 //#pragma HLS PIPELINE

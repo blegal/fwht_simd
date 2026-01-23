@@ -1,11 +1,6 @@
-#include "types.hpp"
-#include "f_argmax.hpp"
-#include "f_extend.hpp"
-#include "f_fwht.hpp"
-#include "f_mult.hpp"
-#include "f_norm.hpp"
-#include "f_datapath.hpp"
-#include "f_decision.hpp"
+#include "impl/types.hpp"
+#include "impl/f_datapath.hpp"
+#include "impl/f_decision.hpp"
 //
 //
 //
@@ -14,9 +9,6 @@
 //
 //
 #define N            256
-#define gf_size      64
-#define log2_gf_size  6
-#define data_width   18
 //
 //
 //
@@ -139,7 +131,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_10 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 248], false );
+    	symbol_v  = vec_decision( internal_l[s + 248], false );
     	symbols[s + 28] = symbol_v ;
     	decoded[s + 28] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -216,7 +208,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_19 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 248], false );
+    	symbol_v  = vec_decision( internal_l[s + 248], false );
     	symbols[s + 36] = symbol_v ;
     	decoded[s + 36] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -242,7 +234,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_22 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 240], false );
+    	symbol_v  = vec_decision( internal_l[s + 240], false );
     	symbols[s + 40] = symbol_v ;
     	decoded[s + 40] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -268,7 +260,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_25 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 224], false );
+    	symbol_v  = vec_decision( internal_l[s + 224], false );
     	symbols[s + 48] = symbol_v ;
     	decoded[s + 48] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -375,7 +367,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_36 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 248], false );
+    	symbol_v  = vec_decision( internal_l[s + 248], false );
     	symbols[s + 68] = symbol_v ;
     	decoded[s + 68] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -401,7 +393,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_39 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 240], false );
+    	symbol_v  = vec_decision( internal_l[s + 240], false );
     	symbols[s + 72] = symbol_v ;
     	decoded[s + 72] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -427,7 +419,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_42 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 224], false );
+    	symbol_v  = vec_decision( internal_l[s + 224], false );
     	symbols[s + 80] = symbol_v ;
     	decoded[s + 80] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -453,7 +445,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_45 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 192], false );
+    	symbol_v  = vec_decision( internal_l[s + 192], false );
     	symbols[s + 96] = symbol_v ;
     	decoded[s + 96] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -571,7 +563,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_57 : for (int s = 0; s < 4; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 248], false );
+    	symbol_v  = vec_decision( internal_l[s + 248], false );
     	symbols[s + 132] = symbol_v ;
     	decoded[s + 132] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -597,7 +589,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_60 : for (int s = 0; s < 8; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 240], false );
+    	symbol_v  = vec_decision( internal_l[s + 240], false );
     	symbols[s + 136] = symbol_v ;
     	decoded[s + 136] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -623,7 +615,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_63 : for (int s = 0; s < 16; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 224], false );
+    	symbol_v  = vec_decision( internal_l[s + 224], false );
     	symbols[s + 144] = symbol_v ;
     	decoded[s + 144] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -649,7 +641,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_66 : for (int s = 0; s < 32; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 192], false );
+    	symbol_v  = vec_decision( internal_l[s + 192], false );
     	symbols[s + 160] = symbol_v ;
     	decoded[s + 160] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -675,7 +667,7 @@ void the_decoder_v2(
   // middle_node_pruned_spc_after_g
   loop_spc_69 : for (int s = 0; s < 64; s++) {
 #pragma HLS PIPELINE
-    	symbol_v  = vec_decision( internal[s + 128], false );
+    	symbol_v  = vec_decision( internal_l[s + 128], false );
     	symbols[s + 192] = symbol_v ;
     	decoded[s + 192] = symbol_v ;
     	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);

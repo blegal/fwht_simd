@@ -103,3 +103,14 @@ inline t_i_memo cast(const t_o_norm src) {
 //
 //
 //
+typedef struct tuple{
+    ap_int <data_width>   value;
+    ap_uint<log2_gf_size> index;
+} tuple;
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//

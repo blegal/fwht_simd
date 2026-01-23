@@ -105,7 +105,16 @@ target_link_libraries      (hls_generator PUBLIC utilities)
 
 add_executable(hls_test
 		./src/decoders/hls/catch2v3/catch_amalgamated.cpp
+		src/decoders/hls/impl/f_argmax.cpp
+		src/decoders/hls/impl/f_datapath.cpp
+		src/decoders/hls/impl/f_decision.cpp
+		src/decoders/hls/impl/f_extend.cpp
+		src/decoders/hls/impl/f_fwht.cpp
+		src/decoders/hls/impl/f_mult.cpp
+		src/decoders/hls/impl/f_norm.cpp
+		src/decoders/hls/impl/f_truncate.cpp
 		./src/decoders/hls/hls_decoder.cpp
+		./src/decoders/hls/gen_decoder.cpp
 		./src/decoders/hls/test.cpp
 	)
 target_include_directories (hls_test PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)

@@ -28,12 +28,12 @@
 #include "./catch2v3/catch_amalgamated.hpp"
 //
 //
-#include "types.hpp"
-#include "f_argmax.hpp"
-#include "f_extend.hpp"
-#include "f_mult.hpp"
-#include "f_fwht.hpp"
-#include "f_norm.hpp"
+#include "impl/types.hpp"
+#include "impl/f_argmax.hpp"
+#include "impl/f_extend.hpp"
+#include "impl/f_mult.hpp"
+#include "impl/f_fwht.hpp"
+#include "impl/f_norm.hpp"
 //
 #include "decoders/naive_int32_t/arch/i_fwht.hpp"
 //

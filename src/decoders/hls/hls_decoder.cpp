@@ -5,14 +5,9 @@
 //
 //
 //
-#include "types.hpp"
-#include "f_argmax.hpp"
-#include "f_extend.hpp"
-#include "f_fwht.hpp"
-#include "f_mult.hpp"
-#include "f_norm.hpp"
-#include "f_datapath.hpp"
-#include "f_decision.hpp"
+#include "impl/types.hpp"
+#include "impl/f_datapath.hpp"
+#include "impl/f_decision.hpp"
 //
 //
 //

@@ -1,4 +1,3 @@
-#pragma once
 //
 //
 //
@@ -6,7 +5,7 @@
 //
 //
 //
-#include "types.hpp"
+#include "f_norm.hpp"
 //
 //
 //
@@ -14,7 +13,7 @@
 //
 //
 //
-inline ap_int <i_norm_width> barrel_shift(const ap_int <i_norm_width> src, const ap_uint<6> factor)
+ap_int <i_norm_width> barrel_shift(const ap_int <i_norm_width> src, const ap_uint<6> factor)
 {
 #pragma HLS INLINE
 	ap_int <i_norm_width> resu;
@@ -48,8 +47,14 @@ inline ap_int <i_norm_width> barrel_shift(const ap_int <i_norm_width> src, const
 	}
 	return resu;
 }
-
-inline t_o_norm vec_i_norm(const t_i_norm src)
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+t_o_norm vec_i_norm(const t_i_norm src)
 {
 #pragma HLS INLINE
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
