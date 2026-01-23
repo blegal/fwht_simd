@@ -15,8 +15,11 @@
 //
 t_o_lwht fwht(const t_i_lwht src)
 {
-#pragma HLS INLINE
-//#pragma HLS PIPELINE
+#ifdef _COMPONENT_
+    #pragma HLS PIPELINE
+#else
+    #pragma HLS INLINE
+#endif
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
     /*
      * ========= ÉTAGE 1 (distance 32) =========

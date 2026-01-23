@@ -28,7 +28,11 @@ inline tuple f_max(const tuple a, const tuple b)
 //
 uint8_t vec_i_unroll_argmax(const t_i_memo inp)
 {
-#pragma HLS INLINE
+#ifdef _COMPONENT_
+    #pragma HLS PIPELINE
+#else
+    #pragma HLS INLINE
+#endif
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=inp.value
     //
     // stage 0

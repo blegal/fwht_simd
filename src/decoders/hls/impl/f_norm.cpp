@@ -56,7 +56,11 @@ ap_int <i_norm_width> barrel_shift(const ap_int <i_norm_width> src, const ap_uin
 //
 t_o_norm vec_i_norm(const t_i_norm src)
 {
-#pragma HLS INLINE
+#ifdef _COMPONENT_
+    #pragma HLS PIPELINE
+#else
+    #pragma HLS INLINE
+#endif
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
 
 	// (12 bits) => (18 bits) => (36 bits) => (12 bits)
