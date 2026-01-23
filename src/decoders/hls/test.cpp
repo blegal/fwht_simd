@@ -190,13 +190,13 @@ TEST_CASE( "scaling", "[scaling]" )
     //
     // On teste toutes les combinaisons
     //
-    for (int i = 0; i < i_norm_width - 1; i++) {
+    for (int i = 0; i < (o_norm_width - 1); i++) {
         //
         // On génere tous les vecteurs de test
         //
         t_i_norm v_in_a;
         for (int j = 0; j < gf_size; j++) {
-            ap_int <i_norm_width> v_test = 0x00001;
+            ap_int <i_norm_width> v_test = 0x10000;
             v_in_a.value[j] = (v_test << i);
         }
         //
@@ -207,7 +207,7 @@ TEST_CASE( "scaling", "[scaling]" )
         // On verifie la validité du résultat
         //
         for (int j = 0; j < gf_size; j++) {
-            REQUIRE( resu.value[j] == 0x10000 );
+            REQUIRE( resu.value[j] == 0x00400 ); // 12 bits - 1000 0000 0000
         }
         //
     }

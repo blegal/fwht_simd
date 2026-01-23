@@ -31,8 +31,8 @@ t_i_memo datapath_v2(
 	const t_o_lwht mult_in_c = extend( lwht_in_a );
 	const t_o_lwht mult_in_d = extend( lwht_in_b );
 
-	const t_o_lwht mult_in_e = en_lwth ? mult_in_a : mult_in_c;
-	const t_o_lwht mult_in_f = en_lwth ? mult_in_b : mult_in_d;
+	const t_o_lwht mult_in_e = en_lwth ? mult_in_a : mult_in_c; //
+	const t_o_lwht mult_in_f = en_lwth ? mult_in_b : mult_in_d; //
 
 	const t_o_mult norm_in_a = vec_i_mul_g( cast(mult_in_e), cast(mult_in_f), symbol); // f_mode
 	const t_o_norm norm_ou_a = vec_i_norm( cast(norm_in_a) );

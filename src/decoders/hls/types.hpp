@@ -19,7 +19,7 @@
 //
 #define gf_size      64
 #define log2_gf_size  6
-#define data_width   18
+#define data_width   12
 //
 //
 //
