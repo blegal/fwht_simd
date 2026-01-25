@@ -110,10 +110,16 @@ public:
                  "			t_i_memo channel[N],"            << std::endl <<
                  "			uint16_t decoded[N])"            << std::endl;
         ofile << "{" << std::endl;
+        ofile << "//#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM"  << std::endl;
+        ofile << "//#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM" << std::endl;
         ofile << std::endl;
         ofile << "  t_i_memo internal_l[N], internal_r[N];" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_l" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_r" << std::endl;
+        ofile << "//#pragma HLS bind_storage variable=internal_l type=RAM_S2P impl=BRAM" << std::endl;
+        ofile << "//#pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM" << std::endl;
+        ofile << "" << std::endl;
+        ofile << "" << std::endl;
         ofile << std::endl;
         ofile << "  uint8_t  symbols [N];" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=symbols" << std::endl;
