@@ -624,15 +624,15 @@ private:
           //ofile << "\t" << "g_function_proba_in<gf_size>(internal, channel, channel + " << n << ", symbols, " << n << ");" << std::endl;
             //
             ofile << "  // g_function_proba_in" << std::endl;
-            ofile << "  // cnt_s = " << 0 << "; cnt_a = " << 0 << "; cnt_b = " << n << "; cnt_rd = " << n << ";" << std::endl;
-            ofile << "  loop_spc_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
+            ofile << "  cnt_c = " << 0 << "; cnt_a = " << 0 << "; cnt_b = " << n << "; cnt_rd = " << n << ";" << std::endl;
+            ofile << "  loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
             ofile << "#pragma HLS PIPELINE"   << std::endl;
-            ofile << "    lwht_in_a   = channel[s    ];"   << std::endl;
-            ofile << "    lwht_in_b   = channel[s + " << n << "];"   << std::endl;
+            ofile << "    lwht_in_a   = channel[cnt_a /*s    */];"   << std::endl;
+            ofile << "    lwht_in_b   = channel[cnt_b /*s + " << n << "*/];"   << std::endl;
             ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols[cnt_rd], false);"   << std::endl;
-            ofile << "    internal_l[s] = memo_in_a;"   << std::endl;
-            ofile << "    internal_r[s] = memo_in_a;"   << std::endl;
-            ofile << "    // cnt_s += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;" << std::endl;
+            ofile << "    internal_l[cnt_c/*s*/] = memo_in_a;"   << std::endl;
+            ofile << "    internal_r[cnt_c/*s*/] = memo_in_a;"   << std::endl;
+            ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;" << std::endl;
             ofile << "  }"   << std::endl;
             ofile << std::endl;
             //
@@ -724,7 +724,8 @@ private:
                 //ofile << "\t" << "leaf_node_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ");" << std::endl;
                 //
                 ofile << "  // leaf_node_after_g"                                                        << std::endl;
-                ofile << "  symbol_v = vec_i_unroll_argmax( internal[s + " << (p_llrs + size) << "] );" << std::endl;
+                ofile << "  cnt_a += " << (p_llrs + size) <<  ";" << std::endl;
+                ofile << "  symbol_v = vec_i_unroll_argmax( internal_l[cnt_a] );" << std::endl;
                 ofile << "  symbols[cnt_u] = symbol_v;" << std::endl;
                 ofile << "  decoded[cnt_u] = symbol_v;" << std::endl;
                 ofile << "  cnt_u += 1;"                << std::endl;
@@ -742,11 +743,13 @@ private:
                 //ofile << "\t" << "middle_node_pruned_rate_1_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
                 //
                 ofile << "  // middle_node_pruned_rate_1_after_g"                                        << std::endl;
+                ofile << "  cnt_a = " << (p_llrs + size) << ";"                << std::endl;
                 ofile << "	loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    	symbol_v = vec_i_unroll_argmax( internal[s + " << (p_llrs + size) << "] );" << std::endl;
+                ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << (p_llrs + size) << "*/], false );" << std::endl;
                 ofile << "    	symbols[cnt_u] = symbol_v;" << std::endl;
                 ofile << "      decoded[cnt_u] = symbol_v;" << std::endl;
+                ofile << "      cnt_a += 1;"                << std::endl;
                 ofile << "      cnt_u += 1;"                << std::endl;
                 ofile << "  }"                              << std::endl;
                 ofile << std::endl;
