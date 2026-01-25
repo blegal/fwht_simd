@@ -15,8 +15,11 @@
 //
 t_o_mult vec_i_mul_f(const t_i_mult src_1, const t_i_mult src_2)
 {
-#pragma HLS INLINE
-//#pragma HLS PIPELINE
+#ifdef _COMPONENT_
+    #pragma HLS PIPELINE
+#else
+    #pragma HLS INLINE
+#endif
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
 	t_o_mult dst;
@@ -36,7 +39,11 @@ t_o_mult vec_i_mul_f(const t_i_mult src_1, const t_i_mult src_2)
 //
 t_o_mult vec_i_mul_g(const t_i_mult src_1, const t_i_mult src_2, const uint8_t symbol)
 {
-#pragma HLS INLINE
+#ifdef _COMPONENT_
+    #pragma HLS PIPELINE
+#else
+    #pragma HLS INLINE
+#endif
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
 
