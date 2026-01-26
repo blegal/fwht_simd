@@ -36,8 +36,8 @@ public:
 
     bool en_rate_0   = true;
     bool en_rate_1   = true;
-    bool en_rate_spc = true;
-    bool en_rate_rep = true;
+    bool en_rate_spc = false;
+    bool en_rate_rep = false;
 
     int loop_id = 1;
 
@@ -365,9 +365,11 @@ private:
                 }
                 //ofile << "\t" << "leaf_node_after_f<gf_size>(internal + " << p_llrs << ", p_llrs + size + " << curr_frozen << ", symbols + " << curr_frozen << ");" << std::endl;
                 ofile << "  // leaf_node_after_f"                                                                   << std::endl;
-                ofile << "  symbol_v = /*FWHT + */ vec_i_unroll_argmax( internal[s + " << (p_llrs + size) << "] );" << std::endl;
+                ofile << "  cnt_a = " << (p_llrs + size) << ";"   << std::endl;
+                ofile << "  symbol_v = /*FWHT + */ vec_decision( internal[cnt_a/*s + " << (p_llrs + size) << "*/], true );" << std::endl;
                 ofile << "  symbols[cnt_u] = symbol_v;"                                       << std::endl;
                 ofile << "  decoded[cnt_u] = symbol_v;"   << std::endl;
+                ofile << "  cnt_a += 1;"   << std::endl;
                 ofile << "  cnt_u += 1;"   << std::endl;
                 ofile  << std::endl;
 
@@ -382,11 +384,13 @@ private:
                 //ofile << "\t" << "middle_node_pruned_rate_1_after_f<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
                 //
                 ofile << "  // middle_node_pruned_rate_1_after_g"                                        << std::endl;
+                ofile << "  cnt_a = " << (p_llrs + size) << ";" << std::endl;
                 ofile << "	loop_r1_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    	symbol_v = vec_decision( internal_l[s + " << (p_llrs + size) << "], true );" << std::endl;
+                ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << (p_llrs + size) << "*/], true );" << std::endl;
                 ofile << "    	symbols[cnt_u] = e;"                               << std::endl;
                 ofile << "      decoded[cnt_u] = e;"   << std::endl;
+                ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "      cnt_u += 1;"   << std::endl;
                 ofile << "  }"                                                                               << std::endl;
                 ofile << std::endl;
@@ -730,10 +734,11 @@ private:
                 //ofile << "\t" << "leaf_node_after_g<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ");" << std::endl;
                 //
                 ofile << "  // leaf_node_after_g"                                                        << std::endl;
-                ofile << "  cnt_a += " << (p_llrs + size) <<  ";" << std::endl;
-                ofile << "  symbol_v = vec_i_unroll_argmax( internal_l[cnt_a] );" << std::endl;
+                ofile << "  cnt_a = " << (p_llrs + size) << ";" << std::endl;
+                ofile << "  symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
                 ofile << "  symbols[cnt_u] = symbol_v;" << std::endl;
                 ofile << "  decoded[cnt_u] = symbol_v;" << std::endl;
+                ofile << "  cnt_a += 1;"                << std::endl;
                 ofile << "  cnt_u += 1;"                << std::endl;
                 ofile  << std::endl;
                 //
@@ -766,11 +771,11 @@ private:
                 ofile << "  // cnt_a = 0;" << std::endl;
                 ofile << "	loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    	symbol_v = vec_i_unroll_argmax( internal[s + " << 0 << "] );" << std::endl;
+                ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << 0 << "*/], false );" << std::endl;
                 ofile << "    	symbols[cnt_u] = symbol_v;"                               << std::endl;
                 ofile << "      decoded[cnt_u] = symbol_v;"   << std::endl;
                 ofile << "      cnt_u += 1;"   << std::endl;
-                ofile << "      //cnt_a += 1;"   << std::endl;
+                ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "  }"                                                                               << std::endl;
                 ofile << std::endl;
             }
