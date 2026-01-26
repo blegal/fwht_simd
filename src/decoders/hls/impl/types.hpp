@@ -114,3 +114,63 @@ typedef struct tuple{
 //
 //
 //
+inline void show(const ap_int<data_width>* value)
+{
+    for (int i = 0; i < 64; i++) {
+        if (i     == 0) printf("%3d :", i);
+        else if (i % 8 == 0) printf("\n%3d :", i);
+        printf("%+12d ", value[i].to_int());
+    }
+    printf("\n");
+}
+//
+inline void show(const ap_int<o_lwht_width>* value)
+{
+    for (int i = 0; i < 64; i++) {
+        if (i     == 0) printf("%3d :", i);
+        else if (i % 8 == 0) printf("\n%3d :", i);
+        printf("%+12d ", value[i].to_int());
+    }
+    printf("\n");
+}
+//
+inline void show(const ap_int<o_mult_width>* value)
+{
+    for (int i = 0; i < 64; i++) {
+        if (i     == 0) printf("%3d :", i);
+        else if (i % 8 == 0) printf("\n%3d :", i);
+        printf("%+12d ", value[i].to_int());
+    }
+    printf("\n");
+}
+//
+/*
+#define i_lwht_width   data_width
+#define o_lwht_width   (i_lwht_width+log2_gf_size)
+#define i_mult_width   (o_lwht_width)
+#define o_mult_width   (o_lwht_width+o_lwht_width)
+#define i_norm_width   (o_mult_width)
+#define o_norm_width   (data_width)
+*/
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+inline void local_remove_xors(uint16_t * values, int size) {
+    if (size == 1)
+        return;
+    for (int i = 0; i < size / 2; i += 1)
+        values[i] ^= values[i + size / 2];
+    local_remove_xors(values, size / 2);
+    local_remove_xors(values + size / 2, size / 2);
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//

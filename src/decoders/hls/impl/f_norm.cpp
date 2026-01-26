@@ -122,7 +122,7 @@ t_o_norm vec_i_norm(const t_i_norm src)
     else if (sum.get_bit(i_norm_width-25) == 1) factor =  12;
     else
     	factor = 11;
-	printf("factor = %d\n", factor.to_uint());
+//	printf("factor = %d\n", factor.to_uint());
 /*
     else if (sum.get_bit(i_norm_width-25) == 1) factor =  11;
     else if (sum.get_bit(i_norm_width-26) == 1) factor =  10;

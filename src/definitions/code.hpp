@@ -5,6 +5,6 @@
 // Configuration for N=64, GF=64
 // Generated on: Dec 24 2025 11:43:31
 
-#include "codes/N1024_GF64.hpp"
+#include "codes/N256_GF64.hpp"
 
 #endif // CONFIG_CODE_H
