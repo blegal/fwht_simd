@@ -219,7 +219,7 @@ void the_decoder_v2(
 //
 TEST_CASE( "decoder", "[decoder]" ) {
 
-#if 1
+#if 0
     const int N = 64;
     //  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  0  |  1  1  0  0  0  0  0  0  |
     //  1  1  1  1  1  0  0  0  |  1  0  0  0  0  0  0  0  |  1  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
@@ -323,5 +323,6 @@ TEST_CASE( "decoder", "[decoder]" ) {
             //printf("\e[1;31m%2d (%2d)\e[0m ", decoded[i], o_symb[i]);
         }
     }
+    printf("\n");
 
 }
