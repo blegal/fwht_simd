@@ -152,3 +152,25 @@ inline void show(const ap_int<o_mult_width>* value)
 #define i_norm_width   (o_mult_width)
 #define o_norm_width   (data_width)
 */
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+inline void local_remove_xors(uint16_t * values, int size) {
+    if (size == 1)
+        return;
+    for (int i = 0; i < size / 2; i += 1)
+        values[i] ^= values[i + size / 2];
+    local_remove_xors(values, size / 2);
+    local_remove_xors(values + size / 2, size / 2);
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
