@@ -18,16 +18,16 @@
 //
 void the_decoder_v2(
 			t_i_memo channel[N],
-			uint16_t decoded[N])
+			uint8_t  decoded[N])
 {
-//#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM
-//#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM
+#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM
+#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM
 
   t_i_memo internal_l[N], internal_r[N];
 #pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_l
 #pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_r
-//#pragma HLS bind_storage variable=internal_l type=RAM_S2P impl=BRAM
-//#pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM
+#pragma HLS bind_storage variable=internal_l type=RAM_S2P impl=BRAM
+#pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM
 
 
 
@@ -161,7 +161,7 @@ void the_decoder_v2(
       cnt_a += 1;
       cnt_u += 1;
   }
-  local_remove_xors(decoded + cnt_u - 8, 8);
+  local_remove_xors<8>(decoded, decoded, cnt_u - 8);
 
   cnt_rw = 112; cnt_rd = 120;
   loop_xor_11 : for(i = 0; i < 8; i += 1){
@@ -324,7 +324,7 @@ void the_decoder_v2(
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors(decoded + cnt_u - 4, 4);
+  local_remove_xors<4>(decoded, decoded, cnt_u - 4);
 
   cnt_rw = 128; cnt_rd = 132;
   loop_xor_25 : for(i = 0; i < 4; i += 1){
@@ -363,7 +363,7 @@ void the_decoder_v2(
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors(decoded + cnt_u - 8, 8);
+  local_remove_xors<8>(decoded, decoded, cnt_u - 8);
 
   cnt_rw = 128; cnt_rd = 136;
   loop_xor_28 : for(i = 0; i < 8; i += 1){
@@ -402,7 +402,7 @@ void the_decoder_v2(
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors(decoded + cnt_u - 16, 16);
+  local_remove_xors<16>(decoded, decoded, cnt_u - 16);
 
   cnt_rw = 128; cnt_rd = 144;
   loop_xor_31 : for(i = 0; i < 16; i += 1){
@@ -441,7 +441,7 @@ void the_decoder_v2(
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors(decoded + cnt_u - 32, 32);
+  local_remove_xors<32>(decoded, decoded, cnt_u - 32);
 
   cnt_rw = 128; cnt_rd = 160;
   loop_xor_34 : for(i = 0; i < 32; i += 1){
@@ -480,7 +480,7 @@ void the_decoder_v2(
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors(decoded + cnt_u - 64, 64);
+  local_remove_xors<64>(decoded, decoded, cnt_u - 64);
 
   cnt_rw = 128; cnt_rd = 192;
   loop_xor_37 : for(i = 0; i < 64; i += 1){

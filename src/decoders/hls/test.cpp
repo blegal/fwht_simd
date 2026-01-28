@@ -214,7 +214,7 @@ TEST_CASE( "scaling", "[scaling]" )
 //
 void the_decoder_v2(
             t_i_memo channel[256],
-            uint16_t decoded[256]);
+            uint8_t  decoded[256]);
 //
 //
 TEST_CASE( "decoder", "[decoder]" ) {
@@ -289,7 +289,7 @@ TEST_CASE( "decoder", "[decoder]" ) {
 #endif
 
     t_i_memo channel[N];
-    uint16_t decoded[N];
+    uint8_t  decoded[N];
 
     // Input initialization
 
@@ -317,9 +317,9 @@ TEST_CASE( "decoder", "[decoder]" ) {
         if (((i % 16) == 0))
             printf("\n#(II) %3d | ", i);
         if (decoded[i] == o_symb[i]) {
-            printf("\e[1;32m%2d\e[0m ", decoded[i]);
+            printf("\e[1;32m%2d\e[0m ", (int)decoded[i]);
         } else {
-            printf("\e[1;31m%2d\e[0m ", decoded[i]);
+            printf("\e[1;31m%2d\e[0m ", (int)decoded[i]);
             //printf("\e[1;31m%2d (%2d)\e[0m ", decoded[i], o_symb[i]);
         }
     }

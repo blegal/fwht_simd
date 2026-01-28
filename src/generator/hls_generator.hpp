@@ -108,16 +108,16 @@ public:
         //      ofile << "template <int gf_size>" << std::endl;
         ofile << "void the_decoder_v2(" <<  std::endl <<
                  "			t_i_memo channel[N],"            << std::endl <<
-                 "			uint16_t decoded[N])"            << std::endl;
+                 "			uint8_t  decoded[N])"            << std::endl;
         ofile << "{" << std::endl;
-        ofile << "//#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM"  << std::endl;
-        ofile << "//#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM" << std::endl;
+        ofile << "#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM"  << std::endl;
+        ofile << "#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM" << std::endl;
         ofile << std::endl;
         ofile << "  t_i_memo internal_l[N], internal_r[N];" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_l" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_r" << std::endl;
-        ofile << "//#pragma HLS bind_storage variable=internal_l type=RAM_S2P impl=BRAM" << std::endl;
-        ofile << "//#pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM" << std::endl;
+        ofile << "#pragma HLS bind_storage variable=internal_l type=RAM_S2P impl=BRAM" << std::endl;
+        ofile << "#pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM" << std::endl;
         ofile << "" << std::endl;
         ofile << "" << std::endl;
         ofile << std::endl;
@@ -530,7 +530,7 @@ private:
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors(decoded + cnt_u - " << n << ", " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             else {
@@ -553,7 +553,7 @@ private:
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors(decoded + cnt_u - " << n << ", " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             //
@@ -805,8 +805,7 @@ private:
                 ofile << "      cnt_a += 1;"                << std::endl;
                 ofile << "      cnt_u += 1;"                << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors(decoded + cnt_u - " << n << ", " << n << ");" << std::endl;
-
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             } else {
                 //ofile << "\t" << "middle_node_pruned_rate_1_after_g<gf_size>(internal + " << 0 << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
@@ -821,7 +820,7 @@ private:
                 ofile << "      cnt_u += 1;"   << std::endl;
                 ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "  }"                                                                               << std::endl;
-                ofile << "  local_remove_xors(decoded + cnt_u - " << n << ", " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             final_offset = next_elmnt + 1;
@@ -854,7 +853,7 @@ private:
                 ofile << "  //    printf(\"We have a SPC decoding error ;-)\\n\");" << std::endl;
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
-                ofile << "  local_remove_xors(decoded + cnt_u - " << n << ", " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             } else {
                 array[next_elmnt] = SPC_FROM_G;
@@ -883,7 +882,7 @@ private:
                 ofile << "  //    printf(\"We have a SPC decoding error ;-)\\n\");" << std::endl;
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
-                ofile << "  local_remove_xors(decoded + cnt_u - " << n << ", " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             //
