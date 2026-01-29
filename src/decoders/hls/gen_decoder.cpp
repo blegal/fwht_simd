@@ -69,17 +69,21 @@ void the_decoder_v2(
 
   // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
   // middle_node_pruned_rate_0
-  loop_f0_2 : for (s = 0; s < 64; s += 1) {
-#pragma HLS PIPELINE
-    symbols[cnt_u] = 0;
-    decoded[cnt_u] = 0;
-    cnt_u += 1; 
-  }
+  //loop_f0_2 : for (s = 0; s < 64; s += 1) {
+//#pragma HLS PIPELINE
+    //symbols[cnt_u] = 0;
+    //decoded[cnt_u] = 0;
+    //cnt_u += 1; 
+  //}
 
   // g_function_freq_in_after_rate_0
   cnt_c = 128; cnt_a = 0; cnt_b = 64;
   loop_g0_3 : for (s = 0; s < 64; s += 1) {
 #pragma HLS PIPELINE
+    symbols[cnt_u] = 0;
+    decoded[cnt_u] = 0;
+    cnt_u += 1; 
+    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 0];
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 0];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 64];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
@@ -90,17 +94,20 @@ void the_decoder_v2(
 
   // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
   // middle_node_pruned_rate_0
-  loop_f0_4 : for (s = 0; s < 32; s += 1) {
-#pragma HLS PIPELINE
-    symbols[cnt_u] = 0;
-    decoded[cnt_u] = 0;
-    cnt_u += 1; 
-  }
+  //loop_f0_4 : for (s = 0; s < 32; s += 1) {
+//#pragma HLS PIPELINE
+    //symbols[cnt_u] = 0;
+    //decoded[cnt_u] = 0;
+    //cnt_u += 1; 
+  //}
 
   // g_function_proba_in_after_rate_0
   cnt_c = 192; cnt_a = 128; cnt_b = 160;
   loop_g0_5 : for (s = 0; s < 32; s += 1) {
 #pragma HLS PIPELINE
+    symbols[cnt_u] = 0;
+    decoded[cnt_u] = 0;
+    cnt_u += 1; 
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 128];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 160];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
@@ -111,17 +118,20 @@ void the_decoder_v2(
 
   // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
   // middle_node_pruned_rate_0
-  loop_f0_6 : for (s = 0; s < 16; s += 1) {
-#pragma HLS PIPELINE
-    symbols[cnt_u] = 0;
-    decoded[cnt_u] = 0;
-    cnt_u += 1; 
-  }
+  //loop_f0_6 : for (s = 0; s < 16; s += 1) {
+//#pragma HLS PIPELINE
+    //symbols[cnt_u] = 0;
+    //decoded[cnt_u] = 0;
+    //cnt_u += 1; 
+  //}
 
   // g_function_proba_in_after_rate_0
   cnt_c = 224; cnt_a = 192; cnt_b = 208;
   loop_g0_7 : for (s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
+    symbols[cnt_u] = 0;
+    decoded[cnt_u] = 0;
+    cnt_u += 1; 
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 192];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 208];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
@@ -132,17 +142,20 @@ void the_decoder_v2(
 
   // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
   // middle_node_pruned_rate_0
-  loop_f0_8 : for (s = 0; s < 8; s += 1) {
-#pragma HLS PIPELINE
-    symbols[cnt_u] = 0;
-    decoded[cnt_u] = 0;
-    cnt_u += 1; 
-  }
+  //loop_f0_8 : for (s = 0; s < 8; s += 1) {
+//#pragma HLS PIPELINE
+    //symbols[cnt_u] = 0;
+    //decoded[cnt_u] = 0;
+    //cnt_u += 1; 
+  //}
 
   // g_function_proba_in_after_rate_0
   cnt_c = 240; cnt_a = 224; cnt_b = 232;
   loop_g0_9 : for (s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
+    symbols[cnt_u] = 0;
+    decoded[cnt_u] = 0;
+    cnt_u += 1; 
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 224];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 232];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);

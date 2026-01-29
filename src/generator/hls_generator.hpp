@@ -340,12 +340,12 @@ private:
                 //ofile << "  middle_node_pruned_rate_0<gf_size>(decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
                 //
                 ofile << "  // middle_node_pruned_rate_0" << std::endl;
-                ofile << "  loop_f0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
-                ofile << "#pragma HLS PIPELINE"   << std::endl;
-                ofile << "    symbols[cnt_u] = 0;"   << std::endl;
-                ofile << "    decoded[cnt_u] = 0;"   << std::endl;
-                ofile << "    cnt_u += 1; "   << std::endl;
-                ofile << "  }"   << std::endl;
+                ofile << "  //loop_f0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
+                ofile << "//#pragma HLS PIPELINE"   << std::endl;
+                ofile << "    //symbols[cnt_u] = 0;"   << std::endl;
+                ofile << "    //decoded[cnt_u] = 0;"   << std::endl;
+                ofile << "    //cnt_u += 1; "   << std::endl;
+                ofile << "  //}"   << std::endl;
                 ofile << std::endl;
                 //
                 //
@@ -610,6 +610,10 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                 ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                ofile << "    symbols[cnt_u] = 0;" << std::endl;
+                ofile << "    decoded[cnt_u] = 0;" << std::endl;
+                ofile << "    cnt_u += 1; "        << std::endl;
+                ofile << "    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
                 ofile << "    lwht_in_b   = internal_r[cnt_b]; // internal_r[s + " << (p_llrs+n) << "];"                   << std::endl;
                 ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);"   << std::endl;
@@ -632,7 +636,10 @@ private:
                     ofile << "  // g_function_proba_in_after_rate_0" << std::endl;
                     ofile << "  cnt_c = " << 0 << "; cnt_a = " <<  0    << "; cnt_b = " << n << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
-                    ofile << "#pragma HLS PIPELINE"   << std::endl;
+                    ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                    ofile << "    symbols[cnt_u] = 0;" << std::endl;
+                    ofile << "    decoded[cnt_u] = 0;" << std::endl;
+                    ofile << "    cnt_u += 1; "        << std::endl;
                     ofile << "    lwht_in_a   = channel[cnt_a]; // channel[s    ];"   << std::endl;
                     ofile << "    lwht_in_b   = channel[cnt_b]; // channel[s + " << n << "];"   << std::endl;
                     ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"   << std::endl;
@@ -652,6 +659,9 @@ private:
                     ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                     ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
+                    ofile << "    symbols[cnt_u] = 0;" << std::endl;
+                    ofile << "    decoded[cnt_u] = 0;" << std::endl;
+                    ofile << "    cnt_u += 1; "        << std::endl;
                     ofile << "    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
                     ofile << "    lwht_in_b   = internal_r[cnt_b]; // internal_r[s + " << (p_llrs+n) << "];"                   << std::endl;
                     ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"  << std::endl;

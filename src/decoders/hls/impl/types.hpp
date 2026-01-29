@@ -181,6 +181,7 @@ template<int N> inline void local_remove_xors(uint8_t * dst, const uint8_t * src
 //
 template<> inline void local_remove_xors<2>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 1;
     dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
@@ -189,9 +190,11 @@ template<> inline void local_remove_xors<2>(uint8_t * dst, const uint8_t * src, 
 //
 template<> inline void local_remove_xors<4>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 2;
     for (int i = 0; i < 2; i += 1) {
+#pragma HLS PIPELINE
         dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
         //printf("> dst[%d] = dst[%d] ^ src[%d]\n", cnt_rw, cnt_rw, cnt_rd);
         cnt_rw += 1;
@@ -203,22 +206,26 @@ template<> inline void local_remove_xors<4>(uint8_t * dst, const uint8_t * src, 
 //
 template<> inline void local_remove_xors<8>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 4;
     for (int i = 0; i < 4; i += 1) {
+#pragma HLS PIPELINE
         dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
         cnt_rw += 1;
         cnt_rd += 1;
     }
-    local_remove_xors<4>(dst, src, offset);
+    local_remove_xors<4>(dst, src, offset    );
     local_remove_xors<4>(dst, src, offset + 4);
 }
 
 template<> inline void local_remove_xors<16>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 8;
     for (int i = 0; i < 8; i += 1) {
+#pragma HLS PIPELINE
         dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
         cnt_rw += 1;
         cnt_rd += 1;
@@ -229,9 +236,11 @@ template<> inline void local_remove_xors<16>(uint8_t * dst, const uint8_t * src,
 
 template<> inline void local_remove_xors<32>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 16;
     for (int i = 0; i < 16; i += 1) {
+#pragma HLS PIPELINE
         dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
         cnt_rw += 1;
         cnt_rd += 1;
@@ -242,9 +251,11 @@ template<> inline void local_remove_xors<32>(uint8_t * dst, const uint8_t * src,
 
 template<> inline void local_remove_xors<64>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 32;
     for (int i = 0; i < 32; i += 1) {
+#pragma HLS PIPELINE
         dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
         cnt_rw += 1;
         cnt_rd += 1;
@@ -256,9 +267,11 @@ template<> inline void local_remove_xors<64>(uint8_t * dst, const uint8_t * src,
 template<>
 inline void local_remove_xors<128>(uint8_t * dst, const uint8_t * src, const uint16_t offset)
 {
+#pragma HLS INLINE
     int cnt_rw = offset;
     int cnt_rd = offset + 64;
     for (int i = 0; i < 64; i += 1) {
+#pragma HLS PIPELINE
         dst[cnt_rw] = dst[cnt_rw] ^ src[cnt_rd];
         cnt_rw += 1;
         cnt_rd += 1;
