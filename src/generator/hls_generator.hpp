@@ -124,6 +124,8 @@ public:
         ofile << "  uint8_t  symbols [N];" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=symbols" << std::endl;
         ofile << std::endl;
+        ofile << "  uint8_t decoded_r[N];" << std::endl;
+        ofile << std::endl;
         ofile << "  t_i_memo lwht_in_a, lwht_in_b;" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value" << std::endl;
@@ -322,8 +324,9 @@ private:
                 //ofile << "\t" << "leaf_node_rate_0<gf_size>(decoded + " << curr_frozen << ", symbols + " << curr_frozen << ");" << std::endl;
                 //
                 ofile << "  // leaf_node_rate_0" << std::endl;
-                ofile << "  symbols[cnt_u] = 0;"   << std::endl;
-                ofile << "  decoded[cnt_u] = 0;"   << std::endl;
+                ofile << "  symbols  [cnt_u] = 0;"   << std::endl;
+                ofile << "  decoded  [cnt_u] = 0;"   << std::endl;
+                ofile << "  decoded_r[cnt_u] = 0;"   << std::endl;
                 ofile << "  cnt_u += 1;"   << std::endl;
                 ofile << std::endl;
                 //
@@ -342,8 +345,9 @@ private:
                 ofile << "  // middle_node_pruned_rate_0" << std::endl;
                 ofile << "  //loop_f0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                 ofile << "//#pragma HLS PIPELINE"   << std::endl;
-                ofile << "    //symbols[cnt_u] = 0;"   << std::endl;
-                ofile << "    //decoded[cnt_u] = 0;"   << std::endl;
+                ofile << "    //symbols  [cnt_u] = 0;"   << std::endl;
+                ofile << "    //decoded  [cnt_u] = 0;"   << std::endl;
+                ofile << "    //decoded_r[cnt_u] = 0;"   << std::endl;
                 ofile << "    //cnt_u += 1; "   << std::endl;
                 ofile << "  //}"   << std::endl;
                 ofile << std::endl;
@@ -367,8 +371,9 @@ private:
                 ofile << "  // leaf_node_after_f"                                                                   << std::endl;
                 ofile << "  cnt_a = " << (p_llrs + size) << ";"   << std::endl;
                 ofile << "  symbol_v = /*FWHT + */ vec_decision( internal[cnt_a/*s + " << (p_llrs + size) << "*/], true );" << std::endl;
-                ofile << "  symbols[cnt_u] = symbol_v;"                                       << std::endl;
-                ofile << "  decoded[cnt_u] = symbol_v;"   << std::endl;
+                ofile << "  symbols  [cnt_u] = symbol_v;"                                       << std::endl;
+                ofile << "  decoded  [cnt_u] = symbol_v;"   << std::endl;
+                ofile << "  decoded_r[cnt_u] = symbol_v;"   << std::endl;
                 ofile << "  cnt_a += 1;"   << std::endl;
                 ofile << "  cnt_u += 1;"   << std::endl;
                 ofile  << std::endl;
@@ -388,8 +393,9 @@ private:
                 ofile << "	loop_r1_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
                 ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << (p_llrs + size) << "*/], true );" << std::endl;
-                ofile << "    	symbols[cnt_u] = e;"                               << std::endl;
-                ofile << "      decoded[cnt_u] = e;"   << std::endl;
+                ofile << "    	symbols  [cnt_u] = e;"                               << std::endl;
+                ofile << "      decoded  [cnt_u] = e;"   << std::endl;
+                ofile << "      decoded_r[cnt_u] = e;"   << std::endl;
                 ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "      cnt_u += 1;"   << std::endl;
                 ofile << "  }"                                                                               << std::endl;
@@ -427,8 +433,9 @@ private:
                 ofile << "  internal_r[" << (p_llrs + size + n) << "] = memo_in_a;"             << std::endl;
                 ofile << "  symbol_v = vec_decision( internal_l[" << (p_llrs + size + n) << "], false );" << std::endl;
                 ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"      << std::endl;
-                ofile << "    symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "    decoded[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
                 ofile << "    cnt_u += 1;"                << std::endl;
                 ofile << "  }"                            << std::endl;
                 ofile << std::endl;
@@ -453,8 +460,9 @@ private:
                 ofile << "  internal_r[" << (p_llrs + size + n + n/2) << "] = memo_in_a;"             << std::endl;
                 ofile << "  symbol_v = vec_decision( internal_l[" << (p_llrs + size + n + n/2) << "], false );" << std::endl;
                 ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
-                ofile << "    symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "    decoded[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
                 ofile << "    cnt_u += 1;"                << std::endl;
                 ofile << "  }"                            << std::endl;
                 ofile << std::endl;
@@ -491,8 +499,9 @@ private:
                 ofile << "  internal_r[" << (lastdst + 2) << "] = memo_in_a;"             << std::endl;
                 ofile << "  symbol_v = vec_decision( internal_l[" << (lastdst + 2) << "], false );" << std::endl;
                 ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
-                ofile << "    symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "    decoded[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
                 ofile << "    cnt_u += 1;"                << std::endl;
                 ofile << "  }"                            << std::endl;
                 ofile << "  ////////////////////////////////////////////////////////////////" << std::endl;
@@ -519,8 +528,9 @@ private:
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
                 ofile << "    	symbol_v = vec_decision( internal_l[cnt_a], true );"          << std::endl;
                 ofile << "    	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                    << std::endl;
-                ofile << "    	symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "      decoded[cnt_u] = symbol_v;" << std::endl;
+                ofile << "    	symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "      decoded  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "      decoded_r[cnt_u] = symbol_v;" << std::endl;
                 ofile << "      cnt_a += 1;"                << std::endl;
                 ofile << "      cnt_u += 1;"                << std::endl;
                 ofile << "  }"                              << std::endl;
@@ -530,7 +540,7 @@ private:
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             else {
@@ -542,8 +552,9 @@ private:
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
                 ofile << "    	symbol_v = vec_decision( internal_l[cnt_a], true );"   << std::endl;
                 ofile << "    	symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                    << std::endl;
-                ofile << "    	symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "      decoded[cnt_u] = symbol_v;" << std::endl;
+                ofile << "    	symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "      decoded  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "      decoded_r[cnt_u] = symbol_v;" << std::endl;
                 ofile << "      cnt_a += 1;"                << std::endl;
                 ofile << "      cnt_u += 1;"                << std::endl;
                 ofile << "  }"                              << std::endl;
@@ -553,7 +564,7 @@ private:
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             //
@@ -610,8 +621,9 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                 ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                ofile << "    symbols[cnt_u] = 0;" << std::endl;
-                ofile << "    decoded[cnt_u] = 0;" << std::endl;
+                ofile << "    symbols  [cnt_u] = 0;" << std::endl;
+                ofile << "    decoded  [cnt_u] = 0;" << std::endl;
+                ofile << "    decoded_r[cnt_u] = 0;" << std::endl;
                 ofile << "    cnt_u += 1; "        << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
@@ -637,8 +649,9 @@ private:
                     ofile << "  cnt_c = " << 0 << "; cnt_a = " <<  0    << "; cnt_b = " << n << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                     ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                    ofile << "    symbols[cnt_u] = 0;" << std::endl;
-                    ofile << "    decoded[cnt_u] = 0;" << std::endl;
+                    ofile << "    symbols  [cnt_u] = 0;" << std::endl;
+                    ofile << "    decoded  [cnt_u] = 0;" << std::endl;
+                    ofile << "    decoded_r[cnt_u] = 0;" << std::endl;
                     ofile << "    cnt_u += 1; "        << std::endl;
                     ofile << "    lwht_in_a   = channel[cnt_a]; // channel[s    ];"   << std::endl;
                     ofile << "    lwht_in_b   = channel[cnt_b]; // channel[s + " << n << "];"   << std::endl;
@@ -659,8 +672,9 @@ private:
                     ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                     ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                    ofile << "    symbols[cnt_u] = 0;" << std::endl;
-                    ofile << "    decoded[cnt_u] = 0;" << std::endl;
+                    ofile << "    symbols  [cnt_u] = 0;" << std::endl;
+                    ofile << "    decoded  [cnt_u] = 0;" << std::endl;
+                    ofile << "    decoded_r[cnt_u] = 0;" << std::endl;
                     ofile << "    cnt_u += 1; "        << std::endl;
                     ofile << "    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
                     ofile << "    lwht_in_b   = internal_r[cnt_b]; // internal_r[s + " << (p_llrs+n) << "];"                   << std::endl;
@@ -788,8 +802,9 @@ private:
                 ofile << "  // leaf_node_after_g"                                                        << std::endl;
                 ofile << "  cnt_a = " << (p_llrs + size) << ";" << std::endl;
                 ofile << "  symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
-                ofile << "  symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "  decoded[cnt_u] = symbol_v;" << std::endl;
+                ofile << "  symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "  decoded  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "  decoded_r[cnt_u] = symbol_v;" << std::endl;
                 ofile << "  cnt_a += 1;"                << std::endl;
                 ofile << "  cnt_u += 1;"                << std::endl;
                 ofile  << std::endl;
@@ -810,12 +825,13 @@ private:
                 ofile << "	loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
                 ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << (p_llrs + size) << "*/], false );" << std::endl;
-                ofile << "    	symbols[cnt_u] = symbol_v;" << std::endl;
-                ofile << "      decoded[cnt_u] = symbol_v;" << std::endl;
+                ofile << "    	symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "      decoded  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "      decoded_r[cnt_u] = symbol_v;" << std::endl;
                 ofile << "      cnt_a += 1;"                << std::endl;
                 ofile << "      cnt_u += 1;"                << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             } else {
                 //ofile << "\t" << "middle_node_pruned_rate_1_after_g<gf_size>(internal + " << 0 << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
@@ -825,12 +841,13 @@ private:
                 ofile << "	loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
                 ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << 0 << "*/], false );" << std::endl;
-                ofile << "    	symbols[cnt_u] = symbol_v;"                               << std::endl;
-                ofile << "      decoded[cnt_u] = symbol_v;"   << std::endl;
+                ofile << "    	symbols  [cnt_u] = symbol_v;"                               << std::endl;
+                ofile << "      decoded  [cnt_u] = symbol_v;"   << std::endl;
+                ofile << "      decoded_r[cnt_u] = symbol_v;"   << std::endl;
                 ofile << "      cnt_u += 1;"   << std::endl;
                 ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "  }"                                                                               << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             final_offset = next_elmnt + 1;
@@ -853,8 +870,9 @@ private:
                 ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
                 ofile << "    symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
                 ofile << "    symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"             << std::endl;
-                ofile << "    symbols[cnt_u] = symbol_v ;"               << std::endl;
-                ofile << "    decoded[cnt_u] = symbol_v;"   << std::endl;
+                ofile << "    symbols  [cnt_u] = symbol_v ;"               << std::endl;
+                ofile << "    decoded  [cnt_u] = symbol_v;"   << std::endl;
+                ofile << "    decoded_r[cnt_u] = symbol_v;"   << std::endl;
                 ofile << "    cnt_a += 1;" << std::endl;
                 ofile << "    cnt_u += 1;"   << std::endl;
                 ofile << "  }"                                                                       << std::endl;
@@ -863,7 +881,7 @@ private:
                 ofile << "  //    printf(\"We have a SPC decoding error ;-)\\n\");" << std::endl;
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             } else {
                 array[next_elmnt] = SPC_FROM_G;
@@ -882,8 +900,9 @@ private:
                 ofile << "#pragma HLS PIPELINE"                                                                << std::endl;
                 ofile << "      symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
                 ofile << "      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                       << std::endl;
-                ofile << "      symbols[cnt_u] = symbol_v ;"                         << std::endl;
-                ofile << "      decoded[cnt_u] = symbol_v;"   << std::endl;
+                ofile << "      symbols  [cnt_u] = symbol_v ;"                         << std::endl;
+                ofile << "      decoded  [cnt_u] = symbol_v;"   << std::endl;
+                ofile << "      decoded_r[cnt_u] = symbol_v;"   << std::endl;
                 ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "      cnt_u += 1;"   << std::endl;
                 ofile << "  }"                                                                                 << std::endl;
@@ -892,7 +911,7 @@ private:
                 ofile << "  //    printf(\"We have a SPC decoding error ;-)\\n\");" << std::endl;
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded, cnt_u - " << n << ");" << std::endl;
+                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
                 ofile << std::endl;
             }
             //
@@ -924,8 +943,9 @@ private:
             ofile << "  internal_r[" << (p_llrs + size + n) << "] = memo_in_a;"             << std::endl;
             ofile << "  symbol_v = vec_decision( internal_l[" << (p_llrs + size + n) << "], false );" << std::endl;
             ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"      << std::endl;
-            ofile << "    symbols[cnt_u] = symbol_v;" << std::endl;
-            ofile << "    decoded[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+            ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+            ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+            ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
             ofile << "    cnt_u += 1;"                << std::endl;
             ofile << "  }"                            << std::endl;
             ofile << std::endl;
