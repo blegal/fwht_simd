@@ -18,6 +18,7 @@ void xor_processor(uint8_t dst[length], uint8_t src[length], const ap_uint<lengt
 //
 template<>
 void xor_processor<2>(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
+#pragma HLS INLINE
     dst[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
     dst[1] = src[1];
 }
@@ -25,6 +26,7 @@ void xor_processor<2>(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
 //
 template<>
 void xor_processor<4>(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
+#pragma HLS INLINE
     uint8_t s1[4];
     s1[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
     s1[1] = src[1];
@@ -40,6 +42,7 @@ void xor_processor<4>(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
 //
 template<>
 void xor_processor<8>(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
+#pragma HLS INLINE
     uint8_t s1[8];
     s1[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
     s1[1] = src[1];
@@ -73,6 +76,7 @@ void xor_processor<8>(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
 //
 template<>
 void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> stride) {
+#pragma HLS INLINE
     uint8_t s1[16];
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
     s1[ 1] = src[ 1];
@@ -148,6 +152,8 @@ void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> strid
 //
 template<>
 void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> stride) {
+#pragma HLS INLINE
+
     uint8_t s1[32];
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
     s1[ 1] = src[ 1];
@@ -323,6 +329,7 @@ void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
 //
 template<>
 void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride) {
+#pragma HLS INLINE
     uint8_t s1[64];
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
     s1[ 1] = src[ 1];
@@ -723,6 +730,222 @@ void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> strid
 ////////////////////////////////////////////////////////////////////////////
 //
 //
+template<>
+void xor_processor<128>(uint8_t dst[128], uint8_t src[128], const ap_uint<128> stride)
+{
+#pragma HLS INLINE
+    uint8_t s1[128];
+    uint8_t s2[128];
+    uint8_t s3[128];
+    uint8_t s4[128];
+    uint8_t s5[128];
+    uint8_t s6[128];
+
+#pragma HLS ARRAY_PARTITION variable=s1 complete
+#pragma HLS ARRAY_PARTITION variable=s2 complete
+#pragma HLS ARRAY_PARTITION variable=s3 complete
+#pragma HLS ARRAY_PARTITION variable=s4 complete
+#pragma HLS ARRAY_PARTITION variable=s5 complete
+#pragma HLS ARRAY_PARTITION variable=s6 complete
+
+    /* ===================== s1 : pas = 1 ===================== */
+    for (int i = 0; i < 128; i += 2) {
+#pragma HLS UNROLL
+        s1[i]   = stride[0] ? (src[i] ^ src[i+1]) : src[i];
+        s1[i+1] = src[i+1];
+    }
+
+    /* ===================== s2 : pas = 2 ===================== */
+    for (int i = 0; i < 128; i += 4) {
+#pragma HLS UNROLL
+        s2[i+0] = stride[1] ? (s1[i+0] ^ s1[i+2]) : s1[i+0];
+        s2[i+1] = stride[1] ? (s1[i+1] ^ s1[i+3]) : s1[i+1];
+        s2[i+2] = s1[i+2];
+        s2[i+3] = s1[i+3];
+    }
+
+    /* ===================== s3 : pas = 4 ===================== */
+    for (int i = 0; i < 128; i += 8) {
+#pragma HLS UNROLL
+        s3[i+0] = stride[2] ? (s2[i+0] ^ s2[i+4]) : s2[i+0];
+        s3[i+1] = stride[2] ? (s2[i+1] ^ s2[i+5]) : s2[i+1];
+        s3[i+2] = stride[2] ? (s2[i+2] ^ s2[i+6]) : s2[i+2];
+        s3[i+3] = stride[2] ? (s2[i+3] ^ s2[i+7]) : s2[i+3];
+        s3[i+4] = s2[i+4];
+        s3[i+5] = s2[i+5];
+        s3[i+6] = s2[i+6];
+        s3[i+7] = s2[i+7];
+    }
+
+    /* ===================== s4 : pas = 8 ===================== */
+    for (int i = 0; i < 128; i += 16) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 8; j++) {
+#pragma HLS UNROLL
+            s4[i+j] = stride[3] ? (s3[i+j] ^ s3[i+j+8]) : s3[i+j];
+        }
+        for (int j = 8; j < 16; j++) {
+#pragma HLS UNROLL
+            s4[i+j] = s3[i+j];
+        }
+    }
+
+    /* ===================== s5 : pas = 16 ===================== */
+    for (int i = 0; i < 128; i += 32) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 16; j++) {
+#pragma HLS UNROLL
+            s5[i+j] = stride[4] ? (s4[i+j] ^ s4[i+j+16]) : s4[i+j];
+        }
+        for (int j = 16; j < 32; j++) {
+#pragma HLS UNROLL
+            s5[i+j] = s4[i+j];
+        }
+    }
+
+    /* ===================== s6 : pas = 32 ===================== */
+    for (int i = 0; i < 128; i += 64) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 32; j++) {
+#pragma HLS UNROLL
+            s6[i+j] = stride[5] ? (s5[i+j] ^ s5[i+j+32]) : s5[i+j];
+        }
+        for (int j = 32; j < 64; j++) {
+#pragma HLS UNROLL
+            s6[i+j] = s5[i+j];
+        }
+    }
+
+    /* ===================== dst : pas = 64 ===================== */
+    for (int i = 0; i < 64; i++) {
+#pragma HLS UNROLL
+        dst[i] = stride[6] ? (s6[i] ^ s6[i+64]) : s6[i];
+    }
+    for (int i = 64; i < 128; i++) {
+#pragma HLS UNROLL
+        dst[i] = s6[i];
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////////////
+//
+//
+template<>
+void xor_processor<256>(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride) {
+#pragma HLS INLINE
+    uint8_t s1[256];
+    uint8_t s2[256];
+    uint8_t s3[256];
+    uint8_t s4[256];
+    uint8_t s5[256];
+    uint8_t s6[256];
+    uint8_t s7[256];
+
+#pragma HLS ARRAY_PARTITION variable=s1 complete
+#pragma HLS ARRAY_PARTITION variable=s2 complete
+#pragma HLS ARRAY_PARTITION variable=s3 complete
+#pragma HLS ARRAY_PARTITION variable=s4 complete
+#pragma HLS ARRAY_PARTITION variable=s5 complete
+#pragma HLS ARRAY_PARTITION variable=s6 complete
+#pragma HLS ARRAY_PARTITION variable=s7 complete
+
+    /* ===================== s1 : pas = 1 ===================== */
+    for (int i = 0; i < 256; i += 2) {
+#pragma HLS UNROLL
+        s1[i]   = stride[0] ? (src[i] ^ src[i+1]) : src[i];
+        s1[i+1] = src[i+1];
+    }
+
+    /* ===================== s2 : pas = 2 ===================== */
+    for (int i = 0; i < 256; i += 4) {
+#pragma HLS UNROLL
+        s2[i+0] = stride[1] ? (s1[i+0] ^ s1[i+2]) : s1[i+0];
+        s2[i+1] = stride[1] ? (s1[i+1] ^ s1[i+3]) : s1[i+1];
+        s2[i+2] = s1[i+2];
+        s2[i+3] = s1[i+3];
+    }
+
+    /* ===================== s3 : pas = 4 ===================== */
+    for (int i = 0; i < 256; i += 8) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 4; j++) {
+#pragma HLS UNROLL
+            s3[i+j] = stride[2] ? (s2[i+j] ^ s2[i+j+4]) : s2[i+j];
+        }
+        for (int j = 4; j < 8; j++) {
+#pragma HLS UNROLL
+            s3[i+j] = s2[i+j];
+        }
+    }
+
+    /* ===================== s4 : pas = 8 ===================== */
+    for (int i = 0; i < 256; i += 16) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 8; j++) {
+#pragma HLS UNROLL
+            s4[i+j] = stride[3] ? (s3[i+j] ^ s3[i+j+8]) : s3[i+j];
+        }
+        for (int j = 8; j < 16; j++) {
+#pragma HLS UNROLL
+            s4[i+j] = s3[i+j];
+        }
+    }
+
+    /* ===================== s5 : pas = 16 ===================== */
+    for (int i = 0; i < 256; i += 32) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 16; j++) {
+#pragma HLS UNROLL
+            s5[i+j] = stride[4] ? (s4[i+j] ^ s4[i+j+16]) : s4[i+j];
+        }
+        for (int j = 16; j < 32; j++) {
+#pragma HLS UNROLL
+            s5[i+j] = s4[i+j];
+        }
+    }
+
+    /* ===================== s6 : pas = 32 ===================== */
+    for (int i = 0; i < 256; i += 64) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 32; j++) {
+#pragma HLS UNROLL
+            s6[i+j] = stride[5] ? (s5[i+j] ^ s5[i+j+32]) : s5[i+j];
+        }
+        for (int j = 32; j < 64; j++) {
+#pragma HLS UNROLL
+            s6[i+j] = s5[i+j];
+        }
+    }
+
+    /* ===================== s7 : pas = 64 ===================== */
+    for (int i = 0; i < 256; i += 128) {
+#pragma HLS UNROLL
+        for (int j = 0; j < 64; j++) {
+#pragma HLS UNROLL
+            s7[i+j] = stride[6] ? (s6[i+j] ^ s6[i+j+64]) : s6[i+j];
+        }
+        for (int j = 64; j < 128; j++) {
+#pragma HLS UNROLL
+            s7[i+j] = s6[i+j];
+        }
+    }
+
+    /* ===================== dst : pas = 128 ===================== */
+    for (int i = 0; i < 128; i++) {
+#pragma HLS UNROLL
+        dst[i] = stride[7] ? (s7[i] ^ s7[i+128]) : s7[i];
+    }
+    for (int i = 128; i < 256; i++) {
+#pragma HLS UNROLL
+        dst[i] = s7[i];
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////////////
+//
+//
 static void v2_xor_processor(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
     xor_processor<2>(dst, src, stride);
 }
@@ -750,6 +973,16 @@ static void v32_xor_processor(uint8_t dst[32], uint8_t src[32], const ap_uint<32
 //
 static void v64_xor_processor(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride) {
     xor_processor<64>(dst, src, stride);
+}
+//
+//
+static void v128_xor_processor(uint8_t dst[128], uint8_t src[128], const ap_uint<128> stride) {
+    xor_processor<128>(dst, src, stride);
+}
+//
+//
+static void v128_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride) {
+    xor_processor<256>(dst, src, stride);
 }
 //
 //
