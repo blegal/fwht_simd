@@ -28,6 +28,7 @@ template<>
 void xor_processor<4>(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
 #pragma HLS INLINE
     uint8_t s1[4];
+#pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
     s1[1] = src[1];
     s1[2] = stride[0] ? (src[2] ^ src[3]) : src[2];
@@ -44,6 +45,7 @@ template<>
 void xor_processor<8>(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
 #pragma HLS INLINE
     uint8_t s1[8];
+#pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
     s1[1] = src[1];
     s1[2] = stride[0] ? (src[2] ^ src[3]) : src[2];
@@ -54,6 +56,7 @@ void xor_processor<8>(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
     s1[7] = src[7];
 
     uint8_t s2[8];
+#pragma HLS ARRAY_PARTITION variable=s2 complete
     s2[0] = stride[1] ? (s1[0] ^ s1[2]) : s1[0];
     s2[1] = stride[1] ? (s1[1] ^ s1[3]) : s1[1];
     s2[2] = s1[2];
@@ -78,6 +81,7 @@ template<>
 void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> stride) {
 #pragma HLS INLINE
     uint8_t s1[16];
+#pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
     s1[ 1] = src[ 1];
     s1[ 2] = stride[0] ? (src[ 2] ^ src[ 3]) : src[ 2];
@@ -96,6 +100,7 @@ void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> strid
     s1[15] = src[15];
 
     uint8_t s2[16];
+#pragma HLS ARRAY_PARTITION variable=s2 complete
     s2[ 0] = stride[1] ? (s1[ 0] ^ s1[ 2]) : s1[ 0];
     s2[ 1] = stride[1] ? (s1[ 1] ^ s1[ 3]) : s1[ 1];
     s2[ 2] = s1[ 2];
@@ -114,6 +119,7 @@ void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> strid
     s2[15] = s1[15];
 
     uint8_t s3[16];
+#pragma HLS ARRAY_PARTITION variable=s3 complete
     s3[ 0] = stride[2] ? (s2[0] ^ s2[4]) : s2[0];
     s3[ 1] = stride[2] ? (s2[1] ^ s2[5]) : s2[1];
     s3[ 2] = stride[2] ? (s2[2] ^ s2[6]) : s2[2];
@@ -155,6 +161,7 @@ void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
 #pragma HLS INLINE
 
     uint8_t s1[32];
+#pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
     s1[ 1] = src[ 1];
     s1[ 2] = stride[0] ? (src[ 2] ^ src[ 3]) : src[ 2];
@@ -189,6 +196,7 @@ void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
     s1[31] = src[31];
 
     uint8_t s2[32];
+#pragma HLS ARRAY_PARTITION variable=s2 complete
     s2[ 0] = stride[1] ? (s1[ 0] ^ s1[ 2]) : s1[ 0];
     s2[ 1] = stride[1] ? (s1[ 1] ^ s1[ 3]) : s1[ 1];
     s2[ 2] = s1[ 2];
@@ -223,6 +231,7 @@ void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
     s2[31] = s1[31];
 
     uint8_t s3[32];
+#pragma HLS ARRAY_PARTITION variable=s3 complete
     s3[ 0] = stride[2] ? (s2[0] ^ s2[4]) : s2[0];
     s3[ 1] = stride[2] ? (s2[1] ^ s2[5]) : s2[1];
     s3[ 2] = stride[2] ? (s2[2] ^ s2[6]) : s2[2];
@@ -257,6 +266,7 @@ void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
     s3[31] = s2[31];
 
     uint8_t s4[32];
+#pragma HLS ARRAY_PARTITION variable=s4 complete
     s4[ 0] = stride[3] ? (s3[ 0] ^ s3[ 8]) : s3[ 0];
     s4[ 1] = stride[3] ? (s3[ 1] ^ s3[ 9]) : s3[ 1];
     s4[ 2] = stride[3] ? (s3[ 2] ^ s3[10]) : s3[ 2];
@@ -331,6 +341,7 @@ template<>
 void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride) {
 #pragma HLS INLINE
     uint8_t s1[64];
+#pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
     s1[ 1] = src[ 1];
     s1[ 2] = stride[0] ? (src[ 2] ^ src[ 3]) : src[ 2];
@@ -397,6 +408,7 @@ void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> strid
     s1[63] = src[63];
 
     uint8_t s2[64];
+#pragma HLS ARRAY_PARTITION variable=s2 complete
     s2[ 0] = stride[1] ? (s1[ 0] ^ s1[ 2]) : s1[ 0];
     s2[ 1] = stride[1] ? (s1[ 1] ^ s1[ 3]) : s1[ 1];
     s2[ 2] = s1[ 2];
@@ -463,6 +475,7 @@ void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> strid
     s2[63] = s1[63];
 
     uint8_t s3[64];
+#pragma HLS ARRAY_PARTITION variable=s3 complete
     s3[ 0] = stride[2] ? (s2[0] ^ s2[4]) : s2[0];
     s3[ 1] = stride[2] ? (s2[1] ^ s2[5]) : s2[1];
     s3[ 2] = stride[2] ? (s2[2] ^ s2[6]) : s2[2];
@@ -529,6 +542,7 @@ void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> strid
     s3[63] = s2[63];
 
     uint8_t s4[64];
+#pragma HLS ARRAY_PARTITION variable=s4 complete
     s4[ 0] = stride[3] ? (s3[ 0] ^ s3[ 8]) : s3[ 0];
     s4[ 1] = stride[3] ? (s3[ 1] ^ s3[ 9]) : s3[ 1];
     s4[ 2] = stride[3] ? (s3[ 2] ^ s3[10]) : s3[ 2];
@@ -595,6 +609,7 @@ void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> strid
     s4[63] = s3[63];
 
     uint8_t s5[64];
+#pragma HLS ARRAY_PARTITION variable=s5 complete
     s5[ 0] = stride[4] ? (s4[ 0] ^ s4[16]) : s4[ 0];
     s5[ 1] = stride[4] ? (s4[ 1] ^ s4[17]) : s4[ 1];
     s5[ 2] = stride[4] ? (s4[ 2] ^ s4[18]) : s4[ 2];
@@ -947,41 +962,49 @@ void xor_processor<256>(uint8_t dst[256], uint8_t src[256], const ap_uint<256> s
 //
 //
 static void v2_xor_processor(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<2>(dst, src, stride);
 }
 //
 //
 static void v4_xor_processor(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<4>(dst, src, stride);
 }
 //
 //
 static void v8_xor_processor(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<8>(dst, src, stride);
 }
 //
 //
 static void v16_xor_processor(uint8_t dst[16], uint8_t src[16], const ap_uint<16> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<16>(dst, src, stride);
 }
 //
 //
 static void v32_xor_processor(uint8_t dst[32], uint8_t src[32], const ap_uint<32> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<32>(dst, src, stride);
 }
 //
 //
 static void v64_xor_processor(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<64>(dst, src, stride);
 }
 //
 //
 static void v128_xor_processor(uint8_t dst[128], uint8_t src[128], const ap_uint<128> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<128>(dst, src, stride);
 }
 //
 //
 static void v128_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride) {
+#pragma HLS PIPELINE II=1
     xor_processor<256>(dst, src, stride);
 }
 //
