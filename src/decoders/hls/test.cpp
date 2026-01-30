@@ -218,7 +218,7 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
     //
     // On teste toutes les combinaisons
     //
-    for (int i = 2; i < 128; i *= 2) {
+    for (int i = 2; i < 512; i *= 2) {
         //
         // On génere tous les vecteurs de test
         //
@@ -238,12 +238,14 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
         // On lance le test...
         //
         uint8_t array_t[i];
-        if ( i ==  2 ) xor_processor< 2>(array_t, array_i, 0x01);
-        if ( i ==  4 ) xor_processor< 4>(array_t, array_i, 0x03);
-        if ( i ==  8 ) xor_processor< 8>(array_t, array_i, 0x07);
-        if ( i == 16 ) xor_processor<16>(array_t, array_i, 0x0F);
-        if ( i == 32 ) xor_processor<32>(array_t, array_i, 0x1F);
-        if ( i == 64 ) xor_processor<64>(array_t, array_i, 0x3F);
+        if ( i ==   2 ) xor_processor< 2>(array_t, array_i, 0x01);
+        if ( i ==   4 ) xor_processor< 4>(array_t, array_i, 0x03);
+        if ( i ==   8 ) xor_processor< 8>(array_t, array_i, 0x07);
+        if ( i ==  16 ) xor_processor<16>(array_t, array_i, 0x0F);
+        if ( i ==  32 ) xor_processor<32>(array_t, array_i, 0x1F);
+        if ( i ==  64 ) xor_processor<64>(array_t, array_i, 0x3F);
+        if ( i == 128 ) xor_processor<128>(array_t, array_i, 0x7F);
+        if ( i == 256 ) xor_processor<256>(array_t, array_i, 0xFF);
         //
         // On verifie la validité du résultat
         //
