@@ -34,6 +34,7 @@
 #include "impl/f_mult.hpp"
 #include "impl/f_fwht.hpp"
 #include "impl/f_norm.hpp"
+#include "impl/f_xor_processor.hpp"
 //
 #include "decoders/naive_int32_t/arch/i_fwht.hpp"
 //
@@ -203,6 +204,51 @@ TEST_CASE( "scaling", "[scaling]" )
         //
         for (int j = 0; j < gf_size; j++) {
             REQUIRE( resu.value[j] == 0x00400 ); // 12 bits - 1000 0000 0000
+        }
+        //
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////
+//
+//
+TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
+{
+    //
+    // On teste toutes les combinaisons
+    //
+    for (int i = 2; i < 128; i *= 2) {
+        //
+        // On génere tous les vecteurs de test
+        //
+        uint8_t array_i[i];
+        for (int j = 0; j < i; j++) {
+            array_i[j] = rand()%256;
+        }
+        //
+        // On lance le test...
+        //
+        uint8_t array_r[i];
+        for (int j = 0; j < i; j++) {
+            array_r[j] = array_i[j];
+        }
+        local_remove_xors(array_r, i);
+        //
+        // On lance le test...
+        //
+        uint8_t array_t[i];
+        if ( i ==  2 ) xor_processor< 2>(array_t, array_i, 0x01);
+        if ( i ==  4 ) xor_processor< 4>(array_t, array_i, 0x03);
+        if ( i ==  8 ) xor_processor< 8>(array_t, array_i, 0x07);
+        if ( i == 16 ) xor_processor<16>(array_t, array_i, 0x0F);
+        if ( i == 32 ) xor_processor<32>(array_t, array_i, 0x1F);
+        if ( i == 64 ) xor_processor<64>(array_t, array_i, 0x3F);
+        //
+        // On verifie la validité du résultat
+        //
+        for (int j = 0; j < i; j++) {
+            REQUIRE( array_r[j] == array_t[j] );
         }
         //
     }
