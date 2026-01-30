@@ -1,11 +1,13 @@
 #pragma once
 //
 //
+#include "../../decoders/naive_integer/ap_fixed_tools.hpp"
 #include "definitions/code.hpp"
 #include "features/archi.hpp"
 #include <cmath>
 #include <cstdint>
-#define NBITS 20
+
+#define NBITS 11
 //
 //
 // For generic NB polar decoders
@@ -76,30 +78,30 @@ struct symbols_i {
 //
 //
 #if 0
-    #define NEW_QUANTIF 0
-    #define symbols_i_iscale 268435456
-    #define symbols_i_fscale 268435456.f
-    #define symbols_i_shift  28
+#define NEW_QUANTIF      0
+#define symbols_i_iscale 268435456
+#define symbols_i_fscale 268435456.f
+#define symbols_i_shift  28
 #elif 0
-    #define NEW_QUANTIF 1
-    #define symbols_i_iscale (int64_t)65535
-    #define symbols_i_fscale 65535.f
-    #define symbols_i_shift  16
+#define NEW_QUANTIF      1
+#define symbols_i_iscale (int64_t) 65535
+#define symbols_i_fscale 65535.f
+#define symbols_i_shift  16
 #elif 0
-    #define NEW_QUANTIF 1
-    #define symbols_i_iscale (int64_t)131071
-    #define symbols_i_fscale 131071.f
-    #define symbols_i_shift  17
+#define NEW_QUANTIF      1
+#define symbols_i_iscale (int64_t) 131071
+#define symbols_i_fscale 131071.f
+#define symbols_i_shift  17
 #elif 1
-    #define NEW_QUANTIF 1
-    #define symbols_i_iscale (int64_t)262144
-    #define symbols_i_fscale 262144.f
-    #define symbols_i_shift  18
+#define NEW_QUANTIF      1
+#define symbols_i_iscale (int64_t) 262144
+#define symbols_i_fscale 262144.f
+#define symbols_i_shift  18
 #else
-    #define NEW_QUANTIF 1
-    #define symbols_i_iscale (int64_t)1048576
-    #define symbols_i_fscale 1048576.f
-    #define symbols_i_shift  20
+#define NEW_QUANTIF      1
+#define symbols_i_iscale (int64_t) 1048576
+#define symbols_i_fscale 1048576.f
+#define symbols_i_shift  20
 #endif
 //
 //
@@ -127,8 +129,8 @@ inline void show(int64_t * symb) {
 }
 //
 //
-template<int gf_size>
-inline bool is_null(int32_t* symb) {
+template <int gf_size>
+inline bool is_null(int32_t * symb) {
     int64_t sum = 0;
     for (int i = 0; i < gf_size; i++) {
         sum += symb[i];
@@ -137,11 +139,13 @@ inline bool is_null(int32_t* symb) {
 }
 //
 //
-template<int gf_size>
-inline bool is_in_range(int32_t* symb) {
+template <int gf_size>
+inline bool is_in_range(int32_t * symb) {
     for (int i = 0; i < gf_size; i++) {
-        if ( symb[i] >  symbols_i_iscale) return false;
-        if ( symb[i] < -symbols_i_iscale) return false;
+        if (symb[i] > symbols_i_iscale)
+            return false;
+        if (symb[i] < -symbols_i_iscale)
+            return false;
     }
     return true;
 }
@@ -167,31 +171,26 @@ template <int gf_size>
 inline void convert_from_symbols_i(float * dst, const symbols_i<gf_size> & src) {
     for (int i = 0; i < gf_size; i++) {
         const double v = src.value[i];
-        const float  w = (float) (v / (double)symbols_i_fscale);
+        const float  w = (float) (v / (double) symbols_i_fscale);
         dst[i]         = w;
     }
 }
 //
 //
 template <int gf_size>
-struct symbols_i64 {
+struct symbols_i32 {
     int32_t value[gf_size];
     bool    is_freq;
 };
 
 template <int gf_size>
-inline symbols_i64<gf_size> convert_to_symbols_i64(const symbols_s<gf_size> symb) {
-    symbols_i64<gf_size> result;
+inline symbols_i32<gf_size> convert_to_symbols_i32(const symbols_s<gf_size> symb) {
+    symbols_i32<gf_size> result;
+
     for (int i = 0; i < gf_size; i++) {
-        const double  v = symb.value[i];
-        const int32_t w = static_cast<int32_t>(v * (float) (1u << (NBITS - 1)));
-        result.value[i] = w;
-#if 0
-        printf("%3d : %8.6f = %d\n", i, symb.value[i], result.value[i]);
-#endif
+        result.value[i] = static_cast<int32_t>(0.5 + symb.value[i] * (1u << 31));
     }
+    LZC_normalize<gf_size, NBITS>(result.value);
     result.is_freq = false;
     return result;
 }
-//
-//

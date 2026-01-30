@@ -4,8 +4,8 @@
 #include "f_argmax.hpp"
 #include "f_function.hpp"
 // #include "f_fwht.hpp"
+#include "features/archi.hpp"
 #include "g_function.hpp"
-#include"features/archi.hpp"
 
 //
 //
@@ -17,8 +17,8 @@ decoder_naive_integer<gf_size>::decoder_naive_integer(const int n, const int * f
     symbols = new uint16_t[N];
     frozen  = new uint32_t[N];
 
-    f_channel  = new symbols_i64<gf_size>[N];
-    f_internal = new symbols_i64<gf_size>[N];
+    f_channel  = new symbols_i32<gf_size>[N];
+    f_internal = new symbols_i32<gf_size>[N];
 
     for (int i = 0; i < N; i++) {
         frozen[i] = frozen_symb[i];
@@ -60,7 +60,7 @@ void decoder_naive_integer<gf_size>::execute(void * s_channel, uint16_t * decode
     //
     //
     for (int i = 0; i < N; i++) {
-        f_channel[i] = convert_to_symbols_i64<gf_size>(channel[i]);
+        f_channel[i] = convert_to_symbols_i32<gf_size>(channel[i]);
     }
     //
     //
@@ -97,8 +97,8 @@ void decoder_naive_integer<gf_size>::execute(void * s_channel, uint16_t * decode
 //
 template <int gf_size>
 void decoder_naive_integer<gf_size>::middle_node(
-    symbols_i64<gf_size> * inputs,   // Inputs are the symbols from the channel (from the right)
-    symbols_i64<gf_size> * internal, // Internal nodes are the symbols computed during the process (to the left)
+    symbols_i32<gf_size> * inputs,   // Inputs are the symbols from the channel (from the right)
+    symbols_i32<gf_size> * internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *             decoded,  // Decoded symbols are the final output of the decoder (done on the left)
     uint16_t *             symbols,  // Symbols are the ones going from leafs to root (done on the left)
     int                    size,     // Size is the number of symbols (should be a power of 2)
@@ -145,7 +145,7 @@ void decoder_naive_integer<gf_size>::middle_node(
 }
 template <int gf_size>
 void decoder_naive_integer<gf_size>::leaf_node(
-    symbols_i64<gf_size> * var,
+    symbols_i32<gf_size> * var,
     uint16_t *             decoded,
     uint16_t *             symbols,
     const int              symbol_id) {
@@ -159,22 +159,22 @@ void decoder_naive_integer<gf_size>::leaf_node(
     }
 
     if (var->is_freq) {
-        // I64_FWHT<gf_size>(var->value);
+        // I32_FWHT<gf_size>(var->value);
         // var->is_freq = false;
 
-        int64_t temp[gf_size];
+        int32_t temp[gf_size];
         for (int i = 0; i < gf_size; i++) {
             temp[i] = var->value[i];
         }
-        I64_FWHT<gf_size>(temp);
+        I32_FWHT<gf_size>(temp);
         LZC_normalize<gf_size, NBITS>(temp);
-        const int64_t max_index = f_argmax<gf_size>(temp);
-            decoded[symbol_id]  = max_index;
-    symbols[symbol_id]  = max_index;
-    return;
-            // LZC_normalize<gf_size, NBITS>(temp);
+        const int32_t max_index = f_argmax<gf_size>(temp);
+        decoded[symbol_id]      = max_index;
+        symbols[symbol_id]      = max_index;
+        return;
+        // LZC_normalize<gf_size, NBITS>(temp);
         // for (int i = 0; i < gf_size; i++) {
-        //     var->value[i] = static_cast<int32_t>(temp[i]);
+        //     var->value[i] = (temp[i]);
         // }
         // var->is_freq = false;
     }
@@ -183,9 +183,9 @@ void decoder_naive_integer<gf_size>::leaf_node(
     // {
     //     printf("%d : %.20f\n", i, (float)var->value[i]);
     // }
-    const int64_t max_index = argmax<gf_size>(var->value);
-    decoded[symbol_id]  = max_index;
-    symbols[symbol_id]  = max_index;
+    const int32_t max_index = argmax<gf_size>(var->value);
+    decoded[symbol_id]      = max_index;
+    symbols[symbol_id]      = max_index;
 }
 //
 //
