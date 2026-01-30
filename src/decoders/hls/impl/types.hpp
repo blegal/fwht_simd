@@ -144,15 +144,6 @@ inline void show(const ap_int<o_mult_width>* value)
     printf("\n");
 }
 //
-/*
-#define i_lwht_width   data_width
-#define o_lwht_width   (i_lwht_width+log2_gf_size)
-#define i_mult_width   (o_lwht_width)
-#define o_mult_width   (o_lwht_width+o_lwht_width)
-#define i_norm_width   (o_mult_width)
-#define o_norm_width   (data_width)
-*/
-//
 //
 //
 //////////////////////////////////////////////////////////////////////
@@ -163,7 +154,7 @@ inline void local_remove_xors(uint8_t * values, int size, const int offset = 0) 
     if (size == 1)
         return;
     for (int i = 0; i < size / 2; i += 1) {
-        printf("< values[%d] ^= values[%d];\n", offset + i, offset + i + size / 2);
+//        printf("< values[%d] ^= values[%d];\n", offset + i, offset + i + size / 2);
         values[i] ^= values[i + size / 2];
     }
     local_remove_xors(values,            size / 2, offset);
@@ -171,13 +162,16 @@ inline void local_remove_xors(uint8_t * values, int size, const int offset = 0) 
 }
 //
 //
+//
 //////////////////////////////////////////////////////////////////////
+//
 //
 //
 template<int N> inline void local_remove_xors(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
     exit( EXIT_FAILURE );
 }
+//
 //
 template<> inline void local_remove_xors<2>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
@@ -190,6 +184,7 @@ template<> inline void local_remove_xors<2>(uint8_t * dst, uint8_t * src, const 
     //printf("> dst[%d] = dst[%d] ^ src[%d]\n", cnt_rw, cnt_rw, cnt_rd);
 }
 //
+//
 template<> inline void local_remove_xors<4>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
 #pragma HLS INLINE
@@ -200,13 +195,13 @@ template<> inline void local_remove_xors<4>(uint8_t * dst, uint8_t * src, const 
         uint8_t resu = dst[cnt_rw] ^ src[cnt_rd];
         dst[cnt_rw] = resu;
         src[cnt_rw] = resu;
-        //printf("> dst[%d] = dst[%d] ^ src[%d]\n", cnt_rw, cnt_rw, cnt_rd);
         cnt_rw += 1;
         cnt_rd += 1;
     }
     local_remove_xors<2>(dst, src, offset);
     local_remove_xors<2>(dst, src, offset + 2);
 }
+//
 //
 template<> inline void local_remove_xors<8>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
@@ -224,7 +219,8 @@ template<> inline void local_remove_xors<8>(uint8_t * dst, uint8_t * src, const 
     local_remove_xors<4>(dst, src, offset    );
     local_remove_xors<4>(dst, src, offset + 4);
 }
-
+//
+//
 template<> inline void local_remove_xors<16>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
 #pragma HLS INLINE
@@ -241,7 +237,8 @@ template<> inline void local_remove_xors<16>(uint8_t * dst, uint8_t * src, const
     local_remove_xors<8>(dst, src, offset);
     local_remove_xors<8>(dst, src, offset + 8);
 }
-
+//
+//
 template<> inline void local_remove_xors<32>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
 #pragma HLS INLINE
@@ -258,7 +255,8 @@ template<> inline void local_remove_xors<32>(uint8_t * dst, uint8_t * src, const
     local_remove_xors<16>(dst, src, offset);
     local_remove_xors<16>(dst, src, offset + 16);
 }
-
+//
+//
 template<> inline void local_remove_xors<64>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
 #pragma HLS INLINE
@@ -275,9 +273,9 @@ template<> inline void local_remove_xors<64>(uint8_t * dst, uint8_t * src, const
     local_remove_xors<32>(dst, src, offset);
     local_remove_xors<32>(dst, src, offset + 32);
 }
-
-template<>
-inline void local_remove_xors<128>(uint8_t * dst, uint8_t * src, const uint16_t offset)
+//
+//
+template<> inline void local_remove_xors<128>(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
 #pragma HLS INLINE
     int cnt_rw = offset;
@@ -293,3 +291,10 @@ inline void local_remove_xors<128>(uint8_t * dst, uint8_t * src, const uint16_t 
     local_remove_xors<64>(dst, src, offset);
     local_remove_xors<64>(dst, src, offset + 64);
 }
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
