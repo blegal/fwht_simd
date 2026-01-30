@@ -19,6 +19,10 @@ void xor_processor(uint8_t dst[length], uint8_t src[length], const ap_uint<lengt
 template<>
 void xor_processor<2>(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
 #pragma HLS INLINE
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+
     dst[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
     dst[1] = src[1];
 }
@@ -27,6 +31,10 @@ void xor_processor<2>(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
 template<>
 void xor_processor<4>(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
 #pragma HLS INLINE
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+
     uint8_t s1[4];
 #pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
@@ -44,6 +52,10 @@ void xor_processor<4>(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
 template<>
 void xor_processor<8>(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
 #pragma HLS INLINE
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+
     uint8_t s1[8];
 #pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[0] = stride[0] ? (src[0] ^ src[1]) : src[0];
@@ -80,6 +92,10 @@ void xor_processor<8>(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
 template<>
 void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> stride) {
 #pragma HLS INLINE
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+
     uint8_t s1[16];
 #pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
@@ -159,6 +175,9 @@ void xor_processor<16>(uint8_t dst[16], uint8_t src[16], const ap_uint<16> strid
 template<>
 void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> stride) {
 #pragma HLS INLINE
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
 
     uint8_t s1[32];
 #pragma HLS ARRAY_PARTITION variable=s1 complete
@@ -340,6 +359,10 @@ void xor_processor<32>(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
 template<>
 void xor_processor<64>(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride) {
 #pragma HLS INLINE
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+
     uint8_t s1[64];
 #pragma HLS ARRAY_PARTITION variable=s1 complete
     s1[ 0] = stride[0] ? (src[ 0] ^ src[ 1]) : src[ 0];
@@ -756,6 +779,9 @@ void xor_processor<128>(uint8_t dst[128], uint8_t src[128], const ap_uint<128> s
     uint8_t s5[128];
     uint8_t s6[128];
 
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+
 #pragma HLS ARRAY_PARTITION variable=s1 complete
 #pragma HLS ARRAY_PARTITION variable=s2 complete
 #pragma HLS ARRAY_PARTITION variable=s3 complete
@@ -856,6 +882,9 @@ void xor_processor<256>(uint8_t dst[256], uint8_t src[256], const ap_uint<256> s
     uint8_t s5[256];
     uint8_t s6[256];
     uint8_t s7[256];
+
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
 
 #pragma HLS ARRAY_PARTITION variable=s1 complete
 #pragma HLS ARRAY_PARTITION variable=s2 complete
@@ -961,50 +990,90 @@ void xor_processor<256>(uint8_t dst[256], uint8_t src[256], const ap_uint<256> s
 ////////////////////////////////////////////////////////////////////////////
 //
 //
-static void v2_xor_processor(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride) {
+void v2_xor_processor(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<2>(dst, src, stride);
 }
 //
 //
-static void v4_xor_processor(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride) {
+void v4_xor_processor(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<4>(dst, src, stride);
 }
 //
 //
-static void v8_xor_processor(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride) {
+void v8_xor_processor(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<8>(dst, src, stride);
 }
 //
 //
-static void v16_xor_processor(uint8_t dst[16], uint8_t src[16], const ap_uint<16> stride) {
+void v16_xor_processor(uint8_t dst[16], uint8_t src[16], const ap_uint<16> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<16>(dst, src, stride);
 }
 //
 //
-static void v32_xor_processor(uint8_t dst[32], uint8_t src[32], const ap_uint<32> stride) {
+void v32_xor_processor(uint8_t dst[32], uint8_t src[32], const ap_uint<32> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<32>(dst, src, stride);
 }
 //
 //
-static void v64_xor_processor(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride) {
+void v64_xor_processor(uint8_t dst[64], uint8_t src[64], const ap_uint<64> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<64>(dst, src, stride);
 }
 //
 //
-static void v128_xor_processor(uint8_t dst[128], uint8_t src[128], const ap_uint<128> stride) {
+void v128_xor_processor(uint8_t dst[128], uint8_t src[128], const ap_uint<128> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<128>(dst, src, stride);
 }
 //
 //
-static void v256_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride) {
+static void v256_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride)
+{
+#pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src complete
+#pragma HLS ARRAY_PARTITION variable=dst complete
+#pragma HLS interface mode=ap_none
     xor_processor<256>(dst, src, stride);
 }
 //
