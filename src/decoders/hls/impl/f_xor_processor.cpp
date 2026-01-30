@@ -1067,7 +1067,7 @@ void v128_xor_processor(uint8_t dst[128], uint8_t src[128], const ap_uint<128> s
 }
 //
 //
-static void v256_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride)
+void v256_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> stride)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
