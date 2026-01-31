@@ -51,7 +51,7 @@ void middle_node_pruned_rep_after_f(
 		for (int j = 0; j < gf_size; j++)
 			temp[j] *= inputs[i].value[j];
 		LZC_normalize<gf_size, NBITS>(temp);
-		rep_function_zero_removal<gf_size>(temp);
+		// rep_function_zero_removal<gf_size>(temp);
 	}
 
 	const int value = f_argmax<gf_size>(temp);
@@ -85,7 +85,7 @@ void middle_node_pruned_rep_after_g(
 		for (int j = 0; j < gf_size; j++)
 			temp[j] *= inputs[i].value[j];
 		LZC_normalize<gf_size, NBITS>(temp);
-		rep_function_zero_removal<gf_size>(temp);
+		// rep_function_zero_removal<gf_size>(temp);
 	}
 
 	const int value = f_argmax<gf_size>(temp);
