@@ -7,7 +7,7 @@
 #include <cmath>
 #include <cstdint>
 
-#define NBITS 14 // SHOULD BE LESS than(or equal?) 15!!!!!!!!!
+#define NBITS 11 // SHOULD BE LESS than(or equal?) 15!!!!!!!!!
 //
 //
 // For generic NB polar decoders
@@ -210,11 +210,25 @@ struct symbols_i32
 template <int gf_size>
 inline symbols_i32<gf_size> convert_to_symbols_i32(const symbols_s<gf_size> symb)
 {
-	symbols_i32<gf_size> result;
+	symbols_s<gf_size> normalized = symb;
 
+	// float max_val = symb.value[0];
+	// for (int i = 1; i < gf_size; i++)
+	// {
+	// 	if (symb.value[i] > max_val)
+	// 		max_val = symb.value[i];
+	// }
+
+	// float inv_max = 1.0f / max_val;
+	// for (int i = 0; i < gf_size; i++)
+	// {
+	// 	normalized.value[i] *= inv_max;
+	// }
+
+	symbols_i32<gf_size> result;
 	for (int i = 0; i < gf_size; i++)
 	{
-		result.value[i] = static_cast<int32_t>(0.5 + symb.value[i] * (1u << 31));
+		result.value[i] = static_cast<int32_t>(0.5 + normalized.value[i] * (1u << 31));
 	}
 	LZC_normalize<gf_size, NBITS>(result.value);
 	result.is_freq = false;

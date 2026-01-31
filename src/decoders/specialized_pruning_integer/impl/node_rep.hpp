@@ -11,6 +11,18 @@
 //
 //
 //
+
+template <int gf_size>
+void rep_function_zero_removal(int32_t *s1)
+{
+	for (int i = 0; i < gf_size; i++)
+	{
+		if (s1[i] <= 0)
+		{
+			s1[i] = 1;
+		}
+	}
+}
 template <int gf_size>
 void middle_node_pruned_rep_after_f(
 	symbols_i32<gf_size> *__restrict inputs, // Inputs are the symbols from the channel (from the right)
@@ -39,6 +51,7 @@ void middle_node_pruned_rep_after_f(
 		for (int j = 0; j < gf_size; j++)
 			temp[j] *= inputs[i].value[j];
 		LZC_normalize<gf_size, NBITS>(temp);
+		rep_function_zero_removal<gf_size>(temp);
 	}
 
 	const int value = f_argmax<gf_size>(temp);
@@ -72,6 +85,7 @@ void middle_node_pruned_rep_after_g(
 		for (int j = 0; j < gf_size; j++)
 			temp[j] *= inputs[i].value[j];
 		LZC_normalize<gf_size, NBITS>(temp);
+		rep_function_zero_removal<gf_size>(temp);
 	}
 
 	const int value = f_argmax<gf_size>(temp);

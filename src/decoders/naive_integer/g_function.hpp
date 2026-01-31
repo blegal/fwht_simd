@@ -45,18 +45,6 @@ void g_function(
 		src_b->is_freq = false;
 	}
 
-	for (int i = 0; i < gf_size; i++)
-	{
-		if (src_a->value[i] <= 0)
-		{
-			src_a->value[i] = 1;
-		}
-		if (src_b->value[i] <= 0)
-		{
-			src_b->value[i] = 1;
-		}
-	}
-
 	int32_t temp_dst[gf_size];
 	for (int i = 0; i < gf_size; i++)
 	{
@@ -72,5 +60,9 @@ void g_function(
 	for (int i = 0; i < gf_size; i++)
 	{
 		dst->value[i] = temp_dst[i];
+		if (dst->value[i] <= 0)
+		{
+			dst->value[i] = 1;
+		}
 	}
 }

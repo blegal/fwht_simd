@@ -50,7 +50,7 @@ void decoder_specialized_pruning_integer<gf_size>::middle_node_pruned_rate_1_aft
 {
 	for (int i = 0; i < size; i++)
 	{
-		const int value = argmax<gf_size>(inputs[i].value);
+		const int value = f_argmax<gf_size>(inputs[i].value);
 		symbols[symbol_id + i] = value;
 		decoded[symbol_id + i] = value;
 	}

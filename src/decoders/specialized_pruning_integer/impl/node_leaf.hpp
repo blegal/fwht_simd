@@ -34,7 +34,7 @@ inline __attribute__((always_inline)) void leaf_node_after_f(
 	fwht_call_counter += 1;
 #endif
 
-	const int max_index = argmax<gf_size>(var->value);
+	const int max_index = f_argmax<gf_size>(var->value);
 
 	decoded[symbol_id] = max_index;
 	symbols[symbol_id] = max_index;
@@ -60,7 +60,7 @@ inline __attribute__((always_inline)) void leaf_node_after_g(
 		return;
 	}
 
-	const int max_index = argmax<gf_size>(var->value);
+	const int max_index = f_argmax<gf_size>(var->value);
 	decoded[symbol_id] = max_index;
 	symbols[symbol_id] = max_index;
 }

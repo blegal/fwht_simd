@@ -102,7 +102,7 @@ void decoder_specialized_pruning_integer<gf_size>::middle_node_pruned_spc_after_
 	uint16_t arg_1[512];
 	for (int i = 0; i < size; i++)
 	{
-		int value = argmax<gf_size>(inputs[i].value);
+		int value = f_argmax<gf_size>(inputs[i].value);
 		check_node ^= value;
 		symbols[i + symbol_id] = value;
 		decoded[i + symbol_id] = value; // should be corrected (it is systematic solution actually)
