@@ -45,24 +45,24 @@ void g_function(
 		src_b->is_freq = false;
 	}
 
-	int32_t temp_dst[gf_size];
 	for (int i = 0; i < gf_size; i++)
 	{
-		temp_dst[i] = 0;
+		if (src_a->value[i] <= 0)
+		{
+			src_a->value[i] = 1;
+		}
+		if (src_b->value[i] <= 0)
+		{
+			src_b->value[i] = 1;
+		}
 	}
+
 	for (size_t i = 0; i < gf_size; i++)
 	{
 		const int idx = src_c ^ i;
-		temp_dst[idx] = (src_a->value[i]) * (src_b->value[idx]);
+		dst->value[idx] = (src_a->value[i]) * (src_b->value[idx]);
 	}
+	LZC_normalize<gf_size, NBITS>(dst->value);
+
 	dst->is_freq = false;
-	LZC_normalize<gf_size, NBITS>(temp_dst);
-	for (int i = 0; i < gf_size; i++)
-	{
-		dst->value[i] = temp_dst[i];
-		if (dst->value[i] <= 0)
-		{
-			dst->value[i] = 1;
-		}
-	}
 }
