@@ -7,7 +7,7 @@
 #include <cmath>
 #include <cstdint>
 
-#define NBITS 11 // SHOULD BE LESS than(or equal?) 15!!!!!!!!!
+#define NBITS 10 // SHOULD BE LESS than(or equal?) 15!!!!!!!!!
 //
 //
 // For generic NB polar decoders

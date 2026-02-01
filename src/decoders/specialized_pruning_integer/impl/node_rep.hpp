@@ -37,6 +37,7 @@ void middle_node_pruned_rep_after_f(
 	{
 		I32_FWHT<gf_size>(inputs[i].value);
 		LZC_normalize<gf_size, NBITS>(inputs[i].value);
+		rep_function_zero_removal<gf_size>(inputs[i].value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif

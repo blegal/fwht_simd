@@ -11,50 +11,26 @@ void g_function(
 {
 	if (src_a->is_freq == true)
 	{
-
-		int32_t temp[gf_size];
+		I32_FWHT<gf_size>(src_a->value);
+		LZC_normalize<gf_size, NBITS>(src_a->value);
 		for (int i = 0; i < gf_size; i++)
-		{
-			temp[i] = src_a->value[i];
-		}
 
-		I32_FWHT<gf_size>(temp);
-		LZC_normalize<gf_size, NBITS>(temp);
-		for (int i = 0; i < gf_size; i++)
-		{
-			src_a->value[i] = temp[i];
-		}
+			if (src_a->value[i] <= 0)
+				src_a->value[i] = 1;
+
 		src_a->is_freq = false;
 	}
 
 	if (src_b->is_freq == true)
 	{
 
-		int32_t temp[gf_size];
+		I32_FWHT<gf_size>(src_b->value);
+		LZC_normalize<gf_size, NBITS>(src_b->value);
 		for (int i = 0; i < gf_size; i++)
-		{
-			temp[i] = src_b->value[i];
-		}
 
-		I32_FWHT<gf_size>(temp);
-		LZC_normalize<gf_size, NBITS>(temp);
-		for (int i = 0; i < gf_size; i++)
-		{
-			src_b->value[i] = temp[i];
-		}
+			if (src_b->value[i] <= 0)
+				src_b->value[i] = 1;
 		src_b->is_freq = false;
-	}
-
-	for (int i = 0; i < gf_size; i++)
-	{
-		if (src_a->value[i] <= 0)
-		{
-			src_a->value[i] = 1;
-		}
-		if (src_b->value[i] <= 0)
-		{
-			src_b->value[i] = 1;
-		}
 	}
 
 	for (size_t i = 0; i < gf_size; i++)
