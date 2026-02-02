@@ -10,8 +10,11 @@
 #include <cstdint>
 //
 //
-//#include "ap_fixed.h"
-#include "include/ap_fixed.h"
+#ifdef _SYNTHESIS_
+    #include "ap_fixed.h"
+#else
+    #include "include/ap_fixed.h"
+#endif
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
