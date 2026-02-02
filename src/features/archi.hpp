@@ -34,21 +34,22 @@
 #define FUNCTION_SUFFIX _avx2
 #define FUNCTION_SUFFIX1
 #elif defined(__AVX2__)
-#define FUNCTION_SUFFIX  _avx2
+#define FUNCTION_SUFFIX _avx2
 #define FUNCTION_SUFFIX1 _avx2
 #else
 #define FUNCTION_SUFFIX
 #define FUNCTION_SUFFIX1
 #endif
 
-#define PASTER(x, y)    x##y
+#define PASTER(x, y) x##y
 #define EVALUATOR(x, y) PASTER(x, y)
 
-#define FWHT     EVALUATOR(fwht, FUNCTION_SUFFIX)
+#define FWHT EVALUATOR(fwht, FUNCTION_SUFFIX)
 #define I64_FWHT EVALUATOR(i64_fwht, FUNCTION_SUFFIX1)
 #define I32_FWHT EVALUATOR(i32_fwht, FUNCTION_SUFFIX1)
 
+#include "ap_fixed_tools.hpp"
 #include "argmax/argmax.hpp"
-
+#include "features/argmax/f_argmax.hpp"
 #include "normalize/normalize.hpp"
 #include "normalize/scale_by_inverse_avx2.hpp"
