@@ -1,5 +1,6 @@
 #include "impl/f_datapath.hpp"
 #include "impl/f_decision.hpp"
+#include "impl/f_xor_processor.hpp"
 //
 //
 //
@@ -30,11 +31,13 @@ void the_decoder_v2(
 #pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM
 
 
-
-  uint8_t  symbols [N];
+  uint8_t  symbols  [N];
+  uint8_t  symbols_r[N];
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=symbols
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=symbols_r
 
-  uint8_t decoded_r[N];
+  uint8_t xor_proc_i[64];
+  uint8_t xor_proc_o[64];
 
   t_i_memo lwht_in_a, lwht_in_b;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value
@@ -69,77 +72,49 @@ void the_decoder_v2(
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
 
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  //loop_f0_2 : for (s = 0; s < 64; s += 1) {
-//#pragma HLS PIPELINE
-    //symbols  [cnt_u] = 0;
-    //decoded  [cnt_u] = 0;
-    //decoded_r[cnt_u] = 0;
-    //cnt_u += 1; 
-  //}
-
   // g_function_freq_in_after_rate_0
   cnt_c = 128; cnt_a = 0; cnt_b = 64;
   loop_g0_3 : for (s = 0; s < 64; s += 1) {
 #pragma HLS PIPELINE
     symbols  [cnt_u] = 0;
-    decoded  [cnt_u] = 0;
-    decoded_r[cnt_u] = 0;
-    cnt_u += 1; 
-    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 0];
-    lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 0];
-    lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 64];
+    decoded  [cnt_rw] = 0;
+    cnt_u  += 1; 
+    cnt_rw += 1;
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
-    internal_l[cnt_c] /*internal_l[s + 128]*/ = memo_in_a;
-    internal_r[cnt_c] /*internal_r[s + 128]*/ = memo_in_a;
-    cnt_c += 1; cnt_a += 1; cnt_b += 1;
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1;
+    cnt_a += 1;
+    cnt_b += 1;
   }
-
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  //loop_f0_4 : for (s = 0; s < 32; s += 1) {
-//#pragma HLS PIPELINE
-    //symbols  [cnt_u] = 0;
-    //decoded  [cnt_u] = 0;
-    //decoded_r[cnt_u] = 0;
-    //cnt_u += 1; 
-  //}
 
   // g_function_proba_in_after_rate_0
   cnt_c = 192; cnt_a = 128; cnt_b = 160;
   loop_g0_5 : for (s = 0; s < 32; s += 1) {
 #pragma HLS PIPELINE
-    symbols  [cnt_u] = 0;
-    decoded  [cnt_u] = 0;
-    decoded_r[cnt_u] = 0;
-    cnt_u += 1; 
+    symbols  [cnt_u ] = 0;
+    decoded  [cnt_rw] = 0;
+    cnt_u  += 1; 
+    cnt_rw += 1;
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 128];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 160];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
-    internal_l[cnt_c] /*internal_l[s + 192]*/ = memo_in_a;
-    internal_r[cnt_c] /*internal_r[s + 192]*/ = memo_in_a;
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
-
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  //loop_f0_6 : for (s = 0; s < 16; s += 1) {
-//#pragma HLS PIPELINE
-    //symbols  [cnt_u] = 0;
-    //decoded  [cnt_u] = 0;
-    //decoded_r[cnt_u] = 0;
-    //cnt_u += 1; 
-  //}
 
   // g_function_proba_in_after_rate_0
   cnt_c = 224; cnt_a = 192; cnt_b = 208;
   loop_g0_7 : for (s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
-    symbols  [cnt_u] = 0;
-    decoded  [cnt_u] = 0;
-    decoded_r[cnt_u] = 0;
-    cnt_u += 1; 
+    symbols  [cnt_u ] = 0;
+    decoded  [cnt_rw] = 0;
+    cnt_u  += 1; 
+    cnt_rw += 1;
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 192];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 208];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
@@ -148,24 +123,14 @@ void the_decoder_v2(
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
 
-  // f_function_freq_in<64>(....); NO F COMPUTATIONS AS WE HAVE A RATE 0 NODE AFTER !
-  // middle_node_pruned_rate_0
-  //loop_f0_8 : for (s = 0; s < 8; s += 1) {
-//#pragma HLS PIPELINE
-    //symbols  [cnt_u] = 0;
-    //decoded  [cnt_u] = 0;
-    //decoded_r[cnt_u] = 0;
-    //cnt_u += 1; 
-  //}
-
   // g_function_proba_in_after_rate_0
   cnt_c = 240; cnt_a = 224; cnt_b = 232;
   loop_g0_9 : for (s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
-    symbols  [cnt_u] = 0;
-    decoded  [cnt_u] = 0;
-    decoded_r[cnt_u] = 0;
-    cnt_u += 1; 
+    symbols  [cnt_u ] = 0;
+    decoded  [cnt_rw] = 0;
+    cnt_u  += 1; 
+    cnt_rw += 1;
     lwht_in_a   = internal_l[cnt_a]; // internal_l[s + 224];
     lwht_in_b   = internal_r[cnt_b]; // internal_r[s + 232];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
@@ -174,54 +139,75 @@ void the_decoder_v2(
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
 
+#define new_version
+
   // middle_node_pruned_rate_1_after_g
   cnt_a = 240;
 	loop_g_10 : for (s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
     	symbol_v = vec_decision( internal_l[cnt_a/*s + 240*/], false );
-    	symbols  [cnt_u] = symbol_v;
+  	  symbols  [cnt_rw] = symbol_v;
+      cnt_a  += 1;
+      cnt_rw += 1;
+#ifndef new_version
       decoded  [cnt_u] = symbol_v;
       decoded_r[cnt_u] = symbol_v;
-      cnt_a += 1;
-      cnt_u += 1;
+      cnt_u  += 1;
+#else
+      xor_proc_i[s] = symbol_v;
+#endif
   }
+#ifndef new_version
   local_remove_xors<8>(decoded, decoded_r, cnt_u - 8);
+#else
+  xor_processor<64>(xor_proc_o, xor_proc_i, 0x07);
+#endif
 
-  cnt_rw = 112; cnt_rd = 120;
+  cnt_rw = 112;
+  cnt_rd = 120;
   loop_xor_11 : for(i = 0; i < 8; i += 1){
 #pragma HLS PIPELINE
-    // symbols[112 + i] ^= symbols[120 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
+#ifdef new_version
+    decoded  [cnt_u] = xor_proc_o[i];
+    cnt_u  += 1;
+#endif
   }
 
-  cnt_rw = 96; cnt_rd = 112;
+  cnt_rw = 96;
+  cnt_rd = 112;
   loop_xor_12 : for(i = 0; i < 16; i += 1){
 #pragma HLS PIPELINE
-    // symbols[96 + i] ^= symbols[112 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
   }
 
-  cnt_rw = 64; cnt_rd = 96;
+  cnt_rw = 64;
+  cnt_rd = 96;
   loop_xor_13 : for(i = 0; i < 32; i += 1){
 #pragma HLS PIPELINE
-    // symbols[64 + i] ^= symbols[96 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
   }
 
-  cnt_rw = 0; cnt_rd = 64;
+  cnt_rw = 0;
+  cnt_rd = 64;
   loop_xor_14 : for(i = 0; i < 64; i += 1){
 #pragma HLS PIPELINE
-    // symbols[0 + i] ^= symbols[64 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
   }
+
+  cnt_rw = cnt_u; /* synchro */
 
   // g_function_proba_in
   cnt_c = 0; cnt_a = 0; cnt_b = 128; cnt_rd = 0;
@@ -314,10 +300,10 @@ void the_decoder_v2(
   internal_r[254] = memo_in_a;
   symbol_v = vec_decision( internal_l[254], false );
   loop_rep_22 : for (s = 0; s < 4; s += 1) {
-    symbols  [cnt_u] = symbol_v;
+    symbols  [cnt_rw] = symbol_v;
     decoded  [cnt_u] = (s == 3) ?  symbol_v : (ap_uint<log2_gf_size>)0;
-    decoded_r[cnt_u] = (s == 3) ?  symbol_v : (ap_uint<log2_gf_size>)0;
-    cnt_u += 1;
+    cnt_u  += 1;
+    cnt_rw += 1;
   }
   ////////////////////////////////////////////////////////////////
 
@@ -339,27 +325,31 @@ void the_decoder_v2(
 #pragma HLS PIPELINE
       symbol_v = vec_decision( internal_l[cnt_a], false );
       symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols  [cnt_u] = symbol_v ;
-      decoded  [cnt_u] = symbol_v;
-      decoded_r[cnt_u] = symbol_v;
-      cnt_a += 1;
-      cnt_u += 1;
+      symbols  [cnt_rw] = symbol_v ;
+      xor_proc_i[s] = symbol_v;
+      cnt_a  += 1;
+      cnt_rw += 1;
   }
   // SPC processing !!!
   //if ( symbol_x != 0 ) {
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors<4>(decoded, decoded_r, cnt_u - 4);
+  //local_remove_xors<4>(decoded, decoded_r, cnt_u - 4);
+  xor_processor<64>(xor_proc_o, xor_proc_i, 0x03);
 
   cnt_rw = 128; cnt_rd = 132;
   loop_xor_25 : for(i = 0; i < 4; i += 1){
 #pragma HLS PIPELINE
-    // symbols[128 + i] ^= symbols[132 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
+    decoded  [cnt_u] = xor_proc_o[i];
+    cnt_u  += 1;
   }
+
+  cnt_rw = cnt_u; /* synchro */
 
   // g_function_freq_in
   cnt_c = 240; cnt_a = 224; cnt_b = 232; cnt_rd = 128;
@@ -379,27 +369,32 @@ void the_decoder_v2(
 #pragma HLS PIPELINE
       symbol_v = vec_decision( internal_l[cnt_a], false );
       symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols  [cnt_u] = symbol_v ;
-      decoded  [cnt_u] = symbol_v;
-      decoded_r[cnt_u] = symbol_v;
-      cnt_a += 1;
-      cnt_u += 1;
+      symbols  [cnt_rw] = symbol_v ;
+      cnt_a  += 1;
+      cnt_rw += 1;
+      xor_proc_i[s]      = symbol_v;
   }
   // SPC processing !!!
   //if ( symbol_x != 0 ) {
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors<8>(decoded, decoded_r, cnt_u - 8);
+  //local_remove_xors<8>(decoded, decoded_r, cnt_u - 8);
+  xor_processor<64>(xor_proc_o, xor_proc_i, 0x07);
 
   cnt_rw = 128; cnt_rd = 136;
   loop_xor_28 : for(i = 0; i < 8; i += 1){
 #pragma HLS PIPELINE
-    // symbols[128 + i] ^= symbols[136 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
+
+    decoded  [cnt_u]  = xor_proc_o[i];
+    cnt_u  += 1;
   }
+
+  cnt_rw = cnt_u; /* synchro */
 
   // g_function_freq_in
   cnt_c = 224; cnt_a = 192; cnt_b = 208; cnt_rd = 128;
@@ -419,27 +414,34 @@ void the_decoder_v2(
 #pragma HLS PIPELINE
       symbol_v = vec_decision( internal_l[cnt_a], false );
       symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols  [cnt_u] = symbol_v ;
-      decoded  [cnt_u] = symbol_v;
-      decoded_r[cnt_u] = symbol_v;
-      cnt_a += 1;
-      cnt_u += 1;
+      symbols  [cnt_rw] = symbol_v ;
+      cnt_a  += 1;
+      cnt_rw += 1;
+//      decoded  [cnt_u]  = symbol_v;
+//      decoded_r[cnt_u]  = symbol_v;
+//      cnt_u  += 1;
+      xor_proc_i[s]      = symbol_v;
   }
   // SPC processing !!!
   //if ( symbol_x != 0 ) {
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors<16>(decoded, decoded_r, cnt_u - 16);
+  //local_remove_xors<16>(decoded, decoded_r, cnt_u - 16);
+  xor_processor<64>(xor_proc_o, xor_proc_i, 0x0F);
 
   cnt_rw = 128; cnt_rd = 144;
   loop_xor_31 : for(i = 0; i < 16; i += 1){
 #pragma HLS PIPELINE
-    // symbols[128 + i] ^= symbols[144 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
+    decoded  [cnt_u]  = xor_proc_o[i];
+    cnt_u  += 1;
   }
+
+  cnt_rw = cnt_u; /* synchro */
 
   // g_function_freq_in
   cnt_c = 192; cnt_a = 128; cnt_b = 160; cnt_rd = 128;
@@ -459,27 +461,35 @@ void the_decoder_v2(
 #pragma HLS PIPELINE
       symbol_v = vec_decision( internal_l[cnt_a], false );
       symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols  [cnt_u] = symbol_v ;
-      decoded  [cnt_u] = symbol_v;
-      decoded_r[cnt_u] = symbol_v;
-      cnt_a += 1;
-      cnt_u += 1;
+      symbols  [cnt_rw] = symbol_v ;
+      cnt_a  += 1;
+      cnt_rw += 1;
+      //decoded  [cnt_u]  = symbol_v;
+      //decoded_r[cnt_u]  = symbol_v;
+      //cnt_u  += 1;
+      xor_proc_i[s]      = symbol_v;
   }
   // SPC processing !!!
   //if ( symbol_x != 0 ) {
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors<32>(decoded, decoded_r, cnt_u - 32);
+  //local_remove_xors<32>(decoded, decoded_r, cnt_u - 32);
+  xor_processor<64>(xor_proc_o, xor_proc_i, 0x1F);
 
   cnt_rw = 128; cnt_rd = 160;
   loop_xor_34 : for(i = 0; i < 32; i += 1){
 #pragma HLS PIPELINE
-    // symbols[128 + i] ^= symbols[160 + i];
+#pragma HLS UNROLL factor=4
     symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
     cnt_rd += 1;
     cnt_rw += 1;
+
+    decoded  [cnt_u]  = xor_proc_o[i];
+    cnt_u  += 1;
   }
+
+  cnt_rw = cnt_u; /* synchro */
 
   // g_function_proba_in
   cnt_c = 128; cnt_a = 0; cnt_b = 64; cnt_rd = 128;
@@ -499,26 +509,25 @@ void the_decoder_v2(
 #pragma HLS PIPELINE
       symbol_v = vec_decision( internal_l[cnt_a], false );
       symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols  [cnt_u] = symbol_v ;
-      decoded  [cnt_u] = symbol_v;
-      decoded_r[cnt_u] = symbol_v;
-      cnt_a += 1;
-      cnt_u += 1;
+      symbols  [cnt_rw] = symbol_v ;
+      cnt_a  += 1;
+      cnt_rw += 1;
+
+//      decoded  [cnt_u]  = symbol_v;
+//      decoded_r[cnt_u]  = symbol_v;
+//      cnt_u  += 1;
+      xor_proc_i[s] = symbol_v;
   }
   // SPC processing !!!
   //if ( symbol_x != 0 ) {
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  local_remove_xors<64>(decoded, decoded_r, cnt_u - 64);
+  xor_processor<64>(xor_proc_o, xor_proc_i, 0x3F);
 
-  cnt_rw = 128; cnt_rd = 192;
-  loop_xor_37 : for(i = 0; i < 64; i += 1){
-#pragma HLS PIPELINE
-    // symbols[128 + i] ^= symbols[192 + i];
-    symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];
-    cnt_rd += 1;
-    cnt_rw += 1;
+  loop_spc_37 : for (i = 0; i < 64; i += 1) {
+    decoded  [cnt_u]  = xor_proc_o[i];
+    cnt_u  += 1;
   }
 
 }
