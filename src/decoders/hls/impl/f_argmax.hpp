@@ -15,6 +15,7 @@
 //
 //
 extern uint8_t vec_i_unroll_argmax(const t_i_memo inp);
+extern tuple   vec_i_argmax       (const t_i_memo inp);
 //
 //
 //

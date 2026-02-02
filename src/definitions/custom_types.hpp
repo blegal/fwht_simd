@@ -1,7 +1,7 @@
 #pragma once
 //
 //
-#include "../../decoders/naive_integer/ap_fixed_tools.hpp"
+#include "decoders/naive_integer/ap_fixed_tools.hpp"
 #include "definitions/code.hpp"
 #include "features/archi.hpp"
 #include <cmath>

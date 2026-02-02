@@ -15,7 +15,7 @@
 //
 //
 template<int length> inline
-void xor_processor(uint8_t dst[length], uint8_t src[length], const ap_uint<length> stride);;
+void xor_processor(uint8_t dst[length], uint8_t src[length], const ap_uint<length> stride);
 //
 //
 //
