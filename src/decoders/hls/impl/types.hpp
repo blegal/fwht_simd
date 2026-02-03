@@ -172,6 +172,9 @@ inline void local_remove_xors(uint8_t * values, int size, const int offset = 0) 
 //
 template<int N> inline void local_remove_xors(uint8_t * dst, uint8_t * src, const uint16_t offset)
 {
+    if( dst == nullptr ) exit( EXIT_FAILURE );
+    if( src == nullptr ) exit( EXIT_FAILURE );
+    if( offset > 64    ) exit( EXIT_FAILURE );
     exit( EXIT_FAILURE );
 }
 //

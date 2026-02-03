@@ -26,7 +26,7 @@ t_i_memo datapath(
 	const bool en_lwth)
 {
 #pragma HLS INLINE off
-#pragma HLS PIPELINE style=frp
+#pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value
 
@@ -77,7 +77,7 @@ void full_datapath(
     )
 {
 #pragma HLS INLINE off
-#pragma HLS PIPELINE style=frp
+#pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value
 
