@@ -114,10 +114,10 @@ int main(int argc, char * argv[])
     }
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    const std::string filen = "../src/decoders/dedicated/dedicated_execute.hpp";
     dec_generator pruned_tree(N, _GF_);
     pruned_tree.verbose = verbose;
-    pruned_tree.analyze(frozen_symbols, N);
+    pruned_tree.analyze(filen, frozen_symbols, N);
 
     delete[] frozen_symbols;
 

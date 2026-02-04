@@ -50,7 +50,7 @@ public:
 
     std::vector<next_node> next_node_status;
 
-    void analyze(const int * frozen, const int size) {
+    void analyze_hls(const std::string filen, const int * frozen, const int size) {
         if (verbose == true) {
             printf("\nFrozen matrix:\n");
             for (int i = 0; i < size; i += 1) {
@@ -68,7 +68,57 @@ public:
             K_value += (frozen[i] == false);
         }
 
-        ofile.open("../src/decoders/dedicated/dedicated_execute.hpp");
+        ofile.open(filen.c_str());
+
+        ofile << "#pragma once" << std::endl;
+        ofile << std::endl;
+        ofile << "#include \"impl/vec_mult.hpp\""   << std::endl;
+        ofile << "#include \"impl/vec_argmax.hpp\"" << std::endl;
+        ofile << "#include \"impl/vec_norm.hpp\""   << std::endl;
+        ofile << "#include \"impl/fwht.hpp\""       << std::endl;
+        ofile << std::endl;
+        ofile << "template <int gf_size>" << std::endl;
+        ofile << "void decoder_dedicated<gf_size>::execute(void* s_channel, uint16_t * decoded)" << std::endl;
+        ofile << "{" << std::endl;
+        ofile << "        symbols_s<gf_size>* channel = static_cast< symbols_s<gf_size>* >(s_channel);" << std::endl;
+
+        const int n_elmnt = execute(frozen, 0, next_node_status.data(), 0, size);
+        next_node_status.resize(n_elmnt);
+
+        ofile << "}" << std::endl;
+        ofile << std::endl;
+        ofile << "template <int gf_size>" << std::endl;
+        ofile << "const int decoder_dedicated<gf_size>::N_gen = " << size << ";" << std::endl;
+        ofile << std::endl;
+        ofile << "template <int gf_size>" << std::endl;
+        ofile << "const int decoder_dedicated<gf_size>::K_gen = " << K_value << ";" << std::endl;
+        ofile << std::endl;
+        ofile.close();
+        if (verbose == true) {
+            printf("-> #elements : %d\n", n_elmnt);
+            printf("-> #elements : %zu\n", next_node_status.size());
+        }
+    }
+
+    void analyze(const std::string filen, const int * frozen, const int size) {
+        if (verbose == true) {
+            printf("\nFrozen matrix:\n");
+            for (int i = 0; i < size; i += 1) {
+                if ((i % 8) == 0)
+                    printf(" | ");
+                if ((i % 32) == 0)
+                    printf("\n | ");
+                printf("%2d ", frozen[i]);
+            }
+            printf(" |\n");
+        }
+
+        int K_value = 0;
+        for (int i = 0; i < size; i += 1) {
+            K_value += (frozen[i] == false);
+        }
+
+        ofile.open(filen.c_str());
 
         ofile << "#pragma once" << std::endl;
         ofile << std::endl;
@@ -136,8 +186,8 @@ private:
         for (int i = 0; i < n; i++)
             sum_l += frozen[curr_frozen + i];
 
-        const bool is_rate0_after_f = en_rate_0 && (sum_l == n);
-        const bool is_rate1_after_f = en_rate_1 && (sum_l == 0);
+        const bool is_rate0_after_f = en_rate_0   && (sum_l == n);
+        const bool is_rate1_after_f = en_rate_1   && (sum_l == 0);
         const bool is_rep_after_f   = en_rate_rep && (sum_l == (n - 1)) && (frozen[curr_frozen + n - 1] == false);
         const bool is_spc_after_f   = en_rate_spc && (sum_l == 1) && (frozen[0] == true);
 
