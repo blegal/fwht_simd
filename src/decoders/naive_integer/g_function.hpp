@@ -12,7 +12,7 @@ void g_function(
 	if (src_a->is_freq == true)
 	{
 		I32_FWHT<gf_size>(src_a->value);
-		LZC_normalize<gf_size, NBITS>(src_a->value);
+		LZC_normalize<gf_size, I_type::NBITS>(src_a->value);
 		for (int i = 0; i < gf_size; i++)
 
 			if (src_a->value[i] <= 0)
@@ -25,7 +25,7 @@ void g_function(
 	{
 
 		I32_FWHT<gf_size>(src_b->value);
-		LZC_normalize<gf_size, NBITS>(src_b->value);
+		LZC_normalize<gf_size, I_type::NBITS>(src_b->value);
 		for (int i = 0; i < gf_size; i++)
 
 			if (src_b->value[i] <= 0)
@@ -38,7 +38,7 @@ void g_function(
 		const int idx = src_c ^ i;
 		dst->value[idx] = (src_a->value[i]) * (src_b->value[idx]);
 	}
-	LZC_normalize<gf_size, NBITS>(dst->value);
+	LZC_normalize<gf_size, I_type::NBITS>(dst->value);
 
 	dst->is_freq = false;
 }

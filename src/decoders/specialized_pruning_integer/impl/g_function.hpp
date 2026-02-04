@@ -32,9 +32,9 @@ void g_function_freq_in(
 			dst[s].value[i] = src_a[s].value[i] * H[i];
 		I32_FWHT<gf_size>(dst[s].value);
 		I32_FWHT<gf_size>(src_b[s].value);
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 		g_function_zero_removal<gf_size>(dst[s].value);
-		LZC_normalize<gf_size, NBITS>(src_b[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(src_b[s].value);
 		g_function_zero_removal<gf_size>(src_b[s].value);
 
 #if FWHT_COUNTER_ENABLE
@@ -42,7 +42,7 @@ void g_function_freq_in(
 #endif
 		for (size_t i = 0; i < gf_size; i++)
 			dst[s].value[i] = dst[s].value[i] * src_b[s].value[i];
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 	}
 }
 //
@@ -67,7 +67,7 @@ void g_function_proba_in(
 			const int idx = src_c[s] ^ i;
 			dst[s].value[idx] = src_a[s].value[i] * src_b[s].value[idx];
 		}
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 	}
 }
 //
@@ -86,8 +86,8 @@ void g_function_freq_in_after_rate_0(
 	{
 		I32_FWHT<gf_size>(src_a[s].value);
 		I32_FWHT<gf_size>(src_b[s].value);
-		LZC_normalize<gf_size, NBITS>(src_a[s].value);
-		LZC_normalize<gf_size, NBITS>(src_b[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(src_a[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(src_b[s].value);
 		g_function_zero_removal<gf_size>(src_a[s].value);
 		g_function_zero_removal<gf_size>(src_b[s].value);
 #if FWHT_COUNTER_ENABLE
@@ -99,7 +99,7 @@ void g_function_freq_in_after_rate_0(
 			const int32_t val = src_a[s].value[i] * src_b[s].value[/*idx*/ i];
 			dst[s].value[i] = val;
 		}
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 	}
 }
 //
@@ -120,7 +120,7 @@ void g_function_proba_in_after_rate_0(
 		{
 			dst[s].value[i] = src_a[s].value[i] * src_b[s].value[i];
 		}
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 		g_function_zero_removal<gf_size>((dst[s].value));
 	}
 }

@@ -16,7 +16,7 @@ void f_function(symbols_i32<gf_size> *__restrict dst, symbols_i32<gf_size> *__re
 			temp[i] = src_a->value[i];
 		}
 		I32_FWHT<gf_size>(temp);
-		LZC_normalize<gf_size, NBITS>(temp);
+		LZC_normalize<gf_size, I_type::NBITS>(temp);
 		for (size_t i = 0; i < gf_size; i++)
 		{
 			src_a->value[i] = temp[i];
@@ -31,7 +31,7 @@ void f_function(symbols_i32<gf_size> *__restrict dst, symbols_i32<gf_size> *__re
 			temp[i] = src_b->value[i];
 		}
 		I32_FWHT<gf_size>(temp);
-		LZC_normalize<gf_size, NBITS>(temp);
+		LZC_normalize<gf_size, I_type::NBITS>(temp);
 		for (size_t i = 0; i < gf_size; i++)
 		{
 			src_b->value[i] = temp[i];
@@ -47,7 +47,7 @@ void f_function(symbols_i32<gf_size> *__restrict dst, symbols_i32<gf_size> *__re
 		temp_dst[i] = (src_a->value[i]) * (src_b->value[i]);
 	}
 	dst->is_freq = true;
-	LZC_normalize<gf_size, NBITS>(temp_dst);
+	LZC_normalize<gf_size, I_type::NBITS>(temp_dst);
 	for (size_t i = 0; i < gf_size; i++)
 	{
 		dst->value[i] = temp_dst[i];

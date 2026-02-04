@@ -31,26 +31,28 @@
 //
 //
 
-
 template <uint16_t galois_size>
-inline void i64_fwht(int64_t x[]) {
-    assert(x != 0);
-    assert(true);
-    exit(x != NULL); // pour gerer le release mode
-}
-
-template <uint16_t galois_size>
-inline void i64_fwht(int64_t * dst, const int64_t * src) {
-    assert(src != nullptr);
-    assert(dst != nullptr);
-    assert(true);
-    exit((src != nullptr) && (dst != nullptr)); // pour gerer le release mode
+inline void i64_fwht(int64_t x[])
+{
+	assert(x != 0);
+	assert(true);
+	exit(x != NULL); // pour gerer le release mode
 }
 
 template <uint16_t galois_size>
-inline void normalize(int64_t x[], const int64_t fact) {
-    for (int i = 0; i < galois_size; i++)
-        x[i] = x[i] * fact;
+inline void i64_fwht(int64_t *dst, const int64_t *src)
+{
+	assert(src != nullptr);
+	assert(dst != nullptr);
+	assert(true);
+	exit((src != nullptr) && (dst != nullptr)); // pour gerer le release mode
+}
+
+template <uint16_t galois_size>
+inline void normalize(int64_t x[], const int64_t fact)
+{
+	for (int i = 0; i < galois_size; i++)
+		x[i] = x[i] * fact;
 }
 
 //
@@ -58,35 +60,36 @@ inline void normalize(int64_t x[], const int64_t fact) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-// inline void fwht_tuile(const ap_fixed<NBITS+_logGF_, 1+_logGF_>  inp[8], ap_fixed<NBITS+_logGF_, 1+_logGF_>  outp[8]) {
-inline void fwht_tuile(const int64_t * inp, int64_t * outp) {
-    int64_t L1[8], L2[8];
-    L1[0] = inp[0] + inp[4];
-    L1[1] = inp[1] + inp[5];
-    L1[2] = inp[2] + inp[6];
-    L1[3] = inp[3] + inp[7];
-    L1[4] = inp[0] - inp[4];
-    L1[5] = inp[1] - inp[5];
-    L1[6] = inp[2] - inp[6];
-    L1[7] = inp[3] - inp[7];
+// inline void fwht_tuile(const ap_fixed<I_type::NBITS+_logGF_, 1+_logGF_>  inp[8], ap_fixed<I_type::NBITS+_logGF_, 1+_logGF_>  outp[8]) {
+inline void fwht_tuile(const int64_t *inp, int64_t *outp)
+{
+	int64_t L1[8], L2[8];
+	L1[0] = inp[0] + inp[4];
+	L1[1] = inp[1] + inp[5];
+	L1[2] = inp[2] + inp[6];
+	L1[3] = inp[3] + inp[7];
+	L1[4] = inp[0] - inp[4];
+	L1[5] = inp[1] - inp[5];
+	L1[6] = inp[2] - inp[6];
+	L1[7] = inp[3] - inp[7];
 
-    L2[0] = L1[0] + L1[2];
-    L2[2] = L1[0] - L1[2];
-    L2[1] = L1[1] + L1[3];
-    L2[3] = L1[1] - L1[3];
-    L2[4] = L1[4] + L1[6];
-    L2[6] = L1[4] - L1[6];
-    L2[5] = L1[5] + L1[7];
-    L2[7] = L1[5] - L1[7];
+	L2[0] = L1[0] + L1[2];
+	L2[2] = L1[0] - L1[2];
+	L2[1] = L1[1] + L1[3];
+	L2[3] = L1[1] - L1[3];
+	L2[4] = L1[4] + L1[6];
+	L2[6] = L1[4] - L1[6];
+	L2[5] = L1[5] + L1[7];
+	L2[7] = L1[5] - L1[7];
 
-    outp[0] = L2[0] + L2[1];
-    outp[1] = L2[0] - L2[1];
-    outp[2] = L2[2] + L2[3];
-    outp[3] = L2[2] - L2[3];
-    outp[4] = L2[4] + L2[5];
-    outp[5] = L2[4] - L2[5];
-    outp[6] = L2[6] + L2[7];
-    outp[7] = L2[6] - L2[7];
+	outp[0] = L2[0] + L2[1];
+	outp[1] = L2[0] - L2[1];
+	outp[2] = L2[2] + L2[3];
+	outp[3] = L2[2] - L2[3];
+	outp[4] = L2[4] + L2[5];
+	outp[5] = L2[4] - L2[5];
+	outp[6] = L2[6] + L2[7];
+	outp[7] = L2[6] - L2[7];
 }
 //
 //
@@ -94,55 +97,29 @@ inline void fwht_tuile(const int64_t * inp, int64_t * outp) {
 //
 //
 template <>
-inline void i64_fwht<8>(int64_t * inp) {
-    int64_t part_1[8];
-    for (int i = 0; i < 4; i++) {
-        part_1[i]     = inp[i] + inp[i + 4];
-        part_1[4 + i] = inp[i] - inp[i + 4];
-    }
-    fwht_tuile(part_1, inp);
+inline void i64_fwht<8>(int64_t *inp)
+{
+	int64_t part_1[8];
+	for (int i = 0; i < 4; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 4];
+		part_1[4 + i] = inp[i] - inp[i + 4];
+	}
+	fwht_tuile(part_1, inp);
 }
 //
 //
 //
 template <>
-inline void i64_fwht<8>(int64_t * dst, const int64_t * src) {
-    // ap_fixed<NBITS+_logGF_, 1+_logGF_>  part_1[8];
-    for (int i = 0; i < 4; i++) {
-        dst[i]     = src[i] + src[i + 4];
-        dst[4 + i] = src[i] - src[i + 4];
-    }
-    fwht_tuile(dst, dst);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void i64_fwht<16>(int64_t * inp) {
-    int64_t part_1[8];
-    int64_t part_2[8];
-
-    for (int i = 0; i < 8; i++)
-        part_1[i] = inp[i] + inp[i + 8];
-    for (int i = 0; i < 8; i++)
-        part_2[i] = inp[i] - inp[i + 8];
-
-    fwht_tuile(part_1, inp + 0);
-    fwht_tuile(part_2, inp + 8);
-}
-//
-//
-//
-template <>
-inline void i64_fwht<16>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 8; i++) {
-        dst[i]     = src[i] + src[i + 8];
-        dst[8 + i] = src[i] - src[i + 8];
-    }
-    fwht_tuile(dst, dst + 0);
-    fwht_tuile(dst + 8, dst + 8);
+inline void i64_fwht<8>(int64_t *dst, const int64_t *src)
+{
+	// ap_fixed<I_type::NBITS+_logGF_, 1+_logGF_>  part_1[8];
+	for (int i = 0; i < 4; i++)
+	{
+		dst[i] = src[i] + src[i + 4];
+		dst[4 + i] = src[i] - src[i + 4];
+	}
+	fwht_tuile(dst, dst);
 }
 //
 //
@@ -150,69 +127,32 @@ inline void i64_fwht<16>(int64_t * dst, const int64_t * src) {
 //
 //
 template <>
-inline void i64_fwht<32>(int64_t * inp) {
-    int64_t part_1[16];
-    int64_t part_2[16];
+inline void i64_fwht<16>(int64_t *inp)
+{
+	int64_t part_1[8];
+	int64_t part_2[8];
 
-    for (int i = 0; i < 16; i++) {
-        part_1[i] = inp[i] + inp[i + 16];
-        part_2[i] = inp[i] - inp[i + 16];
-    }
+	for (int i = 0; i < 8; i++)
+		part_1[i] = inp[i] + inp[i + 8];
+	for (int i = 0; i < 8; i++)
+		part_2[i] = inp[i] - inp[i + 8];
 
-    i64_fwht<16>(part_1);
-    i64_fwht<16>(part_2);
-
-    for (int i = 0; i < 16; i++) {
-        inp[i]      = part_1[i];
-        inp[16 + i] = part_2[i];
-    }
+	fwht_tuile(part_1, inp + 0);
+	fwht_tuile(part_2, inp + 8);
 }
 //
 //
 //
 template <>
-inline void i64_fwht<32>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 16; i++) {
-        dst[i]      = src[i] + src[i + 16];
-        dst[16 + i] = src[i] - src[i + 16];
-    }
-    i64_fwht<16>(dst, dst);
-    i64_fwht<16>(dst + 16, dst + 16);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void i64_fwht<64>(int64_t * inp) {
-    int64_t part_1[32];
-    int64_t part_2[32];
-
-    for (int i = 0; i < 32; i++) {
-        part_1[i] = inp[i] + inp[i + 32];
-        part_2[i] = inp[i] - inp[i + 32];
-    }
-
-    i64_fwht<32>(part_1);
-    i64_fwht<32>(part_2);
-
-    for (int i = 0; i < 32; i++) {
-        inp[i]      = part_1[i];
-        inp[32 + i] = part_2[i];
-    }
-}
-//
-//
-//
-template <>
-inline void i64_fwht<64>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 32; i++) {
-        dst[i]      = src[i] + src[i + 32];
-        dst[32 + i] = src[i] - src[i + 32];
-    }
-    i64_fwht<32>(dst, dst);
-    i64_fwht<32>(dst + 32, dst + 32);
+inline void i64_fwht<16>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 8; i++)
+	{
+		dst[i] = src[i] + src[i + 8];
+		dst[8 + i] = src[i] - src[i + 8];
+	}
+	fwht_tuile(dst, dst + 0);
+	fwht_tuile(dst + 8, dst + 8);
 }
 //
 //
@@ -220,108 +160,39 @@ inline void i64_fwht<64>(int64_t * dst, const int64_t * src) {
 //
 //
 template <>
-inline void i64_fwht<128>(int64_t * inp) {
-    int64_t part_1[64], part_2[64];
+inline void i64_fwht<32>(int64_t *inp)
+{
+	int64_t part_1[16];
+	int64_t part_2[16];
 
-    for (int i = 0; i < 64; i++) {
-        part_1[i] = inp[i] + inp[i + 64];
-        part_2[i] = inp[i] - inp[i + 64];
-    }
+	for (int i = 0; i < 16; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 16];
+		part_2[i] = inp[i] - inp[i + 16];
+	}
 
-    i64_fwht<64>(part_1);
-    i64_fwht<64>(part_2);
+	i64_fwht<16>(part_1);
+	i64_fwht<16>(part_2);
 
-    for (int i = 0; i < 64; i++) {
-        inp[i + 0]  = part_1[i];
-        inp[i + 64] = part_2[i];
-    }
+	for (int i = 0; i < 16; i++)
+	{
+		inp[i] = part_1[i];
+		inp[16 + i] = part_2[i];
+	}
 }
 //
 //
 //
 template <>
-inline void i64_fwht<128>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 64; i++) {
-        dst[i]      = src[i] + src[i + 64];
-        dst[64 + i] = src[i] - src[i + 64];
-    }
-    i64_fwht<64>(dst, dst);
-    i64_fwht<64>(dst + 64, dst + 64);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void i64_fwht<256>(int64_t * inp) {
-    int64_t part_1[128];
-    int64_t part_2[128];
-
-    for (int i = 0; i < 128; i++) {
-        part_1[i] = inp[i] + inp[i + 128];
-        part_2[i] = inp[i] - inp[i + 128];
-    }
-
-    i64_fwht<128>(part_1);
-    i64_fwht<128>(part_2);
-
-    for (int i = 0; i < 128; i++) {
-        inp[i + 0]   = part_1[i];
-        inp[i + 128] = part_2[i];
-    }
-}
-//
-//
-//
-template <>
-inline void i64_fwht<256>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 128; i++) {
-        dst[i]       = src[i] + src[i + 128];
-        dst[128 + i] = src[i] - src[i + 128];
-    }
-    i64_fwht<128>(dst, dst);
-    i64_fwht<128>(dst + 128, dst + 128);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void i64_fwht<512>(int64_t * inp) {
-    int64_t part_1[256];
-    int64_t part_2[256];
-
-    for (int i = 0; i < 256; i++) {
-        part_1[i] = inp[i] + inp[i + 256];
-        part_2[i] = inp[i] - inp[i + 256];
-    }
-
-    i64_fwht<256>(part_1);
-    i64_fwht<256>(part_2);
-
-    for (int i = 0; i < 256; i++) {
-        inp[i + 0]   = part_1[i];
-        inp[i + 256] = part_2[i];
-    }
-}
-//
-//
-//
-template <>
-inline void i64_fwht<512>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 256; i++) {
-        dst[i]       = src[i] + src[i + 256];
-        dst[256 + i] = src[i] - src[i + 256];
-    }
-    i64_fwht<256>(dst, dst);
-    i64_fwht<256>(dst + 256, dst + 256);
+inline void i64_fwht<32>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 16; i++)
+	{
+		dst[i] = src[i] + src[i + 16];
+		dst[16 + i] = src[i] - src[i + 16];
+	}
+	i64_fwht<16>(dst, dst);
+	i64_fwht<16>(dst + 16, dst + 16);
 }
 //
 //
@@ -329,32 +200,201 @@ inline void i64_fwht<512>(int64_t * dst, const int64_t * src) {
 //
 //
 template <>
-inline void i64_fwht<1024>(int64_t * inp) {
-    int64_t part_1[512];
-    int64_t part_2[512];
+inline void i64_fwht<64>(int64_t *inp)
+{
+	int64_t part_1[32];
+	int64_t part_2[32];
 
-    for (int i = 0; i < 512; i++) {
-        part_1[i] = inp[i] + inp[i + 512];
-        part_2[i] = inp[i] - inp[i + 512];
-    }
+	for (int i = 0; i < 32; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 32];
+		part_2[i] = inp[i] - inp[i + 32];
+	}
 
-    i64_fwht<512>(part_1);
-    i64_fwht<512>(part_2);
+	i64_fwht<32>(part_1);
+	i64_fwht<32>(part_2);
 
-    for (int i = 0; i < 512; i++) {
-        inp[i + 0]   = part_1[i];
-        inp[i + 512] = part_2[i];
-    }
+	for (int i = 0; i < 32; i++)
+	{
+		inp[i] = part_1[i];
+		inp[32 + i] = part_2[i];
+	}
 }
 //
 //
 //
 template <>
-inline void i64_fwht<1024>(int64_t * dst, const int64_t * src) {
-    for (int i = 0; i < 256; i++) {
-        dst[i]       = src[i] + src[i + 256];
-        dst[256 + i] = src[i] - src[i + 256];
-    }
-    i64_fwht<256>(dst, dst);
-    i64_fwht<256>(dst + 256, dst + 256);
+inline void i64_fwht<64>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 32; i++)
+	{
+		dst[i] = src[i] + src[i + 32];
+		dst[32 + i] = src[i] - src[i + 32];
+	}
+	i64_fwht<32>(dst, dst);
+	i64_fwht<32>(dst + 32, dst + 32);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void i64_fwht<128>(int64_t *inp)
+{
+	int64_t part_1[64], part_2[64];
+
+	for (int i = 0; i < 64; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 64];
+		part_2[i] = inp[i] - inp[i + 64];
+	}
+
+	i64_fwht<64>(part_1);
+	i64_fwht<64>(part_2);
+
+	for (int i = 0; i < 64; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 64] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void i64_fwht<128>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 64; i++)
+	{
+		dst[i] = src[i] + src[i + 64];
+		dst[64 + i] = src[i] - src[i + 64];
+	}
+	i64_fwht<64>(dst, dst);
+	i64_fwht<64>(dst + 64, dst + 64);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void i64_fwht<256>(int64_t *inp)
+{
+	int64_t part_1[128];
+	int64_t part_2[128];
+
+	for (int i = 0; i < 128; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 128];
+		part_2[i] = inp[i] - inp[i + 128];
+	}
+
+	i64_fwht<128>(part_1);
+	i64_fwht<128>(part_2);
+
+	for (int i = 0; i < 128; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 128] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void i64_fwht<256>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 128; i++)
+	{
+		dst[i] = src[i] + src[i + 128];
+		dst[128 + i] = src[i] - src[i + 128];
+	}
+	i64_fwht<128>(dst, dst);
+	i64_fwht<128>(dst + 128, dst + 128);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void i64_fwht<512>(int64_t *inp)
+{
+	int64_t part_1[256];
+	int64_t part_2[256];
+
+	for (int i = 0; i < 256; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 256];
+		part_2[i] = inp[i] - inp[i + 256];
+	}
+
+	i64_fwht<256>(part_1);
+	i64_fwht<256>(part_2);
+
+	for (int i = 0; i < 256; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 256] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void i64_fwht<512>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 256; i++)
+	{
+		dst[i] = src[i] + src[i + 256];
+		dst[256 + i] = src[i] - src[i + 256];
+	}
+	i64_fwht<256>(dst, dst);
+	i64_fwht<256>(dst + 256, dst + 256);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void i64_fwht<1024>(int64_t *inp)
+{
+	int64_t part_1[512];
+	int64_t part_2[512];
+
+	for (int i = 0; i < 512; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 512];
+		part_2[i] = inp[i] - inp[i + 512];
+	}
+
+	i64_fwht<512>(part_1);
+	i64_fwht<512>(part_2);
+
+	for (int i = 0; i < 512; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 512] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void i64_fwht<1024>(int64_t *dst, const int64_t *src)
+{
+	for (int i = 0; i < 256; i++)
+	{
+		dst[i] = src[i] + src[i + 256];
+		dst[256 + i] = src[i] - src[i + 256];
+	}
+	i64_fwht<256>(dst, dst);
+	i64_fwht<256>(dst + 256, dst + 256);
 }

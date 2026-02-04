@@ -16,7 +16,7 @@ void f_function_freq_in(
 	{
 		for (int i = 0; i < gf_size; i++)
 			dst[s].value[i] = src_a[s].value[i] * src_b[s].value[i];
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 	}
 }
 //
@@ -37,7 +37,7 @@ void f_function_proba_in(
 		for (int i = 0; i < gf_size; i++)
 			tmp_a.value[i] = src_a[s].value[i];
 		I32_FWHT<gf_size>(tmp_a.value);
-		LZC_normalize<gf_size, NBITS>(tmp_a.value);
+		LZC_normalize<gf_size, I_type::NBITS>(tmp_a.value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif
@@ -46,7 +46,7 @@ void f_function_proba_in(
 		for (int i = 0; i < gf_size; i++)
 			tmp_b.value[i] = src_b[s].value[i];
 		I32_FWHT<gf_size>(tmp_b.value);
-		LZC_normalize<gf_size, NBITS>(tmp_b.value);
+		LZC_normalize<gf_size, I_type::NBITS>(tmp_b.value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif
@@ -58,7 +58,7 @@ void f_function_proba_in(
 		{
 			dst[s].value[i] = tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
 		}
-		LZC_normalize<gf_size, NBITS>(dst[s].value);
+		LZC_normalize<gf_size, I_type::NBITS>(dst[s].value);
 	}
 }
 //

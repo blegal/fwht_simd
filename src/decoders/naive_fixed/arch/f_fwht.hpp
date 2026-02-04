@@ -31,24 +31,27 @@
 //
 //
 template <uint16_t galois_size>
-inline void fwht_fixed(ap_fixed<NBITS, NINTG> x[]) {
-    assert(x != 0);
-    assert(true);
-    exit(x != NULL); // pour gerer le release mode
+inline void fwht_fixed(ap_fixed<f_fype::NBITS, f_fype::NINTG> x[])
+{
+	assert(x != 0);
+	assert(true);
+	exit(x != NULL); // pour gerer le release mode
 }
 
 template <uint16_t galois_size>
-inline void fwht_fixed(ap_fixed<NBITS, NINTG> * dst, const ap_fixed<NBITS, NINTG> * src) {
-    assert(src != nullptr);
-    assert(dst != nullptr);
-    assert(true);
-    exit( (src != nullptr) && (dst != nullptr)); // pour gerer le release mode
+inline void fwht_fixed(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	assert(src != nullptr);
+	assert(dst != nullptr);
+	assert(true);
+	exit((src != nullptr) && (dst != nullptr)); // pour gerer le release mode
 }
 
 template <uint16_t galois_size>
-inline void normalize(ap_fixed<NBITS, NINTG> x[], const ap_fixed<NBITS, NINTG> fact) {
-    for (int i = 0; i < galois_size; i++)
-        x[i] = x[i] * fact;
+inline void normalize(ap_fixed<f_fype::NBITS, f_fype::NINTG> x[], const ap_fixed<f_fype::NBITS, f_fype::NINTG> fact)
+{
+	for (int i = 0; i < galois_size; i++)
+		x[i] = x[i] * fact;
 }
 
 //
@@ -56,35 +59,36 @@ inline void normalize(ap_fixed<NBITS, NINTG> x[], const ap_fixed<NBITS, NINTG> f
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-//inline void fwht_fixed_tuile(const ap_fixed<NBITS, NINTG> inp[8], ap_fixed<NBITS, NINTG> outp[8]) {
-inline void fwht_fixed_tuile(const ap_fixed<NBITS, NINTG>* inp, ap_fixed<NBITS, NINTG>* outp) {
-    ap_fixed<NBITS, NINTG> L1[8], L2[8];
-    L1[0] = inp[0] + inp[4];
-    L1[1] = inp[1] + inp[5];
-    L1[2] = inp[2] + inp[6];
-    L1[3] = inp[3] + inp[7];
-    L1[4] = inp[0] - inp[4];
-    L1[5] = inp[1] - inp[5];
-    L1[6] = inp[2] - inp[6];
-    L1[7] = inp[3] - inp[7];
+// inline void fwht_fixed_tuile(const ap_fixed<f_fype::NBITS, f_fype::NINTG> inp[8], ap_fixed<f_fype::NBITS, f_fype::NINTG> outp[8]) {
+inline void fwht_fixed_tuile(const ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp, ap_fixed<f_fype::NBITS, f_fype::NINTG> *outp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> L1[8], L2[8];
+	L1[0] = inp[0] + inp[4];
+	L1[1] = inp[1] + inp[5];
+	L1[2] = inp[2] + inp[6];
+	L1[3] = inp[3] + inp[7];
+	L1[4] = inp[0] - inp[4];
+	L1[5] = inp[1] - inp[5];
+	L1[6] = inp[2] - inp[6];
+	L1[7] = inp[3] - inp[7];
 
-    L2[0] = L1[0] + L1[2];
-    L2[2] = L1[0] - L1[2];
-    L2[1] = L1[1] + L1[3];
-    L2[3] = L1[1] - L1[3];
-    L2[4] = L1[4] + L1[6];
-    L2[6] = L1[4] - L1[6];
-    L2[5] = L1[5] + L1[7];
-    L2[7] = L1[5] - L1[7];
+	L2[0] = L1[0] + L1[2];
+	L2[2] = L1[0] - L1[2];
+	L2[1] = L1[1] + L1[3];
+	L2[3] = L1[1] - L1[3];
+	L2[4] = L1[4] + L1[6];
+	L2[6] = L1[4] - L1[6];
+	L2[5] = L1[5] + L1[7];
+	L2[7] = L1[5] - L1[7];
 
-    outp[0] = L2[0] + L2[1];
-    outp[1] = L2[0] - L2[1];
-    outp[2] = L2[2] + L2[3];
-    outp[3] = L2[2] - L2[3];
-    outp[4] = L2[4] + L2[5];
-    outp[5] = L2[4] - L2[5];
-    outp[6] = L2[6] + L2[7];
-    outp[7] = L2[6] - L2[7];
+	outp[0] = L2[0] + L2[1];
+	outp[1] = L2[0] - L2[1];
+	outp[2] = L2[2] + L2[3];
+	outp[3] = L2[2] - L2[3];
+	outp[4] = L2[4] + L2[5];
+	outp[5] = L2[4] - L2[5];
+	outp[6] = L2[6] + L2[7];
+	outp[7] = L2[6] - L2[7];
 }
 //
 //
@@ -92,55 +96,29 @@ inline void fwht_fixed_tuile(const ap_fixed<NBITS, NINTG>* inp, ap_fixed<NBITS, 
 //
 //
 template <>
-inline void fwht_fixed<8>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[8];
-    for (int i = 0; i < 4; i++) {
-        part_1[i]     = inp[i] + inp[i + 4];
-        part_1[4 + i] = inp[i] - inp[i + 4];
-    }
-    fwht_fixed_tuile(part_1, inp);
+inline void fwht_fixed<8>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[8];
+	for (int i = 0; i < 4; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 4];
+		part_1[4 + i] = inp[i] - inp[i + 4];
+	}
+	fwht_fixed_tuile(part_1, inp);
 }
 //
 //
 //
 template <>
-inline void fwht_fixed<8>(ap_fixed<NBITS, NINTG> * dst, const ap_fixed<NBITS, NINTG> * src) {
-    // ap_fixed<NBITS, NINTG> part_1[8];
-    for (int i = 0; i < 4; i++) {
-        dst[i]     = src[i] + src[i + 4];
-        dst[4 + i] = src[i] - src[i + 4];
-    }
-    fwht_fixed_tuile(dst, dst);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_fixed<16>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[8];
-    ap_fixed<NBITS, NINTG> part_2[8];
-
-    for (int i = 0; i < 8; i++)
-        part_1[i] = inp[i] + inp[i + 8];
-    for (int i = 0; i < 8; i++)
-        part_2[i] = inp[i] - inp[i + 8];
-
-    fwht_fixed_tuile(part_1, inp + 0);
-    fwht_fixed_tuile(part_2, inp + 8);
-}
-//
-//
-//
-template <>
-inline void fwht_fixed<16>(ap_fixed<NBITS, NINTG> * dst, const ap_fixed<NBITS, NINTG> * src) {
-    for (int i = 0; i < 8; i++) {
-        dst[i]     = src[i] + src[i + 8];
-        dst[8 + i] = src[i] - src[i + 8];
-    }
-    fwht_fixed_tuile(dst, dst + 0);
-    fwht_fixed_tuile(dst + 8, dst + 8);
+inline void fwht_fixed<8>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	// ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[8];
+	for (int i = 0; i < 4; i++)
+	{
+		dst[i] = src[i] + src[i + 4];
+		dst[4 + i] = src[i] - src[i + 4];
+	}
+	fwht_fixed_tuile(dst, dst);
 }
 //
 //
@@ -148,69 +126,32 @@ inline void fwht_fixed<16>(ap_fixed<NBITS, NINTG> * dst, const ap_fixed<NBITS, N
 //
 //
 template <>
-inline void fwht_fixed<32>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[16];
-    ap_fixed<NBITS, NINTG> part_2[16];
+inline void fwht_fixed<16>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[8];
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_2[8];
 
-    for (int i = 0; i < 16; i++) {
-        part_1[i] = inp[i] + inp[i + 16];
-        part_2[i] = inp[i] - inp[i + 16];
-    }
+	for (int i = 0; i < 8; i++)
+		part_1[i] = inp[i] + inp[i + 8];
+	for (int i = 0; i < 8; i++)
+		part_2[i] = inp[i] - inp[i + 8];
 
-    fwht_fixed<16>(part_1);
-    fwht_fixed<16>(part_2);
-
-    for (int i = 0; i < 16; i++) {
-        inp[i]      = part_1[i];
-        inp[16 + i] = part_2[i];
-    }
+	fwht_fixed_tuile(part_1, inp + 0);
+	fwht_fixed_tuile(part_2, inp + 8);
 }
 //
 //
 //
 template <>
-inline void fwht_fixed<32>(ap_fixed<NBITS, NINTG> * dst, const ap_fixed<NBITS, NINTG> * src) {
-    for (int i = 0; i < 16; i++) {
-        dst[i]      = src[i] + src[i + 16];
-        dst[16 + i] = src[i] - src[i + 16];
-    }
-    fwht_fixed<16>(dst, dst);
-    fwht_fixed<16>(dst + 16, dst + 16);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_fixed<64>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[32];
-    ap_fixed<NBITS, NINTG> part_2[32];
-
-    for (int i = 0; i < 32; i++) {
-        part_1[i] = inp[i] + inp[i + 32];
-        part_2[i] = inp[i] - inp[i + 32];
-    }
-
-    fwht_fixed<32>(part_1);
-    fwht_fixed<32>(part_2);
-
-    for (int i = 0; i < 32; i++) {
-        inp[i]      = part_1[i];
-        inp[32 + i] = part_2[i];
-    }
-}
-//
-//
-//
-template <>
-inline void fwht_fixed<64>(ap_fixed<NBITS, NINTG>* dst, const ap_fixed<NBITS, NINTG>* src) {
-    for (int i = 0; i < 32; i++) {
-        dst[i]      = src[i] + src[i + 32];
-        dst[32 + i] = src[i] - src[i + 32];
-    }
-    fwht_fixed<32>(dst, dst);
-    fwht_fixed<32>(dst + 32, dst + 32);
+inline void fwht_fixed<16>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 8; i++)
+	{
+		dst[i] = src[i] + src[i + 8];
+		dst[8 + i] = src[i] - src[i + 8];
+	}
+	fwht_fixed_tuile(dst, dst + 0);
+	fwht_fixed_tuile(dst + 8, dst + 8);
 }
 //
 //
@@ -218,108 +159,39 @@ inline void fwht_fixed<64>(ap_fixed<NBITS, NINTG>* dst, const ap_fixed<NBITS, NI
 //
 //
 template <>
-inline void fwht_fixed<128>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[64], part_2[64];
+inline void fwht_fixed<32>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[16];
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_2[16];
 
-    for (int i = 0; i < 64; i++) {
-        part_1[i] = inp[i] + inp[i + 64];
-        part_2[i] = inp[i] - inp[i + 64];
-    }
+	for (int i = 0; i < 16; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 16];
+		part_2[i] = inp[i] - inp[i + 16];
+	}
 
-    fwht_fixed<64>(part_1);
-    fwht_fixed<64>(part_2);
+	fwht_fixed<16>(part_1);
+	fwht_fixed<16>(part_2);
 
-    for (int i = 0; i < 64; i++) {
-        inp[i + 0]  = part_1[i];
-        inp[i + 64] = part_2[i];
-    }
+	for (int i = 0; i < 16; i++)
+	{
+		inp[i] = part_1[i];
+		inp[16 + i] = part_2[i];
+	}
 }
 //
 //
 //
 template <>
-inline void fwht_fixed<128>(ap_fixed<NBITS, NINTG> * dst, const ap_fixed<NBITS, NINTG> * src) {
-    for (int i = 0; i < 64; i++) {
-        dst[i]      = src[i] + src[i + 64];
-        dst[64 + i] = src[i] - src[i + 64];
-    }
-    fwht_fixed<64>(dst, dst);
-    fwht_fixed<64>(dst + 64, dst + 64);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_fixed<256>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[128];
-    ap_fixed<NBITS, NINTG> part_2[128];
-
-    for (int i = 0; i < 128; i++) {
-        part_1[i] = inp[i] + inp[i + 128];
-        part_2[i] = inp[i] - inp[i + 128];
-    }
-
-    fwht_fixed<128>(part_1);
-    fwht_fixed<128>(part_2);
-
-    for (int i = 0; i < 128; i++) {
-        inp[i + 0]   = part_1[i];
-        inp[i + 128] = part_2[i];
-    }
-}
-//
-//
-//
-template <>
-inline void fwht_fixed<256>(ap_fixed<NBITS, NINTG>* dst, const ap_fixed<NBITS, NINTG>* src) {
-    for (int i = 0; i < 128; i++) {
-        dst[i]       = src[i] + src[i + 128];
-        dst[128 + i] = src[i] - src[i + 128];
-    }
-    fwht_fixed<128>(dst, dst);
-    fwht_fixed<128>(dst + 128, dst + 128);
-}
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
-template <>
-inline void fwht_fixed<512>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[256];
-    ap_fixed<NBITS, NINTG> part_2[256];
-
-    for (int i = 0; i < 256; i++) {
-        part_1[i] = inp[i] + inp[i + 256];
-        part_2[i] = inp[i] - inp[i + 256];
-    }
-
-    fwht_fixed<256>(part_1);
-    fwht_fixed<256>(part_2);
-
-    for (int i = 0; i < 256; i++) {
-        inp[i +   0] = part_1[i];
-        inp[i + 256] = part_2[i];
-    }
-}
-//
-//
-//
-template <>
-inline void fwht_fixed<512>(ap_fixed<NBITS, NINTG>* dst, const ap_fixed<NBITS, NINTG>* src) {
-    for (int i = 0; i < 256; i++) {
-        dst[i]       = src[i] + src[i + 256];
-        dst[256 + i] = src[i] - src[i + 256];
-    }
-    fwht_fixed<256>(dst, dst);
-    fwht_fixed<256>(dst + 256, dst + 256);
+inline void fwht_fixed<32>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 16; i++)
+	{
+		dst[i] = src[i] + src[i + 16];
+		dst[16 + i] = src[i] - src[i + 16];
+	}
+	fwht_fixed<16>(dst, dst);
+	fwht_fixed<16>(dst + 16, dst + 16);
 }
 //
 //
@@ -327,34 +199,203 @@ inline void fwht_fixed<512>(ap_fixed<NBITS, NINTG>* dst, const ap_fixed<NBITS, N
 //
 //
 template <>
-inline void fwht_fixed<1024>(ap_fixed<NBITS, NINTG>* inp) {
-    ap_fixed<NBITS, NINTG> part_1[512];
-    ap_fixed<NBITS, NINTG> part_2[512];
+inline void fwht_fixed<64>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[32];
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_2[32];
 
-    for (int i = 0; i < 512; i++) {
-        part_1[i] = inp[i] + inp[i + 512];
-        part_2[i] = inp[i] - inp[i + 512];
-    }
+	for (int i = 0; i < 32; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 32];
+		part_2[i] = inp[i] - inp[i + 32];
+	}
 
-    fwht_fixed<512>(part_1);
-    fwht_fixed<512>(part_2);
+	fwht_fixed<32>(part_1);
+	fwht_fixed<32>(part_2);
 
-    for (int i = 0; i < 512; i++) {
-        inp[i +   0]   = part_1[i];
-        inp[i + 512] = part_2[i];
-    }
+	for (int i = 0; i < 32; i++)
+	{
+		inp[i] = part_1[i];
+		inp[32 + i] = part_2[i];
+	}
 }
 //
 //
 //
 template <>
-inline void fwht_fixed<1024>(ap_fixed<NBITS, NINTG>* dst, const ap_fixed<NBITS, NINTG>* src) {
-    for (int i = 0; i < 256; i++) {
-        dst[i]       = src[i] + src[i + 256];
-        dst[256 + i] = src[i] - src[i + 256];
-    }
-    fwht_fixed<256>(dst, dst);
-    fwht_fixed<256>(dst + 256, dst + 256);
+inline void fwht_fixed<64>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 32; i++)
+	{
+		dst[i] = src[i] + src[i + 32];
+		dst[32 + i] = src[i] - src[i + 32];
+	}
+	fwht_fixed<32>(dst, dst);
+	fwht_fixed<32>(dst + 32, dst + 32);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht_fixed<128>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[64], part_2[64];
+
+	for (int i = 0; i < 64; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 64];
+		part_2[i] = inp[i] - inp[i + 64];
+	}
+
+	fwht_fixed<64>(part_1);
+	fwht_fixed<64>(part_2);
+
+	for (int i = 0; i < 64; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 64] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void fwht_fixed<128>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 64; i++)
+	{
+		dst[i] = src[i] + src[i + 64];
+		dst[64 + i] = src[i] - src[i + 64];
+	}
+	fwht_fixed<64>(dst, dst);
+	fwht_fixed<64>(dst + 64, dst + 64);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht_fixed<256>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[128];
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_2[128];
+
+	for (int i = 0; i < 128; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 128];
+		part_2[i] = inp[i] - inp[i + 128];
+	}
+
+	fwht_fixed<128>(part_1);
+	fwht_fixed<128>(part_2);
+
+	for (int i = 0; i < 128; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 128] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void fwht_fixed<256>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 128; i++)
+	{
+		dst[i] = src[i] + src[i + 128];
+		dst[128 + i] = src[i] - src[i + 128];
+	}
+	fwht_fixed<128>(dst, dst);
+	fwht_fixed<128>(dst + 128, dst + 128);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht_fixed<512>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[256];
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_2[256];
+
+	for (int i = 0; i < 256; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 256];
+		part_2[i] = inp[i] - inp[i + 256];
+	}
+
+	fwht_fixed<256>(part_1);
+	fwht_fixed<256>(part_2);
+
+	for (int i = 0; i < 256; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 256] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void fwht_fixed<512>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 256; i++)
+	{
+		dst[i] = src[i] + src[i + 256];
+		dst[256 + i] = src[i] - src[i + 256];
+	}
+	fwht_fixed<256>(dst, dst);
+	fwht_fixed<256>(dst + 256, dst + 256);
+}
+//
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+template <>
+inline void fwht_fixed<1024>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *inp)
+{
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_1[512];
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> part_2[512];
+
+	for (int i = 0; i < 512; i++)
+	{
+		part_1[i] = inp[i] + inp[i + 512];
+		part_2[i] = inp[i] - inp[i + 512];
+	}
+
+	fwht_fixed<512>(part_1);
+	fwht_fixed<512>(part_2);
+
+	for (int i = 0; i < 512; i++)
+	{
+		inp[i + 0] = part_1[i];
+		inp[i + 512] = part_2[i];
+	}
+}
+//
+//
+//
+template <>
+inline void fwht_fixed<1024>(ap_fixed<f_fype::NBITS, f_fype::NINTG> *dst, const ap_fixed<f_fype::NBITS, f_fype::NINTG> *src)
+{
+	for (int i = 0; i < 256; i++)
+	{
+		dst[i] = src[i] + src[i + 256];
+		dst[256 + i] = src[i] - src[i + 256];
+	}
+	fwht_fixed<256>(dst, dst);
+	fwht_fixed<256>(dst + 256, dst + 256);
 }
 //
 //
