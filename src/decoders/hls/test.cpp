@@ -222,14 +222,14 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
         //
         // On génere tous les vecteurs de test
         //
-        uint8_t array_i[i];
+        uint8_t* array_i = new uint8_t[i];
         for (int j = 0; j < i; j++) {
             array_i[j] = rand()%256;
         }
         //
         // On lance le test...
         //
-        uint8_t array_r[i];
+        uint8_t* array_r = new uint8_t[i];
         for (int j = 0; j < i; j++) {
             array_r[j] = array_i[j];
         }
@@ -237,15 +237,16 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
         //
         // On lance le test...
         //
-        uint8_t array_t[i];
-        if ( i ==   2 ) xor_processor< 2>(array_t, array_i, 0x01);
-        if ( i ==   4 ) xor_processor< 4>(array_t, array_i, 0x03);
-        if ( i ==   8 ) xor_processor< 8>(array_t, array_i, 0x07);
-        if ( i ==  16 ) xor_processor<16>(array_t, array_i, 0x0F);
-        if ( i ==  32 ) xor_processor<32>(array_t, array_i, 0x1F);
-        if ( i ==  64 ) xor_processor<64>(array_t, array_i, 0x3F);
-        if ( i == 128 ) xor_processor<128>(array_t, array_i, 0x7F);
-        if ( i == 256 ) xor_processor<256>(array_t, array_i, 0xFF);
+
+        uint8_t* array_t = new uint8_t[i];
+        if ( i ==   2 ) v2_xor_processor  (array_t, array_i, 0x01);
+        if ( i ==   4 ) v4_xor_processor  (array_t, array_i, 0x03);
+        if ( i ==   8 ) v8_xor_processor  (array_t, array_i, 0x07);
+        if ( i ==  16 ) v16_xor_processor (array_t, array_i, 0x0F);
+        if ( i ==  32 ) v32_xor_processor (array_t, array_i, 0x1F);
+        if ( i ==  64 ) v64_xor_processor (array_t, array_i, 0x3F);
+        if ( i == 128 ) v128_xor_processor(array_t, array_i, 0x7F);
+        if ( i == 256 ) v256_xor_processor(array_t, array_i, 0xFF);
         //
         // On verifie la validité du résultat
         //
@@ -253,6 +254,10 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
             REQUIRE( array_r[j] == array_t[j] );
         }
         //
+
+        delete[] array_i;
+        delete[] array_r;
+        delete[] array_t;
     }
 }
 //
