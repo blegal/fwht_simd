@@ -7,7 +7,7 @@
 #define t_N            256
 #define t_log2N        8
 //
-#define t_K            64
+#define t_K            128
 //
 #define t_GF           64
 #define t_log2GF       6
