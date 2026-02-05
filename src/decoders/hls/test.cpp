@@ -273,8 +273,32 @@ void the_decoder_v2(
 //
 TEST_CASE( "decoder", "[decoder]" ) {
 
-#if (t_N == 64) && (t_K == 32)
+#if (t_N == 64) && (t_K == 16)
+    #include "tests/N64_K16.hpp"
+#elif (t_N == 64) && (t_K == 21)
+    #include "tests/N64_K21.hpp"
+#elif (t_N == 64) && (t_K == 26)
+    #include "tests/N64_K26.hpp"
+#elif (t_N == 64) && (t_K == 32)
     #include "tests/N64_K32.hpp"
+#elif (t_N == 64) && (t_K == 48)
+    #include "tests/N64_K48.hpp"
+#elif (t_N == 64) && (t_K == 51)
+    #include "tests/N64_K51.hpp"
+
+#elif (t_N == 128) && (t_K == 32)
+    #include "tests/N128_K32.hpp"
+#elif (t_N == 128) && (t_K == 42)
+    #include "tests/N128_K42.hpp"
+#elif (t_N == 128) && (t_K == 51)
+    #include "tests/N128_K51.hpp"
+#elif (t_N == 128) && (t_K == 64)
+    #include "tests/N128_K64.hpp"
+#elif (t_N == 128) && (t_K == 96)
+    #include "tests/N128_K96.hpp"
+#elif (t_N == 128) && (t_K == 102)
+    #include "tests/N128_K102.hpp"
+
 #elif (t_N == 256) && (t_K == 64)
     #include "tests/N256_K64.hpp"
 #elif (t_N == 256) && (t_K == 84)
