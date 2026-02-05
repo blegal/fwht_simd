@@ -5,6 +5,7 @@
 //
 //
 #include "f_xor_processor.hpp"
+#include <cstdlib>
 //
 //
 ////////////////////////////////////////////////////////////////////////////
@@ -12,7 +13,9 @@
 //
 template<int length>
 void xor_processor(uint8_t dst[length], uint8_t src[length], const ap_uint<length> stride) {
-    
+    if( stride == 0 ) exit( EXIT_FAILURE );
+    if( src[0] == 0 ) exit( EXIT_FAILURE );
+    if( dst[0] == 0 ) exit( EXIT_FAILURE );    
 }
 //
 //
