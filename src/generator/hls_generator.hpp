@@ -32,7 +32,7 @@ private:
     const int     GF;
 
 public:
-    bool verbose = true;
+    bool verbose = false;
 
     bool en_rate_0   = true;
     bool en_rate_1   = true;
@@ -80,7 +80,44 @@ public:
         //
         //
         //
+        std::cout << "(II) Creating configuration file" << std::endl;
+        std::string nfilen = filen.substr(0,filen.find_last_of('.'))+".hpp";
+        std::cout << "(II) - Opening file (" << nfilen << ")" << std::endl;
+        ofile.open(nfilen.c_str());
+        if ( ofile.is_open() == false ) {
+            printf("\nError opening output file !\n");
+            exit( EXIT_FAILURE );
+        }
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//////////////////////////////////////////////////////////////////////" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define t_N            " << size << std::endl;
+        ofile << "#define t_log2N        " << (int)std::log2(size) << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define t_K            " << K_value << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define t_GF           " << GF << std::endl;
+        ofile << "#define t_log2GF       " << (int)std::log2(GF) << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define en_rate_0      " << en_rate_0   << std::endl;
+        ofile << "#define en_rate_1      " << en_rate_1   << std::endl;
+        ofile << "#define en_rate_spc    " << en_rate_spc << std::endl;
+        ofile << "#define en_rate_rep    " << en_rate_rep << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//////////////////////////////////////////////////////////////////////" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile.close();
+        std::cout << "(II) - Closing file (" << nfilen << ")" << std::endl;
+        //
+        //
 
+        std::cout << "(II) Creating decoder file" << std::endl;
+        std::cout << "(II) - Opening file (" << filen << ")" << std::endl;
         ofile.open(filen.c_str());
         if ( ofile.is_open() == false ) {
             printf("\nError opening output file !\n");
@@ -173,6 +210,7 @@ public:
             printf("-> #elements : %d\n", n_elmnt);
             printf("-> #elements : %zu\n", next_node_status.size());
         }
+        std::cout << "(II) - Closing file (" << filen << ")" << std::endl;
     }
 
 private:
@@ -706,10 +744,11 @@ private:
                     ofile << "  cnt_c = " << 0 << "; cnt_a = " <<  0    << "; cnt_b = " << n << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                     ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                    ofile << "    symbols  [cnt_u] = 0;" << std::endl;
-                    ofile << "    decoded  [cnt_u] = 0;" << std::endl;
-                    ofile << "    decoded_r[cnt_u] = 0;" << std::endl;
-                    ofile << "    cnt_u += 1; "        << std::endl;
+                    ofile << "    symbols_l[cnt_rw] = 0;" << std::endl;
+                    ofile << "    symbols_r[cnt_rw] = 0;" << std::endl;
+                    ofile << "    cnt_rw += 1;"           << std::endl;
+                    ofile << "    decoded  [cnt_u ] = 0;" << std::endl;
+                    ofile << "    cnt_u  += 1;"           << std::endl;
                     ofile << "    lwht_in_a   = channel[cnt_a];"   << std::endl;
                     ofile << "    lwht_in_b   = channel[cnt_b];"   << std::endl;
                     ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"   << std::endl;
@@ -848,7 +887,7 @@ private:
         //
         //
         //
-        int final_offset;
+        int final_offset = -1;
         if (is_rate0_after_g) {
             if (n == 1) {
                 indentation(level);
@@ -1099,10 +1138,10 @@ private:
             }
             ofile << "  }" << std::endl;
             ofile << std::endl;
-            if ( is_rate1_after_g || is_spc_after_g ) {
-                ofile << "  cnt_rw = cnt_u; /* synchro */" << std::endl;
-                ofile << std::endl;
-            }
+            //if ( is_rate1_after_g || is_spc_after_g ) {
+            ofile << "  cnt_rw = cnt_u; /* synchro */" << std::endl;
+            ofile << std::endl;
+            //}
         }
         return final_offset;
     }

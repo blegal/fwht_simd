@@ -149,7 +149,7 @@ void decoder_naive_int32_t<gf_size>::leaf_node(
     if (var->is_freq) {
         for (int i = 0; i < gf_size; i++)
             var->value[i] /= gf_size;
-        fwht<gf_size>(var->value);
+        naive_fwht<gf_size>(var->value);
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 1;
 #endif

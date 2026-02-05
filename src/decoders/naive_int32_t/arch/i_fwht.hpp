@@ -31,33 +31,34 @@
 //
 //
 template <uint16_t galois_size>
-inline void fwht(int32_t x[]) {
+inline void naive_fwht(int32_t x[]) {
     assert(x != 0);
     assert(true);
     exit(x != NULL); // pour gerer le release mode
 }
 
 template <uint16_t galois_size>
-inline void fwht(int32_t * dst, const int32_t * src) {
+inline void naive_fwht(int32_t * dst, const int32_t * src) {
     assert(src != nullptr);
     assert(dst != nullptr);
     assert(true);
     exit( (src != nullptr) && (dst != nullptr)); // pour gerer le release mode
 }
 
+/*
 template <uint16_t galois_size>
 inline void normalize(int32_t x[], const int32_t fact) {
     for (int i = 0; i < galois_size; i++)
         x[i] = x[i] * fact;
 }
-
+*/
 //
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-//inline void fwht_tuile(const int32_t inp[8], int32_t outp[8]) {
-inline void fwht_tuile(const int32_t* inp, int32_t* outp) {
+//inline void naive_fwht_tuile(const int32_t inp[8], int32_t outp[8]) {
+inline void naive_fwht_tuile(const int32_t* inp, int32_t* outp) {
     int32_t L1[8], L2[8];
     L1[0] = inp[0] + inp[4];
     L1[1] = inp[1] + inp[5];
@@ -92,25 +93,25 @@ inline void fwht_tuile(const int32_t* inp, int32_t* outp) {
 //
 //
 template <>
-inline void fwht<8>(int32_t* inp) {
+inline void naive_fwht<8>(int32_t* inp) {
     int32_t part_1[8];
     for (int i = 0; i < 4; i++) {
         part_1[i]     = inp[i] + inp[i + 4];
         part_1[4 + i] = inp[i] - inp[i + 4];
     }
-    fwht_tuile(part_1, inp);
+    naive_fwht_tuile(part_1, inp);
 }
 //
 //
 //
 template <>
-inline void fwht<8>(int32_t * dst, const int32_t * src) {
+inline void naive_fwht<8>(int32_t * dst, const int32_t * src) {
     // int32_t part_1[8];
     for (int i = 0; i < 4; i++) {
         dst[i]     = src[i] + src[i + 4];
         dst[4 + i] = src[i] - src[i + 4];
     }
-    fwht_tuile(dst, dst);
+    naive_fwht_tuile(dst, dst);
 }
 //
 //
@@ -118,7 +119,7 @@ inline void fwht<8>(int32_t * dst, const int32_t * src) {
 //
 //
 template <>
-inline void fwht<16>(int32_t* inp) {
+inline void naive_fwht<16>(int32_t* inp) {
     int32_t part_1[8];
     int32_t part_2[8];
 
@@ -127,20 +128,20 @@ inline void fwht<16>(int32_t* inp) {
     for (int i = 0; i < 8; i++)
         part_2[i] = inp[i] - inp[i + 8];
 
-    fwht_tuile(part_1, inp + 0);
-    fwht_tuile(part_2, inp + 8);
+    naive_fwht_tuile(part_1, inp + 0);
+    naive_fwht_tuile(part_2, inp + 8);
 }
 //
 //
 //
 template <>
-inline void fwht<16>(int32_t * dst, const int32_t * src) {
+inline void naive_fwht<16>(int32_t * dst, const int32_t * src) {
     for (int i = 0; i < 8; i++) {
         dst[i]     = src[i] + src[i + 8];
         dst[8 + i] = src[i] - src[i + 8];
     }
-    fwht_tuile(dst, dst + 0);
-    fwht_tuile(dst + 8, dst + 8);
+    naive_fwht_tuile(dst, dst + 0);
+    naive_fwht_tuile(dst + 8, dst + 8);
 }
 //
 //
@@ -148,7 +149,7 @@ inline void fwht<16>(int32_t * dst, const int32_t * src) {
 //
 //
 template <>
-inline void fwht<32>(int32_t* inp) {
+inline void naive_fwht<32>(int32_t* inp) {
     int32_t part_1[16];
     int32_t part_2[16];
 
@@ -157,8 +158,8 @@ inline void fwht<32>(int32_t* inp) {
         part_2[i] = inp[i] - inp[i + 16];
     }
 
-    fwht<16>(part_1);
-    fwht<16>(part_2);
+    naive_fwht<16>(part_1);
+    naive_fwht<16>(part_2);
 
     for (int i = 0; i < 16; i++) {
         inp[i]      = part_1[i];
@@ -169,13 +170,13 @@ inline void fwht<32>(int32_t* inp) {
 //
 //
 template <>
-inline void fwht<32>(int32_t * dst, const int32_t * src) {
+inline void naive_fwht<32>(int32_t * dst, const int32_t * src) {
     for (int i = 0; i < 16; i++) {
         dst[i]      = src[i] + src[i + 16];
         dst[16 + i] = src[i] - src[i + 16];
     }
-    fwht<16>(dst, dst);
-    fwht<16>(dst + 16, dst + 16);
+    naive_fwht<16>(dst, dst);
+    naive_fwht<16>(dst + 16, dst + 16);
 }
 //
 //
@@ -183,7 +184,7 @@ inline void fwht<32>(int32_t * dst, const int32_t * src) {
 //
 //
 template <>
-inline void fwht<64>(int32_t* inp) {
+inline void naive_fwht<64>(int32_t* inp) {
     int32_t part_1[32];
     int32_t part_2[32];
 
@@ -192,8 +193,8 @@ inline void fwht<64>(int32_t* inp) {
         part_2[i] = inp[i] - inp[i + 32];
     }
 
-    fwht<32>(part_1);
-    fwht<32>(part_2);
+    naive_fwht<32>(part_1);
+    naive_fwht<32>(part_2);
 
     for (int i = 0; i < 32; i++) {
         inp[i]      = part_1[i];
@@ -204,13 +205,13 @@ inline void fwht<64>(int32_t* inp) {
 //
 //
 template <>
-inline void fwht<64>(int32_t* dst, const int32_t* src) {
+inline void naive_fwht<64>(int32_t* dst, const int32_t* src) {
     for (int i = 0; i < 32; i++) {
         dst[i]      = src[i] + src[i + 32];
         dst[32 + i] = src[i] - src[i + 32];
     }
-    fwht<32>(dst, dst);
-    fwht<32>(dst + 32, dst + 32);
+    naive_fwht<32>(dst, dst);
+    naive_fwht<32>(dst + 32, dst + 32);
 }
 //
 //
@@ -218,7 +219,7 @@ inline void fwht<64>(int32_t* dst, const int32_t* src) {
 //
 //
 template <>
-inline void fwht<128>(int32_t* inp) {
+inline void naive_fwht<128>(int32_t* inp) {
     int32_t part_1[64], part_2[64];
 
     for (int i = 0; i < 64; i++) {
@@ -226,8 +227,8 @@ inline void fwht<128>(int32_t* inp) {
         part_2[i] = inp[i] - inp[i + 64];
     }
 
-    fwht<64>(part_1);
-    fwht<64>(part_2);
+    naive_fwht<64>(part_1);
+    naive_fwht<64>(part_2);
 
     for (int i = 0; i < 64; i++) {
         inp[i + 0]  = part_1[i];
@@ -238,13 +239,13 @@ inline void fwht<128>(int32_t* inp) {
 //
 //
 template <>
-inline void fwht<128>(int32_t * dst, const int32_t * src) {
+inline void naive_fwht<128>(int32_t * dst, const int32_t * src) {
     for (int i = 0; i < 64; i++) {
         dst[i]      = src[i] + src[i + 64];
         dst[64 + i] = src[i] - src[i + 64];
     }
-    fwht<64>(dst, dst);
-    fwht<64>(dst + 64, dst + 64);
+    naive_fwht<64>(dst, dst);
+    naive_fwht<64>(dst + 64, dst + 64);
 }
 //
 //
@@ -252,7 +253,7 @@ inline void fwht<128>(int32_t * dst, const int32_t * src) {
 //
 //
 template <>
-inline void fwht<256>(int32_t* inp) {
+inline void naive_fwht<256>(int32_t* inp) {
     int32_t part_1[128];
     int32_t part_2[128];
 
@@ -261,8 +262,8 @@ inline void fwht<256>(int32_t* inp) {
         part_2[i] = inp[i] - inp[i + 128];
     }
 
-    fwht<128>(part_1);
-    fwht<128>(part_2);
+    naive_fwht<128>(part_1);
+    naive_fwht<128>(part_2);
 
     for (int i = 0; i < 128; i++) {
         inp[i + 0]   = part_1[i];
@@ -273,13 +274,13 @@ inline void fwht<256>(int32_t* inp) {
 //
 //
 template <>
-inline void fwht<256>(int32_t* dst, const int32_t* src) {
+inline void naive_fwht<256>(int32_t* dst, const int32_t* src) {
     for (int i = 0; i < 128; i++) {
         dst[i]       = src[i] + src[i + 128];
         dst[128 + i] = src[i] - src[i + 128];
     }
-    fwht<128>(dst, dst);
-    fwht<128>(dst + 128, dst + 128);
+    naive_fwht<128>(dst, dst);
+    naive_fwht<128>(dst + 128, dst + 128);
 }
 //
 //
@@ -292,7 +293,7 @@ inline void fwht<256>(int32_t* dst, const int32_t* src) {
 //
 //
 template <>
-inline void fwht<512>(int32_t* inp) {
+inline void naive_fwht<512>(int32_t* inp) {
     int32_t part_1[256];
     int32_t part_2[256];
 
@@ -301,8 +302,8 @@ inline void fwht<512>(int32_t* inp) {
         part_2[i] = inp[i] - inp[i + 256];
     }
 
-    fwht<256>(part_1);
-    fwht<256>(part_2);
+    naive_fwht<256>(part_1);
+    naive_fwht<256>(part_2);
 
     for (int i = 0; i < 256; i++) {
         inp[i +   0] = part_1[i];
@@ -313,13 +314,13 @@ inline void fwht<512>(int32_t* inp) {
 //
 //
 template <>
-inline void fwht<512>(int32_t* dst, const int32_t* src) {
+inline void naive_fwht<512>(int32_t* dst, const int32_t* src) {
     for (int i = 0; i < 256; i++) {
         dst[i]       = src[i] + src[i + 256];
         dst[256 + i] = src[i] - src[i + 256];
     }
-    fwht<256>(dst, dst);
-    fwht<256>(dst + 256, dst + 256);
+    naive_fwht<256>(dst, dst);
+    naive_fwht<256>(dst + 256, dst + 256);
 }
 //
 //
@@ -327,7 +328,7 @@ inline void fwht<512>(int32_t* dst, const int32_t* src) {
 //
 //
 template <>
-inline void fwht<1024>(int32_t* inp) {
+inline void naive_fwht<1024>(int32_t* inp) {
     int32_t part_1[512];
     int32_t part_2[512];
 
@@ -336,8 +337,8 @@ inline void fwht<1024>(int32_t* inp) {
         part_2[i] = inp[i] - inp[i + 512];
     }
 
-    fwht<512>(part_1);
-    fwht<512>(part_2);
+    naive_fwht<512>(part_1);
+    naive_fwht<512>(part_2);
 
     for (int i = 0; i < 512; i++) {
         inp[i +   0] = part_1[i];
@@ -348,13 +349,13 @@ inline void fwht<1024>(int32_t* inp) {
 //
 //
 template <>
-inline void fwht<1024>(int32_t* dst, const int32_t* src) {
+inline void naive_fwht<1024>(int32_t* dst, const int32_t* src) {
     for (int i = 0; i < 256; i++) {
         dst[i]       = src[i] + src[i + 256];
         dst[256 + i] = src[i] - src[i + 256];
     }
-    fwht<256>(dst, dst);
-    fwht<256>(dst + 256, dst + 256);
+    naive_fwht<256>(dst, dst);
+    naive_fwht<256>(dst + 256, dst + 256);
 }
 //
 //
