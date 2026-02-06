@@ -5,6 +5,7 @@
 //
 //
 #include "f_xor_processor.hpp"
+#include <cstdlib>
 //
 //
 ////////////////////////////////////////////////////////////////////////////
@@ -12,7 +13,9 @@
 //
 template<int length>
 void xor_processor(uint8_t dst[length], uint8_t src[length], const ap_uint<length> stride) {
-
+    if( stride == 0 ) exit( EXIT_FAILURE );
+    if( src[0] == 0 ) exit( EXIT_FAILURE );
+    if( dst[0] == 0 ) exit( EXIT_FAILURE );    
 }
 //
 //
@@ -996,7 +999,9 @@ void v2_xor_processor(uint8_t dst[2], uint8_t src[2], const ap_uint<2> stride)
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<2>(dst, src, stride);
 }
 //
@@ -1007,7 +1012,9 @@ void v4_xor_processor(uint8_t dst[4], uint8_t src[4], const ap_uint<4> stride)
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<4>(dst, src, stride);
 }
 //
@@ -1018,7 +1025,9 @@ void v8_xor_processor(uint8_t dst[8], uint8_t src[8], const ap_uint<8> stride)
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<8>(dst, src, stride);
 }
 //
@@ -1029,7 +1038,9 @@ void v16_xor_processor(uint8_t dst[16], uint8_t src[16], const ap_uint<16> strid
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<16>(dst, src, stride);
 }
 //
@@ -1040,7 +1051,9 @@ void v32_xor_processor(uint8_t dst[32], uint8_t src[32], const ap_uint<32> strid
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<32>(dst, src, stride);
 }
 //
@@ -1051,7 +1064,9 @@ void v64_xor_processor(uint8_t dst[64], uint8_t src[64], const ap_uint<64> strid
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<64>(dst, src, stride);
 }
 //
@@ -1062,7 +1077,9 @@ void v128_xor_processor(uint8_t dst[128], uint8_t src[128], const ap_uint<128> s
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<128>(dst, src, stride);
 }
 //
@@ -1073,7 +1090,9 @@ void v256_xor_processor(uint8_t dst[256], uint8_t src[256], const ap_uint<256> s
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION variable=src complete
 #pragma HLS ARRAY_PARTITION variable=dst complete
-#pragma HLS interface mode=ap_none
+#ifdef _COMPONENT_
+    #pragma HLS interface mode=ap_none
+#endif
     xor_processor<256>(dst, src, stride);
 }
 //
