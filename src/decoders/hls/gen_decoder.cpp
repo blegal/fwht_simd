@@ -86,81 +86,67 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_rate_0 [hls_generator:407]
-  //
-  //loop_f0_2 : for (s = 0; s < 16; s += 1) {
-  //#pragma HLS PIPELINE
-  //  symbols  [cnt_u] = 0;
-  //  decoded  [cnt_u] = 0;
-  //  decoded_r[cnt_u] = 0;
-  //  cnt_u += 1; 
-  //}
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // g_function_freq_in_after_rate_0 [hls_generator:707]
+  // f_function_freq_in [hls_generator:319]
   //
   cnt_c = 32; cnt_a = 0; cnt_b = 16;
-  loop_g0_3 : for (s = 0; s < 16; s += 1) {
-#pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false
-    symbols_l[cnt_rw] = 0;
-    symbols_r[cnt_rw] = 0;
-    cnt_rw += 1;
-    decoded  [cnt_u ] = 0;
-    cnt_u  += 1;
-    lwht_in_a   = internal_l[cnt_a];
-    lwht_in_b   = internal_r[cnt_b];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
-    internal_l[cnt_c] = memo_in_a;
-    internal_r[cnt_c] = memo_in_a;
-    cnt_c += 1; // dst
-    cnt_a += 1; // src 1
-    cnt_b += 1; // src 2
-  }
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // f_function_proba_in [hls_generator:346]
-  //
-  cnt_c = 48; cnt_a = 32; cnt_b = 40;
-  loop_f_4 : for (s = 0; s < 8; s += 1) {
-#pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_r type=inter false
-    lwht_in_a   = internal_l[cnt_a];
-    lwht_in_b   = internal_r[cnt_b];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
-    internal_l[cnt_c] = memo_in_a;
-    internal_r[cnt_c] = memo_in_a;
-    cnt_c += 1; cnt_a += 1; cnt_b += 1;
-  }
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // middle_node_pruned_rep_after_f [hls_generator:542]
-  //
-  cnt_c = 56; cnt_a = 48; cnt_b = 52;
-  loop_rep_5 : for (s = 0; s < 4; s += 1) {
-#pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_r type=inter false
-    lwht_in_a   = internal_l[cnt_a];
-    lwht_in_b   = internal_r[cnt_b];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
-    internal_l[cnt_c] = memo_in_a;
-    internal_r[cnt_c] = memo_in_a;
-    cnt_c += 1; cnt_a += 1; cnt_b += 1;
-  }
-  cnt_c = 60; cnt_a = 56; cnt_b = 58;
-  loop_rep_6 : for (s = 0; s < 2; s += 1) {
+  loop_f_2 : for (s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence variable=internal_l type=inter false
 //#pragma HLS dependence variable=internal_r type=inter false
     lwht_in_a   = internal_l[cnt_a];
     lwht_in_b   = internal_r[cnt_b];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // f_function_freq_in [hls_generator:319]
+  //
+  cnt_c = 48; cnt_a = 32; cnt_b = 40;
+  loop_f_3 : for (s = 0; s < 8; s += 1) {
+#pragma HLS PIPELINE
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // f_function_freq_in [hls_generator:319]
+  //
+  cnt_c = 56; cnt_a = 48; cnt_b = 52;
+  loop_f_4 : for (s = 0; s < 4; s += 1) {
+#pragma HLS PIPELINE
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // middle_node_pruned_rep_after_f [hls_generator:539]
+  //
+  cnt_c = 60; cnt_a = 56; cnt_b = 58;
+  loop_rep_5 : for (s = 0; s < 2; s += 1) {
+#pragma HLS PIPELINE
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
     internal_l[cnt_c] = memo_in_a;
     internal_r[cnt_c] = memo_in_a;
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
@@ -173,29 +159,91 @@ void the_decoder_v2(
   internal_r[cnt_c] = memo_in_a;
   cnt_a = cnt_c;
   symbol_v = vec_decision( internal_l[cnt_a], false );
-  loop_rep_7 : for (s = 0; s < 8; s += 1) {
+  loop_rep_6 : for (s = 0; s < 4; s += 1) {
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
     cnt_rw += 1;
-    decoded  [cnt_u] = (s == 7) ?  symbol_v : (ap_uint<log2_gf_size>)0;
+    decoded  [cnt_u] = (s == 3) ?  symbol_v : (ap_uint<log2_gf_size>)0;
     cnt_u  += 1;
   }
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // g_function_proba_in [hls_generator:867]
+  // g_function_freq_in [hls_generator:837]
   //
-  cnt_c = 48; cnt_a = 32; cnt_b = 40; cnt_rd = 16;
-	loop_g_8 : for (s = 0; s < 8; s += 1) {
+  cnt_c = 56; cnt_a = 48; cnt_b = 52; cnt_rd = 0;
+  loop_g_7 : for (s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false
-    	lwht_in_a   = internal_l[cnt_a];
-    	lwht_in_b   = internal_r[cnt_b];
-    	memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], false);
-    	internal_l[cnt_c] = memo_in_a;
-    	internal_r[cnt_c] = memo_in_a;
-      cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], true);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // middle_node_pruned_rep_after_g [hls_generator:1076]
+  //
+  loop_rep_8 : for (s = 0; s < 4; s += 1) {
+#pragma HLS PIPELINE
+    lwht_in_a   = internal_l[s + 48];
+    lwht_in_b   = internal_r[s + 52];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
+    internal_l[s + 56] = memo_in_a;
+    internal_r[s + 56] = memo_in_a;
+  }
+  lwht_in_a   = internal_l[60];
+  lwht_in_b   = internal_r[61];
+  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
+  internal_l[60] = memo_in_a;
+  internal_r[60] = memo_in_a;
+  symbol_v = vec_decision( internal_l[60], false );
+  loop_rep_9 : for (s = 0; s < 4; s += 1) {
+    symbols  [cnt_u] = symbol_v;
+    decoded  [cnt_u] = (s == 3) ?  symbol_v : (ap_uint<log2_gf_size>)0;
+    decoded_r[cnt_u] = (s == 3) ?  symbol_v : (ap_uint<log2_gf_size>)0;
+    cnt_u += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // xor procesing (level 4, pred_is_f =1) [hls_generator:1127]
+  //
+  cnt_rw = 0;
+  cnt_rd = 4;
+  loop_xor_10 : for(i = 0; i < 4; i += 1){
+#pragma HLS PIPELINE
+#pragma HLS UNROLL factor=4
+//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
+//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
+    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
+    symbols_l[cnt_rw] = symbol_v;
+    symbols_r[cnt_rw] = symbol_v;
+    cnt_rd += 1;
+    cnt_rw += 1;
+  }
+
+  cnt_rw = cnt_u; /* synchro */
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // g_function_freq_in [hls_generator:837]
+  //
+  cnt_c = 48; cnt_a = 32; cnt_b = 40; cnt_rd = 0;
+  loop_g_11 : for (s = 0; s < 8; s += 1) {
+#pragma HLS PIPELINE
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], true);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -203,7 +251,7 @@ void the_decoder_v2(
   // f_function_proba_in [hls_generator:346]
   //
   cnt_c = 56; cnt_a = 48; cnt_b = 52;
-  loop_f_9 : for (s = 0; s < 4; s += 1) {
+  loop_f_12 : for (s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence variable=internal_l type=inter false
 //#pragma HLS dependence variable=internal_r type=inter false
@@ -217,84 +265,42 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_rate_0 [hls_generator:407]
-  //
-  //loop_f0_10 : for (s = 0; s < 2; s += 1) {
-  //#pragma HLS PIPELINE
-  //  symbols  [cnt_u] = 0;
-  //  decoded  [cnt_u] = 0;
-  //  decoded_r[cnt_u] = 0;
-  //  cnt_u += 1; 
-  //}
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // g_function_freq_in_after_rate_0 [hls_generator:707]
+  // middle_node_pruned_rep_after_f [hls_generator:539]
   //
   cnt_c = 60; cnt_a = 56; cnt_b = 58;
-  loop_g0_11 : for (s = 0; s < 2; s += 1) {
+  loop_rep_13 : for (s = 0; s < 2; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false
-    symbols_l[cnt_rw] = 0;
-    symbols_r[cnt_rw] = 0;
-    cnt_rw += 1;
-    decoded  [cnt_u ] = 0;
-    cnt_u  += 1;
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
     lwht_in_a   = internal_l[cnt_a];
     lwht_in_b   = internal_r[cnt_b];
     memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
     internal_l[cnt_c] = memo_in_a;
     internal_r[cnt_c] = memo_in_a;
-    cnt_c += 1; // dst
-    cnt_a += 1; // src 1
-    cnt_b += 1; // src 2
+    cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // middle_node_pruned_rate_1_after_g [hls_generator:947]
-  //
-  cnt_a = 60;
-  loop_g_12 : for (s = 0; s < 2; s += 1) {
-#pragma HLS PIPELINE
-    symbol_v = vec_decision( internal_l[cnt_a], false );
-    cnt_a += 1;
+  cnt_c = 62; cnt_a = 60; cnt_b = 61;
+  lwht_in_a   = internal_l[cnt_a];
+  lwht_in_b   = internal_r[cnt_b];
+  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
+  internal_l[cnt_c] = memo_in_a;
+  internal_r[cnt_c] = memo_in_a;
+  cnt_a = cnt_c;
+  symbol_v = vec_decision( internal_l[cnt_a], false );
+  loop_rep_14 : for (s = 0; s < 4; s += 1) {
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
     cnt_rw += 1;
-    xor_proc_i[s]     = symbol_v;
-  }
-  v64_xor_processor(xor_proc_o, xor_proc_i, 1);
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // xor procesing (level 5, pred_is_f =1) [hls_generator:1121]
-  //
-  cnt_rw = 24;
-  cnt_rd = 26;
-  loop_xor_13 : for(i = 0; i < 2; i += 1){
-#pragma HLS PIPELINE
-#pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
-    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
-    symbols_l[cnt_rw] = symbol_v;
-    symbols_r[cnt_rw] = symbol_v;
-    cnt_rd += 1;
-    cnt_rw += 1;
-    decoded  [cnt_u]  = xor_proc_o[i];
+    decoded  [cnt_u] = (s == 3) ?  symbol_v : (ap_uint<log2_gf_size>)0;
     cnt_u  += 1;
   }
 
-  cnt_rw = cnt_u; /* synchro */
-
   ////////////////////////////////////////////////////////////////////////////
   //
-  // g_function_proba_in [hls_generator:867]
+  // g_function_proba_in [hls_generator:864]
   //
-  cnt_c = 56; cnt_a = 48; cnt_b = 52; cnt_rd = 24;
-	loop_g_14 : for (s = 0; s < 4; s += 1) {
+  cnt_c = 56; cnt_a = 48; cnt_b = 52; cnt_rd = 8;
+	loop_g_15 : for (s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
 //#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false
@@ -308,27 +314,33 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_rate_1_after_g [hls_generator:947]
+  // middle_node_pruned_spc_after_g [hls_generator:1039]
   //
   cnt_a = 56;
-  loop_g_15 : for (s = 0; s < 4; s += 1) {
+  loop_spc_16 : for (s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
-    symbol_v = vec_decision( internal_l[cnt_a], false );
-    cnt_a += 1;
-    symbols_l[cnt_rw] = symbol_v;
-    symbols_r[cnt_rw] = symbol_v;
-    cnt_rw += 1;
-    xor_proc_i[s]     = symbol_v;
+      symbol_v = vec_decision( internal_l[cnt_a], false );
+      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
+      symbols_l[cnt_rw] = symbol_v;
+      symbols_r[cnt_rw] = symbol_v;
+      xor_proc_i[s]     = symbol_v;
+      cnt_a  += 1;
+      cnt_rw += 1;
   }
+  // SPC processing !!!
+  //if ( symbol_x != 0 ) {
+  //    printf("We have a SPC decoding error ;-)\n");
+  //}
+  // SPC processing !!!
   v64_xor_processor(xor_proc_o, xor_proc_i, 3);
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // xor procesing (level 4, pred_is_f =0) [hls_generator:1121]
+  // xor procesing (level 4, pred_is_f =0) [hls_generator:1127]
   //
-  cnt_rw = 24;
-  cnt_rd = 28;
-  loop_xor_16 : for(i = 0; i < 4; i += 1){
+  cnt_rw = 8;
+  cnt_rd = 12;
+  loop_xor_17 : for(i = 0; i < 4; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
 //#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
@@ -346,31 +358,11 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // xor procesing (level 3, pred_is_f =0) [hls_generator:1121]
-  //
-  cnt_rw = 16;
-  cnt_rd = 24;
-  loop_xor_17 : for(i = 0; i < 8; i += 1){
-#pragma HLS PIPELINE
-#pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
-    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
-    symbols_l[cnt_rw] = symbol_v;
-    symbols_r[cnt_rw] = symbol_v;
-    cnt_rd += 1;
-    cnt_rw += 1;
-  }
-
-  cnt_rw = cnt_u; /* synchro */
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // xor procesing (level 2, pred_is_f =1) [hls_generator:1121]
+  // xor procesing (level 3, pred_is_f =1) [hls_generator:1127]
   //
   cnt_rw = 0;
-  cnt_rd = 16;
-  loop_xor_18 : for(i = 0; i < 16; i += 1){
+  cnt_rd = 8;
+  loop_xor_18 : for(i = 0; i < 8; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
 //#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
@@ -386,16 +378,16 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // g_function_proba_in [hls_generator:808]
+  // g_function_freq_in [hls_generator:837]
   //
-  cnt_c = 0; cnt_a = 0; cnt_b = 32; cnt_rd = 0;
-  loop_g_19 : for (s = 0; s < 32; s += 1) {
+  cnt_c = 32; cnt_a = 0; cnt_b = 16; cnt_rd = 0;
+  loop_g_19 : for (s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence variable=internal_l type=inter false
 //#pragma HLS dependence variable=internal_r type=inter false
-    lwht_in_a   = channel[cnt_a];
-    lwht_in_b   = channel[cnt_b];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], false);
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], true);
     internal_l[cnt_c] = memo_in_a;
     internal_r[cnt_c] = memo_in_a;
     cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
@@ -405,8 +397,8 @@ void the_decoder_v2(
   //
   // f_function_proba_in [hls_generator:346]
   //
-  cnt_c = 32; cnt_a = 0; cnt_b = 16;
-  loop_f_20 : for (s = 0; s < 16; s += 1) {
+  cnt_c = 48; cnt_a = 32; cnt_b = 40;
+  loop_f_20 : for (s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence variable=internal_l type=inter false
 //#pragma HLS dependence variable=internal_r type=inter false
@@ -422,8 +414,8 @@ void the_decoder_v2(
   //
   // f_function_freq_in [hls_generator:319]
   //
-  cnt_c = 48; cnt_a = 32; cnt_b = 40;
-  loop_f_21 : for (s = 0; s < 8; s += 1) {
+  cnt_c = 56; cnt_a = 48; cnt_b = 52;
+  loop_f_21 : for (s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence variable=internal_l type=inter false
 //#pragma HLS dependence variable=internal_r type=inter false
@@ -437,90 +429,47 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_rate_0 [hls_generator:407]
+  // f_function_freq_in [hls_generator:319]
   //
-  //loop_f0_22 : for (s = 0; s < 4; s += 1) {
-  //#pragma HLS PIPELINE
-  //  symbols  [cnt_u] = 0;
-  //  decoded  [cnt_u] = 0;
-  //  decoded_r[cnt_u] = 0;
-  //  cnt_u += 1; 
-  //}
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // g_function_freq_in_after_rate_0 [hls_generator:707]
-  //
-  cnt_c = 56; cnt_a = 48; cnt_b = 52;
-  loop_g0_23 : for (s = 0; s < 4; s += 1) {
+  cnt_c = 60; cnt_a = 56; cnt_b = 58;
+  loop_f_22 : for (s = 0; s < 2; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false
-    symbols_l[cnt_rw] = 0;
-    symbols_r[cnt_rw] = 0;
-    cnt_rw += 1;
-    decoded  [cnt_u ] = 0;
-    cnt_u  += 1;
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
     lwht_in_a   = internal_l[cnt_a];
     lwht_in_b   = internal_r[cnt_b];
-    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);
     internal_l[cnt_c] = memo_in_a;
     internal_r[cnt_c] = memo_in_a;
-    cnt_c += 1; // dst
-    cnt_a += 1; // src 1
-    cnt_b += 1; // src 2
+    cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_spc_after_g [hls_generator:1033]
+  // middle_node_pruned_rep_after_f [hls_generator:539]
   //
-  cnt_a = 56;
-  loop_spc_24 : for (s = 0; s < 4; s += 1) {
-#pragma HLS PIPELINE
-      symbol_v = vec_decision( internal_l[cnt_a], false );
-      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols_l[cnt_rw] = symbol_v;
-      symbols_r[cnt_rw] = symbol_v;
-      xor_proc_i[s]     = symbol_v;
-      cnt_a  += 1;
-      cnt_rw += 1;
-  }
-  // SPC processing !!!
-  //if ( symbol_x != 0 ) {
-  //    printf("We have a SPC decoding error ;-)\n");
-  //}
-  // SPC processing !!!
-  v64_xor_processor(xor_proc_o, xor_proc_i, 3);
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // xor procesing (level 4, pred_is_f =1) [hls_generator:1121]
-  //
-  cnt_rw = 32;
-  cnt_rd = 36;
-  loop_xor_25 : for(i = 0; i < 4; i += 1){
-#pragma HLS PIPELINE
-#pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
-    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
+  cnt_c = 64; cnt_a = 62; cnt_b = 63;
+  lwht_in_a   = internal_l[cnt_a];
+  lwht_in_b   = internal_r[cnt_b];
+  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);
+  internal_l[cnt_c] = memo_in_a;
+  internal_r[cnt_c] = memo_in_a;
+  cnt_a = cnt_c;
+  symbol_v = vec_decision( internal_l[cnt_a], false );
+  loop_rep_23 : for (s = 0; s < 2; s += 1) {
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
-    cnt_rd += 1;
     cnt_rw += 1;
-    decoded  [cnt_u]  = xor_proc_o[i];
+    decoded  [cnt_u] = (s == 1) ?  symbol_v : (ap_uint<log2_gf_size>)0;
     cnt_u  += 1;
   }
 
-  cnt_rw = cnt_u; /* synchro */
-
   ////////////////////////////////////////////////////////////////////////////
   //
-  // g_function_freq_in [hls_generator:840]
+  // g_function_freq_in [hls_generator:837]
   //
-  cnt_c = 48; cnt_a = 32; cnt_b = 40; cnt_rd = 32;
-  loop_g_26 : for (s = 0; s < 8; s += 1) {
+  cnt_c = 60; cnt_a = 56; cnt_b = 58; cnt_rd = 16;
+  loop_g_24 : for (s = 0; s < 2; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence variable=internal_l type=inter false
 //#pragma HLS dependence variable=internal_r type=inter false
@@ -534,10 +483,10 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_spc_after_g [hls_generator:1033]
+  // middle_node_pruned_spc_after_g [hls_generator:1039]
   //
-  cnt_a = 48;
-  loop_spc_27 : for (s = 0; s < 8; s += 1) {
+  cnt_a = 60;
+  loop_spc_25 : for (s = 0; s < 2; s += 1) {
 #pragma HLS PIPELINE
       symbol_v = vec_decision( internal_l[cnt_a], false );
       symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
@@ -552,15 +501,15 @@ void the_decoder_v2(
   //    printf("We have a SPC decoding error ;-)\n");
   //}
   // SPC processing !!!
-  v64_xor_processor(xor_proc_o, xor_proc_i, 7);
+  v64_xor_processor(xor_proc_o, xor_proc_i, 1);
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // xor procesing (level 3, pred_is_f =1) [hls_generator:1121]
+  // xor procesing (level 5, pred_is_f =1) [hls_generator:1127]
   //
-  cnt_rw = 32;
-  cnt_rd = 40;
-  loop_xor_28 : for(i = 0; i < 8; i += 1){
+  cnt_rw = 16;
+  cnt_rd = 18;
+  loop_xor_26 : for(i = 0; i < 2; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
 //#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
@@ -578,10 +527,65 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // g_function_proba_in [hls_generator:867]
+  // g_function_freq_in [hls_generator:837]
   //
-  cnt_c = 32; cnt_a = 0; cnt_b = 16; cnt_rd = 32;
-	loop_g_29 : for (s = 0; s < 16; s += 1) {
+  cnt_c = 56; cnt_a = 48; cnt_b = 52; cnt_rd = 16;
+  loop_g_27 : for (s = 0; s < 4; s += 1) {
+#pragma HLS PIPELINE
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = internal_l[cnt_a];
+    lwht_in_b   = internal_r[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], true);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // middle_node_pruned_rate_1_after_g [hls_generator:944]
+  //
+  cnt_a = 56;
+  loop_g_28 : for (s = 0; s < 4; s += 1) {
+#pragma HLS PIPELINE
+    symbol_v = vec_decision( internal_l[cnt_a], false );
+    cnt_a += 1;
+    symbols_l[cnt_rw] = symbol_v;
+    symbols_r[cnt_rw] = symbol_v;
+    cnt_rw += 1;
+    xor_proc_i[s]     = symbol_v;
+  }
+  v64_xor_processor(xor_proc_o, xor_proc_i, 3);
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // xor procesing (level 4, pred_is_f =1) [hls_generator:1127]
+  //
+  cnt_rw = 16;
+  cnt_rd = 20;
+  loop_xor_29 : for(i = 0; i < 4; i += 1){
+#pragma HLS PIPELINE
+#pragma HLS UNROLL factor=4
+//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
+//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
+    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
+    symbols_l[cnt_rw] = symbol_v;
+    symbols_r[cnt_rw] = symbol_v;
+    cnt_rd += 1;
+    cnt_rw += 1;
+    decoded  [cnt_u]  = xor_proc_o[i];
+    cnt_u  += 1;
+  }
+
+  cnt_rw = cnt_u; /* synchro */
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // g_function_proba_in [hls_generator:864]
+  //
+  cnt_c = 48; cnt_a = 32; cnt_b = 40; cnt_rd = 16;
+	loop_g_30 : for (s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
 //#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
 //#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false
@@ -595,33 +599,27 @@ void the_decoder_v2(
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // middle_node_pruned_spc_after_g [hls_generator:1033]
+  // middle_node_pruned_rate_1_after_g [hls_generator:944]
   //
-  cnt_a = 32;
-  loop_spc_30 : for (s = 0; s < 16; s += 1) {
+  cnt_a = 48;
+  loop_g_31 : for (s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
-      symbol_v = vec_decision( internal_l[cnt_a], false );
-      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
-      symbols_l[cnt_rw] = symbol_v;
-      symbols_r[cnt_rw] = symbol_v;
-      xor_proc_i[s]     = symbol_v;
-      cnt_a  += 1;
-      cnt_rw += 1;
+    symbol_v = vec_decision( internal_l[cnt_a], false );
+    cnt_a += 1;
+    symbols_l[cnt_rw] = symbol_v;
+    symbols_r[cnt_rw] = symbol_v;
+    cnt_rw += 1;
+    xor_proc_i[s]     = symbol_v;
   }
-  // SPC processing !!!
-  //if ( symbol_x != 0 ) {
-  //    printf("We have a SPC decoding error ;-)\n");
-  //}
-  // SPC processing !!!
-  v64_xor_processor(xor_proc_o, xor_proc_i, 15);
+  v64_xor_processor(xor_proc_o, xor_proc_i, 7);
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // xor procesing (level 2, pred_is_f =0) [hls_generator:1121]
+  // xor procesing (level 3, pred_is_f =0) [hls_generator:1127]
   //
-  cnt_rw = 32;
-  cnt_rd = 48;
-  loop_xor_31 : for(i = 0; i < 16; i += 1){
+  cnt_rw = 16;
+  cnt_rd = 24;
+  loop_xor_32 : for(i = 0; i < 8; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
 //#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
@@ -636,6 +634,72 @@ void the_decoder_v2(
   }
 
   cnt_rw = cnt_u; /* synchro */
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // xor procesing (level 2, pred_is_f =1) [hls_generator:1127]
+  //
+  cnt_rw = 0;
+  cnt_rd = 16;
+  loop_xor_33 : for(i = 0; i < 16; i += 1){
+#pragma HLS PIPELINE
+#pragma HLS UNROLL factor=4
+//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
+//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
+    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
+    symbols_l[cnt_rw] = symbol_v;
+    symbols_r[cnt_rw] = symbol_v;
+    cnt_rd += 1;
+    cnt_rw += 1;
+  }
+
+  cnt_rw = cnt_u; /* synchro */
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // g_function_proba_in [hls_generator:805]
+  //
+  cnt_c = 0; cnt_a = 0; cnt_b = 32; cnt_rd = 0;
+  loop_g_34 : for (s = 0; s < 32; s += 1) {
+#pragma HLS PIPELINE
+//#pragma HLS dependence variable=internal_l type=inter false
+//#pragma HLS dependence variable=internal_r type=inter false
+    lwht_in_a   = channel[cnt_a];
+    lwht_in_b   = channel[cnt_b];
+    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], false);
+    internal_l[cnt_c] = memo_in_a;
+    internal_r[cnt_c] = memo_in_a;
+    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // middle_node_pruned_spc_after_g [hls_generator:998]
+  //
+  cnt_a = 0;
+  loop_spc_35 : for (s = 0; s < 32; s += 1) {
+#pragma HLS PIPELINE
+      symbol_v = vec_decision( internal_l[cnt_a], false );
+      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);
+      symbols_l[cnt_rw] = symbol_v;
+      symbols_r[cnt_rw] = symbol_v;
+      xor_proc_i[s]     = symbol_v;
+      cnt_a  += 1;
+      cnt_rw += 1;
+  }
+  // SPC processing !!!
+  //if ( symbol_x != 0 ) {
+  //    printf("We have a SPC decoding error ;-)\n");
+  //}
+  // SPC processing !!!
+  v64_xor_processor(xor_proc_o, xor_proc_i, 31);
+
+  loop_spc_36 : for (i = 0; i < 32; i += 1) {
+#pragma HLS PIPELINE
+#pragma HLS UNROLL factor=4
+    decoded[cnt_u]  = xor_proc_o[i];
+    cnt_u  += 1;
+  }
 
 }
 

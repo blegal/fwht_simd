@@ -177,13 +177,6 @@ TEST_CASE( "fwht", "[fwht]" )
 //
 TEST_CASE( "scaling", "[scaling]" )
 {
-    printf("i_lwht_width = %d bits\n", i_lwht_width);
-    printf("o_lwht_width = %d bits\n", o_lwht_width);
-    printf("i_mult_width = %d bits\n", i_mult_width);
-    printf("o_mult_width = %d bits\n", o_mult_width);
-    printf("i_norm_width = %d bits\n", i_norm_width);
-    printf("o_norm_width = %d bits\n", o_norm_width);
-
     //
     // On teste toutes les combinaisons
     //
@@ -273,6 +266,20 @@ void the_decoder_v2(
 //
 TEST_CASE( "decoder", "[decoder]" ) {
 
+
+    printf("i_lwht_width = %d bits\n", i_lwht_width);
+    printf("o_lwht_width = %d bits\n", o_lwht_width);
+    printf("i_mult_width = %d bits\n", i_mult_width);
+    printf("o_mult_width = %d bits\n", o_mult_width);
+    printf("i_norm_width = %d bits\n", i_norm_width);
+    printf("o_norm_width = %d bits\n", o_norm_width);
+    printf("\n");
+    printf("Parameter N  = %4d symb (log2 = %d)\n", t_N, t_log2N);
+    printf("Parameter K  = %4d symb\n", t_K);
+    const float R = 100.f * (float)t_K / (float)t_N;
+    printf("Parameter R  = %4d symb\n", (int)R);
+    printf("Parameter GF = %4d elmt (log2 = %d)\n", t_GF, t_log2GF);
+    printf("\n");
 #if (t_N == 64) && (t_K == 16)
     #include "tests/N64_K16.hpp"
 #elif (t_N == 64) && (t_K == 21)
