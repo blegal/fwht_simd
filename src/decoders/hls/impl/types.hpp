@@ -47,6 +47,12 @@ typedef struct { ap_int <i_mult_width> value[gf_size]; } t_i_mult;
 typedef struct { ap_int <o_mult_width> value[gf_size]; } t_o_mult;
 typedef struct { ap_int <i_norm_width> value[gf_size]; } t_i_norm;
 typedef struct { ap_int <o_norm_width> value[gf_size]; } t_o_norm;
+
+template<int W, int N>
+struct t_ram{
+    ap_int <W> value[N];
+};
+
 //
 //
 //
@@ -110,6 +116,18 @@ typedef struct tuple{
     ap_int <data_width>   value;
     ap_uint<log2_gf_size> index;
 } tuple;
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+template<int W, int log2N>
+struct gtuple{
+    ap_int <W>     value;
+    ap_uint<log2N> index;
+};
 //
 //
 //
