@@ -517,7 +517,7 @@ private:
                 ofile << "  cnt_c = " << (lastdst + 2) << "; cnt_a = " << lastdst << "; cnt_b = " << (lastdst + 1) << ";"   << std::endl;
                 ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
                 ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
-                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"          << std::endl;
+                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
                 ofile << "  internal_l[cnt_c] = memo_in_a;"             << std::endl;
                 ofile << "  internal_r[cnt_c] = memo_in_a;"             << std::endl;
                 ofile << "  cnt_a = cnt_c;" << std::endl;
@@ -538,11 +538,10 @@ private:
                 int src_1 = (p_llrs + size);
                 int src_2 = (p_llrs + size + n/2);
                 int dst   = (p_llrs + size + n);
-                ofile << "  // ICI ICI ICI ICI ICI" << std::endl;
                 ofile << "  cnt_c = " << dst << "; cnt_a = " << src_1 << "; cnt_b = " << src_2 << ";"   << std::endl;
                 ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
                 ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
-                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, true, 0);"          << std::endl;
+                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);"          << std::endl;
                 ofile << "  internal_l[cnt_c] = memo_in_a;"             << std::endl;
                 ofile << "  internal_r[cnt_c] = memo_in_a;"             << std::endl;
                 ofile << "  cnt_a = cnt_c;" << std::endl;
@@ -554,7 +553,6 @@ private:
                 ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
                 ofile << "    cnt_u  += 1;"                << std::endl;
                 ofile << "  }"                            << std::endl;
-                ofile << "  // ICI ICI ICI ICI ICI" << std::endl;
                 ofile << std::endl;
             }
             else {
@@ -591,7 +589,7 @@ private:
                 ofile << "  cnt_c = " << (lastdst + 2) << "; cnt_a = " << lastdst << "; cnt_b = " << (lastdst + 1) << ";"   << std::endl;
                 ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
                 ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
-                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"          << std::endl;
+                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
                 ofile << "  internal_l[cnt_c] = memo_in_a;"             << std::endl;
                 ofile << "  internal_r[cnt_c] = memo_in_a;"             << std::endl;
                 ofile << "  cnt_a = cnt_c;" << std::endl;
@@ -1128,7 +1126,7 @@ private:
             ofile << "  cnt_c = " << (lastdst + 2) << "; cnt_a = " << lastdst << "; cnt_b = " << (lastdst + 1) << ";"   << std::endl;
             ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
             ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
-            ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"          << std::endl;
+            ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
             ofile << "  internal_l[cnt_c] = memo_in_a;"     << std::endl;
             ofile << "  internal_r[cnt_c] = memo_in_a;"     << std::endl;
             ofile << "  cnt_a = cnt_c;" << std::endl;

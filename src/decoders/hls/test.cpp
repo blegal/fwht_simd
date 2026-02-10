@@ -60,7 +60,7 @@ TEST_CASE( "argmax", "[argmax]" )
         //
         // On lance le test...
         //
-        uint8_t symb = vec_i_unroll_argmax(v_in);
+        uint8_t symb = vec_i_argmax(v_in);
         //
         // On verifie la validité du résultat
         //
@@ -347,7 +347,9 @@ TEST_CASE( "decoder", "[decoder]" ) {
     printf("#(II)");
     for (int i = 0; i < N; i += 1) {
         if (((i % 16) == 0))
-            printf("\n#(II) %3d | ", i);
+            printf("|\n#(II) %3d ", i);
+        if ( (i%8) == 0 ) printf("| ");
+        else if ( (i%4) == 0 ) printf("  ");
         if (decoded[i] == o_symb[i]) {
             printf("\e[1;32m%2d\e[0m ", (int)decoded[i]);
         } else {
@@ -355,6 +357,6 @@ TEST_CASE( "decoder", "[decoder]" ) {
             //printf("\e[1;31m%2d (%2d)\e[0m ", decoded[i], o_symb[i]);
         }
     }
-    printf("\n");
+    printf("|\n");
 
 }

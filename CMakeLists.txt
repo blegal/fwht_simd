@@ -106,6 +106,7 @@ target_link_libraries      (hls_generator PUBLIC utilities)
 add_executable(hls_test
 		src/decoders/hls/catch2v3/catch_amalgamated.cpp
 		src/decoders/hls/impl/f_argmax.cpp
+		src/decoders/hls/impl/f_argmax2.cpp
 		src/decoders/hls/impl/f_datapath.cpp
 		src/decoders/hls/impl/f_decision.cpp
 		src/decoders/hls/impl/f_extend.cpp
