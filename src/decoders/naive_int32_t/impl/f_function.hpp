@@ -11,14 +11,14 @@ void f_function(
     symbols_i<gf_size> * __restrict src_b) {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
-        fwht<gf_size>(src_a->value);
+        naive_fwht<gf_size>(src_a->value);
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 1;
 #endif
         src_a->is_freq = true;
     }
     if (src_b->is_freq == false) {
-        fwht<gf_size>(src_b->value);
+        naive_fwht<gf_size>(src_b->value);
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 1;
 #endif

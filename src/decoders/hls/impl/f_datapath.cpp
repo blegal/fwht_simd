@@ -11,6 +11,7 @@
 #include "f_mult.hpp"
 #include "f_norm.hpp"
 #include "f_argmax.hpp"
+#include "f_argmax2.hpp"
 #include "f_truncate.hpp"
 //
 //
@@ -99,7 +100,7 @@ void full_datapath(
 	//
 	//
 	const t_i_memo argm_in_a = truncate(mult_in_e);
-	const tuple tt = vec_i_argmax(argm_in_a);
+	const tuple tt = vec_i_argmax2(argm_in_a);
 	symbol_prob_o = tt.value;
 	symbol_o      = tt.index;
 

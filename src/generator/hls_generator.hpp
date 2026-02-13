@@ -32,7 +32,7 @@ private:
     const int     GF;
 
 public:
-    bool verbose = true;
+    bool verbose = false;
 
     bool en_rate_0   = true;
     bool en_rate_1   = true;
@@ -80,7 +80,44 @@ public:
         //
         //
         //
+        std::cout << "(II) Creating configuration file" << std::endl;
+        std::string nfilen = filen.substr(0,filen.find_last_of('.'))+".hpp";
+        std::cout << "(II) - Opening file (" << nfilen << ")" << std::endl;
+        ofile.open(nfilen.c_str());
+        if ( ofile.is_open() == false ) {
+            printf("\nError opening output file !\n");
+            exit( EXIT_FAILURE );
+        }
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//////////////////////////////////////////////////////////////////////" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define t_N            " << size << std::endl;
+        ofile << "#define t_log2N        " << (int)std::log2(size) << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define t_K            " << K_value << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define t_GF           " << GF << std::endl;
+        ofile << "#define t_log2GF       " << (int)std::log2(GF) << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "#define en_rate_0      " << en_rate_0   << std::endl;
+        ofile << "#define en_rate_1      " << en_rate_1   << std::endl;
+        ofile << "#define en_rate_spc    " << en_rate_spc << std::endl;
+        ofile << "#define en_rate_rep    " << en_rate_rep << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//////////////////////////////////////////////////////////////////////" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile << "//" << std::endl;
+        ofile.close();
+        std::cout << "(II) - Closing file (" << nfilen << ")" << std::endl;
+        //
+        //
 
+        std::cout << "(II) Creating decoder file" << std::endl;
+        std::cout << "(II) - Opening file (" << filen << ")" << std::endl;
         ofile.open(filen.c_str());
         if ( ofile.is_open() == false ) {
             printf("\nError opening output file !\n");
@@ -89,6 +126,8 @@ public:
 
         ofile << "#include \"impl/f_datapath.hpp\""  << std::endl;
         ofile << "#include \"impl/f_decision.hpp\""  << std::endl;
+        ofile << "#include \"impl/f_xor_processor.hpp\""  << std::endl;
+
         ofile << "//" << std::endl;
         ofile << "//" << std::endl;
         ofile << "//" << std::endl;
@@ -110,37 +149,51 @@ public:
                  "			t_i_memo channel[N],"            << std::endl <<
                  "			uint8_t  decoded[N])"            << std::endl;
         ofile << "{" << std::endl;
+
         ofile << "#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM"  << std::endl;
+        ofile << std::endl;
+        ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=cyclic variable=decoded  factor=4" << std::endl;
         ofile << "#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM" << std::endl;
         ofile << std::endl;
-        ofile << "  t_i_memo internal_l[N], internal_r[N];" << std::endl;
+        ofile << "  static t_i_memo internal_l[N];" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_l" << std::endl;
-        ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_r" << std::endl;
         ofile << "#pragma HLS bind_storage variable=internal_l type=RAM_S2P impl=BRAM" << std::endl;
+        ofile << std::endl;
+        ofile << "  static t_i_memo internal_r[N];" << std::endl;
+        ofile << "#pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_r" << std::endl;
         ofile << "#pragma HLS bind_storage variable=internal_r type=RAM_S2P impl=BRAM" << std::endl;
         ofile << std::endl;
-        ofile << "  uint8_t  symbols [N];" << std::endl;
-        ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=symbols" << std::endl;
+        ofile << "  static uint8_t symbols_l[N];" << std::endl;
+        ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=cyclic variable=symbols_l  factor=4" << std::endl;
+        ofile << "#pragma HLS bind_storage variable=symbols_l type=RAM_1WNR impl=BRAM" << std::endl;
         ofile << std::endl;
-        ofile << "  uint8_t decoded_r[N];" << std::endl;
+        ofile << "  static uint8_t  symbols_r[N];" << std::endl;
+        ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=cyclic variable=symbols_r  factor=4" << std::endl;
+        ofile << "#pragma HLS bind_storage variable=symbols_r type=RAM_1WNR impl=BRAM" << std::endl;
         ofile << std::endl;
-        ofile << "  t_i_memo lwht_in_a, lwht_in_b;" << std::endl;
+        ofile << "  static uint8_t xor_proc_i[64];" << std::endl;
+        ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=xor_proc_i" << std::endl;
+        ofile << "  static uint8_t xor_proc_o[64];" << std::endl;
+        ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=xor_proc_o" << std::endl;
+        ofile << std::endl;
+        ofile << "  static t_i_memo lwht_in_a;" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_a.value" << std::endl;
+        ofile << "  static t_i_memo lwht_in_b;" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=lwht_in_b.value" << std::endl;
         ofile << std::endl;
-        ofile << "  t_i_memo memo_in_a;" << std::endl;
+        ofile << "  static t_i_memo memo_in_a;" << std::endl;
         ofile << "#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=memo_in_a.value" << std::endl;
         ofile << std::endl;
-        ofile << "  ap_uint<log2_gf_size> symbol_v;" << std::endl;
-        ofile << "  ap_uint<log2_gf_size> symbol_x;" << std::endl;
+        ofile << "  static ap_uint<log2_gf_size> symbol_v;" << std::endl;
+        ofile << "  static ap_uint<log2_gf_size> symbol_x;" << std::endl;
         ofile << std::endl;
-        ofile << "  ap_uint<log2N+1> cnt_a; // LLRs from left  memory" << std::endl;
-        ofile << "  ap_uint<log2N+1> cnt_b; // LLRs from right memory" << std::endl;
-        ofile << "  ap_uint<log2N+1> cnt_c; // LLRs to left/right memories" << std::endl;
+        ofile << "  static ap_uint<log2N+1> cnt_a; // LLRs from left  memory" << std::endl;
+        ofile << "  static ap_uint<log2N+1> cnt_b; // LLRs from right memory" << std::endl;
+        ofile << "  static ap_uint<log2N+1> cnt_c; // LLRs to left/right memories" << std::endl;
         ofile << std::endl;
-        ofile << "  ap_uint<log2N+1> cnt_u  = 0; // " << std::endl;
-        ofile << "  ap_uint<log2N+1> cnt_rw = 0; // right and first left" << std::endl;
-        ofile << "  ap_uint<log2N+1> cnt_rd = 0; // 2nd right (read only)" << std::endl;
+        ofile << "  static ap_uint<log2N+1> cnt_u  = 0; // " << std::endl;
+        ofile << "  static ap_uint<log2N+1> cnt_rw = 0; // right and first left" << std::endl;
+        ofile << "  static ap_uint<log2N+1> cnt_rd = 0; // 2nd right (read only)" << std::endl;
         ofile << std::endl;
         ofile << "  ap_uint<log2N+1> s; // optimize this with <log2_n + 1>" << std::endl;
         ofile << "  ap_uint<log2N+1> i; // optimize this with <log2_n + 1>" << std::endl;
@@ -151,17 +204,13 @@ public:
 
         ofile << "}" << std::endl;
         ofile << std::endl;
-        //ofile << "template <int gf_size>" << std::endl;
-        //ofile << "const int decoder_dedicated<gf_size>::N_gen = " << size << ";" << std::endl;
-        //ofile << std::endl;
-        //ofile << "template <int gf_size>" << std::endl;
-        //ofile << "const int decoder_dedicated<gf_size>::K_gen = " << K_value << ";" << std::endl;
-        //ofile << std::endl;
+
         ofile.close();
         if (verbose == true) {
             printf("-> #elements : %d\n", n_elmnt);
             printf("-> #elements : %zu\n", next_node_status.size());
         }
+        std::cout << "(II) - Closing file (" << filen << ")" << std::endl;
     }
 
 private:
@@ -272,6 +321,8 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                 ofile << "  loop_f_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                 ofile << "#pragma HLS PIPELINE"   << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_l type=inter false"   << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_r type=inter false"   << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a];"   << std::endl;
                 ofile << "    lwht_in_b   = internal_r[cnt_b];"   << std::endl;
                 ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"   << std::endl;
@@ -297,6 +348,8 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                 ofile << "  loop_f_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                 ofile << "#pragma HLS PIPELINE"   << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_l type=inter false"   << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_r type=inter false"   << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a];"   << std::endl;
                 ofile << "    lwht_in_b   = internal_r[cnt_b];"   << std::endl;
                 ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);"   << std::endl;
@@ -355,10 +408,10 @@ private:
                 ofile << "  //" << std::endl;
                 ofile << "  //loop_f0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                 ofile << "  //#pragma HLS PIPELINE"   << std::endl;
-                ofile << "    //symbols  [cnt_u] = 0;"   << std::endl;
-                ofile << "    //decoded  [cnt_u] = 0;"   << std::endl;
-                ofile << "    //decoded_r[cnt_u] = 0;"   << std::endl;
-                ofile << "    //cnt_u += 1; "   << std::endl;
+                ofile << "  //  symbols  [cnt_u] = 0;"   << std::endl;
+                ofile << "  //  decoded  [cnt_u] = 0;"   << std::endl;
+                ofile << "  //  decoded_r[cnt_u] = 0;"   << std::endl;
+                ofile << "  //  cnt_u += 1; "   << std::endl;
                 ofile << "  //}"   << std::endl;
                 ofile << std::endl;
                 //
@@ -434,56 +487,75 @@ private:
                 ofile << "  ////////////////////////////////////////////////////////////////////////////" << std::endl;
                 ofile << "  //" << std::endl;
                 ofile << "  // middle_node_pruned_rep_after_f [hls_generator:" << __LINE__ << "]" << std::endl;
-                ofile << "  //" << std::endl;
-                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
-                ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                ofile << "    lwht_in_a   = internal_l[s + " <<  p_llrs    << "];"      << std::endl;
-                ofile << "    lwht_in_b   = internal_r[s + " << (p_llrs+n) << "];"      << std::endl;
-                ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);"   << std::endl;
-                ofile << "    internal_l[s + " << (p_llrs + size) << "] = memo_in_a;"   << std::endl;
-                ofile << "    internal_r[s + " << (p_llrs + size) << "] = memo_in_a;"   << std::endl;
-                ofile << "  }"                                                          << std::endl;
-                ofile << "  lwht_in_a   = internal_l[" <<  (p_llrs + size + n    )    << "];"   << std::endl;
-                ofile << "  lwht_in_b   = internal_r[" <<  (p_llrs + size + n + 1)    << "];"   << std::endl;
-                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"            << std::endl;
-                ofile << "  internal_l[" << (p_llrs + size + n) << "] = memo_in_a;"             << std::endl;
-                ofile << "  internal_r[" << (p_llrs + size + n) << "] = memo_in_a;"             << std::endl;
-                ofile << "  symbol_v = vec_decision( internal_l[" << (p_llrs + size + n) << "], false );" << std::endl;
-                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"      << std::endl;
-                ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+                //
+                int n_2   = (n/2);
+                int src_1 = 0;
+                int src_2 = (n/2);
+                int dst   = n;
+                int lastdst = dst;
+                bool first = true;
+                while ( n_2 != 1 ) {
+                    ofile << "  cnt_c = " << dst << "; cnt_a = " <<  src_1    << "; cnt_b = " << src_2 << ";" << std::endl;
+                    ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << (n_2) << "; s += 1) {"     << std::endl;
+                    ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
+                    ofile << "//#pragma HLS dependence variable=internal_l type=inter false"                                                              << std::endl;
+                    ofile << "//#pragma HLS dependence variable=internal_r type=inter false"                                                              << std::endl;
+                    ofile << "    lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+                    ofile << "    lwht_in_b   = internal_r[cnt_b];"   << std::endl;
+                    ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, " << (first?"true":"false") << ");"   << std::endl;
+                    ofile << "    internal_l[cnt_c] = memo_in_a;"   << std::endl;
+                    ofile << "    internal_r[cnt_c] = memo_in_a;"   << std::endl;
+                    ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1;"   << std::endl;
+                    ofile << "  }"                                                                               << std::endl;
+                    src_1 += 2 * n_2;
+                    src_2  = src_1 + (n_2/2);
+                    lastdst = dst;
+                    dst   += n_2;
+                    n_2 /= 2;
+                    first = false;
+                }
+                ofile << "  cnt_c = " << (lastdst + 2) << "; cnt_a = " << lastdst << "; cnt_b = " << (lastdst + 1) << ";"   << std::endl;
+                ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+                ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
+                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
+                ofile << "  internal_l[cnt_c] = memo_in_a;"             << std::endl;
+                ofile << "  internal_r[cnt_c] = memo_in_a;"             << std::endl;
+                ofile << "  cnt_a = cnt_c;" << std::endl;
+                ofile << "  symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
+                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
+                ofile << "    symbols_l[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    symbols_r[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    cnt_rw += 1;"                << std::endl;
                 ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-                ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-                ofile << "    cnt_u += 1;"                << std::endl;
+                ofile << "    cnt_u  += 1;"                << std::endl;
+                ofile << "  }"                            << std::endl;
+                ofile << std::endl;
+            }else if ( n == 2 ) {
+                ofile << "  ////////////////////////////////////////////////////////////////////////////" << std::endl;
+                ofile << "  //" << std::endl;
+                ofile << "  // middle_node_pruned_rep_after_f [hls_generator:" << __LINE__ << "]" << std::endl;
+                //
+                int src_1 = (p_llrs + size);
+                int src_2 = (p_llrs + size + n/2);
+                int dst   = (p_llrs + size + n);
+                ofile << "  cnt_c = " << dst << "; cnt_a = " << src_1 << "; cnt_b = " << src_2 << ";"   << std::endl;
+                ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+                ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
+                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);"          << std::endl;
+                ofile << "  internal_l[cnt_c] = memo_in_a;"             << std::endl;
+                ofile << "  internal_r[cnt_c] = memo_in_a;"             << std::endl;
+                ofile << "  cnt_a = cnt_c;" << std::endl;
+                ofile << "  symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
+                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
+                ofile << "    symbols_l[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    symbols_r[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    cnt_rw += 1;"                << std::endl;
+                ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
+                ofile << "    cnt_u  += 1;"                << std::endl;
                 ofile << "  }"                            << std::endl;
                 ofile << std::endl;
             }
             else {
-                //ofile << "  //middle_node_pruned_rep_after_f<gf_size>(internal + " << p_llrs + size << ", decoded + " << curr_frozen << ", symbols + " << curr_frozen << ", " << n << ");" << std::endl;
-                //
-#if 0
-                ofile << "  // middle_node_pruned_rep_after_f"                                        << std::endl;
-                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << (n/2) << "; s += 1) {"                         << std::endl;
-                ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    lwht_in_a   = internal_l[s + " << (p_llrs + size)        << "];"   << std::endl;
-                ofile << "    lwht_in_b   = internal_r[s + " << (p_llrs + size + n/2) << "];"   << std::endl;
-                ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);"   << std::endl;
-                ofile << "    internal_l[s + " << (p_llrs + size + n) << "] = memo_in_a;"   << std::endl;
-                ofile << "    internal_r[s + " << (p_llrs + size + n) << "] = memo_in_a;"   << std::endl;
-                ofile << "  }"                                                                               << std::endl;
-                ofile << "  lwht_in_a   = internal_l[" <<  (p_llrs + size + n    )    << "];"   << std::endl;
-                ofile << "  lwht_in_b   = internal_r[" <<  (p_llrs + size + n + 1)    << "];"   << std::endl;
-                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"          << std::endl;
-                ofile << "  internal_l[" << (p_llrs + size + n + n/2) << "] = memo_in_a;"             << std::endl;
-                ofile << "  internal_r[" << (p_llrs + size + n + n/2) << "] = memo_in_a;"             << std::endl;
-                ofile << "  symbol_v = vec_decision( internal_l[" << (p_llrs + size + n + n/2) << "], false );" << std::endl;
-                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
-                ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
-                ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-                ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-                ofile << "    cnt_u += 1;"                << std::endl;
-                ofile << "  }"                            << std::endl;
-                ofile << std::endl;
-#endif
                 ofile << "  ////////////////////////////////////////////////////////////////////////////" << std::endl;
                 ofile << "  //" << std::endl;
                 ofile << "  // middle_node_pruned_rep_after_f [hls_generator:" << __LINE__ << "]" << std::endl;
@@ -495,13 +567,17 @@ private:
                 int lastdst = dst;
                 bool first = true;
                 while ( n_2 != 1 ) {
+                    ofile << "  cnt_c = " << dst << "; cnt_a = " <<  src_1    << "; cnt_b = " << src_2 << ";" << std::endl;
                     ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << (n_2) << "; s += 1) {"     << std::endl;
                     ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                    ofile << "    lwht_in_a   = internal_l[s + " << src_1        << "];"   << std::endl;
-                    ofile << "    lwht_in_b   = internal_r[s + " << src_2 << "];"   << std::endl;
+                    ofile << "//#pragma HLS dependence variable=internal_l type=inter false"                                                              << std::endl;
+                    ofile << "//#pragma HLS dependence variable=internal_r type=inter false"                                                              << std::endl;
+                    ofile << "    lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+                    ofile << "    lwht_in_b   = internal_r[cnt_b];"   << std::endl;
                     ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, " << (first?"true":"false") << ");"   << std::endl;
-                    ofile << "    internal_l[s + " << dst << "] = memo_in_a;"   << std::endl;
-                    ofile << "    internal_r[s + " << dst << "] = memo_in_a;"   << std::endl;
+                    ofile << "    internal_l[cnt_c] = memo_in_a;"   << std::endl;
+                    ofile << "    internal_r[cnt_c] = memo_in_a;"   << std::endl;
+                    ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1;"   << std::endl;
                     ofile << "  }"                                                                               << std::endl;
                     src_1 += 2 * n_2;
                     src_2  = src_1 + (n_2/2);
@@ -510,17 +586,20 @@ private:
                     n_2 /= 2;
                     first = false;
                 }
-                ofile << "  lwht_in_a   = internal_l[" <<  (lastdst    ) << "];"   << std::endl;
-                ofile << "  lwht_in_b   = internal_r[" <<  (lastdst + 1) << "];"   << std::endl;
-                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, false, 0);"          << std::endl;
-                ofile << "  internal_l[" << (lastdst + 2) << "] = memo_in_a;"             << std::endl;
-                ofile << "  internal_r[" << (lastdst + 2) << "] = memo_in_a;"             << std::endl;
-                ofile << "  symbol_v = vec_decision( internal_l[" << (lastdst + 2) << "], false );" << std::endl;
+                ofile << "  cnt_c = " << (lastdst + 2) << "; cnt_a = " << lastdst << "; cnt_b = " << (lastdst + 1) << ";"   << std::endl;
+                ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+                ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
+                ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
+                ofile << "  internal_l[cnt_c] = memo_in_a;"             << std::endl;
+                ofile << "  internal_r[cnt_c] = memo_in_a;"             << std::endl;
+                ofile << "  cnt_a = cnt_c;" << std::endl;
+                ofile << "  symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
                 ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
-                ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+                ofile << "    symbols_l[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    symbols_r[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    cnt_rw += 1;"                << std::endl;
                 ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-                ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-                ofile << "    cnt_u += 1;"                << std::endl;
+                ofile << "    cnt_u  += 1;"                << std::endl;
                 ofile << "  }"                            << std::endl;
                 ofile << std::endl;
             }
@@ -560,7 +639,8 @@ private:
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+//              ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "  v64_xor_processor(xor_proc_o, xor_proc_i, " << (n-1) << ");" << std::endl;
                 ofile << std::endl;
             }
             else {
@@ -587,7 +667,8 @@ private:
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+//              ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "  v64_xor_processor(xor_proc_o, xor_proc_i, " << (n-1) << ");" << std::endl;
                 ofile << std::endl;
             }
             //
@@ -647,18 +728,22 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                 ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                ofile << "    symbols  [cnt_u] = 0;" << std::endl;
-                ofile << "    decoded  [cnt_u] = 0;" << std::endl;
-                ofile << "    decoded_r[cnt_u] = 0;" << std::endl;
-                ofile << "    cnt_u += 1; "          << std::endl;
-                ofile << "    lwht_in_a   = internal_l[cnt_a];" << std::endl;
+                ofile << "//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false" << std::endl;
+                ofile << "//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false" << std::endl;
+                ofile << "    symbols_l[cnt_rw] = 0;" << std::endl;
+                ofile << "    symbols_r[cnt_rw] = 0;" << std::endl;
+                ofile << "    cnt_rw += 1;"           << std::endl;
+                ofile << "    decoded  [cnt_u ] = 0;" << std::endl;
+                ofile << "    cnt_u  += 1;"           << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a];" << std::endl;
                 ofile << "    lwht_in_b   = internal_r[cnt_b];" << std::endl;
                 ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, true);" << std::endl;
                 ofile << "    internal_l[cnt_c] = memo_in_a;"                         << std::endl;
                 ofile << "    internal_r[cnt_c] = memo_in_a;"                         << std::endl;
-                ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1;"                    << std::endl;
-                ofile << "  }"                                                                       << std::endl;
+                ofile << "    cnt_c += 1; // dst"     << std::endl;
+                ofile << "    cnt_a += 1; // src 1"   << std::endl;
+                ofile << "    cnt_b += 1; // src 2"   << std::endl;
+                ofile << "  }"                        << std::endl;
                 ofile << std::endl;
                 //
                 //
@@ -678,10 +763,11 @@ private:
                     ofile << "  cnt_c = " << 0 << "; cnt_a = " <<  0    << "; cnt_b = " << n << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
                     ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                    ofile << "    symbols  [cnt_u] = 0;" << std::endl;
-                    ofile << "    decoded  [cnt_u] = 0;" << std::endl;
-                    ofile << "    decoded_r[cnt_u] = 0;" << std::endl;
-                    ofile << "    cnt_u += 1; "        << std::endl;
+                    ofile << "    symbols_l[cnt_rw] = 0;" << std::endl;
+                    ofile << "    symbols_r[cnt_rw] = 0;" << std::endl;
+                    ofile << "    cnt_rw += 1;"           << std::endl;
+                    ofile << "    decoded  [cnt_u ] = 0;" << std::endl;
+                    ofile << "    cnt_u  += 1;"           << std::endl;
                     ofile << "    lwht_in_a   = channel[cnt_a];"   << std::endl;
                     ofile << "    lwht_in_b   = channel[cnt_b];"   << std::endl;
                     ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"   << std::endl;
@@ -704,16 +790,21 @@ private:
                     ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << ";" << std::endl;
                     ofile << "  loop_g0_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                     ofile << "#pragma HLS PIPELINE"                 << std::endl;
-                    ofile << "    symbols  [cnt_u] = 0;"            << std::endl;
-                    ofile << "    decoded  [cnt_u] = 0;"            << std::endl;
-                    ofile << "    decoded_r[cnt_u] = 0;"            << std::endl;
-                    ofile << "    cnt_u += 1; "                     << std::endl;
+                    ofile << "//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false" << std::endl;
+                    ofile << "//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false" << std::endl;
+                    ofile << "    symbols_l[cnt_rw] = 0;"           << std::endl;
+                    ofile << "    symbols_r[cnt_rw] = 0;"           << std::endl;
+                    ofile << "    cnt_rw += 1;"                     << std::endl;
+                    ofile << "    decoded  [cnt_u ] = 0;"           << std::endl;
+                    ofile << "    cnt_u  += 1;"                     << std::endl;
                     ofile << "    lwht_in_a   = internal_l[cnt_a];" << std::endl;
                     ofile << "    lwht_in_b   = internal_r[cnt_b];" << std::endl;
                     ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"  << std::endl;
                     ofile << "    internal_l[cnt_c] = memo_in_a;"      << std::endl;
                     ofile << "    internal_r[cnt_c] = memo_in_a;"      << std::endl;
-                    ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1;" << std::endl;
+                    ofile << "    cnt_c += 1; // dst"   << std::endl;
+                    ofile << "    cnt_a += 1; // src 1" << std::endl;
+                    ofile << "    cnt_b += 1; // src 2" << std::endl;
                     ofile << "  }"                                                                       << std::endl;
                     ofile << std::endl;
                     //
@@ -738,9 +829,11 @@ private:
             ofile << "  cnt_c = " << 0 << "; cnt_a = " << 0 << "; cnt_b = " << n << "; cnt_rd = 0;" << std::endl;
             ofile << "  loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
             ofile << "#pragma HLS PIPELINE"   << std::endl;
+            ofile << "//#pragma HLS dependence variable=internal_l type=inter false"   << std::endl;
+            ofile << "//#pragma HLS dependence variable=internal_r type=inter false"   << std::endl;
             ofile << "    lwht_in_a   = channel[cnt_a];"   << std::endl;
             ofile << "    lwht_in_b   = channel[cnt_b];"   << std::endl;
-            ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols[cnt_rd], false);"   << std::endl;
+            ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], false);"   << std::endl;
             ofile << "    internal_l[cnt_c] = memo_in_a;"   << std::endl;
             ofile << "    internal_r[cnt_c] = memo_in_a;"   << std::endl;
             ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;" << std::endl;
@@ -768,9 +861,11 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << "; cnt_rd = " << curr_frozen << ";" << std::endl;
                 ofile << "  loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                 << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_l type=inter false" << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_r type=inter false" << std::endl;
                 ofile << "    lwht_in_a   = internal_l[cnt_a];" << std::endl;
                 ofile << "    lwht_in_b   = internal_r[cnt_b];" << std::endl;
-                ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols[cnt_rd], true);"   << std::endl;
+                ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], true);"   << std::endl;
                 ofile << "    internal_l[cnt_c] = memo_in_a;"   << std::endl;
                 ofile << "    internal_r[cnt_c] = memo_in_a;"   << std::endl;
                 ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;" << std::endl;
@@ -793,9 +888,11 @@ private:
                 ofile << "  cnt_c = " << (p_llrs + size) << "; cnt_a = " <<  p_llrs    << "; cnt_b = " << (p_llrs+n) << "; cnt_rd = " << curr_frozen << ";" << std::endl;
                 ofile << "	loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                   << std::endl;
+                ofile << "//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false" << std::endl;
+                ofile << "//#pragma HLS dependence class=array direction=RAW variable=internal_r type=inter distance=1 false" << std::endl;
                 ofile << "    	lwht_in_a   = internal_l[cnt_a];" << std::endl;
                 ofile << "    	lwht_in_b   = internal_r[cnt_b];" << std::endl;
-                ofile << "    	memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols[cnt_rd], false);"  << std::endl;
+                ofile << "    	memo_in_a   = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], false);"  << std::endl;
                 ofile << "    	internal_l[cnt_c] = memo_in_a;"   << std::endl;
                 ofile << "    	internal_r[cnt_c] = memo_in_a;"   << std::endl;
                 ofile << "      cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;" << std::endl;
@@ -869,16 +966,17 @@ private:
                 ofile << "  // middle_node_pruned_rate_1_after_g [hls_generator:" << __LINE__ << "]" << std::endl;
                 ofile << "  //" << std::endl;
                 ofile << "  cnt_a = " << (p_llrs + size) << ";"                << std::endl;
-                ofile << "	loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
+                ofile << "  loop_g_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"                         << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-                ofile << "    	symbol_v = vec_decision( internal_l[cnt_a/*s + " << (p_llrs + size) << "*/], false );" << std::endl;
-                ofile << "    	symbols  [cnt_u] = symbol_v;" << std::endl;
-                ofile << "      decoded  [cnt_u] = symbol_v;" << std::endl;
-                ofile << "      decoded_r[cnt_u] = symbol_v;" << std::endl;
-                ofile << "      cnt_a += 1;"                << std::endl;
-                ofile << "      cnt_u += 1;"                << std::endl;
-                ofile << "  }"                              << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "    symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
+                ofile << "    cnt_a += 1;"                   << std::endl;
+                ofile << "    symbols_l[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    symbols_r[cnt_rw] = symbol_v;" << std::endl;
+                ofile << "    cnt_rw += 1;"                  << std::endl;
+                ofile << "    xor_proc_i[s]     = symbol_v;" << std::endl;
+                ofile << "  }"                               << std::endl;
+//              ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "  v64_xor_processor(xor_proc_o, xor_proc_i, " << (n-1) << ");" << std::endl;
                 ofile << std::endl;
             } else {
                 //ofile << "\t" << "middle_node_pruned_rate_1_after_g<gf_size>(internal + " << 0 << ", decoded + " << curr_frozen + n << ", symbols + " << curr_frozen + n << ", " << n << ");" << std::endl;
@@ -897,7 +995,8 @@ private:
                 ofile << "      cnt_u += 1;"   << std::endl;
                 ofile << "      cnt_a += 1;"   << std::endl;
                 ofile << "  }"                                                                               << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+//              ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "  v64_xor_processor(xor_proc_o, xor_proc_i, " << (n-1) << ");" << std::endl;
                 ofile << std::endl;
             }
             final_offset = next_elmnt + 1;
@@ -905,6 +1004,8 @@ private:
             //
             //
         } else if (is_spc_after_g) {
+            array[next_elmnt] = SPC_FROM_G;
+            final_offset      = next_elmnt + 1;
             if (level == 1) {
                 if (verbose) {
                     indentation(level);
@@ -921,24 +1022,32 @@ private:
                 ofile << "  cnt_a = " <<  p_llrs << ";" << std::endl;
                 ofile << "  loop_spc_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"    << std::endl;
                 ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-                ofile << "    symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
-                ofile << "    symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"             << std::endl;
-                ofile << "    symbols  [cnt_u] = symbol_v ;"               << std::endl;
-                ofile << "    decoded  [cnt_u] = symbol_v;"   << std::endl;
-                ofile << "    decoded_r[cnt_u] = symbol_v;"   << std::endl;
-                ofile << "    cnt_a += 1;" << std::endl;
-                ofile << "    cnt_u += 1;"   << std::endl;
+                ofile << "      symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
+                ofile << "      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                       << std::endl;
+                ofile << "      symbols_l[cnt_rw] = symbol_v;"   << std::endl;
+                ofile << "      symbols_r[cnt_rw] = symbol_v;"   << std::endl;
+                ofile << "      xor_proc_i[s]     = symbol_v;"   << std::endl;
+                ofile << "      cnt_a  += 1;"   << std::endl;
+                ofile << "      cnt_rw += 1;"   << std::endl;
                 ofile << "  }"                                                                       << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  //if ( symbol_x != 0 ) {"       << std::endl;
                 ofile << "  //    printf(\"We have a SPC decoding error ;-)\\n\");" << std::endl;
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+//              ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "  v64_xor_processor(xor_proc_o, xor_proc_i, " << (n-1) << ");" << std::endl;
                 ofile << std::endl;
+
+                ofile << "  loop_spc_" << (loop_id++) << " : for (i = 0; i < " << n << "; i += 1) {" << std::endl;
+                ofile << "#pragma HLS PIPELINE" << std::endl;
+                ofile << "#pragma HLS UNROLL factor=4" << std::endl;
+                ofile << "    decoded[cnt_u]  = xor_proc_o[i];" << std::endl;
+                ofile << "    cnt_u  += 1;" << std::endl;
+                ofile << "  }" << std::endl;
+                ofile << std::endl;
+
             } else {
-                array[next_elmnt] = SPC_FROM_G;
-                final_offset      = next_elmnt + 1;
                 if (verbose) {
                     indentation(level);
                     printf("> SPC node found (size = %d)\n", n);
@@ -956,18 +1065,19 @@ private:
                 ofile << "#pragma HLS PIPELINE"                                                                << std::endl;
                 ofile << "      symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
                 ofile << "      symbol_x = (s == 0) ? symbol_v : (symbol_x ^ symbol_v);"                       << std::endl;
-                ofile << "      symbols  [cnt_u] = symbol_v ;"                         << std::endl;
-                ofile << "      decoded  [cnt_u] = symbol_v;"   << std::endl;
-                ofile << "      decoded_r[cnt_u] = symbol_v;"   << std::endl;
-                ofile << "      cnt_a += 1;"   << std::endl;
-                ofile << "      cnt_u += 1;"   << std::endl;
+                ofile << "      symbols_l[cnt_rw] = symbol_v;"   << std::endl;
+                ofile << "      symbols_r[cnt_rw] = symbol_v;"   << std::endl;
+                ofile << "      xor_proc_i[s]     = symbol_v;"   << std::endl;
+                ofile << "      cnt_a  += 1;"   << std::endl;
+                ofile << "      cnt_rw += 1;"   << std::endl;
                 ofile << "  }"                                                                                 << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
                 ofile << "  //if ( symbol_x != 0 ) {"       << std::endl;
                 ofile << "  //    printf(\"We have a SPC decoding error ;-)\\n\");" << std::endl;
                 ofile << "  //}"                            << std::endl;
                 ofile << "  // SPC processing !!!"          << std::endl;
-                ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+//              ofile << "  local_remove_xors<" << n << ">(decoded, decoded_r, cnt_u - " << n << ");" << std::endl;
+                ofile << "  v64_xor_processor(xor_proc_o, xor_proc_i, " << (n-1) << ");" << std::endl;
                 ofile << std::endl;
             }
             //
@@ -987,26 +1097,47 @@ private:
             ofile << "  //" << std::endl;
             ofile << "  // middle_node_pruned_rep_after_g [hls_generator:" << __LINE__ << "]" << std::endl;
             ofile << "  //" << std::endl;
-            ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {" << std::endl;
-            ofile << "#pragma HLS PIPELINE"                                                      << std::endl;
-            ofile << "    lwht_in_a   = internal_l[s + " <<  p_llrs    << "];"                   << std::endl;
-            ofile << "    lwht_in_b   = internal_r[s + " << (p_llrs+n) << "];"              << std::endl;
-            ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
-            ofile << "    internal_l[s + " << (p_llrs + size) << "] = memo_in_a;"           << std::endl;
-            ofile << "    internal_r[s + " << (p_llrs + size) << "] = memo_in_a;"           << std::endl;
-            ofile << "  }"                                                                  << std::endl;
-            ofile << "  lwht_in_a   = internal_l[" <<  (p_llrs + size + n    )    << "];"   << std::endl;
-            ofile << "  lwht_in_b   = internal_r[" <<  (p_llrs + size + n + 1)    << "];"   << std::endl;
-            ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"            << std::endl;
-            ofile << "  internal_l[" << (p_llrs + size + n) << "] = memo_in_a;"             << std::endl;
-            ofile << "  internal_r[" << (p_llrs + size + n) << "] = memo_in_a;"             << std::endl;
-            ofile << "  symbol_v = vec_decision( internal_l[" << (p_llrs + size + n) << "], false );" << std::endl;
-            ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"      << std::endl;
-            ofile << "    symbols  [cnt_u] = symbol_v;" << std::endl;
+            int n_2 = (n/2);
+            int src_1 = (p_llrs + size);
+            int src_2 = (p_llrs + size + n/2);
+            int dst   = (p_llrs + size + n);
+            int lastdst = dst;
+            bool first = true;
+            while ( n_2 != 1 ) {
+                ofile << "  cnt_c = " << dst << "; cnt_a = " <<  src_1    << "; cnt_b = " << src_2 << ";" << std::endl;
+                ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << (n_2) << "; s += 1) {"     << std::endl;
+                ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_l type=inter false"                                                              << std::endl;
+                ofile << "//#pragma HLS dependence variable=internal_r type=inter false"                                                              << std::endl;
+                ofile << "    lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+                ofile << "    lwht_in_b   = internal_r[cnt_b];"   << std::endl;
+                ofile << "    memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"   << std::endl;
+                ofile << "    internal_l[cnt_c] = memo_in_a;"   << std::endl;
+                ofile << "    internal_r[cnt_c] = memo_in_a;"   << std::endl;
+                ofile << "    cnt_c += 1; cnt_a += 1; cnt_b += 1;"   << std::endl;
+                ofile << "  }"                                                                               << std::endl;
+                src_1 += 2 * n_2;
+                src_2  = src_1 + (n_2/2);
+                lastdst = dst;
+                dst   += n_2;
+                n_2 /= 2;
+                first = false;
+            }
+            ofile << "  cnt_c = " << (lastdst + 2) << "; cnt_a = " << lastdst << "; cnt_b = " << (lastdst + 1) << ";"   << std::endl;
+            ofile << "  lwht_in_a   = internal_l[cnt_a];"   << std::endl;
+            ofile << "  lwht_in_b   = internal_r[cnt_b];"   << std::endl;
+            ofile << "  memo_in_a   = datapath(lwht_in_a, lwht_in_b, 0, false);"          << std::endl;
+            ofile << "  internal_l[cnt_c] = memo_in_a;"     << std::endl;
+            ofile << "  internal_r[cnt_c] = memo_in_a;"     << std::endl;
+            ofile << "  cnt_a = cnt_c;" << std::endl;
+            ofile << "  symbol_v = vec_decision( internal_l[cnt_a], false );" << std::endl;
+            ofile << "  loop_rep_" << (loop_id++) << " : for (s = 0; s < " << n << "; s += 1) {"  << std::endl;
+            ofile << "    symbols_l[cnt_rw] = symbol_v;" << std::endl;
+            ofile << "    symbols_r[cnt_rw] = symbol_v;" << std::endl;
+            ofile << "    cnt_rw += 1;"                << std::endl;
             ofile << "    decoded  [cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-            ofile << "    decoded_r[cnt_u] = (s == " << (n-1) << ") ?  symbol_v : (ap_uint<log2_gf_size>)0;" << std::endl;
-            ofile << "    cnt_u += 1;"                << std::endl;
-            ofile << "  }"                            << std::endl;
+            ofile << "    cnt_u  += 1;"                  << std::endl;
+            ofile << "  }"                               << std::endl;
             ofile << std::endl;
         } else {
             array[next_elmnt] = MID_NODE_FROM_G;
@@ -1038,14 +1169,28 @@ private:
             ofile << "  //" << std::endl;
             ofile << "  // xor procesing (level " << level << ", pred_is_f =" << pred_is_f << ") [hls_generator:" << __LINE__ << "]" << std::endl;
             ofile << "  //" << std::endl;
-            ofile << "  cnt_rw = " << (curr_frozen) << "; cnt_rd = " << (curr_frozen + n) << ";" << std::endl;
+            ofile << "  cnt_rw = " << (curr_frozen) << ";" << std::endl;
+            ofile << "  cnt_rd = " << (curr_frozen + n) << ";" << std::endl;
             ofile << "  loop_xor_" << (loop_id++) << " : for(i = 0; i < " << n << "; i += 1){" << std::endl;
             ofile << "#pragma HLS PIPELINE"                                                              << std::endl;
-            ofile << "    symbols[cnt_rw] = symbols[cnt_rw] ^ symbols[cnt_rd];" << std::endl;
+            ofile << "#pragma HLS UNROLL factor=4"                                                              << std::endl;
+            ofile << "//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false" << std::endl;
+            ofile << "//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false" << std::endl;
+            ofile << "    symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];" << std::endl;
+            ofile << "    symbols_l[cnt_rw] = symbol_v;" << std::endl;
+            ofile << "    symbols_r[cnt_rw] = symbol_v;" << std::endl;
             ofile << "    cnt_rd += 1;" << std::endl;
             ofile << "    cnt_rw += 1;" << std::endl;
+            if ( is_rate1_after_g || is_spc_after_g ) {
+                ofile << "    decoded  [cnt_u]  = xor_proc_o[i];" << std::endl;
+                ofile << "    cnt_u  += 1;" << std::endl;
+            }
             ofile << "  }" << std::endl;
             ofile << std::endl;
+            //if ( is_rate1_after_g || is_spc_after_g ) {
+            ofile << "  cnt_rw = cnt_u; /* synchro */" << std::endl;
+            ofile << std::endl;
+            //}
         }
         return final_offset;
     }

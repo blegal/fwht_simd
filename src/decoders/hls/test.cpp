@@ -35,6 +35,7 @@
 #include "impl/f_fwht.hpp"
 #include "impl/f_norm.hpp"
 #include "impl/f_xor_processor.hpp"
+#include "gen_decoder.hpp"
 //
 #include "decoders/naive_int32_t/arch/i_fwht.hpp"
 //
@@ -59,7 +60,7 @@ TEST_CASE( "argmax", "[argmax]" )
         //
         // On lance le test...
         //
-        uint8_t symb = vec_i_unroll_argmax(v_in);
+        uint8_t symb = vec_i_argmax(v_in);
         //
         // On verifie la validité du résultat
         //
@@ -159,7 +160,7 @@ TEST_CASE( "fwht", "[fwht]" )
         // On lance le test...
         //
         t_o_lwht v_ou = fwht( v_in );
-        fwht<64>( f_in );
+        naive_fwht<64>( f_in );
         //
         // On verifie la validité du résultat
         //
@@ -176,13 +177,6 @@ TEST_CASE( "fwht", "[fwht]" )
 //
 TEST_CASE( "scaling", "[scaling]" )
 {
-    printf("i_lwht_width = %d bits\n", i_lwht_width);
-    printf("o_lwht_width = %d bits\n", o_lwht_width);
-    printf("i_mult_width = %d bits\n", i_mult_width);
-    printf("o_mult_width = %d bits\n", o_mult_width);
-    printf("i_norm_width = %d bits\n", i_norm_width);
-    printf("o_norm_width = %d bits\n", o_norm_width);
-
     //
     // On teste toutes les combinaisons
     //
@@ -222,14 +216,14 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
         //
         // On génere tous les vecteurs de test
         //
-        uint8_t array_i[i];
+        uint8_t* array_i = new uint8_t[i];
         for (int j = 0; j < i; j++) {
             array_i[j] = rand()%256;
         }
         //
         // On lance le test...
         //
-        uint8_t array_r[i];
+        uint8_t* array_r = new uint8_t[i];
         for (int j = 0; j < i; j++) {
             array_r[j] = array_i[j];
         }
@@ -237,15 +231,16 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
         //
         // On lance le test...
         //
-        uint8_t array_t[i];
-        if ( i ==   2 ) xor_processor< 2>(array_t, array_i, 0x01);
-        if ( i ==   4 ) xor_processor< 4>(array_t, array_i, 0x03);
-        if ( i ==   8 ) xor_processor< 8>(array_t, array_i, 0x07);
-        if ( i ==  16 ) xor_processor<16>(array_t, array_i, 0x0F);
-        if ( i ==  32 ) xor_processor<32>(array_t, array_i, 0x1F);
-        if ( i ==  64 ) xor_processor<64>(array_t, array_i, 0x3F);
-        if ( i == 128 ) xor_processor<128>(array_t, array_i, 0x7F);
-        if ( i == 256 ) xor_processor<256>(array_t, array_i, 0xFF);
+
+        uint8_t* array_t = new uint8_t[i];
+        if ( i ==   2 ) v2_xor_processor  (array_t, array_i, 0x01);
+        if ( i ==   4 ) v4_xor_processor  (array_t, array_i, 0x03);
+        if ( i ==   8 ) v8_xor_processor  (array_t, array_i, 0x07);
+        if ( i ==  16 ) v16_xor_processor (array_t, array_i, 0x0F);
+        if ( i ==  32 ) v32_xor_processor (array_t, array_i, 0x1F);
+        if ( i ==  64 ) v64_xor_processor (array_t, array_i, 0x3F);
+        if ( i == 128 ) v128_xor_processor(array_t, array_i, 0x7F);
+        if ( i == 256 ) v256_xor_processor(array_t, array_i, 0xFF);
         //
         // On verifie la validité du résultat
         //
@@ -253,6 +248,10 @@ TEST_CASE( "xor_remove_2", "[xor_remove_2]" )
             REQUIRE( array_r[j] == array_t[j] );
         }
         //
+
+        delete[] array_i;
+        delete[] array_r;
+        delete[] array_t;
     }
 }
 //
@@ -267,73 +266,58 @@ void the_decoder_v2(
 //
 TEST_CASE( "decoder", "[decoder]" ) {
 
-#if 0
-    const int N = 64;
-    //  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  0  |  1  1  0  0  0  0  0  0  |
-    //  1  1  1  1  1  0  0  0  |  1  0  0  0  0  0  0  0  |  1  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
 
-    const int i_symb[N] = {
-        24, 12, 46,  9,  3, 58, 38, 52, 61, 60, 57, 31, 15, 50, 53, 55,
-        24, 11, 41, 17, 26, 17, 19, 43, 37, 43, 33, 16, 14,  9, 31, 63,
-        38, 40, 38,  2, 42, 27, 57, 58, 21, 14, 39,  2, 48,  5, 60, 47,
-        38, 47, 33, 26, 51, 48, 12, 37, 13, 25, 63, 13, 49, 62, 22, 39
-    };
+    printf("i_lwht_width = %d bits\n", i_lwht_width);
+    printf("o_lwht_width = %d bits\n", o_lwht_width);
+    printf("i_mult_width = %d bits\n", i_mult_width);
+    printf("o_mult_width = %d bits\n", o_mult_width);
+    printf("i_norm_width = %d bits\n", i_norm_width);
+    printf("o_norm_width = %d bits\n", o_norm_width);
+    printf("\n");
+    printf("Parameter N  = %4d symb (log2 = %d)\n", t_N, t_log2N);
+    printf("Parameter K  = %4d symb\n", t_K);
+    const float R = 100.f * (float)t_K / (float)t_N;
+    printf("Parameter R  = %4d symb\n", (int)R);
+    printf("Parameter GF = %4d elmt (log2 = %d)\n", t_GF, t_log2GF);
+    printf("\n");
+#if (t_N == 64) && (t_K == 16)
+    #include "tests/N64_K16.hpp"
+#elif (t_N == 64) && (t_K == 21)
+    #include "tests/N64_K21.hpp"
+#elif (t_N == 64) && (t_K == 26)
+    #include "tests/N64_K26.hpp"
+#elif (t_N == 64) && (t_K == 32)
+    #include "tests/N64_K32.hpp"
+#elif (t_N == 64) && (t_K == 48)
+    #include "tests/N64_K48.hpp"
+#elif (t_N == 64) && (t_K == 51)
+    #include "tests/N64_K51.hpp"
 
-    const int o_symb[N] = {
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0, 22,  0,  0, 18,  5, 25, 47, 17, 24,
-        0,  0,  0,  0,  0,  7,  8, 23,  0, 43, 53,  7, 24, 51, 34,  8,
-        0, 45, 17, 21, 20, 12, 24,  2, 24, 13,  3, 42, 62, 25, 49, 39
-    };
-#else
-    const int N = 256;
+#elif (t_N == 128) && (t_K == 32)
+    #include "tests/N128_K32.hpp"
+#elif (t_N == 128) && (t_K == 42)
+    #include "tests/N128_K42.hpp"
+#elif (t_N == 128) && (t_K == 51)
+    #include "tests/N128_K51.hpp"
+#elif (t_N == 128) && (t_K == 64)
+    #include "tests/N128_K64.hpp"
+#elif (t_N == 128) && (t_K == 96)
+    #include "tests/N128_K96.hpp"
+#elif (t_N == 128) && (t_K == 102)
+    #include "tests/N128_K102.hpp"
 
-    // 1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |
-    // 1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |
-    // 1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |
-    // 1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  1  1  1  1  1  1  1  1  |  0  0  0  0  0  0  0  0  |
-    // 1  1  1  0  1  0  0  0  |  1  0  0  0  0  0  0  0  |  1  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
-    // 1  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
-    // 1  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
-    // 0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |  0  0  0  0  0  0  0  0  |
-
-    const int i_symb[N] = {
-        26, 30, 63, 21, 17, 53, 50, 59, 58, 52, 22, 46, 39, 35, 13,  3,
-         5, 33, 37, 39, 35, 40,  7,  5,  5, 45, 54, 47, 40, 11, 19,  3,
-         1, 63, 45,  1, 44, 39, 20, 35, 23, 48, 61, 42, 28, 57, 54, 57,
-        15,  2, 60, 46, 26, 62, 22, 13, 20, 16, 35, 50, 19, 13, 38, 43,
-        51,  4, 41, 20, 43, 62, 41, 38, 19, 36,  0, 15, 27, 30, 13, 62,
-        46,  9, 48, 12, 43, 63, 29, 55, 10,  2, 51, 49, 30, 42, 60, 43,
-        59, 51, 12, 45, 31, 39, 34, 47, 54, 53, 14, 50, 12, 15,  1, 52,
-        51, 28, 22,  5,  5, 27,  9, 32, 42, 56, 54, 10,  6,  0,  7, 35,
-        57,  2, 21, 58, 50, 11, 35, 63, 25, 40, 60,  1,  4, 29, 28,  7,
-        38, 61, 15,  8,  0, 22, 22,  1, 38, 49, 28,  0, 11, 53,  2,  7,
-        34, 35,  7, 46, 15, 25,  5, 39, 52, 44, 23,  5, 63,  7, 39, 61,
-        44, 30, 22,  1, 57,  0,  7,  9, 55, 12,  9, 29, 48, 51, 55, 47,
-        16, 24,  3, 59,  8,  0, 56, 34, 48, 56, 42, 32, 56, 32, 28, 58,
-        13, 21, 26, 35,  8,  1, 12, 51, 41, 30, 25, 30, 61, 20, 45, 47,
-        24, 47, 38,  2, 60, 25, 51, 43, 21, 41, 36, 29, 47, 49, 16, 48,
-        16,  0, 60, 42, 38, 37, 24, 36,  9, 36, 28, 37, 37, 62, 22, 39
-    };
-
-    const int o_symb[N] = {
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-        0,  0,  0,  0,  0,  0,  0,  0, 50,  9, 16, 43,  8, 58, 21,  4,
-        0,  0,  0, 44,  0,  0, 15, 30,  0, 58,  3, 15,  1, 55, 41, 16,
-        0, 54, 61, 25, 30, 33, 52, 63, 33, 45, 24,  6, 33, 12, 46, 32,
-        0, 34, 17,  3, 44, 58, 27, 36, 25, 51, 21, 37, 45, 62, 19,  5,
-       33, 40, 55, 54, 57, 13, 27, 37, 10, 21,  4, 48, 49,  5, 41,  8,
-        0, 37, 10, 42, 39, 26, 52, 28, 34, 20, 56,  4,  1, 57, 53,  2,
-       11, 12, 33, 45,  8, 17, 48, 31, 37, 35, 13, 51,  1, 34, 51,  8,
-       18, 25,  7,  8, 22, 43, 53, 24,  5, 45, 17, 47, 20, 24, 17, 23,
-        7, 51, 34, 12, 21, 24, 13,  3, 62, 24,  8,  2, 42, 25, 49, 39
-    };
+#elif (t_N == 256) && (t_K == 64)
+    #include "tests/N256_K64.hpp"
+#elif (t_N == 256) && (t_K == 84)
+    #include "tests/N256_K84.hpp"
+#elif (t_N == 256) && (t_K == 102)
+    #include "tests/N256_K102.hpp"
+#elif (t_N == 256) && (t_K == 128)
+    #include "tests/N256_K128.hpp"
+#elif (t_N == 256) && (t_K == 192)
+    #include "tests/N256_K192.hpp"
+#elif (t_N == 256) && (t_K == 205)
+    #include "tests/N256_K205.hpp"
 #endif
 
     t_i_memo channel[N];
@@ -363,7 +347,9 @@ TEST_CASE( "decoder", "[decoder]" ) {
     printf("#(II)");
     for (int i = 0; i < N; i += 1) {
         if (((i % 16) == 0))
-            printf("\n#(II) %3d | ", i);
+            printf("|\n#(II) %3d ", i);
+        if ( (i%8) == 0 ) printf("| ");
+        else if ( (i%4) == 0 ) printf("  ");
         if (decoded[i] == o_symb[i]) {
             printf("\e[1;32m%2d\e[0m ", (int)decoded[i]);
         } else {
@@ -371,6 +357,6 @@ TEST_CASE( "decoder", "[decoder]" ) {
             //printf("\e[1;31m%2d (%2d)\e[0m ", decoded[i], o_symb[i]);
         }
     }
-    printf("\n");
+    printf("|\n");
 
 }

@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
     float code_rate = 0.75f;
     int   N         = _N_;
     int   K         = (int) (((float) N) * code_rate);
-    bool  verbose   = true;
+    bool  verbose   = false;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

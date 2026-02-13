@@ -17,7 +17,7 @@ void g_function(
         for (int i = 0; i < gf_size; i++)
             src_a->value[i] /= gf_size;
 #endif
-        fwht<gf_size>(src_a->value);
+        naive_fwht<gf_size>(src_a->value);
         src_a->is_freq = false;
     }
 
@@ -26,7 +26,7 @@ void g_function(
         for (int i = 0; i < gf_size; i++)
             src_b->value[i] /= gf_size;
 #endif
-        fwht<gf_size>(src_b->value);
+        naive_fwht<gf_size>(src_b->value);
         src_b->is_freq = false;
     }
 #if NEW_QUANTIF == 0
