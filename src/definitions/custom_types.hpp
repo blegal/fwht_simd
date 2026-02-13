@@ -10,7 +10,7 @@
 
 namespace I_type
 {
-constexpr int NBITS = 10;
+constexpr int NBITS = 12;
 
 }
 //
@@ -215,16 +215,8 @@ struct symbols_i32
 template <int gf_size>
 inline symbols_i32<gf_size> convert_to_symbols_i32(const symbols_s<gf_size> symb)
 {
+
 	symbols_i32<gf_size> result;
-
-	// for (int i = 0; i < gf_size; i++)
-	// {
-	// 	result.value[i] = static_cast<int32_t>(0.5 + symb.value[i] * (1u << 31));
-	// }
-	// LZC_normalize<gf_size, Integer::NBITS>(result.value);
-	// result.is_freq = false;
-	// return result;
-
 	float max1 = *std::max_element(symb.value, symb.value + gf_size);
 
 	for (size_t i = 0; i < gf_size; ++i)

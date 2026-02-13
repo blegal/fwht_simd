@@ -5,6 +5,9 @@
 #ifndef FROZEN_TREE_H
 #define FROZEN_TREE_H
 
+#define SPC_DISABLED
+#define REP_DISABLED
+
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -207,6 +210,7 @@ class frozen_tree
 				array[curr_elmnt] = RATE_1_FROM_F;
 			}
 			next_elmnt = curr_elmnt + 1;
+#ifndef REP_DISABLED
 		}
 		else if ((suml == (n - 1)) && (frozen[curr_frozen + n - 1] == false))
 		{
@@ -215,7 +219,9 @@ class frozen_tree
 			printf("> Leaf REP_F node found (%d) [elmt : %d]\n", n, curr_elmnt);
 			array[curr_elmnt] = REP_FROM_F;
 			next_elmnt = curr_elmnt + 1;
-#if 0
+#endif
+
+#ifndef SPC_DISABLED
 		}
 		else if ((suml == 1) && (frozen[curr_frozen] == true))
 		{
@@ -295,6 +301,7 @@ class frozen_tree
 				array[next_elmnt] = RATE_1_FROM_G;
 			}
 			return next_elmnt + 1;
+#ifndef REP_DISABLED
 		}
 		else if ((sumr == (n - 1)) && (frozen[curr_frozen + size - 1] == false))
 		{
@@ -303,7 +310,9 @@ class frozen_tree
 			printf("> Node REP_G node found (%d) [elmt : %d]\n", n, next_elmnt);
 			array[next_elmnt] = REP_FROM_G;
 			return next_elmnt + 1;
-#if 0
+#endif
+
+#ifndef SPC_DISABLED
 		}
 		else if ((sumr == 1) && (frozen[curr_frozen] == true))
 		{
