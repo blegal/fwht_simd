@@ -138,7 +138,7 @@ void LZCnormAfterF(int32_t *s)
 #endif
 
 	constexpr int F_in = NBITS1 - 1;
-	constexpr int target_bit = F_in - 1;
+ // BLG SILENT WARNING constexpr int target_bit = F_in - 1;
 	constexpr int32_t test_mask = (int32_t)1 << (2 * F_in - 1);
 	int32_t first = s[0];
 	int shift = (first & test_mask) ? F_in : (F_in - 1);
