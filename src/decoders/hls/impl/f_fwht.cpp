@@ -84,6 +84,166 @@ t_o_lwht fwht(const t_i_lwht src)
 //
 //
 template<int W = 12>
+t_ram<W+8, 256> fwht_gf256(const t_ram<W, 256> src)
+{
+#pragma HLS INLINE
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
+
+    /*
+     * ========= ÉTAGE 1 (distance 32) =========
+     */
+	ap_int<W+1> si[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=si
+    for (int i = 0; i < 128; i++) {
+        si[i]       = (ap_int<W+1>)src.value[i] + (ap_int<W+1>)src.value[i + 128];
+        si[i + 128] = (ap_int<W+1>)src.value[i] - (ap_int<W+1>)src.value[i + 128];
+    }
+    /* ========= ÉTAGE 2 : distance 16 ========= */
+    ap_int<W+2> s0[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s0
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 64);
+        int j =  i ^ 64;
+        s0[i] = (g == 0) ? ((ap_int<W+2>)si[i] + (ap_int<W+2>)si[j]) : ((ap_int<W+2>)si[j] - (ap_int<W+2>)si[i]);
+    }
+    /* ========= ÉTAGE 2 : distance 16 ========= */
+    ap_int<W+3> s1[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s1
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 32);
+        int j = i ^ 32;
+        s1[i] = (g == 0) ? ((ap_int<W+3>)s0[i] + (ap_int<W+3>)s0[j]) : ((ap_int<W+3>)s0[j] - (ap_int<W+3>)s0[i]);
+    }
+    /* ========= ÉTAGE 2 : distance 16 ========= */
+    ap_int<W+4> s2[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s2
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 16);
+        int j = i ^ 16;
+        s2[i] = (g == 0) ? ((ap_int<W+4>)s1[i] + (ap_int<W+4>)s1[j]) : ((ap_int<W+4>)s1[j] - (ap_int<W+4>)s1[i]);
+    }
+
+    /* ========= ÉTAGE 3 : distance 8 ========= */
+    ap_int<W+5> s3[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s3
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 8);
+        int j = i ^ 8;
+        s3[i] = (g == 0) ? ((ap_int<W+5>)s2[i] + (ap_int<W+5>)s2[j]) : ((ap_int<W+5>)s2[j] - (ap_int<W+5>)s2[i]);
+    }
+
+    /* ========= ÉTAGE 4 : distance 4 ========= */
+    ap_int<W+6> s4[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s4
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 4);
+        int j = i ^ 4;
+        s4[i] = (g == 0) ? ((ap_int<W+6>)s3[i] + (ap_int<W+6>)s3[j]) : ((ap_int<W+6>)s3[j] - (ap_int<W+6>)s3[i]);
+    }
+
+    /* ========= ÉTAGE 5 : distance 2 ========= */
+    ap_int<W+7> s5[256];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s5
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 2);
+        int j = i ^ 2;
+        s5[i] = (g == 0) ? ((ap_int<W+7>)s4[i] + (ap_int<W+7>)s4[j]) : ((ap_int<W+7>)s4[j] - (ap_int<W+7>)s4[i]);
+    }
+
+    /* ========= ÉTAGE 6 : distance 1 ========= */
+    t_ram<W+8, 256> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+    for (int i = 0; i < 256; i++) {
+        int g = (i & 1);
+        int j = i ^ 1;
+        dst.value[i] = (g == 0) ? ((ap_int<W+8>)s5[i] + (ap_int<W+8>)s5[j]) : ((ap_int<W+8>)s5[j] - (ap_int<W+8>)s5[i]);
+    }
+    return dst;
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+template<int W = 12>
+t_ram<W+7, 128> fwht_gf128(const t_ram<W, 128> src)
+{
+#pragma HLS INLINE
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src.value
+
+    /*
+     * ========= ÉTAGE 1 (distance 32) =========
+     */
+	ap_int<W+1> s0[128];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s0
+    for (int i = 0; i < 64; i++) {
+        s0[i]      = (ap_int<W+1>)src.value[i] + (ap_int<W+1>)src.value[i + 64];
+        s0[i + 64] = (ap_int<W+1>)src.value[i] - (ap_int<W+1>)src.value[i + 64];
+    }
+    /* ========= ÉTAGE 2 : distance 16 ========= */
+    ap_int<W+2> s1[128];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s1
+    for (int i = 0; i < 128; i++) {
+        int g = (i & 32);
+        int j = i ^ 32;
+        s1[i] = (g == 0) ? ((ap_int<W+2>)s0[i] + (ap_int<W+2>)s0[j]) : ((ap_int<W+2>)s0[j] - (ap_int<W+2>)s0[i]);
+    }
+    /* ========= ÉTAGE 2 : distance 16 ========= */
+    ap_int<W+3> s2[128];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s2
+    for (int i = 0; i < 128; i++) {
+        int g = (i & 16);
+        int j = i ^ 16;
+        s2[i] = (g == 0) ? ((ap_int<W+3>)s1[i] + (ap_int<W+3>)s1[j]) : ((ap_int<W+3>)s1[j] - (ap_int<W+3>)s1[i]);
+    }
+
+    /* ========= ÉTAGE 3 : distance 8 ========= */
+    ap_int<W+4> s3[128];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s3
+    for (int i = 0; i < 128; i++) {
+        int g = (i & 8);
+        int j = i ^ 8;
+        s3[i] = (g == 0) ? ((ap_int<W+4>)s2[i] + (ap_int<W+4>)s2[j]) : ((ap_int<W+4>)s2[j] - (ap_int<W+4>)s2[i]);
+    }
+
+    /* ========= ÉTAGE 4 : distance 4 ========= */
+    ap_int<W+5> s4[128];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s4
+    for (int i = 0; i < 128; i++) {
+        int g = (i & 4);
+        int j = i ^ 4;
+        s4[i] = (g == 0) ? ((ap_int<W+5>)s3[i] + (ap_int<W+5>)s3[j]) : ((ap_int<W+5>)s3[j] - (ap_int<W+5>)s3[i]);
+    }
+
+    /* ========= ÉTAGE 5 : distance 2 ========= */
+    ap_int<W+6> s5[128];
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=s5
+    for (int i = 0; i < 128; i++) {
+        int g = (i & 2);
+        int j = i ^ 2;
+        s5[i] = (g == 0) ? ((ap_int<W+6>)s4[i] + (ap_int<W+6>)s4[j]) : ((ap_int<W+6>)s4[j] - (ap_int<W+6>)s4[i]);
+    }
+
+    /* ========= ÉTAGE 6 : distance 1 ========= */
+    t_ram<W+7, 128> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+    for (int i = 0; i < 128; i++) {
+        int g = (i & 1);
+        int j = i ^ 1;
+        dst.value[i] = (g == 0) ? ((ap_int<W+7>)s5[i] + (ap_int<W+7>)s5[j]) : ((ap_int<W+7>)s5[j] - (ap_int<W+7>)s5[i]);
+    }
+    return dst;
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
+//
+//
+template<int W = 12>
 t_ram<W+6, 64> fwht_gf64(const t_ram<W, 64> src)
 {
 #pragma HLS INLINE
@@ -391,6 +551,30 @@ t_ram<18, 64> hls_fwht_gf64(const t_ram<12, 64> src)
     t_ram<18, 64> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
     dst = fwht_gf64<12>(src);
+    return dst;
+}
+//
+//
+t_ram<19, 128> hls_fwht_gf128(const t_ram<12, 128> src)
+{
+#pragma HLS INLINE off
+#pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src.value complete
+    t_ram<19, 128> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+    dst = fwht_gf128<12>(src);
+    return dst;
+}
+//
+//
+t_ram<20, 256> hls_fwht_gf256(const t_ram<12, 256> src)
+{
+#pragma HLS INLINE off
+#pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION variable=src.value complete
+    t_ram<20, 256> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+    dst = fwht_gf256<12>(src);
     return dst;
 }
 //
