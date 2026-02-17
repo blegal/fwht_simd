@@ -23,18 +23,20 @@
 //
 //
 template <int gf_size>
-int f_argmax(const ap_fixed<NBITS, NINTG>* value)
+int f_argmax(const ap_fixed<f_fype::NBITS, f_fype::NINTG> *value)
 {
-    int               max_index = 0;
-    ap_fixed<NBITS, NINTG>  max_value = value[0];
+	int max_index = 0;
+	ap_fixed<f_fype::NBITS, f_fype::NINTG> max_value = value[0];
 
-    for (int i = 1; i < gf_size; i++) {
-        if (value[i] > max_value) {
-            max_value = value[i];
-            max_index = i;
-        }
-    }
-    return max_index;
+	for (int i = 1; i < gf_size; i++)
+	{
+		if (value[i] > max_value)
+		{
+			max_value = value[i];
+			max_index = i;
+		}
+	}
+	return max_index;
 }
 //
 //

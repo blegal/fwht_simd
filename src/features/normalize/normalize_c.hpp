@@ -11,6 +11,8 @@
 //
 #warning "Basic c code was included (normalize_c.hpp)
 #include <cstdint>
+
+
 //
 //
 //
@@ -36,31 +38,7 @@ void normalize(float * tab) {
 //
 //
 //
-int countLeadingZeros(uint32_t x) {
-    if (x == 0)
-        return 32;
-    int n = 0;
-    if ((x >> 16) == 0) {
-        n += 16;
-        x <<= 16;
-    }
-    if ((x >> 24) == 0) {
-        n += 8;
-        x <<= 8;
-    }
-    if ((x >> 28) == 0) {
-        n += 4;
-        x <<= 4;
-    }
-    if ((x >> 30) == 0) {
-        n += 2;
-        x <<= 2;
-    }
-    if ((x >> 31) == 0) {
-        n += 1;
-    }
-    return n;
-}
+
 //
 //
 //
@@ -75,8 +53,31 @@ void normalize(int32_t * tab) {
         sum |= tab[i];
     }
 
-    const int nZeros = countLeadingZeros(sum);
-    const int nShift = nZeros - 2; // on conserve 2 bits
+    //const int nZeros = countLeadingZeros(sum);
+
+    int n;
+    if (sum == 0)
+        n = 32;
+    else if ((sum >> 16) == 0) {
+        n += 16;
+        sum <<= 16;
+    }
+    if ((sum >> 24) == 0) {
+        n += 8;
+        sum <<= 8;
+    }
+    if ((sum >> 28) == 0) {
+        n += 4;
+        sum <<= 4;
+    }
+    if ((sum >> 30) == 0) {
+        n += 2;
+        sum <<= 2;
+    }
+    if ((sum >> 31) == 0) {
+        n += 1;
+    }
+    const int nShift = n - 2; // on conserve 2 bits
 
     for (int i = 0; i < gf_size; i++) {
         tab[i] = tab[i] << nShift;

@@ -8,6 +8,9 @@
 
 #endif
 
+#include "fwht/fwht.hpp"
+#include "fwht/i64_fwht.hpp"
+
 #if defined(__ARM_NEON__) || defined(__ARM_NEON)
 #include "fwht/fwht_neon.hpp"
 #include "fwht/i32_fwht.hpp"

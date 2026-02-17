@@ -24,7 +24,7 @@ void decoder_specialized_pruning_integer<gf_size>::middle_node_pruned_rate_1_aft
 	for (int i = 0; i < size; i++)
 	{
 		I32_FWHT<gf_size>(inputs[i].value);
-		LZC_normalize<gf_size, NBITS>(inputs[i].value);
+		LZC_normalize<gf_size, I_type::NBITS, BlockType::FP>(inputs[i].value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif

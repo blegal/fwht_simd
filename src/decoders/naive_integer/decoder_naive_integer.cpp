@@ -185,22 +185,13 @@ void decoder_naive_integer<gf_size>::leaf_node(
 			temp[i] = var->value[i];
 		}
 		I32_FWHT<gf_size>(temp);
-		LZC_normalize<gf_size, NBITS>(temp);
+		LZC_normalize<gf_size, I_type::NBITS, BlockType::FP>(temp);
 		const int32_t max_index = f_argmax<gf_size>(temp);
 		decoded[symbol_id] = max_index;
 		symbols[symbol_id] = max_index;
 		return;
-		// LZC_normalize<gf_size, NBITS>(temp);
-		// for (int i = 0; i < gf_size; i++) {
-		//     var->value[i] = (temp[i]);
-		// }
-		// var->is_freq = false;
 	}
 
-	// for (int i = 0; i < gf_size; i++)
-	// {
-	//     printf("%d : %.20f\n", i, (float)var->value[i]);
-	// }
 	const int32_t max_index = argmax<gf_size>(var->value);
 	decoded[symbol_id] = max_index;
 	symbols[symbol_id] = max_index;

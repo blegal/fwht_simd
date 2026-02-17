@@ -29,7 +29,7 @@ inline __attribute__((always_inline)) void leaf_node_after_f(
 	// Switch from frequency to time domain
 	//
 	I32_FWHT<gf_size>(var->value);
-	LZC_normalize<gf_size, NBITS>(var->value);
+	LZC_normalize<gf_size, I_type::NBITS, BlockType::FP>(var->value);
 #if FWHT_COUNTER_ENABLE
 	fwht_call_counter += 1;
 #endif
