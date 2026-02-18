@@ -111,6 +111,7 @@ add_executable(hls_test
 		src/decoders/hls/impl/f_decision.cpp
 		src/decoders/hls/impl/f_extend.cpp
 		src/decoders/hls/impl/f_fwht.cpp
+		src/decoders/hls/impl/f_interleave.cpp
 		src/decoders/hls/impl/f_mult.cpp
 		src/decoders/hls/impl/f_norm.cpp
 		src/decoders/hls/impl/f_truncate.cpp
