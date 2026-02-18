@@ -11,14 +11,33 @@
 //
 //////////////////////////////////////////////////////////////////////
 //
+// Multiplication terme à terme sans prendre en compte l'entrelacement (PI)
+//
+template<int W = 18, int GF>
+t_ram<W+W, GF> vec_mul(const t_ram<W, GF> src_1, const t_ram<W, GF> src_2)
+{
+#pragma HLS INLINE
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
+	t_ram<W+W, GF> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+	for (int i = 0; i < gf_size; i += 1)
+		dst.value[i] = src_1.value[i] * src_2.value[i];
+	return dst;
+}
+//
+//
+//
+//////////////////////////////////////////////////////////////////////
+//
 //
 //
 t_o_mult vec_i_mul_g(const t_i_mult src_1, const t_i_mult src_2, const uint8_t symbol)
 {
 #ifdef _COMPONENT_
-    #pragma HLS PIPELINE
+#pragma HLS PIPELINE
 #else
-    #pragma HLS INLINE
+#pragma HLS INLINE
 #endif
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
@@ -194,20 +213,46 @@ t_ram<W+W, 4> mul_g_gf4(const t_ram<W, 4> src_1, const t_ram<W, 4> src_2, const 
 //
 //
 //
-t_ram<36, 64> hls_mul_g_gf64(const t_ram<18, 64> src_1, const t_ram<18, 64> src_2, const ap_uint<6> symbol)
+t_ram<40, 256> hls_mul_gf64(const t_ram<20, 256> src_1, const t_ram<20, 256> src_2)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
-    t_ram<36, 64> dst;
+	t_ram<40, 256> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-    dst = mul_g_gf64<18>(src_1, src_2, symbol);
-    return dst;
+	dst = vec_mul<20, 256>(src_1, src_2);
+	return dst;
 }
 //
 //
-t_ram<34, 32> hls_mul_g_gf32(const t_ram<17, 32> src_1, const t_ram<17, 32> src_2, const ap_uint<5> symbol)
+t_ram<38, 128> hls_mul_gf128(const t_ram<19, 128> src_1, const t_ram<19, 128> src_2)
+{
+#pragma HLS INLINE off
+#pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
+	t_ram<38, 128> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+	dst = vec_mul<19, 128>(src_1, src_2);
+	return dst;
+}
+//
+//
+t_ram<36, 64> hls_mul_gf64(const t_ram<18, 64> src_1, const t_ram<18, 64> src_2)
+{
+#pragma HLS INLINE off
+#pragma HLS PIPELINE II=1
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_1.value
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
+	t_ram<36, 64> dst;
+#pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
+	dst = vec_mul<18, 64>(src_1, src_2);
+	return dst;
+}
+//
+//
+t_ram<34, 32> hls_mul_gf32(const t_ram<17, 32> src_1, const t_ram<17, 32> src_2, const ap_uint<5> symbol)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
@@ -215,12 +260,12 @@ t_ram<34, 32> hls_mul_g_gf32(const t_ram<17, 32> src_1, const t_ram<17, 32> src_
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
     t_ram<34, 32> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-    dst = mul_g_gf32<17>(src_1, src_2, symbol);
+    dst = vec_mul<17, 32>(src_1, src_2);
     return dst;
 }
 //
 //
-t_ram<32, 16> hls_mul_g_gf16(const t_ram<16, 16> src_1, const t_ram<16, 16> src_2, const ap_uint<4> symbol)
+t_ram<32, 16> hls_mul_gf16(const t_ram<16, 16> src_1, const t_ram<16, 16> src_2)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
@@ -228,12 +273,12 @@ t_ram<32, 16> hls_mul_g_gf16(const t_ram<16, 16> src_1, const t_ram<16, 16> src_
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
     t_ram<32, 16> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-    dst = mul_g_gf16<16>(src_1, src_2, symbol);
+    dst = vec_mul<16, 16>(src_1, src_2);
     return dst;
 }
 //
 //
-t_ram<30, 8> hls_mul_g_gf8(const t_ram<15, 8> src_1, const t_ram<15, 8> src_2, const ap_uint<3> symbol)
+t_ram<30, 8> hls_mul_gf8(const t_ram<15, 8> src_1, const t_ram<15, 8> src_2)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
@@ -241,12 +286,12 @@ t_ram<30, 8> hls_mul_g_gf8(const t_ram<15, 8> src_1, const t_ram<15, 8> src_2, c
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
     t_ram<30, 8> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-    dst = mul_g_gf8<15>(src_1, src_2, symbol);
+    dst = vec_mul<15, 8>(src_1, src_2);
     return dst;
 }
 //
 //
-t_ram<28, 4> hls_mul_g_gf4(const t_ram<14, 4> src_1, const t_ram<14, 4> src_2, const ap_uint<2> symbol)
+t_ram<28, 4> hls_mul_gf4(const t_ram<14, 4> src_1, const t_ram<14, 4> src_2)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
@@ -254,7 +299,7 @@ t_ram<28, 4> hls_mul_g_gf4(const t_ram<14, 4> src_1, const t_ram<14, 4> src_2, c
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
     t_ram<28, 4> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-    dst = mul_g_gf4<14>(src_1, src_2, symbol);
+    dst = vec_mul<14, 4>(src_1, src_2);
     return dst;
 }
 //

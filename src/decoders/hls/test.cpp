@@ -146,7 +146,7 @@ TEST_CASE( "fwht", "[fwht]" )
     //
     // On teste toutes les combinaisons
     //
-    for (int i = 0; i < gf_size; i++) {
+    for (int k = 0; k < 1024; k++) {
         //
         // On génere tous les vecteurs de test
         //
@@ -165,6 +165,110 @@ TEST_CASE( "fwht", "[fwht]" )
         // On verifie la validité du résultat
         //
         for (int i = 0; i < gf_size; i++) {
+            REQUIRE( v_ou.value[i] == f_in[i] );
+        }
+        //
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////
+//
+//
+TEST_CASE( "fwht_256", "[fwht_256]" )
+{
+    const int GF = 256;
+    for (int k = 0; k < 1024; k++) {
+        int32_t f_in[GF];
+        t_ram<12, GF> v_in;
+        for (int j = 0; j < GF; j++) {
+            f_in[j]          = (rand()%1024) - 512;
+            v_in.value[j] = f_in[j];
+        }
+        t_ram<20, GF> v_ou = hls_fwht_gf256( v_in );
+        naive_fwht<GF>( f_in );
+        //
+        // On verifie la validité du résultat
+        //
+        for (int i = 0; i < GF; i++) {
+            REQUIRE( v_ou.value[i] == f_in[i] );
+        }
+        //
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////
+//
+//
+TEST_CASE( "fwht_128", "[fwht_128]" )
+{
+    const int GF = 128;
+    for (int k = 0; k < 1024; k++) {
+        int32_t f_in[GF];
+        t_ram<12, GF> v_in;
+        for (int j = 0; j < GF; j++) {
+            f_in[j]          = (rand()%1024) - 512;
+            v_in.value[j] = f_in[j];
+        }
+        t_ram<19, GF> v_ou = hls_fwht_gf128( v_in );
+        naive_fwht<GF>( f_in );
+        //
+        // On verifie la validité du résultat
+        //
+        for (int i = 0; i < GF; i++) {
+            REQUIRE( v_ou.value[i] == f_in[i] );
+        }
+        //
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////
+//
+//
+TEST_CASE( "fwht_64", "[fwht_64]" )
+{
+    const int GF = 64;
+    for (int k = 0; k < 1024; k++) {
+        int32_t f_in[GF];
+        t_ram<12, GF> v_in;
+        for (int j = 0; j < GF; j++) {
+            f_in[j]          = (rand()%1024) - 512;
+            v_in.value[j] = f_in[j];
+        }
+        t_ram<18, GF> v_ou = hls_fwht_gf64( v_in );
+        naive_fwht<GF>( f_in );
+        //
+        // On verifie la validité du résultat
+        //
+        for (int i = 0; i < GF; i++) {
+            REQUIRE( v_ou.value[i] == f_in[i] );
+        }
+        //
+    }
+}
+//
+//
+////////////////////////////////////////////////////////////////////
+//
+//
+TEST_CASE( "fwht_32", "[fwht_32]" )
+{
+    const int GF = 32;
+    for (int k = 0; k < 1024; k++) {
+        int32_t f_in[GF];
+        t_ram<12, GF> v_in;
+        for (int j = 0; j < GF; j++) {
+            f_in[j]          = (rand()%1024) - 512;
+            v_in.value[j] = f_in[j];
+        }
+        t_ram<17, GF> v_ou = hls_fwht_gf32( v_in );
+        naive_fwht<GF>( f_in );
+        //
+        // On verifie la validité du résultat
+        //
+        for (int i = 0; i < GF; i++) {
             REQUIRE( v_ou.value[i] == f_in[i] );
         }
         //
