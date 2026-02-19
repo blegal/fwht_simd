@@ -131,6 +131,16 @@ struct gtuple{
 //
 //
 //
+template<int W, int log2N>
+struct qtuple{
+    ap_uint<log2N> idx_1;
+    ap_int <W>     prob_1;
+    ap_uint<log2N> idx_2;
+    ap_int <W>     prob_2;
+};
+//
+//
+//
 //////////////////////////////////////////////////////////////////////
 //
 //
