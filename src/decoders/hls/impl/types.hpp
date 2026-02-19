@@ -20,18 +20,18 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //
-#define gf_size      64
-#define log2_gf_size  6
-#define data_width   12
+constexpr int gf_size =  64;
+constexpr int log2_gf_size = 6;
+constexpr int data_width = 12;
 //
 //
 //
-#define i_lwht_width   data_width
-#define o_lwht_width   (i_lwht_width+log2_gf_size)
-#define i_mult_width   (o_lwht_width)
-#define o_mult_width   (o_lwht_width+o_lwht_width)
-#define i_norm_width   (o_mult_width)
-#define o_norm_width   (data_width)
+constexpr int i_lwht_width  = data_width;
+constexpr int o_lwht_width  = (i_lwht_width+log2_gf_size);
+constexpr int i_mult_width  = (o_lwht_width);
+constexpr int o_mult_width  = (o_lwht_width+o_lwht_width);
+constexpr int i_norm_width  = (o_mult_width);
+constexpr int o_norm_width  = (data_width);
 //
 //
 //
@@ -198,13 +198,13 @@ inline void local_remove_xors(uint8_t * values, int size, const int offset = 0) 
 //
 //
 //
-template<int N> inline void local_remove_xors(uint8_t * dst, uint8_t * src, const uint16_t offset)
-{
-    if( dst == nullptr ) exit( EXIT_FAILURE );
-    if( src == nullptr ) exit( EXIT_FAILURE );
-    if( offset > 64    ) exit( EXIT_FAILURE );
-    exit( EXIT_FAILURE );
-}
+template<int N> inline void local_remove_xors(uint8_t * dst, uint8_t * src, const uint16_t offset);
+// {
+//     if( dst == nullptr ) exit( EXIT_FAILURE );
+//     if( src == nullptr ) exit( EXIT_FAILURE );
+//     if( offset > 64    ) exit( EXIT_FAILURE );
+//     exit( EXIT_FAILURE );
+// }
 //
 //
 template<> inline void local_remove_xors<2>(uint8_t * dst, uint8_t * src, const uint16_t offset)

@@ -21,10 +21,11 @@ void the_decoder_v2(
 			t_i_memo channel[N],
 			uint8_t  decoded[N])
 {
-#pragma HLS bind_storage variable=channel type=RAM_2P  impl=BRAM
+
+#pragma HLS INTERFACE mode=bram port=decoded storage_type=ram_t2p
+#pragma HLS INTERFACE mode=bram port=channel storage_type=ram_t2p
 
 #pragma HLS ARRAY_PARTITION dim=1 type=cyclic variable=decoded  factor=4
-#pragma HLS bind_storage variable=decoded type=RAM_S2P impl=BRAM
 
   static t_i_memo internal_l[N];
 #pragma HLS ARRAY_PARTITION dim=2 type=complete variable=internal_l
