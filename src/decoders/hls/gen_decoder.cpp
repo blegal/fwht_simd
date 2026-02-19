@@ -1,22 +1,7 @@
 #include "impl/f_datapath.hpp"
 #include "impl/f_decision.hpp"
 #include "impl/f_xor_processor.hpp"
-//
-//
-//
-//////////////////////////////////////////////////////////////////////
-//
-//
-//
-#define N            64
-#define log2N        6
-//
-//
-//
-//////////////////////////////////////////////////////////////////////
-//
-//
-//
+
 void the_decoder_v2(
 			t_i_memo channel[N],
 			uint8_t  decoded[N])
@@ -87,8 +72,6 @@ void the_decoder_v2(
   cnt_c = 32; cnt_a = 0; cnt_b = 16;
   loop_g0_3 : for (int s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
     symbols_l[cnt_rw] = 0;
     symbols_r[cnt_rw] = 0;
     cnt_rw += 1;
@@ -107,8 +90,6 @@ void the_decoder_v2(
   cnt_c = 48; cnt_a = 32; cnt_b = 40;
   loop_f_4 : for (int s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], 0, true);
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
@@ -120,16 +101,12 @@ void the_decoder_v2(
   cnt_c = 56; cnt_a = 48; cnt_b = 52;
   loop_rep_5 : for (int s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], 0, true);
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
   cnt_c = 60; cnt_a = 56; cnt_b = 58;
   loop_rep_6 : for (int s = 0; s < 2; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], 0, false);
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
@@ -154,8 +131,6 @@ void the_decoder_v2(
   cnt_c = 48; cnt_a = 32; cnt_b = 40; cnt_rd = 16;
 	loop_g_8 : for (int s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
     	internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], symbols_l[cnt_rd], false);
       cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
   }
@@ -167,8 +142,6 @@ void the_decoder_v2(
   cnt_c = 56; cnt_a = 48; cnt_b = 52;
   loop_f_9 : for (int s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], 0, true);
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
@@ -192,8 +165,6 @@ void the_decoder_v2(
   cnt_c = 60; cnt_a = 56; cnt_b = 58;
   loop_g0_11 : for (int s = 0; s < 2; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
     symbols_l[cnt_rw] = 0;
     symbols_r[cnt_rw] = 0;
     cnt_rw += 1;
@@ -230,8 +201,6 @@ void the_decoder_v2(
   loop_xor_13 : for(int i = 0; i < 2; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
@@ -250,8 +219,6 @@ void the_decoder_v2(
   cnt_c = 56; cnt_a = 48; cnt_b = 52; cnt_rd = 24;
 	loop_g_14 : for (int s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
     	internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], symbols_l[cnt_rd], false);
       cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
   }
@@ -281,8 +248,6 @@ void the_decoder_v2(
   loop_xor_16 : for(int i = 0; i < 4; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
@@ -303,8 +268,6 @@ void the_decoder_v2(
   loop_xor_17 : for(int i = 0; i < 8; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
@@ -323,8 +286,6 @@ void the_decoder_v2(
   loop_xor_18 : for(int i = 0; i < 16; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
@@ -341,8 +302,6 @@ void the_decoder_v2(
   cnt_c = 0; cnt_a = 0; cnt_b = 32; cnt_rd = 0;
   loop_g_19 : for (int s = 0; s < 32; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     const auto lwht_in_a   = channel[cnt_a];
     const auto lwht_in_b   = channel[cnt_b];
     internal_l[cnt_c] = datapath(lwht_in_a, lwht_in_b, symbols_l[cnt_rd], false);
@@ -356,8 +315,6 @@ void the_decoder_v2(
   cnt_c = 32; cnt_a = 0; cnt_b = 16;
   loop_f_20 : for (int s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     const auto lwht_in_a   = internal_l[cnt_a];
     const auto lwht_in_b   = internal_l[cnt_b];
     internal_l[cnt_c] = datapath(lwht_in_a, lwht_in_b, 0, true);
@@ -371,8 +328,6 @@ void the_decoder_v2(
   cnt_c = 48; cnt_a = 32; cnt_b = 40;
   loop_f_21 : for (int s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], 0, false);
     cnt_c += 1; cnt_a += 1; cnt_b += 1;
   }
@@ -396,8 +351,6 @@ void the_decoder_v2(
   cnt_c = 56; cnt_a = 48; cnt_b = 52;
   loop_g0_23 : for (int s = 0; s < 4; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
     symbols_l[cnt_rw] = 0;
     symbols_r[cnt_rw] = 0;
     cnt_rw += 1;
@@ -440,8 +393,6 @@ void the_decoder_v2(
   loop_xor_25 : for(int i = 0; i < 4; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
@@ -460,8 +411,6 @@ void the_decoder_v2(
   cnt_c = 48; cnt_a = 32; cnt_b = 40; cnt_rd = 32;
   loop_g_26 : for (int s = 0; s < 8; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence variable=internal_l type=inter false
-//#pragma HLS dependence variable=internal_l type=inter false
     internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], symbols_l[cnt_rd], true);
     cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
   }
@@ -497,8 +446,6 @@ void the_decoder_v2(
   loop_xor_28 : for(int i = 0; i < 8; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
@@ -517,8 +464,6 @@ void the_decoder_v2(
   cnt_c = 32; cnt_a = 0; cnt_b = 16; cnt_rd = 32;
 	loop_g_29 : for (int s = 0; s < 16; s += 1) {
 #pragma HLS PIPELINE
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=internal_l type=inter distance=1 false
     	internal_l[cnt_c] = datapath(internal_l[cnt_a], internal_l[cnt_b], symbols_l[cnt_rd], false);
       cnt_c += 1; cnt_a += 1; cnt_b += 1; cnt_rd += 1;
   }
@@ -554,8 +499,6 @@ void the_decoder_v2(
   loop_xor_31 : for(int i = 0; i < 16; i += 1){
 #pragma HLS PIPELINE
 #pragma HLS UNROLL factor=4
-//#pragma HLS dependence class=array direction=RAW variable=symbols_l type=inter distance=1 false
-//#pragma HLS dependence class=array direction=RAW variable=symbols_r type=inter distance=1 false
     symbol_v          = symbols_l[cnt_rw] ^ symbols_r[cnt_rd];
     symbols_l[cnt_rw] = symbol_v;
     symbols_r[cnt_rw] = symbol_v;
