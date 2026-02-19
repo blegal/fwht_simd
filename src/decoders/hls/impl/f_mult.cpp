@@ -21,7 +21,7 @@ t_ram<W+W, GF> vec_mul(const t_ram<W, GF> src_1, const t_ram<W, GF> src_2)
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=src_2.value
 	t_ram<W+W, GF> dst;
 #pragma HLS ARRAY_PARTITION dim=1 type=complete variable=dst.value
-	for (int i = 0; i < gf_size; i += 1)
+	for (int i = 0; i < GF; i += 1)
 		dst.value[i] = src_1.value[i] * src_2.value[i];
 	return dst;
 }
@@ -213,7 +213,7 @@ t_ram<W+W, 4> mul_g_gf4(const t_ram<W, 4> src_1, const t_ram<W, 4> src_2, const 
 //
 //
 //
-t_ram<40, 256> hls_mul_gf64(const t_ram<20, 256> src_1, const t_ram<20, 256> src_2)
+t_ram<40, 256> hls_mul_gf256(const t_ram<20, 256> src_1, const t_ram<20, 256> src_2)
 {
 #pragma HLS INLINE off
 #pragma HLS PIPELINE II=1
