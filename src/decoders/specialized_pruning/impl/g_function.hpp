@@ -5,6 +5,20 @@
 
 #include "hadamard/Hadamard.hpp"
 
+
+template <int gf_size>
+inline void proba_zero_removal(float *s1)
+{
+	for (int i = 0; i < gf_size; i++)
+	{
+		if (s1[i] <= 1e-10)
+		{
+			s1[i] = 1e-10;
+		}
+	}
+}
+
+
 template <int gf_size>
 void g_function_freq_in(
     symbols_s<gf_size> * __restrict dst,
@@ -19,12 +33,15 @@ void g_function_freq_in(
             dst[s].value[i] = src_a[s].value[i] * H[i];
         FWHT<gf_size>(dst[s].value);
         FWHT<gf_size>(src_b[s].value);
+        proba_zero_removal<gf_size>(dst[s].value);
+        proba_zero_removal<gf_size>(src_b[s].value);
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 2;
 #endif
         for (size_t i = 0; i < gf_size; i++)
             dst[s].value[i] = dst[s].value[i] * src_b[s].value[i];
         normalize<gf_size>(dst[s].value);
+        // proba_zero_removal<gf_size>(dst[s].value);
     }
 }
 //
@@ -45,6 +62,7 @@ void g_function_proba_in(
             dst[s].value[idx] = src_a[s].value[i] * src_b[s].value[idx];
         }
         normalize<gf_size>(dst[s].value); // temporal
+        // proba_zero_removal<gf_size>(dst[s].value);
     }
 }
 //
@@ -61,6 +79,8 @@ void g_function_freq_in_after_rate_0(
     for (int s = 0; s < n_symbols; s++) {
         FWHT<gf_size>(src_a[s].value);
         FWHT<gf_size>(src_b[s].value);
+        proba_zero_removal<gf_size>(src_a[s].value);
+        proba_zero_removal<gf_size>(src_b[s].value);
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 2;
 #endif
@@ -70,6 +90,7 @@ void g_function_freq_in_after_rate_0(
             dst[s].value[i] = val;
         }
         normalize<gf_size>(dst[s].value);
+        // proba_zero_removal<gf_size>(dst[s].value);
     }
 }
 //
@@ -88,6 +109,7 @@ void g_function_proba_in_after_rate_0(
             dst[s].value[i] = src_a[s].value[i] * src_b[s].value[i];
         }
         normalize<gf_size>(dst[s].value);
+        // proba_zero_removal<gf_size>(dst[s].value);
     }
 }
 //

@@ -11,6 +11,9 @@
 //
 //
 #define abd_normalize 1
+
+
+
 template <int gf_size>
 void middle_node_pruned_rep_after_f(
     symbols_s<gf_size> * __restrict inputs, // Inputs are the symbols from the channel (from the right)
@@ -29,6 +32,7 @@ void middle_node_pruned_rep_after_f(
 #ifndef abd_normalize
         normalize<gf_size>(inputs[i].value);
 #endif
+proba_zero_removal<gf_size>(inputs[i].value);
     }
 
     float temp[gf_size];

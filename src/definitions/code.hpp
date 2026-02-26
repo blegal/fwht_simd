@@ -5,6 +5,9 @@
 // Configuration for N=64, GF=64
 // Generated on: Dec 24 2025 11:43:31
 
-#include "codes/N64_GF64.hpp"
+// #define SPC_DISABLED
+// #define REP_DISABLED
+
+#include "codes/N1024_GF256.hpp"
 
 #endif // CONFIG_CODE_H

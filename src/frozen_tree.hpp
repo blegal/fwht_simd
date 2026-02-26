@@ -5,8 +5,7 @@
 #ifndef FROZEN_TREE_H
 #define FROZEN_TREE_H
 
-#define SPC_DISABLED
-#define REP_DISABLED
+
 
 #include <cstdio>
 #include <cstdlib>
@@ -129,6 +128,14 @@ class frozen_tree
 				break;
 			}
 		}
+		#ifdef SPC_DISABLED
+		printf("> Note: SPC is disabled, enable it from code.hpp!!!!!!!\n");
+		#endif
+
+				#ifdef REP_DISABLED
+		printf("> Note: REP is disabled, enable it from code.hpp!!!!!!!\n");
+		#endif
+
 		printf("################################################\n");
 	}
 

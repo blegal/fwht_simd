@@ -13,7 +13,7 @@
 //
 
 template <int gf_size>
-void rep_function_zero_removal(int32_t *s1)
+void proba_zero_removal(int32_t *s1)
 {
 	for (int i = 0; i < gf_size; i++)
 	{
@@ -37,7 +37,7 @@ void middle_node_pruned_rep_after_f(
 	{
 		I32_FWHT<gf_size>(inputs[i].value);
 		LZC_normalize<gf_size, I_type::NBITS, BlockType::FP>(inputs[i].value);
-		rep_function_zero_removal<gf_size>(inputs[i].value);
+		proba_zero_removal<gf_size>(inputs[i].value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif
@@ -52,7 +52,7 @@ void middle_node_pruned_rep_after_f(
 		for (int j = 0; j < gf_size; j++)
 			temp[j] *= inputs[i].value[j];
 		LZC_normalize<gf_size, I_type::NBITS, BlockType::P>(temp);
-		// rep_function_zero_removal<gf_size>(temp);
+		// proba_zero_removal<gf_size>(temp);
 	}
 
 	const int value = f_argmax<gf_size>(temp);
@@ -86,7 +86,7 @@ void middle_node_pruned_rep_after_g(
 		for (int j = 0; j < gf_size; j++)
 			temp[j] *= inputs[i].value[j];
 		LZC_normalize<gf_size, I_type::NBITS, BlockType::P>(temp);
-		// rep_function_zero_removal<gf_size>(temp);
+		// proba_zero_removal<gf_size>(temp);
 	}
 
 	const int value = f_argmax<gf_size>(temp);

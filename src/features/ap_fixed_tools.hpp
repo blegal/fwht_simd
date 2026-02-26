@@ -25,7 +25,7 @@
 #define NAIVE_LZC_norm
 
 template <int GF_SIZE, int NBITS1>
-void LZC_normalize(int64_t *s1)
+void LZC_normalize(int64_t *s1) // lazy naive function for int 64 (not used)
 {
 	const int64_t *s = s1;
 	constexpr int64_t max_val = (1LL << (NBITS1 - 1)) - 1;
@@ -87,7 +87,7 @@ void LZC_normalize(int64_t *s1)
 }
 
 template <int GF_SIZE, int NBITS1>
-void LZC_normalize(int32_t *s1)
+void LZC_normalize(int32_t *s1) // lazy naive function for int 64 (not used)
 {
 	const int32_t *s = s1;
 	constexpr int F_in = NBITS1 - 1;
@@ -148,7 +148,7 @@ void LZCnormAfterF(int32_t *s)
 }
 
 template <int GF_SIZE, int NBITS1>
-void LZCnormAfterG(int32_t *s)
+void LZCnormAfterG(int32_t *s) // normalize after dot product proba (G function)
 {
 #ifndef NAIVE_LZC_norm
 	LZC_normalize<GF_SIZE, NBITS1>(s);
@@ -183,9 +183,10 @@ void LZCnormAfterG(int32_t *s)
 }
 
 template <int GF_SIZE, int NBITS1>
-void LZCnormAfterHaramardPF(int32_t *s)
+void LZCnormAfterHaramardPF(int32_t *s) // normalize after proba to freq FWHT
 {
-#ifndef NAIVE_LZC_norm
+// #ifdef NAIVE_LZC_norm
+#if 1
 	LZC_normalize<GF_SIZE, NBITS1>(s);
 	return;
 #endif
@@ -222,7 +223,7 @@ void LZCnormAfterHaramardPF(int32_t *s)
 }
 
 template <int GF_SIZE, int NBITS1>
-void LZCnormAfterHaramardFP(int32_t *s)
+void LZCnormAfterHaramardFP(int32_t *s) // normalize after proba to freq FWHT
 {
 #ifdef NAIVE_LZC_norm
 	LZC_normalize<GF_SIZE, NBITS1>(s);
@@ -258,9 +259,8 @@ void LZCnormAfterHaramardFP(int32_t *s)
 #else
 	{
 		uint32_t x = masked;
-		msb_pos = low_bound - 1; // start just below range
-		while (x >>= 1)
-			msb_pos++;
+		msb_pos = low_bound - 1;
+		msb_pos++;
 	}
 #endif
 
@@ -270,13 +270,12 @@ void LZCnormAfterHaramardFP(int32_t *s)
 		s[j] >>= shift;
 }
 
-// At the top of your file, define the enum
 enum class BlockType
 {
-	P,
-	F,
-	PF,
-	FP
+	P,	// dot product proba
+	F,	// dot product freq
+	PF, // proba to freq FWHT
+	FP	// Freq to proba FWHT
 };
 
 template <int GF_SIZE, int NBITS1, BlockType block_type>

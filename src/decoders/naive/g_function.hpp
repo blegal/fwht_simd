@@ -10,6 +10,20 @@
 //
 //
 //
+
+template <int gf_size>
+inline void proba_zero_removal(float *s1)
+{
+	for (int i = 0; i < gf_size; i++)
+	{
+		if (s1[i] <= 1e-10)
+		{
+			s1[i] = 1e-10;
+		}
+	}
+}
+
+
 template <int gf_size>
 void g_function(
 	symbols_t *__restrict dst,	 // the data to be computed for the left side of the graph
@@ -26,6 +40,7 @@ void g_function(
 		}
 
 		FWHT<gf_size>(dst->value);
+		proba_zero_removal<gf_size>(dst->value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif
@@ -44,6 +59,7 @@ void g_function(
 	if (src_b->is_freq == true)
 	{
 		FWHT<gf_size>(src_b->value);
+		proba_zero_removal<gf_size>(src_b->value);
 #if FWHT_COUNTER_ENABLE
 		fwht_call_counter += 1;
 #endif
@@ -54,15 +70,6 @@ void g_function(
 	{
 		dst->value[i] = dst->value[i] * src_b->value[i];
 	}
-
-	for (int i = 0; i < gf_size; i++)
-	{
-		if (dst->value[i] < 1e-10)
-		{
-			dst->value[i] = 1e-10;
-		}
-	}
-
 	normalize<gf_size>(dst->value); // temporal
 	dst->is_freq = false;
 }

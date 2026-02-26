@@ -40,6 +40,7 @@ void decoder_specialized_pruning<gf_size>::middle_node_pruned_spc_after_f(
 #if FWHT_COUNTER_ENABLE
         fwht_call_counter += 1;
 #endif
+    proba_zero_removal<gf_size>(inputs[i].value);
     }
     //
     int      check_node = 0;
