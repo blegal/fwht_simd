@@ -8,6 +8,6 @@
 // #define SPC_DISABLED
 // #define REP_DISABLED
 
-#include "codes/N1024_GF256.hpp"
+#include "codes/N64_GF64.hpp"
 
 #endif // CONFIG_CODE_H

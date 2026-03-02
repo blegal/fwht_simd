@@ -28,7 +28,7 @@ void g_function_freq_in(
     const int n_symbols) {
     for (int s = 0; s < n_symbols; s++) {
         const int     idx = src_c[s];
-        const float * H   = get_Hadamard_line<gf_size>(idx);
+        const float * H   = gen_Hadamard_line<gf_size>(idx);
         for (size_t i = 0; i < gf_size; i++)
             dst[s].value[i] = src_a[s].value[i] * H[i];
         FWHT<gf_size>(dst[s].value);

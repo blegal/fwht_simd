@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstddef>
 
 extern const int32_t Hadamard_8x8_i32[8][8];
 extern const int32_t Hadamard_16x16_i32[16][16];
@@ -107,4 +108,28 @@ inline const int32_t *get_Hadamard_line(const int line)
 	{
 		static_assert(gf_size == -1, "We never should be here !");
 	}
+}
+
+
+inline uint32_t parity32(uint32_t x)
+{
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x &= 0xF;
+    return (0x6996 >> x) & 1;
+}
+
+template <size_t GF_SIZE>
+inline const int32_t* gen_Hadamard_line(uint32_t g)
+{
+    static thread_local int32_t row[GF_SIZE];
+
+    for (uint32_t x = 0; x < GF_SIZE; ++x)
+    {
+        uint32_t parity = parity32(g & x);
+        row[x] = 1 - int32_t(parity << 1);
+    }
+
+    return row;
 }

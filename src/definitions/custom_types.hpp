@@ -10,7 +10,7 @@
 
 namespace I_type
 {
-constexpr int NBITS = 8;
+constexpr int NBITS = 12;
 
 }
 //

@@ -33,7 +33,7 @@ void g_function(
 {
 	if (src_a->is_freq == true)
 	{
-		const float *H = get_Hadamard_line<gf_size>(src_c);
+		const float *H = gen_Hadamard_line<gf_size>(src_c);
 		for (size_t i = 0; i < gf_size; i++)
 		{
 			dst->value[i] = src_a->value[i] * H[i];

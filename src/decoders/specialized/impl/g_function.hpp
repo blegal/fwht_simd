@@ -24,7 +24,7 @@ inline __attribute__((always_inline)) void g_function_freq_in(
     symbols_s<gf_size> * __restrict src_b, // the lower value set from the right side of the graph
     const uint32_t src_c)                  // the computed symbols coming from the left side of the graph
 {
-    const float * H = get_Hadamard_line<gf_size>(src_c);
+    const float * H = gen_Hadamard_line<gf_size>(src_c);
     for (size_t i = 0; i < gf_size; i++)
         dst->value[i] = src_a->value[i] * H[i];
 
