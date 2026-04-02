@@ -4,22 +4,16 @@
 #include "features/archi.hpp"
 
 template <int gf_size>
-void decoder_naive<gf_size>::f_function(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbols_t * __restrict src_b) {
+void naive_scl_genie<gf_size>::f_function(symbols_t * __restrict dst, symbols_t * __restrict src_a, symbols_t * __restrict src_b) {
     if (src_a->is_freq == false) // Switch from time to frequency domain
     {
         FWHT<gf_size>(src_a->value);
-#if FWHT_COUNTER_ENABLE
-        fwht_call_counter += 1;
-#endif
         src_a->is_freq = true;
     }
 
     if (src_b->is_freq == false) // Switch from time to frequency domain
     {
         FWHT<gf_size>(src_b->value);
-#if FWHT_COUNTER_ENABLE
-        fwht_call_counter += 1;
-#endif
         src_b->is_freq = true;
     }
 

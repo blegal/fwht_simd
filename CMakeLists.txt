@@ -6,11 +6,11 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_BUILD_TYPE Release)
 
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 project(NB_SC_DECODER_EXPLORER LANGUAGES CXX)
 
-option (SANITIZE_DECODERS "Add sanitization values" ON)
+option (SANITIZE_DECODERS "Add sanitization values" OFF)
 
 if (SANITIZE_DECODERS)
 	set (SANITIZE_CXXFLAGS "-fsanitize=address;-fsanitize=undefined;-fno-omit-frame-pointer;-ggdb")
@@ -63,6 +63,8 @@ add_executable(benchmarking
         src/decoders/specialized/decoder_specialized.cpp
         src/decoders/dedicated/decoder_dedicated.cpp
 		src/decoders/naive/decoder_naive.cpp
+		src/decoders/naive_scl_genie/naive_scl_genie.cpp
+		src/decoders/naive_scf_genie/naive_scf_genie.cpp
         src/decoders/basic/decoder_basic.cpp
         src/decoders/naive_fixed/decoder_naive_fixed.cpp
 		src/decoders/naive_int32_t/decoder_naive_int32_t.cpp
@@ -94,37 +96,6 @@ target_link_libraries      (code_generator PUBLIC utilities)
 
 #######################################################################################################################################
 
-add_executable(hls_generator
-		${CMAKE_CURRENT_SOURCE_DIR}/apps/hls_generator.cpp
-		src/encoder/polar_encoder.cpp
-)
-target_include_directories (hls_generator PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries      (hls_generator PUBLIC utilities)
-
-#######################################################################################################################################
-
-add_executable(hls_test
-		src/decoders/hls/catch2v3/catch_amalgamated.cpp
-		src/decoders/hls/impl/f_argmax.cpp
-		src/decoders/hls/impl/f_argmax2.cpp
-		src/decoders/hls/impl/f_datapath.cpp
-		src/decoders/hls/impl/f_decision.cpp
-		src/decoders/hls/impl/f_extend.cpp
-		src/decoders/hls/impl/f_fwht.cpp
-		src/decoders/hls/impl/f_interleave.cpp
-		src/decoders/hls/impl/f_mult.cpp
-		src/decoders/hls/impl/f_norm.cpp
-		src/decoders/hls/impl/f_truncate.cpp
-		src/decoders/hls/impl/f_xor_processor.cpp
-		src/decoders/hls/hls_decoder.cpp
-		src/decoders/hls/gen_decoder.cpp
-		src/decoders/hls/test.cpp
-	)
-target_include_directories (hls_test PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/common)
-target_link_libraries      (hls_test PUBLIC utilities)
-
-#######################################################################################################################################
-
 add_subdirectory (src)
 
 #######################################################################################################################################
@@ -135,6 +106,8 @@ add_library(NbScFFTdec SHARED
 	src/decoders/specialized/decoder_specialized.cpp
 	src/decoders/dedicated/decoder_dedicated.cpp
 	src/decoders/naive/decoder_naive.cpp
+	src/decoders/naive_scl_genie/naive_scl_genie.cpp
+	src/decoders/naive_scf_genie/naive_scf_genie.cpp
 	src/decoders/basic/decoder_basic.cpp
 	src/decoders/naive_fixed/decoder_naive_fixed.cpp
 	src/decoders/naive_int32_t/decoder_naive_int32_t.cpp

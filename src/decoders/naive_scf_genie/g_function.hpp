@@ -1,8 +1,8 @@
 /*
- * Copyright Université Rennes and Université Bretagne Sud
- * contributor(s) : Bertrand Le Gal   (2025-2026),
- *                  Abdallah Abdallah (2025-2026),
- *                  Camille  Monière  (2025-2026)
+* Copyright Université Rennes and Université Bretagne Sud
+ * contributor(s) : Bertrand Le Gal,
+ *                  Abdallah Abdallah,
+ *                  Camille  Monière (2025-2026)
  *
  * bertrand.le-gal@univ-rennes.fr,
  * abdallah.abdallah@univ-ubs.fr,
@@ -35,58 +35,76 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 #pragma once
-#include "definitions/custom_types.hpp"
+
+#include "definitions/code.hpp"
 #include "features/archi.hpp"
+#include "utilities/utility_functions.hpp"
+
+#include "hadamard/Hadamard.hpp"
 //
 //
 //
 //
 //
+
 template <int gf_size>
-void f_function_freq_in(
-    symbols_s<gf_size> * __restrict dst,
-    const symbols_s<gf_size> * __restrict src_a,
-    const symbols_s<gf_size> * __restrict src_b,
-    const int n_symbols) {
-    for (int s = 0; s < n_symbols; s++) {
-        for (int i = 0; i < gf_size; i++) {
-            dst[s].value[i] = src_a[s].value[i] * src_b[s].value[i];
-        }
-    }
+inline void proba_zero_removal(float *s1)
+{
+	for (int i = 0; i < gf_size; i++)
+	{
+		if (s1[i] <= 1e-10)
+		{
+			s1[i] = 1e-10;
+		}
+	}
 }
-//
-//
-//
-//
-//
+
+
 template <int gf_size>
-void f_function_proba_in(
-    symbols_s<gf_size> * __restrict dst,
-    const symbols_s<gf_size> * __restrict src_a,
-    const symbols_s<gf_size> * __restrict src_b,
-    const int n_symbols) {
-    for (int s = 0; s < n_symbols; s++) {
-        symbols_s<gf_size> tmp_a;
-        for (int i = 0; i < gf_size; i++)
-            tmp_a.value[i] = src_a[s].value[i];
-        FWHT<gf_size>(tmp_a.value);
+void naive_scf_genie<gf_size>::g_function(
+	symbols_t *__restrict dst,	 // the data to be computed for the left side of the graph
+	symbols_t *__restrict src_a, // the upper value set from the right side of the graph
+	symbols_t *__restrict src_b, // the lower value set from the right side of the graph
+	uint32_t src_c)				 // the computed symbols coming from the left side of the graph
+{
+	if (src_a->is_freq == true)
+	{
+		const float *H = gen_Hadamard_line<gf_size>(src_c);
+		for (size_t i = 0; i < gf_size; i++)
+		{
+			dst->value[i] = src_a->value[i] * H[i];
+		}
 
-        symbols_s<gf_size> tmp_b;
-        for (int i = 0; i < gf_size; i++)
-            tmp_b.value[i] = src_b[s].value[i];
-        FWHT<gf_size>(tmp_b.value);
+		FWHT<gf_size>(dst->value);
+		proba_zero_removal<gf_size>(dst->value);
+		dst->is_freq = false;
+	}
+	else
+	{
+		for (size_t i = 0; i < gf_size; i++)
+		{
+			const int idx = src_c ^ i;
+			dst->value[idx] = src_a->value[i];
+		}
+		dst->is_freq = false;
+	}
 
+	if (src_b->is_freq == true)
+	{
+		FWHT<gf_size>(src_b->value);
+		proba_zero_removal<gf_size>(src_b->value);
 #if FWHT_COUNTER_ENABLE
-        fwht_call_counter += 2;
+		fwht_call_counter += 1;
 #endif
+		src_b->is_freq = false;
+	}
 
-        //
-        // Element-wise multiplication of the two input symbols because we are in frequency domain !
-        //
-        for (size_t i = 0; i < gf_size; i++) {
-            dst[s].value[i] = tmp_a.value[i] * tmp_b.value[i]; // TODO : attention au facteur 10x qui est magique !!!
-        }
-    }
+	for (size_t i = 0; i < gf_size; i++)
+	{
+		dst->value[i] = dst->value[i] * src_b->value[i];
+	}
+	normalize<gf_size>(dst->value); // temporal
+	dst->is_freq = false;
 }
 //
 //

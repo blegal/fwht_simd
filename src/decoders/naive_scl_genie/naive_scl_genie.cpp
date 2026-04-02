@@ -1,4 +1,4 @@
-#include "decoder_naive.hpp"
+#include "naive_scl_genie.hpp"
 #include "f_function.hpp"
 #include "g_function.hpp"
 //
@@ -7,7 +7,7 @@
 //
 //
 template <int gf_size>
-decoder_naive<gf_size>::decoder_naive(const int n, const int * frozen_symb) : N(n) {
+naive_scl_genie<gf_size>::naive_scl_genie(const int n, const int * frozen_symb, const int L) : N(n), nLists(L) {
     channel  = new symbols_t[N];
     internal = new symbols_t[N];
     symbols  = new uint16_t[N];
@@ -24,7 +24,7 @@ decoder_naive<gf_size>::decoder_naive(const int n, const int * frozen_symb) : N(
 //
 //
 template <int gf_size>
-decoder_naive<gf_size>::decoder_naive() : N(0) {
+naive_scl_genie<gf_size>::naive_scl_genie() : N(0), n_corrections(0), nLists(0) {
     internal = nullptr;
     symbols  = nullptr;
     frozen   = nullptr;
@@ -38,7 +38,7 @@ decoder_naive<gf_size>::decoder_naive() : N(0) {
 //
 //
 template <int gf_size>
-decoder_naive<gf_size>::~decoder_naive() {
+naive_scl_genie<gf_size>::~naive_scl_genie() {
     delete[] channel;
     delete[] internal;
     delete[] symbols;
@@ -47,7 +47,14 @@ decoder_naive<gf_size>::~decoder_naive() {
 }
 
 template <int gf_size>
-void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded) {
+void naive_scl_genie<gf_size>::execute(void * s_channel, uint16_t * decoded) {
+    //
+    //
+    //
+    n_corrections = 0;
+    //
+    //
+    //
     symbols_s<gf_size> * i_channel = static_cast<symbols_s<gf_size> *>(s_channel);
     for (int i = 0; i < N; i++) {
         channel[i] = convert_to_symbols_t(i_channel[i].value, gf_size, false);
@@ -66,7 +73,15 @@ void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded) {
     //
     middle_node(internal, internal + n, decoded, symbols, n, n); // On descend à droite
     //
-    // No H computations as we are at the top node and we have a non systematic code !!!
+    //
+    //
+#if 0
+    if ( n_corrections != 0 ) {
+        printf("n_corrections %d\n", n_corrections);
+    }
+#endif
+    //
+    //
     //
 }
 //
@@ -75,7 +90,7 @@ void decoder_naive<gf_size>::execute(void * s_channel, uint16_t * decoded) {
 //
 //
 template <int gf_size>
-void decoder_naive<gf_size>::middle_node(
+void naive_scl_genie<gf_size>::middle_node(
     symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
     symbols_t * internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
@@ -111,7 +126,7 @@ void decoder_naive<gf_size>::middle_node(
     //
 }
 template <int gf_size>
-void decoder_naive<gf_size>::leaf_node(
+void naive_scl_genie<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
@@ -128,12 +143,32 @@ void decoder_naive<gf_size>::leaf_node(
     if (var->is_freq) {
         FWHT<gf_size>(var->value);
         var->is_freq = false;
-#if FWHT_COUNTER_ENABLE
-        fwht_call_counter += 1;
-#endif
     }
 
-    const int max_index = argmax<gf_size>(var->value);
+    int max_index = argmax<gf_size>(var->value);
+#if 1
+    if ( results[symbol_id] != max_index ) {
+        var->value[max_index] = 0;
+        int max_index2 = argmax<gf_size>(var->value);
+        max_index = max_index2;
+        //if ( results[symbol_id] != max_index )
+        //    std::cout << "(DD) SC-L=2 saved an error !" << std::endl;
+        n_corrections += 1;
+    }
+#elif 0
+    if ( results[symbol_id] != max_index ) {
+        var->value[max_index] = 0;                  // L=2
+        max_index = argmax<gf_size>(var->value);
+        if ( results[symbol_id] != max_index ) {
+            var->value[max_index] = 0;              // L=3
+            max_index = argmax<gf_size>(var->value);
+            if ( results[symbol_id] != max_index ) {
+                var->value[max_index] = 0;          // L=4
+                max_index = argmax<gf_size>(var->value);
+            }
+        }
+    }
+#endif
     decoded[symbol_id]  = max_index;
     symbols[symbol_id]  = max_index;
 }
@@ -143,34 +178,34 @@ void decoder_naive<gf_size>::leaf_node(
 //
 //
 #if (_GF_ == 8) || defined(ALL_GFs)
-    template class decoder_naive<8>;
+    template class naive_scl_genie<8>;
 #endif
 #if (_GF_ == 16) || defined(ALL_GFs)
-    template class decoder_naive<16>;
+    template class naive_scl_genie<16>;
 #endif
 #if (_GF_ == 32) || defined(ALL_GFs)
-    template class decoder_naive<32>;
+    template class naive_scl_genie<32>;
 #endif
 #if (_GF_ == 64) || defined(ALL_GFs)
-    template class decoder_naive<64>;
+    template class naive_scl_genie<64>;
 #endif
 #if (_GF_ == 128) || defined(ALL_GFs)
-    template class decoder_naive<128>;
+    template class naive_scl_genie<128>;
 #endif
 #if (_GF_ == 256) || defined(ALL_GFs)
-    template class decoder_naive<256>;
+    template class naive_scl_genie<256>;
 #endif
 #if (_GF_ == 512) || defined(ALL_GFs)
-    template class decoder_naive<512>;
+    template class naive_scl_genie<512>;
 #endif
 #if (_GF_ == 1024) || defined(ALL_GFs)
-    template class decoder_naive<1024>;
+    template class naive_scl_genie<1024>;
 #endif
 #if (_GF_ == 2048) || defined(ALL_GFs)
-    template class decoder_naive<2048>;
+    template class naive_scl_genie<2048>;
 #endif
 #if (_GF_ == 4096) || defined(ALL_GFs)
-    template class decoder_naive<4096>;
+    template class naive_scl_genie<4096>;
 #endif
 //
 //

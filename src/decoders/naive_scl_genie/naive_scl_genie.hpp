@@ -8,11 +8,11 @@
 //
 //
 template <int gf_size>
-class decoder_naive : public decoder {
+class naive_scl_genie : public decoder {
 public:
-    decoder_naive();
-    decoder_naive(const int n, const int * frozen_symb);
-    ~decoder_naive();
+    naive_scl_genie();
+    naive_scl_genie(const int n, const int* frozen_symb, const int L = 2);
+    ~naive_scl_genie();
 
     virtual void execute(void * channel, uint16_t * decoded);
     virtual int  GF() { return gf_size; }
@@ -55,6 +55,12 @@ private:
     uint16_t *  results; // les résultats attendus pour le mode GENIE
 
     const int N;
+
+    //
+    // Debug statistics
+    //
+    int n_corrections;
+    int nLists;
 };
 //
 //

@@ -25,7 +25,7 @@ inline void proba_zero_removal(float *s1)
 
 
 template <int gf_size>
-void decoder_naive<gf_size>::g_function(
+void naive_scl_genie<gf_size>::g_function(
 	symbols_t *__restrict dst,	 // the data to be computed for the left side of the graph
 	symbols_t *__restrict src_a, // the upper value set from the right side of the graph
 	symbols_t *__restrict src_b, // the lower value set from the right side of the graph
@@ -41,9 +41,6 @@ void decoder_naive<gf_size>::g_function(
 
 		FWHT<gf_size>(dst->value);
 		proba_zero_removal<gf_size>(dst->value);
-#if FWHT_COUNTER_ENABLE
-		fwht_call_counter += 1;
-#endif
 		dst->is_freq = false;
 	}
 	else
