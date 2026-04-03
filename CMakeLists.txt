@@ -64,7 +64,8 @@ add_executable(benchmarking
         src/decoders/dedicated/decoder_dedicated.cpp
 		src/decoders/naive/decoder_naive.cpp
 		src/decoders/naive_scl_genie/naive_scl_genie.cpp
-		src/decoders/naive_scf_genie/naive_scf_genie.cpp
+		src/decoders/naive_scf/naive_scf.cpp
+		src/decoders/naive_scf_oracle/naive_scf_oracle.cpp
         src/decoders/basic/decoder_basic.cpp
         src/decoders/naive_fixed/decoder_naive_fixed.cpp
 		src/decoders/naive_int32_t/decoder_naive_int32_t.cpp
@@ -107,7 +108,8 @@ add_library(NbScFFTdec SHARED
 	src/decoders/dedicated/decoder_dedicated.cpp
 	src/decoders/naive/decoder_naive.cpp
 	src/decoders/naive_scl_genie/naive_scl_genie.cpp
-	src/decoders/naive_scf_genie/naive_scf_genie.cpp
+	src/decoders/naive_scf/naive_scf.cpp
+		src/decoders/naive_scf_oracle/naive_scf_oracle.cpp
 	src/decoders/basic/decoder_basic.cpp
 	src/decoders/naive_fixed/decoder_naive_fixed.cpp
 	src/decoders/naive_int32_t/decoder_naive_int32_t.cpp

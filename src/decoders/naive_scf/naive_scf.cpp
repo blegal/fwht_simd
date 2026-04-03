@@ -34,13 +34,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL license and that you accept its terms.
  */
-#include "naive_scf_genie.hpp"
+#include "naive_scf.hpp"
 #include "f_function.hpp"
 #include "g_function.hpp"
 #include <algorithm>
 //
 //
-bool compareByValue(const data &a, const data &b)
+inline bool compareByValue(const scf_data &a, const scf_data &b)
 {
     return a.v < b.v;
 }
@@ -63,7 +63,7 @@ inline void show(float* symb)
 //
 //
 template <int gf_size>
-naive_scf_genie<gf_size>::naive_scf_genie(const int n, const int * frozen_symb, const int L) : N(n), nFlips(L) {
+naive_scf<gf_size>::naive_scf(const int n, const int * frozen_symb, const int L) : N(n), nFlips(L) {
     channel  = new symbols_t[N];
     internal = new symbols_t[N];
     symbols  = new uint16_t[N];
@@ -80,7 +80,7 @@ naive_scf_genie<gf_size>::naive_scf_genie(const int n, const int * frozen_symb, 
 //
 //
 template <int gf_size>
-naive_scf_genie<gf_size>::naive_scf_genie() : N(0), nFlips(0) {
+naive_scf<gf_size>::naive_scf() : N(0), nFlips(0) {
     internal = nullptr;
     symbols  = nullptr;
     frozen   = nullptr;
@@ -94,7 +94,7 @@ naive_scf_genie<gf_size>::naive_scf_genie() : N(0), nFlips(0) {
 //
 //
 template <int gf_size>
-naive_scf_genie<gf_size>::~naive_scf_genie() {
+naive_scf<gf_size>::~naive_scf() {
     delete[] channel;
     delete[] internal;
     delete[] symbols;
@@ -111,7 +111,7 @@ bool isCorrectlyCorrected(const uint16_t* dec, const uint16_t* ref, const int N)
 }
 
 template <int gf_size>
-void naive_scf_genie<gf_size>::execute(void * s_channel, uint16_t * decoded) {
+void naive_scf<gf_size>::execute(void * s_channel, uint16_t * decoded) {
     //
     corr_mode    = false;
     smallest_idx = -1;
@@ -205,7 +205,7 @@ void naive_scf_genie<gf_size>::execute(void * s_channel, uint16_t * decoded) {
 }
 
 template <int gf_size>
-void naive_scf_genie<gf_size>::execute_real(void * s_channel, uint16_t * decoded) {
+void naive_scf<gf_size>::execute_real(void * s_channel, uint16_t * decoded) {
     //
     //
     //
@@ -236,7 +236,7 @@ void naive_scf_genie<gf_size>::execute_real(void * s_channel, uint16_t * decoded
 //
 //
 template <int gf_size>
-void naive_scf_genie<gf_size>::middle_node(
+void naive_scf<gf_size>::middle_node(
     symbols_t * inputs,   // Inputs are the symbols from the channel (from the right)
     symbols_t * internal, // Internal nodes are the symbols computed during the process (to the left)
     uint16_t *  decoded,  // Decoded symbols are the final output of the decoder (done on the left)
@@ -272,7 +272,7 @@ void naive_scf_genie<gf_size>::middle_node(
     //
 }
 template <int gf_size>
-void naive_scf_genie<gf_size>::leaf_node(
+void naive_scf<gf_size>::leaf_node(
     symbols_t * var,
     uint16_t *  decoded,
     uint16_t *  symbols,
@@ -323,34 +323,34 @@ void naive_scf_genie<gf_size>::leaf_node(
 //
 //
 #if (_GF_ == 8) || defined(ALL_GFs)
-    template class naive_scf_genie<8>;
+    template class naive_scf<8>;
 #endif
 #if (_GF_ == 16) || defined(ALL_GFs)
-    template class naive_scf_genie<16>;
+    template class naive_scf<16>;
 #endif
 #if (_GF_ == 32) || defined(ALL_GFs)
-    template class naive_scf_genie<32>;
+    template class naive_scf<32>;
 #endif
 #if (_GF_ == 64) || defined(ALL_GFs)
-    template class naive_scf_genie<64>;
+    template class naive_scf<64>;
 #endif
 #if (_GF_ == 128) || defined(ALL_GFs)
-    template class naive_scf_genie<128>;
+    template class naive_scf<128>;
 #endif
 #if (_GF_ == 256) || defined(ALL_GFs)
-    template class naive_scf_genie<256>;
+    template class naive_scf<256>;
 #endif
 #if (_GF_ == 512) || defined(ALL_GFs)
-    template class naive_scf_genie<512>;
+    template class naive_scf<512>;
 #endif
 #if (_GF_ == 1024) || defined(ALL_GFs)
-    template class naive_scf_genie<1024>;
+    template class naive_scf<1024>;
 #endif
 #if (_GF_ == 2048) || defined(ALL_GFs)
-    template class naive_scf_genie<2048>;
+    template class naive_scf<2048>;
 #endif
 #if (_GF_ == 4096) || defined(ALL_GFs)
-    template class naive_scf_genie<4096>;
+    template class naive_scf<4096>;
 #endif
 //
 //

@@ -43,18 +43,18 @@
 //
 //
 //
-struct data{
+struct scf_oracle_data{
     float v;
     int idx;
 };
 //
 //
 template <int gf_size>
-class naive_scf_genie : public decoder {
+class naive_scf_oracle : public decoder {
 public:
-    naive_scf_genie();
-    naive_scf_genie(const int n, const int * frozen_symb, const int L = 2);
-    ~naive_scf_genie();
+    naive_scf_oracle();
+    naive_scf_oracle(const int n, const int * frozen_symb, const int L = 2);
+    ~naive_scf_oracle();
 
     virtual void execute(void * channel, uint16_t * decoded);
     virtual int  GF() { return gf_size; }
@@ -97,7 +97,6 @@ private:
     uint16_t *  symbols;
     uint32_t *  frozen;
     uint16_t *  results;  // les résultats attendus pour le mode GENIE
-    std::vector<data> reliab;   // les résultats attendus pour le mode GENIE
 
     const int N;
     const int nFlips;
@@ -105,10 +104,9 @@ private:
     //
     // Debug statistics
     //
-    bool  corr_mode;
-    int   smallest_idx;
-
-    bool isWellDecoded();
+    int nFixs;
+    std::vector<int> distance;
+    std::vector<int> error_pos;
 };
 //
 //

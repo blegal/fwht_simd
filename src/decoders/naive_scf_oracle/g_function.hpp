@@ -61,7 +61,7 @@ inline void proba_zero_removal(float *s1)
 
 
 template <int gf_size>
-void naive_scf_genie<gf_size>::g_function(
+void naive_scf_oracle<gf_size>::g_function(
 	symbols_t *__restrict dst,	 // the data to be computed for the left side of the graph
 	symbols_t *__restrict src_a, // the upper value set from the right side of the graph
 	symbols_t *__restrict src_b, // the lower value set from the right side of the graph
